@@ -16,6 +16,11 @@ quote_type = single
 [*.xml]
 indent_size = 2
 
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+insert_final_newline = false
+
 # Markdown
 [*.md]
 max_line_length = off
