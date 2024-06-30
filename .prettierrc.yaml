@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://json.schemastore.org/prettierrc.json
+arrowParens: avoid
+bracketSameLine: true
+bracketSpacing: false
+endOfLine: lf
+htmlWhitespaceSensitivity: strict
+jsxSingleQuote: true
+printWidth: 150
+quoteProps: as-needed
+semi: false
+singleQuote: true
+tabWidth: 4
+trailingComma: none
+useTabs: false
