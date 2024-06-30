@@ -3,6 +3,8 @@
         "angular.ng-template",
         "ms-dotnettools.csdevkit",
         "github.vscode-github-actions",
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        "esbenp.prettier-vscode",
+        "streetsidesoftware.code-spell-checker"
     ]
 }
