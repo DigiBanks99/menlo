@@ -8,7 +8,8 @@
     "build:lib": "ng build menlo-lib",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadless",
-    "test:debug": "ng test"
+    "test:debug:app": "ng test menlo-app",
+    "test:debug:lib": "ng test menlo-lib"
   },
   "private": true,
   "dependencies": {
