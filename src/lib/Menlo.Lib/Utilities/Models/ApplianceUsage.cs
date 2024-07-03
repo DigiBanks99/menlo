@@ -1,4 +1,4 @@
-namespace Menlo.Lib.Utilities.Models;
+namespace Menlo.Utilities.Models;
 
 public partial class ApplianceUsage
 {

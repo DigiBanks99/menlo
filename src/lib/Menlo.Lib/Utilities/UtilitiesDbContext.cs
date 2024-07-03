@@ -1,7 +1,7 @@
-using Menlo.Lib.Utilities.Models;
+using Menlo.Utilities.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Menlo.Lib.Utilities;
+namespace Menlo.Utilities;
 
 internal partial class UtilitiesDbContext(DbContextOptions<UtilitiesDbContext> options) : DbContext(options)
 {

@@ -1,8 +1,8 @@
-using Menlo.Lib.Utilities.Models;
+using Menlo.Utilities.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Menlo.Lib.Utilities.Configurations;
+namespace Menlo.Utilities.Configurations;
 
 public partial class ApplianceConfiguration : IEntityTypeConfiguration<Appliance>
 {

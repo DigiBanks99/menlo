@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="4c95a5a5-8888-45f2-8439-fda39e37cc17" ChangeDateTime="07/03/2024 06:20:25">
+    <Property Name="ElementName" Value="[utilities].[Appliances].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[utilities].[Appliances]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ID" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cb7e453c-79c0-4022-acb8-8ad4757914da" ChangeDateTime="07/03/2024 06:20:37">
+    <Property Name="ElementName" Value="[utilities].[ApplianceUsages].[ApplianceId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[utilities].[ApplianceUsages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ApplianceID" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3def6d09-e88a-499a-b373-460069fc0dcc" ChangeDateTime="07/03/2024 06:20:40">
+    <Property Name="ElementName" Value="[utilities].[ApplianceUsages].[ElectricityUsageId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[utilities].[ApplianceUsages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ElectricityUsageID" />
+  </Operation>
+</Operations>
