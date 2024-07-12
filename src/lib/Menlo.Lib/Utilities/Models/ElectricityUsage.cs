@@ -1,8 +1,9 @@
+using Microsoft.Azure.CosmosRepository;
+
 namespace Menlo.Utilities.Models;
 
-public partial class ElectricityUsage
+public partial class ElectricityUsage : Item
 {
-    public required int Id { get; init; }
     public required DateTimeOffset Date { get; init; }
     public required decimal Units { get; init; }
 

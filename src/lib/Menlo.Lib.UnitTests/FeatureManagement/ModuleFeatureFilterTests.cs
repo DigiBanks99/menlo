@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
 using Shouldly;
 
@@ -13,11 +13,11 @@ public class ModuleFeatureFilterTests
     public ModuleFeatureFilterTests()
     {
         ConfigurationBuilder configurationBuilder = new();
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
-        {
-            { "TestModule", "true" },
-            { "DisabledModule", "false" }
-        });
+        configurationBuilder.AddInMemoryCollection(
+        [
+            new KeyValuePair<string, string?>("TestModule", "true"),
+            new KeyValuePair<string,string?>("DisabledModule", "false")
+        ]);
         _configuration = configurationBuilder.Build();
 
         _context = new FeatureFilterEvaluationContext()

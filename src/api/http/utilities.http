@@ -1,0 +1,14 @@
+### Get Electricity Usage
+
+GET {{ baseUrl }}/utilities/electricity?startDate=2024-07-11&endDate=2024-07-12&timeZone=02:00 HTTP/2
+
+### Capture Electricity Usage
+
+POST {{ baseUrl }}/utilities/electricity HTTP/2
+Content-Type: application/json
+
+{
+    "date": "2024-07-11",
+    "units": "572.61",
+    "applianceUsages": []
+}
