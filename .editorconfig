@@ -14,7 +14,11 @@ end_of_line = lf
 quote_type = single
 
 # Xml files
-[*.{xml,csproj,sqlproj}]
+[*.{xml,csproj}]
+indent_size = 2
+indent_style = space
+
+[nuget.config]
 indent_size = 2
 
 # YAML files

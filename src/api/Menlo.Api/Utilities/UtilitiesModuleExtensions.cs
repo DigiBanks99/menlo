@@ -1,4 +1,4 @@
-﻿using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement;
 
 namespace Menlo.Utilities;
 
@@ -6,7 +6,7 @@ internal static class UtilitiesModuleExtensions
 {
     internal static WebApplicationBuilder AddUtilitiesModule(this WebApplicationBuilder builder)
     {
-        builder.Services.AddUtilitiesModule(builder.Configuration);
+        builder.Services.AddUtilitiesModule();
 
         return builder;
     }
