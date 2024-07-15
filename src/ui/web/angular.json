@@ -10,19 +10,19 @@
       "prefix": "menlo",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
-          "options": {
-            "project": "projects/menlo-lib/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/menlo-lib/tsconfig.lib.prod.json"
+            "builder": "@angular-devkit/build-angular:ng-packagr",
+            "options": {
+                "project": "projects/menlo-lib/ng-package.json"
             },
-            "development": {
-              "tsConfig": "projects/menlo-lib/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
+            "configurations": {
+                "production": {
+                    "tsConfig": "projects/menlo-lib/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "projects/menlo-lib/tsconfig.lib.json"
+                }
+            },
+            "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
@@ -32,6 +32,31 @@
               "zone.js",
               "zone.js/testing"
             ]
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": "projects/menlo-lib/.storybook",
+            "browserTarget": "menlo-lib:build",
+            "compodoc": true,
+            "compodocArgs": [
+              "-e",
+              "json",
+              "-d",
+              "projects/menlo-lib"
+            ],
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+              "configDir": "projects/menlo-lib/.storybook",
+              "browserTarget": "menlo-lib:build",
+              "compodoc": true,
+              "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
+              "outputDir": "dist/storybook/menlo-lib"
           }
         }
       }

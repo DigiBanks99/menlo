@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Include bootstrap
+// Variable overrides first
+$primary: #900;
+$enable-shadows: true;
+$prefix: "mo-";
+
+// Then import Bootstrap
+@import "~@node_modules/bootstrap/scss/bootstrap";
