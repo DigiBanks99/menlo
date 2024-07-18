@@ -10,28 +10,25 @@
       "prefix": "menlo",
       "architect": {
         "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
-            "options": {
-                "project": "projects/menlo-lib/ng-package.json"
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/menlo-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/menlo-lib/tsconfig.lib.prod.json"
             },
-            "configurations": {
-                "production": {
-                    "tsConfig": "projects/menlo-lib/tsconfig.lib.prod.json"
-                },
-                "development": {
-                    "tsConfig": "projects/menlo-lib/tsconfig.lib.json"
-                }
-            },
-            "defaultConfiguration": "production"
+            "development": {
+              "tsConfig": "projects/menlo-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "tsConfig": "projects/menlo-lib/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         },
         "storybook": {
@@ -40,23 +37,18 @@
             "configDir": "projects/menlo-lib/.storybook",
             "browserTarget": "menlo-lib:build",
             "compodoc": true,
-            "compodocArgs": [
-              "-e",
-              "json",
-              "-d",
-              "projects/menlo-lib"
-            ],
+            "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
             "port": 6006
           }
         },
         "build-storybook": {
           "builder": "@storybook/angular:build-storybook",
           "options": {
-              "configDir": "projects/menlo-lib/.storybook",
-              "browserTarget": "menlo-lib:build",
-              "compodoc": true,
-              "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
-              "outputDir": "dist/storybook/menlo-lib"
+            "configDir": "projects/menlo-lib/.storybook",
+            "browserTarget": "menlo-lib:build",
+            "compodoc": true,
+            "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
+            "outputDir": "dist/storybook/menlo-lib"
           }
         }
       }
@@ -79,9 +71,7 @@
             "outputPath": "dist/menlo-app",
             "index": "projects/menlo-app/src/index.html",
             "browser": "projects/menlo-app/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "projects/menlo-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -90,9 +80,7 @@
                 "input": "projects/menlo-app/public"
               }
             ],
-            "styles": [
-              "projects/menlo-app/src/styles.scss"
-            ],
+            "styles": ["projects/menlo-lib/src/lib/core.scss", "projects/menlo-app/src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -137,10 +125,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "projects/menlo-app/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -149,10 +134,28 @@
                 "input": "projects/menlo-app/public"
               }
             ],
-            "styles": [
-              "projects/menlo-app/src/styles.scss"
-            ],
+            "styles": ["projects/menlo-app/src/styles.scss"],
             "scripts": []
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": "projects/menlo-app/.storybook",
+            "browserTarget": "menlo-app:build",
+            "compodoc": true,
+            "compodocArgs": ["-e", "json", "-d", "projects/menlo-app"],
+            "port": 6007
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "projects/menlo-app/.storybook",
+            "browserTarget": "menlo-app:build",
+            "compodoc": true,
+            "compodocArgs": ["-e", "json", "-d", "projects/menlo-app"],
+            "outputDir": "dist/storybook/menlo-app"
           }
         }
       }
