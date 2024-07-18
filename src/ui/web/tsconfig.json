@@ -12,7 +12,9 @@
     "paths": {
       "@menlo-lib": [
         "./dist/menlo-lib"
-      ]
+      ],
+      "@home/*": ["./menlo-app/src/app/home/*"],
+      "@utilities/*": ["./menlo-app/src/app/utilities/*" ]
     },
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
