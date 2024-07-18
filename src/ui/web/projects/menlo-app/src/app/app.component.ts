@@ -1,17 +1,16 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import NavItem from 'menlo-lib/src/lib/nav-item.model';
+import { RootComponent } from 'menlo-lib/src/public-api';
 
 @Component({
   selector: 'menlo-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RootComponent],
   template: `
-    <h1>Welcome to {{title}}!</h1>
-
-    <router-outlet />
+    <menlo-layout-root [navItems]="navItems" />
   `,
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'menlo-app';
+  public navItems: NavItem[] = []; // pull from routes data
 }

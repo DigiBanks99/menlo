@@ -1,0 +1,224 @@
+{
+    "pipes": [],
+    "interfaces": [],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [
+        {
+            "name": "AppComponent",
+            "id": "component-AppComponent-e77ec1c7ead09f4c7ef7cef63708447b460c9031c2a9c226e1a912f80476eb3dfe82fcf5f7cc1db9d3596c6fa782c324950d81ac3960ccd8a24ce8b255b0be39",
+            "file": "projects/menlo-app/src/app/app.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "menlo-root",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<menlo-layout-root [navItems]=\"navItems\" />\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "navItems",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "NavItem[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 15,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "RootComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\nimport NavItem from 'menlo-lib/src/lib/nav-item.model';\nimport { RootComponent } from 'menlo-lib/src/public-api';\n\n@Component({\n  selector: 'menlo-root',\n  standalone: true,\n  imports: [RootComponent],\n  template: `\n    <menlo-layout-root [navItems]=\"navItems\" />\n  `,\n  styleUrl: './app.component.scss'\n})\nexport class AppComponent {\n  public navItems: NavItem[] = []; // pull from routes data\n}\n",
+            "styleUrl": "./app.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "HomeComponent",
+            "id": "component-HomeComponent-44234e5cbe9301ff7686583fe12a83efe405a3cff20f0153a36f9d562cd306dd3ee2ba9b94b9505033509078e64bbb870a9e7839f8f2999e54d8f9b4ccac0f4f",
+            "file": "projects/menlo-app/src/app/home/home.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "menlo-home",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<p>home works!</p>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n    selector: 'menlo-home',\n    standalone: true,\n    imports: [],\n    template: `<p>home works!</p>`,\n    styleUrl: './home.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class HomeComponent {}\n",
+            "styleUrl": "./home.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "UtilitiesDashboardComponent",
+            "id": "component-UtilitiesDashboardComponent-44446f43e00d275dc6250fe7c19272192279bb27ac9dc23f222f29b28704e6962c6fa4bfe900e78c75ad62d7ccde05bb73b2c7917bfecb3a2fbe7f78f6a9c0b5",
+            "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "menlo-utility-dashboard",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<header class=\"row\">        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <button class=\"btn btn-primary\" type=\"submit\">\n            <span class=\"material-symbols-outlined feather feather-home align-text-bottom\">add</span>\n            Add\n        </button>\n    </header>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n    selector: 'menlo-utility-dashboard',\n    standalone: true,\n    imports: [CommonModule],\n    template: `<header class=\"row\">\n        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <button class=\"btn btn-primary\" type=\"submit\">\n            <span class=\"material-symbols-outlined feather feather-home align-text-bottom\">add</span>\n            Add\n        </button>\n    </header>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
+            "styleUrl": "./utilities-dashboard.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        }
+    ],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "appConfig",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/app/app.config.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "ApplicationConfig",
+                "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [],
+        "enumerations": [],
+        "groupedVariables": {
+            "projects/menlo-app/src/app/app.config.ts": [
+                {
+                    "name": "appConfig",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/app/app.config.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplicationConfig",
+                    "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {}
+    },
+    "routes": [],
+    "coverage": {
+        "count": 0,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "projects/menlo-app/src/app/app.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AppComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/app.config.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "appConfig",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/home/home.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "HomeComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "UtilitiesDashboardComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            }
+        ]
+    }
+}
