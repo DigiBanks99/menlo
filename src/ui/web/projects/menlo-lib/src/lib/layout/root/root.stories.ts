@@ -1,5 +1,6 @@
-import { Meta, StoryObj } from '@storybook/angular';
+import { applicationConfig, Meta, StoryObj } from '@storybook/angular';
 import { RootComponent } from './root.component';
+import { provideRouter } from '@angular/router';
 
 const meta: Meta<RootComponent> = {
     title: 'Layout/Root',
@@ -9,7 +10,12 @@ const meta: Meta<RootComponent> = {
         props: {
             ...args
         }
-    })
+    }),
+    decorators: [
+        applicationConfig({
+            providers: [provideRouter([])]
+        })
+    ]
 };
 
 export default meta;

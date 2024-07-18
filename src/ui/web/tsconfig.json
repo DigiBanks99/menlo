@@ -8,8 +8,9 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
+    "baseUrl": "projects",
     "paths": {
-      "menlo-lib": [
+      "@menlo-lib": [
         "./dist/menlo-lib"
       ]
     },
