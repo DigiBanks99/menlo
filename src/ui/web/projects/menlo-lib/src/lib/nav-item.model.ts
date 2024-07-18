@@ -1,6 +1,6 @@
 export default interface NavItem {
     description: string;
-    svgName?: string | null;
+    iconName?: string | null;
     route: string;
     alternateText: string;
 }
