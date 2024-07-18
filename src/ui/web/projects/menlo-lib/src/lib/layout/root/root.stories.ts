@@ -19,12 +19,8 @@ type Story = StoryObj<RootComponent>;
 export const Default: Story = {
     args: {
         navItems: [
-            {
-                description: 'Utilities',
-                alternateText: 'Utilities',
-                route: 'utilities'
-            },
-            { description: 'Budget', alternateText: 'Budget', route: 'budget' }
+            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },
+            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }
         ]
     }
 };
