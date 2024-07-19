@@ -7,7 +7,7 @@ import { routes } from './app.routes';
     selector: 'menlo-root',
     standalone: true,
     imports: [RootComponent],
-    template: ` <menlo-layout-root [navItems]="navItems" /> `,
+    template: `<menlo-layout-root [navItems]="navItems" />`,
     styleUrl: './app.component.scss'
 })
 export class AppComponent {
