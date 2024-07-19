@@ -101,7 +101,7 @@
         },
         {
             "name": "UtilitiesDashboardComponent",
-            "id": "component-UtilitiesDashboardComponent-44446f43e00d275dc6250fe7c19272192279bb27ac9dc23f222f29b28704e6962c6fa4bfe900e78c75ad62d7ccde05bb73b2c7917bfecb3a2fbe7f78f6a9c0b5",
+            "id": "component-UtilitiesDashboardComponent-5e1b64daa9d939ddd3160003151520312043d0d06d104ffcf28d535ebd7722dc49a77fe49b8ffae7e2062e6843d61d925c346ec5715e7e4da18a51664aadebe7",
             "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -112,7 +112,7 @@
             "selector": "menlo-utility-dashboard",
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"row\">        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <button class=\"btn btn-primary\" type=\"submit\">\n            <span class=\"material-symbols-outlined feather feather-home align-text-bottom\">add</span>\n            Add\n        </button>\n    </header>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <div class=\"px-1\">\n            <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                Add\n            </a>\n        </div>\n    </header>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -129,12 +129,15 @@
                 {
                     "name": "CommonModule",
                     "type": "module"
+                },
+                {
+                    "name": "RouterLinkWithHref"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n    selector: 'menlo-utility-dashboard',\n    standalone: true,\n    imports: [CommonModule],\n    template: `<header class=\"row\">\n        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <button class=\"btn btn-primary\" type=\"submit\">\n            <span class=\"material-symbols-outlined feather feather-home align-text-bottom\">add</span>\n            Add\n        </button>\n    </header>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\n\n@Component({\n    selector: 'menlo-utility-dashboard',\n    standalone: true,\n    imports: [CommonModule, RouterLinkWithHref],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <div class=\"px-1\">\n            <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                Add\n            </a>\n        </div>\n    </header>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
             "styleUrl": "./utilities-dashboard.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",

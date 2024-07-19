@@ -1,7 +1,10 @@
-import { Routes } from '@angular/router';
+import { Data, Routes } from '@angular/router';
 import { HomeComponent } from './home';
 
-export const routes: Routes = [
+export type MenloRouteData = { iconName: string }
+export type MenloRoutes = Routes & {data?: Data & MenloRouteData }[];
+
+export const routes: MenloRoutes = [
     {
         path: '',
         pathMatch: 'full',
@@ -9,10 +12,18 @@ export const routes: Routes = [
     },
     {
         path: 'home',
-        component: HomeComponent
+        component: HomeComponent,
+        title: 'Home',
+        data: {
+            iconName: 'home'
+        }
     },
     {
         path: 'utilities',
-        loadChildren: async () => (await import('@utilities/utilities.routes')).routes
+        loadChildren: async () => (await import('@utilities/utilities.routes')).routes,
+        title: 'Utilities',
+        data: {
+            iconName: 'water_ec'
+        }
     }
 ];

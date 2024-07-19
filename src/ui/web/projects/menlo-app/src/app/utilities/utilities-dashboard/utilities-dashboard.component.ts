@@ -9,10 +9,12 @@ import { RouterLinkWithHref } from '@angular/router';
     template: `<header class="d-flex flex-nowrap p-0">
         <h1>Utilities</h1>
         <div class="w-100"></div>
-        <a class="btn btn-primary text-nowrap" routerLink="../electricity">
-            <span class="material-symbols-outlined feather feather-home align-text-bottom">add</span>
-            Add
-        </a>
+        <div class="px-1">
+            <a class="btn btn-primary text-nowrap" routerLink="../electricity">
+                <span class="material-symbols-outlined align-text-bottom">bolt</span>
+                Add
+            </a>
+        </div>
     </header>`,
     styleUrl: './utilities-dashboard.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
