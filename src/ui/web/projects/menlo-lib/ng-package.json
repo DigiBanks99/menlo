@@ -3,7 +3,7 @@
   "dest": "../../dist/menlo-lib",
   "lib": {
     "entryFile": "src/public-api.ts",
-    "styleIncludePaths": ["lib/core.scss", "../../node_modules"]
+    "styleIncludePaths": ["lib/scss", "../../node_modules"]
   },
   "assets": ["assets/fonts/*.woff", "assets/fonts/*.woff2", "assets/fonts/*.ttf"]
 }

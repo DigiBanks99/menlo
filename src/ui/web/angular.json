@@ -80,7 +80,7 @@
                 "input": "projects/menlo-app/public"
               }
             ],
-            "styles": ["projects/menlo-lib/src/lib/core.scss", "projects/menlo-app/src/styles.scss"],
+            "styles": ["projects/menlo-lib/src/lib/scss/core.scss", "projects/menlo-app/src/styles.scss"],
             "scripts": []
           },
           "configurations": {

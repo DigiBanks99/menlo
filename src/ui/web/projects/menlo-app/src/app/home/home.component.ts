@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     selector: 'menlo-home',
     standalone: true,
     imports: [],
-    template: `<p>home works!</p>`,
+    template: `<h1>Dashboard</h1>`,
     styleUrl: './home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })

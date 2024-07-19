@@ -28,12 +28,12 @@ import { RouterModule } from '@angular/router';
         </header>
         <div class="container-fluid">
             <div class="row">
-                <nav id="sideBarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <nav id="sideBarMenu" class="col-md-3 col-lg-2 d-md-block px-0 bg-light sidebar collapse">
                     <div class="position-sticky sidebar-sticky">
-                        <ul class="nav flex-column">
+                        <ul class="nav flex-column py-4">
                             @for (navItem of navItems; track $index) {
                                 <li class="nav-item">
-                                    <a class="nav-link" [href]="navItem.route">
+                                    <a class="nav-link" [routerLink]="navItem.route">
                                         <span class="material-symbols-outlined feather feather-home align-text-bottom"> {{ navItem.iconName }} </span>
                                         {{ navItem.description }}
                                     </a>
@@ -42,7 +42,7 @@ import { RouterModule } from '@angular/router';
                         </ul>
                     </div>
                 </nav>
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <main class="col-md-9 ms-sm-auto col-lg-10 p-4">
                     <router-outlet />
                 </main>
             </div>
