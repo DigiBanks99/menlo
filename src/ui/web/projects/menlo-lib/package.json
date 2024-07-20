@@ -10,6 +10,8 @@
   },
   "sideEffects": false,
   "exports": {
-    "./assets/": "./src/assets/"
+    ".": {
+        "sass": "./src/lib/scss/core.scss"
+    }
   }
 }
