@@ -4,6 +4,10 @@
 
 @import "../../scss/core";
 
+:root {
+    --#{$prefix}nav-height: 3.375rem;
+}
+
 body {
     font-size: .875rem;
 }
@@ -15,6 +19,8 @@ body {
     z-index: 100;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
     background-color: var(--#{$prefix}sidebar-body);
+    max-height: calc(100vh - var(--#{$prefix}nav-height));
+    min-height: calc(100vh - var(--#{$prefix}nav-height));
 }
 
 @media (max-width: 767.98px) {
@@ -24,7 +30,7 @@ body {
 }
 
 .sidebar-sticky {
-    height: calc(100vh - 3rem);
+    height: calc(100vh - var(--#{$prefix}nav-height));
     overflow-x: hidden;
     overflow-y: auto;
     /* Scrollable contents if viewport is shorter than content. */
@@ -48,4 +54,13 @@ body {
 .navbar .navbar-toggler {
     top: .25rem;
     right: 1rem;
+}
+
+/*
+ * Main content
+ */
+.main-content {
+    max-height: calc(100vh - var(--#{$prefix}nav-height));
+    min-height: calc(100vh - var(--#{$prefix}nav-height));
+    overflow-y: auto;
 }

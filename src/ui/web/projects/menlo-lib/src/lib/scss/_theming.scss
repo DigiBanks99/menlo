@@ -1,0 +1,9 @@
+:root {
+    --#{$prefix}sidebar-body: #{$sidebar-body};
+}
+
+@if $enable-dark-mode {
+    @include color-mode(dark, true) {
+        --#{$prefix}sidebar-body: #{$sidebar-body-dark};
+    }
+}

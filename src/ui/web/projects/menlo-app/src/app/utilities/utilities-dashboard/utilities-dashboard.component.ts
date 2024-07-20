@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLinkWithHref } from '@angular/router';
 
 @Component({
-    selector: 'menlo-utility-dashboard',
     standalone: true,
     imports: [CommonModule, RouterLinkWithHref],
     template: `<header class="d-flex flex-nowrap p-0">
@@ -15,7 +14,9 @@ import { RouterLinkWithHref } from '@angular/router';
                 Add
             </a>
         </div>
-    </header>`,
+    </header>
+    <article>
+    </article>`,
     styleUrl: './utilities-dashboard.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
