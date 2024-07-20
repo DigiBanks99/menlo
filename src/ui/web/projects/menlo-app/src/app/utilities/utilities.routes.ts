@@ -1,5 +1,6 @@
-import { Routes } from "@angular/router";
-import { UtilitiesDashboardComponent } from "./utilities-dashboard/utilities-dashboard.component";
+import { Routes } from '@angular/router';
+import { UtilitiesDashboardComponent } from './utilities-dashboard/utilities-dashboard.component';
+import { ElectricityCaptureComponent } from './electricity/electricity-capture/electricity-capture.component';
 
 export const routes: Routes = [
     {
@@ -10,5 +11,9 @@ export const routes: Routes = [
     {
         path: 'dashboard',
         component: UtilitiesDashboardComponent
+    },
+    {
+        path: 'electricity',
+        component: ElectricityCaptureComponent
     }
 ];

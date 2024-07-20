@@ -13,8 +13,9 @@ function updateColorScheme(event: MediaQueryListEvent) {
         message: 'Theme selected',
         value: theme
     });
-    const html: HTMLElement = document.getElementsByTagName('html')[0];
-    html.setAttribute('data-bs-theme', theme);
+    const htmlElements: HTMLCollectionOf<HTMLElement> = document.getElementsByTagName('html');
+    const html: HTMLElement | null = htmlElements.length > 0 ? htmlElements[0] : null;
+    html?.setAttribute('data-bs-theme', theme);
 }
 
 if (window.matchMedia) {
