@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
-import NavItem from '../../nav-item.model';
+import { NavItem } from '../../nav-item.model';
 import { RouterModule } from '@angular/router';
 
 @Component({

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import NavItem from 'menlo-lib/src/lib/nav-item.model';
-import { RootComponent } from 'menlo-lib/src/public-api';
 import { routes } from './app.routes';
+import { NavItem, RootComponent } from 'menlo-lib';
 
 @Component({
     selector: 'menlo-root',

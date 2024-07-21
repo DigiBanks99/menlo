@@ -10,7 +10,7 @@ trailingComma: none
 useTabs: false
 
 overrides:
-  - files: '*.json'
+  - files: "*.json"
     options:
       jsxSingleQuote: false
       singleQuote: false

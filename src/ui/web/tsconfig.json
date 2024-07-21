@@ -8,13 +8,20 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "baseUrl": "projects",
+    "baseUrl": "./projects",
     "paths": {
-      "@menlo-lib": [
-        "./dist/menlo-lib"
+      "menlo-lib": [
+        "../dist/menlo-lib"
       ],
-      "@home/*": ["./menlo-app/src/app/home/*"],
-      "@utilities/*": ["./menlo-app/src/app/utilities/*" ]
+      "menlo-lib/scss/*": [
+        "../dist/menlo-lib/scss/*"
+      ],
+      "@home/*": [
+        "./menlo-app/src/app/home/*"
+      ],
+      "@utilities/*": [
+        "./menlo-app/src/app/utilities/*"
+      ]
     },
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
@@ -28,7 +35,8 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "lib": [
-      "ES2022", "DOM"
+      "ES2022",
+      "DOM"
     ],
     "moduleDetection": "auto",
     "forceConsistentCasingInFileNames": true

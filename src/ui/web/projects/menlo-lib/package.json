@@ -11,7 +11,13 @@
   "sideEffects": false,
   "exports": {
     ".": {
-        "sass": "./src/lib/scss/core.scss"
+      "scss": "./src/lib/scss/*.scss"
+    },
+    "./lib": {
+      "types": "./index.d.ts",
+      "esm2022": "./esm2022/menlo-lib.mjs",
+      "esm": "./esm2022/menlo-lib.mjs",
+      "default": "./fesm2022/menlo-lib.mjs"
     }
   }
 }

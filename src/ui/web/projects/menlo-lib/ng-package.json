@@ -3,6 +3,12 @@
   "dest": "../../dist/menlo-lib",
   "lib": {
     "entryFile": "src/public-api.ts",
-    "styleIncludePaths": ["lib/scss", "../../node_modules"]
-  }
+    "styleIncludePaths": ["lib/scss", "../../node_modules"],
+    "cssUrl": "inline"
+  },
+  "assets": [{
+    "glob": "*.scss",
+    "input": "./src/lib/scss",
+    "output": "scss"
+  }]
 }
