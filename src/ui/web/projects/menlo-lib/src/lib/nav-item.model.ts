@@ -1,4 +1,4 @@
-export default interface NavItem {
+export interface NavItem {
     description: string;
     iconName?: string | null;
     route: string;
