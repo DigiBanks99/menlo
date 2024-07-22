@@ -9,8 +9,9 @@
     "components": [
         {
             "name": "AppComponent",
-            "id": "component-AppComponent-cbf86408ce6d489fcae386a29a8b5d4881251aaf78ab9b475d19372512958c538db31a548f2d874e008e071fd19c546b67e8e293643df9e9cd6204853008153e",
+            "id": "component-AppComponent-fdb915b6ed028240d47d9219b61686e6a9d1cd711c3416ecc13617de10e1c78f7bf138a61d08e1255b5d80182a5d59089b1279a4d0cef75a21b0d65772f29e5d",
             "file": "projects/menlo-app/src/app/app.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -28,7 +29,7 @@
             "propertiesClass": [
                 {
                     "name": "navItems",
-                    "defaultValue": "routes\n        .filter(route => (route.path ?? '').length > 0)\n        .map(\n            route =>\n                ({\n                    route: route.path,\n                    description: route.title,\n                    alternateText: route.title,\n                    iconName: (route.data ?? { iconName: null })['iconName'] ?? null\n                }) as NavItem\n        )",
+                    "defaultValue": "this.mapRoutesToNavItems(routes)",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "NavItem[]",
@@ -40,7 +41,39 @@
                     ]
                 }
             ],
-            "methodsClass": [],
+            "methodsClass": [
+                {
+                    "name": "mapRoutesToNavItems",
+                    "args": [
+                        {
+                            "name": "routes",
+                            "type": "MenloRoutes",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "NavItem[]",
+                    "typeParameters": [],
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "routes",
+                            "type": "MenloRoutes",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -55,7 +88,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\nimport NavItem from 'menlo-lib/src/lib/nav-item.model';\nimport { RootComponent } from 'menlo-lib/src/public-api';\nimport { routes } from './app.routes';\n\n@Component({\n    selector: 'menlo-root',\n    standalone: true,\n    imports: [RootComponent],\n    template: `<menlo-layout-root [navItems]=\"navItems\" />`,\n    styleUrl: './app.component.scss'\n})\nexport class AppComponent {\n    public navItems: NavItem[] = routes\n        .filter(route => (route.path ?? '').length > 0)\n        .map(\n            route =>\n                ({\n                    route: route.path,\n                    description: route.title,\n                    alternateText: route.title,\n                    iconName: (route.data ?? { iconName: null })['iconName'] ?? null\n                }) as NavItem\n        );\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { NavItem, RootComponent } from 'menlo-lib';\nimport { MenloRoutes, routes } from './app.routes';\n\n@Component({\n    selector: 'menlo-root',\n    standalone: true,\n    imports: [RootComponent],\n    template: `<menlo-layout-root [navItems]=\"navItems\" />`,\n    styleUrl: './app.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class AppComponent {\n    public navItems: NavItem[] = this.mapRoutesToNavItems(routes);\n\n    private mapRoutesToNavItems(routes: MenloRoutes): NavItem[] {\n        const navItems = routes\n            .filter(route => (route.path ?? '').length > 0)\n            .map(\n                route =>\n                    ({\n                        route: route.path,\n                        description: route.title,\n                        alternateText: route.title,\n                        iconName: (route.data ?? { iconName: null })['iconName'] ?? null\n                    }) as NavItem\n            );\n\n        console.log({\n            file: 'app.component.ts',\n            message: 'Nav Items mapped from routes',\n            value: navItems\n        });\n\n        return navItems;\n    }\n}\n",
             "styleUrl": "./app.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -64,7 +97,7 @@
         },
         {
             "name": "ElectricityCaptureComponent",
-            "id": "component-ElectricityCaptureComponent-b3710b899e2c109cd3f0086ecea525231214e8c753fa7f10fc8555228b45b8e12f415975c53cacfa985839747598bb019ae3f80a592d9eb9c4dab33250ed7d39",
+            "id": "component-ElectricityCaptureComponent-197ee122e3d62611ecbbf5803eab639ee57e0f150539cbed00e36644fcb0ef58aae2f230449f41810defc7723da288ed3ff785b33499ea35217eb8f824d17ca3",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-capture/electricity-capture.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -75,7 +108,7 @@
             "selector": "menlo-electricity-capture",
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>       <article>\n           <form [formGroup]=\"form\"]>\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"floating-label\">\n                   <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                   <label for=\"units\">Units (kW)</label>\n               </div>\n           </form>\n       </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>       <article>\n           <form [formGroup]=\"form\">\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"form-floating\">\n                   <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                   <label for=\"units\">Units (kW)</label>\n               </div>\n           </form>\n       </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -116,7 +149,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\n\ntype ApplianceUsageForm = {\n    applianceId: FormControl<number>;\n    hoursOfUse: FormControl<number>;\n};\n\ntype ElectricityCaptureForm = {\n    date: FormControl<Date>;\n    units: FormControl<number>;\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\n};\n\n@Component({\n    selector: 'menlo-electricity-capture',\n    standalone: true,\n    imports: [CommonModule, ReactiveFormsModule],\n    template: ` <header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>\n        <article>\n            <form [formGroup]=\"form\"]>\n                <div class=\"form-floating\">\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                    <label for=\"date\">Date</label>\n                </div>\n                <div class=\"floating-label\">\n                    <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                    <label for=\"units\">Units (kW)</label>\n                </div>\n            </form>\n        </article>`,\n    styleUrl: './electricity-capture.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityCaptureComponent {\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    });\n}\n",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\n\ntype ApplianceUsageForm = {\n    applianceId: FormControl<number>;\n    hoursOfUse: FormControl<number>;\n};\n\ntype ElectricityCaptureForm = {\n    date: FormControl<Date>;\n    units: FormControl<number>;\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\n};\n\n@Component({\n    selector: 'menlo-electricity-capture',\n    standalone: true,\n    imports: [CommonModule, ReactiveFormsModule],\n    template: ` <header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>\n        <article>\n            <form [formGroup]=\"form\">\n                <div class=\"form-floating\">\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                    <label for=\"date\">Date</label>\n                </div>\n                <div class=\"form-floating\">\n                    <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                    <label for=\"units\">Units (kW)</label>\n                </div>\n            </form>\n        </article>`,\n    styleUrl: './electricity-capture.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityCaptureComponent {\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    });\n}\n",
             "styleUrl": "./electricity-capture.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -227,6 +260,16 @@
                 "deprecationMessage": "",
                 "type": "MenloRoutes",
                 "defaultValue": "[\n    {\n        path: '',\n        pathMatch: 'full',\n        redirectTo: 'home'\n    },\n    {\n        path: 'home',\n        component: HomeComponent,\n        title: 'Home',\n        data: {\n            iconName: 'home'\n        }\n    },\n    {\n        path: 'utilities',\n        loadChildren: async () => (await import('@utilities/utilities.routes')).routes,\n        title: 'Utilities',\n        data: {\n            iconName: 'water_ec'\n        }\n    }\n]"
+            },
+            {
+                "name": "routes",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/app/utilities/utilities.routes.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "[\n    {\n        path: '',\n        pathMatch: 'full',\n        redirectTo: 'dashboard'\n    },\n    {\n        path: 'dashboard',\n        component: UtilitiesDashboardComponent\n    },\n    {\n        path: 'electricity',\n        component: ElectricityCaptureComponent\n    }\n]"
             }
         ],
         "functions": [
@@ -369,6 +412,18 @@
                     "type": "MenloRoutes",
                     "defaultValue": "[\n    {\n        path: '',\n        pathMatch: 'full',\n        redirectTo: 'home'\n    },\n    {\n        path: 'home',\n        component: HomeComponent,\n        title: 'Home',\n        data: {\n            iconName: 'home'\n        }\n    },\n    {\n        path: 'utilities',\n        loadChildren: async () => (await import('@utilities/utilities.routes')).routes,\n        title: 'Utilities',\n        data: {\n            iconName: 'water_ec'\n        }\n    }\n]"
                 }
+            ],
+            "projects/menlo-app/src/app/utilities/utilities.routes.ts": [
+                {
+                    "name": "routes",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/app/utilities/utilities.routes.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "[\n    {\n        path: '',\n        pathMatch: 'full',\n        redirectTo: 'dashboard'\n    },\n    {\n        path: 'dashboard',\n        component: UtilitiesDashboardComponent\n    },\n    {\n        path: 'electricity',\n        component: ElectricityCaptureComponent\n    }\n]"
+                }
             ]
         },
         "groupedFunctions": {
@@ -507,7 +562,7 @@
                 "linktype": "component",
                 "name": "AppComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/3",
                 "status": "low"
             },
             {
@@ -553,6 +608,16 @@
                 "type": "component",
                 "linktype": "component",
                 "name": "UtilitiesDashboardComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/utilities.routes.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "routes",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

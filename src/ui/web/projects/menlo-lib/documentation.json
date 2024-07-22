@@ -8,8 +8,8 @@
     "directives": [],
     "components": [
         {
-            "name": "LorumIpsumComponent",
-            "id": "component-LorumIpsumComponent-b981af8666d3a8c3955475f286eb8d8767e716ae4d7631daf6c179280c8f088e20730c4b24071a510c2db1f4727ae74b531deee73efec4709bccc905d8f36141",
+            "name": "BudgetComponent",
+            "id": "component-BudgetComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
             "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -17,7 +17,55 @@
             "inputs": [],
             "outputs": [],
             "providers": [],
-            "selector": "",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<h1>Budget</h1> <p>It works!</>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "lorumIpsum",
+                    "defaultValue": "LorumIpsum",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 32,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "LorumIpsumComponent",
+            "id": "component-LorumIpsumComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
+            "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
             "styleUrls": [],
             "styles": [],
             "template": "<p>{{ lorumIpsum }}</p>",
@@ -35,7 +83,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 15,
+                    "line": 14,
                     "modifierKind": [
                         125
                     ]
@@ -51,7 +99,56 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    selector: '',\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "UtilitiesComponent",
+            "id": "component-UtilitiesComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
+            "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "styleUrls": [],
+            "styles": [],
+            "template": "<h1>Utilities</h1> <p>It works!</>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "lorumIpsum",
+                    "defaultValue": "LorumIpsum",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 23,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -79,7 +176,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<RootComponent>",
-                "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
             },
             {
                 "name": "preview",
@@ -127,7 +224,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<RootComponent>",
-                    "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                    "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
                 }
             ],
             "projects/menlo-lib/.storybook/preview.ts": [
@@ -180,7 +277,25 @@
                 "filePath": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                 "type": "component",
                 "linktype": "component",
+                "name": "BudgetComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                "type": "component",
+                "linktype": "component",
                 "name": "LorumIpsumComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "UtilitiesComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/2",
                 "status": "low"
