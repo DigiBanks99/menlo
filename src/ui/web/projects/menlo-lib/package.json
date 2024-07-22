@@ -11,13 +11,13 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "scss": "./src/lib/scss/*.scss"
-    },
-    "./lib": {
-      "types": "./index.d.ts",
-      "esm2022": "./esm2022/menlo-lib.mjs",
-      "esm": "./esm2022/menlo-lib.mjs",
-      "default": "./fesm2022/menlo-lib.mjs"
+      "scss": "./src/lib/scss/*.scss",
+      "lib": {
+        "default": "./src/lib/index.ts",
+        "import": "./src/lib/index.ts",
+        "require": "./src/lib/index.ts",
+        "types": "./src/lib/index.d.ts"
+      }
     }
   }
 }

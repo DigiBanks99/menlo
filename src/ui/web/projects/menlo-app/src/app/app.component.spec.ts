@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { routes } from './app.routes';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -14,16 +15,20 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'menlo-app' title`, () => {
+  it('should have the root component as its entry point', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('menlo-app');
+    const rootComponent = fixture.nativeElement.querySelector('menlo-layout-root');
+    expect(rootComponent).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it('should map the root routes to the nav-items of the root component', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Welcome to menlo-app!');
+    const app = fixture.componentInstance;
+    for (const a of app.navItems) {
+        const route = routes.find(r => r.path === a.route);
+        expect(route).toBeTruthy();
+    }
+
+    expect(app.navItems.map(a => a.route)).not.toContain('');
   });
 });

@@ -36,8 +36,9 @@ trim_trailing_whitespace = false
 indent_style = tab
 indent_size = 2
 
-# SQL files
-[*.sql]
+# JSON files
+[*.{json,tsconfig.json}]
+indent_size = 2
 
 # C# files
 [*.cs]
