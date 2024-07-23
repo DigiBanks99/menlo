@@ -2,7 +2,7 @@
   display: block;
 }
 
-@import "../../scss/core";
+$prefix: menlo;
 
 :root {
     --#{$prefix}nav-height: 3.375rem;

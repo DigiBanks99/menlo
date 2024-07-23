@@ -1,4 +1,4 @@
-import { applicationConfig, Meta, StoryObj } from '@storybook/angular';
+import { Meta, StoryObj } from '@storybook/angular';
 import { ElectricityCaptureComponent } from './electricity-capture.component';
 
 const meta: Meta<ElectricityCaptureComponent> = {

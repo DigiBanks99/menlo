@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormButtonsComponent } from '../../../../../../menlo-lib/src/lib/forms/form-buttons/form-buttons.component';
 
 type ApplianceUsageForm = {
     applianceId: FormControl<number>;
@@ -16,8 +17,11 @@ type ElectricityCaptureForm = {
 @Component({
     selector: 'menlo-electricity-capture',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
-    template: ` <header class="d-flex flex-nowrap p-0"><h1>Electricity Capture</h1></header>
+    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],
+    template: ` <header class="d-flex flex-nowrap p-0">
+            <h1 class="me-auto">Electricity Capture</h1>
+            <menlo-form-buttons (submit)="onSubmit()" (cancel)="onCancel()"></menlo-form-buttons>
+        </header>
         <article>
             <form [formGroup]="form">
                 <div class="form-floating">
@@ -39,4 +43,12 @@ export class ElectricityCaptureComponent {
         units: new FormControl<number>(0, { nonNullable: true }),
         applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])
     });
+
+    public onCancel(): void {
+        this.form.reset();
+    }
+
+    public onSubmit(): void {
+        throw new Error('Method not implemented.');
+    }
 }

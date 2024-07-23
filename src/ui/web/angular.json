@@ -38,7 +38,11 @@
             "browserTarget": "menlo-lib:build",
             "compodoc": true,
             "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
-            "port": 6006
+            "port": 6006,
+            "styles": ["projects/menlo-lib/src/lib/scss/core.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/menlo-lib/src/lib/scss"]
+            }
           }
         },
         "build-storybook": {
@@ -48,7 +52,11 @@
             "browserTarget": "menlo-lib:build",
             "compodoc": true,
             "compodocArgs": ["-e", "json", "-d", "projects/menlo-lib"],
-            "outputDir": "dist/storybook/menlo-lib"
+            "outputDir": "dist/storybook/menlo-lib",
+            "styles": ["projects/menlo-lib/src/lib/scss/core.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/menlo-lib/src/lib/scss"]
+            }
           }
         }
       }
@@ -89,7 +97,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "3.5MB"
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -148,7 +156,11 @@
             "browserTarget": "menlo-app:build",
             "compodoc": true,
             "compodocArgs": ["-e", "json", "-d", "projects/menlo-app"],
-            "port": 6007
+            "port": 6007,
+            "styles": ["projects/menlo-lib/src/lib/scss/core.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/menlo-lib/src/lib/scss"]
+            }
           }
         },
         "build-storybook": {
@@ -158,7 +170,11 @@
             "browserTarget": "menlo-app:build",
             "compodoc": true,
             "compodocArgs": ["-e", "json", "-d", "projects/menlo-app"],
-            "outputDir": "dist/storybook/menlo-app"
+            "outputDir": "dist/storybook/menlo-app",
+            "styles": ["projects/menlo-lib/src/lib/scss/core.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/menlo-lib/src/lib/scss"]
+            }
           }
         }
       }
