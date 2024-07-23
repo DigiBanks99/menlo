@@ -162,11 +162,31 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: {} }"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<FormButtonsComponent>",
+                "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    render: (args: FormButtonsComponent) => ({\n        props: {\n            ...args\n        }\n    })\n}"
             },
             {
                 "name": "meta",
@@ -195,6 +215,17 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
+                "rawtype": "StoryObj<FormButtonsComponent>",
+                "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 183
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
                 "rawtype": "StoryObj<RootComponent>",
                 "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                 "deprecated": false,
@@ -205,6 +236,28 @@
         ],
         "enumerations": [],
         "groupedVariables": {
+            "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: {} }"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<FormButtonsComponent>",
+                    "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    render: (args: FormButtonsComponent) => ({\n        props: {\n            ...args\n        }\n    })\n}"
+                }
+            ],
             "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
                 {
                     "name": "Default",
@@ -243,6 +296,19 @@
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
+            "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<FormButtonsComponent>",
+                    "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ],
             "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
                 {
                     "name": "Story",
@@ -269,6 +335,26 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "preview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
