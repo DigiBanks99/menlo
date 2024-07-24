@@ -1,10 +1,358 @@
 {
     "pipes": [],
-    "interfaces": [],
-    "injectables": [],
+    "interfaces": [
+        {
+            "name": "ApplianceUsageInfo",
+            "id": "interface-ApplianceUsageInfo-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
+            "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "properties": [
+                {
+                    "name": "applianceId",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 2
+                },
+                {
+                    "name": "hoursOfUse",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 3
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        }
+    ],
+    "injectables": [
+        {
+            "name": "UtilitiesService",
+            "id": "injectable-UtilitiesService-1953c181da575a58a34b6bf16c528e542d589e27240a4b1f0c897b238889ac7ed501d49cf26cac8eaf7a744b3627cc76a0a1d685c5f686bce59685ebb34334a4",
+            "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "captureElectricalUsage",
+                    "args": [
+                        {
+                            "name": "request",
+                            "type": "CaptureElectricityUsageRequest",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Observable<string>",
+                    "typeParameters": [],
+                    "line": 14,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "request",
+                            "type": "CaptureElectricityUsageRequest",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { HttpClient, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider } from '@angular/core';\nimport { CaptureElectricityUsageRequest } from './electricity';\nimport { Observable, of } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        return this._http.post<string>(`/utilities/electricity`, request);\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {\n    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting()];\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "_http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 11,
+                "jsdoctags": [
+                    {
+                        "name": "_http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "type": "injectable"
+        }
+    ],
     "guards": [],
     "interceptors": [],
-    "classes": [],
+    "classes": [
+        {
+            "name": "CaptureElectricityUsageRequest",
+            "id": "class-CaptureElectricityUsageRequest-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
+            "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "date",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "units",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "applianceUsages",
+                        "type": "ApplianceUsageInfo[]",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "optional": true
+                    }
+                ],
+                "line": 7,
+                "jsdoctags": [
+                    {
+                        "name": "date",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "units",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "applianceUsages",
+                        "type": "ApplianceUsageInfo[]",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "optional": true,
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "applianceUsages",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplianceUsageInfo[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 7,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "date",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 10,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "units",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "addApplianceUsage",
+                    "args": [
+                        {
+                            "name": "applianceId",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "hoursOfUse",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 19,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "applianceId",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "hoursOfUse",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "CaptureElectricityUsageRequestFactory",
+            "id": "class-CaptureElectricityUsageRequestFactory-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
+            "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [],
+            "methods": [
+                {
+                    "name": "create",
+                    "args": [
+                        {
+                            "name": "date",
+                            "type": "Date | string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "units",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "applianceUsages",
+                            "type": "ApplianceUsageInfo[]",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "CaptureElectricityUsageRequest",
+                    "typeParameters": [],
+                    "line": 25,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "date",
+                            "type": "Date | string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "units",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "applianceUsages",
+                            "type": "ApplianceUsageInfo[]",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        }
+    ],
     "directives": [],
     "components": [
         {
@@ -97,7 +445,7 @@
         },
         {
             "name": "ElectricityCaptureComponent",
-            "id": "component-ElectricityCaptureComponent-197ee122e3d62611ecbbf5803eab639ee57e0f150539cbed00e36644fcb0ef58aae2f230449f41810defc7723da288ed3ff785b33499ea35217eb8f824d17ca3",
+            "id": "component-ElectricityCaptureComponent-fa1e441b09ce3be2fff5d2576f2f73a599c25ded0531bfcb56b0fb62b4ffe6923257dce6e373f6d4a5a970cedba132b0d48dfd97971cfdaf67d7699616b4fac5",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-capture/electricity-capture.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -108,7 +456,7 @@
             "selector": "menlo-electricity-capture",
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>       <article>\n           <form [formGroup]=\"form\">\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"form-floating\">\n                   <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                   <label for=\"units\">Units (kW)</label>\n               </div>\n           </form>\n       </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">           <h1 class=\"me-auto\">Electricity Capture</h1>\n           <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n       </header>\n       <article>\n           <form [formGroup]=\"form\">\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"form-floating\">\n                   <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                   <label for=\"units\">Units (kW)</label>\n               </div>\n           </form>\n       </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -123,14 +471,41 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 37,
+                    "line": 45,
                     "modifierKind": [
                         125,
                         148
                     ]
                 }
             ],
-            "methodsClass": [],
+            "methodsClass": [
+                {
+                    "name": "onCancel",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 58,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "onSubmit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 62,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -144,21 +519,68 @@
                 {
                     "name": "ReactiveFormsModule",
                     "type": "module"
+                },
+                {
+                    "name": "FormButtonsComponent",
+                    "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\n\ntype ApplianceUsageForm = {\n    applianceId: FormControl<number>;\n    hoursOfUse: FormControl<number>;\n};\n\ntype ElectricityCaptureForm = {\n    date: FormControl<Date>;\n    units: FormControl<number>;\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\n};\n\n@Component({\n    selector: 'menlo-electricity-capture',\n    standalone: true,\n    imports: [CommonModule, ReactiveFormsModule],\n    template: ` <header class=\"d-flex flex-nowrap p-0\"><h1>Electricity Capture</h1></header>\n        <article>\n            <form [formGroup]=\"form\">\n                <div class=\"form-floating\">\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                    <label for=\"date\">Date</label>\n                </div>\n                <div class=\"form-floating\">\n                    <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                    <label for=\"units\">Units (kW)</label>\n                </div>\n            </form>\n        </article>`,\n    styleUrl: './electricity-capture.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityCaptureComponent {\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    });\n}\n",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { CaptureElectricityUsageRequest, CaptureElectricityUsageRequestFactory } from '../capture-electricity-usage.request';\nimport { Router } from '@angular/router';\nimport { takeUntil } from 'rxjs';\nimport { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';\n\ntype ApplianceUsageForm = {\n    applianceId: FormControl<number>;\n    hoursOfUse: FormControl<number>;\n};\n\ntype ElectricityCaptureForm = {\n    date: FormControl<Date>;\n    units: FormControl<number>;\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\n};\n\n@Component({\n    selector: 'menlo-electricity-capture',\n    standalone: true,\n    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],\n    template: ` <header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Electricity Capture</h1>\n            <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n        </header>\n        <article>\n            <form [formGroup]=\"form\">\n                <div class=\"form-floating\">\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                    <label for=\"date\">Date</label>\n                </div>\n                <div class=\"form-floating\">\n                    <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                    <label for=\"units\">Units (kW)</label>\n                </div>\n            </form>\n        </article>`,\n    styleUrl: './electricity-capture.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityCaptureComponent extends DestroyableComponent {\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    });\n\n    constructor(\n        private readonly _utilitiesService: UtilitiesService,\n        private readonly _router: Router\n    ) {\n        super();\n    }\n\n    public onCancel(): void {\n        this.form.reset();\n    }\n\n    public onSubmit(): void {\n        const request: CaptureElectricityUsageRequest = CaptureElectricityUsageRequestFactory.create(\n            this.form.value.date ?? new Date(),\n            this.form.value.units ?? 0\n        );\n        this._utilitiesService\n            .captureElectricalUsage(request)\n            .pipe(takeUntil(this.destroyed$))\n            .subscribe(() => {\n                this.form.reset();\n                this._router.navigate(['..']);\n            });\n    }\n}\n",
             "styleUrl": "./electricity-capture.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
-            "extends": []
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "_router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 49,
+                "jsdoctags": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "_router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [
+                "DestroyableComponent"
+            ]
         },
         {
             "name": "HomeComponent",
-            "id": "component-HomeComponent-17b3ec7d878338496f2ccbfbdb537adbf73936860940c3bf3202ce46b8d865cb97f79ead64322d94fe6965ec11bd26e15ad49e602f79e12d4f6f1ee588aa65cf",
+            "id": "component-HomeComponent-c0c7ce933adb6682b865e98a8ff9a71f97d5f64517b4c286e2f4ad88875ddf9bbad0b2a39f45fb43a3095536615bf6407475aa5ed26e0c0722b7bf1ed9523ea4",
             "file": "projects/menlo-app/src/app/home/home.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -169,7 +591,7 @@
             "selector": "menlo-home",
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\"><h1>Dashboard</h1></header>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\"><h1 class=\"me-auto\">Dashboard</h1></header>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -186,7 +608,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n    selector: 'menlo-home',\n    standalone: true,\n    imports: [],\n    template: `<header class=\"d-flex flex-nowrap p-0\"><h1>Dashboard</h1></header>`,\n    styleUrl: './home.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class HomeComponent {}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n    selector: 'menlo-home',\n    standalone: true,\n    imports: [],\n    template: `<header class=\"d-flex flex-nowrap p-0\"><h1 class=\"me-auto\">Dashboard</h1></header>`,\n    styleUrl: './home.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class HomeComponent {}\n",
             "styleUrl": "./home.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -195,7 +617,7 @@
         },
         {
             "name": "UtilitiesDashboardComponent",
-            "id": "component-UtilitiesDashboardComponent-a43e4338cfdc8747690d36ec5d04e047feb6c64423da910b84a76721efd6f439d5c99439d9c876fe5d96071b98bb160aa4bfd2382e851391b77a46c3b20b99ce",
+            "id": "component-UtilitiesDashboardComponent-61bd68069b8d82d1aac1cb72e711b805f59abfeb838195427468ec34f62c8b94c7e8cc1964ba0d38425e9b6f931c7d588ab1cdcaac55d0ed1bf70d031f905437",
             "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -205,7 +627,7 @@
             "providers": [],
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\">        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <div class=\"px-1\">\n            <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                Add\n            </a>\n        </div>\n    </header>\n    <article>\n    </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article></article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -230,7 +652,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\n\n@Component({\n    standalone: true,\n    imports: [CommonModule, RouterLinkWithHref],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n        <h1>Utilities</h1>\n        <div class=\"w-100\"></div>\n        <div class=\"px-1\">\n            <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                Add\n            </a>\n        </div>\n    </header>\n    <article>\n    </article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\n\n@Component({\n    standalone: true,\n    imports: [CommonModule, RouterLinkWithHref],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article></article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
             "styleUrl": "./utilities-dashboard.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -249,7 +671,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
-                "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
+                "defaultValue": "{\n    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient()]\n}"
             },
             {
                 "name": "routes",
@@ -300,6 +722,28 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "provideUtilitiesService",
+                "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [],
+                "returnType": "Provider[]"
+            },
+            {
+                "name": "provideUtilitiesServiceTesting",
+                "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [],
+                "returnType": "[]"
             },
             {
                 "name": "updateColorScheme",
@@ -398,7 +842,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationConfig",
-                    "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
+                    "defaultValue": "{\n    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient()]\n}"
                 }
             ],
             "projects/menlo-app/src/app/app.routes.ts": [
@@ -483,6 +927,30 @@
                             }
                         }
                     ]
+                }
+            ],
+            "projects/menlo-app/src/app/utilities/utilities.service.ts": [
+                {
+                    "name": "provideUtilitiesService",
+                    "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [],
+                    "returnType": "Provider[]"
+                },
+                {
+                    "name": "provideUtilitiesServiceTesting",
+                    "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [],
+                    "returnType": "[]"
                 }
             ]
         },
@@ -595,12 +1063,39 @@
                 "status": "low"
             },
             {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "CaptureElectricityUsageRequest",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "CaptureElectricityUsageRequestFactory",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ApplianceUsageInfo",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
                 "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-capture/electricity-capture.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "ElectricityCaptureComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/5",
                 "status": "low"
             },
             {
@@ -618,6 +1113,35 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "routes",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "UtilitiesService",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "provideUtilitiesService",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/utilities.service.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "provideUtilitiesServiceTesting",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
