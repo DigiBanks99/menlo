@@ -125,6 +125,9 @@
               "buildTarget": "menlo-app:build:development"
             }
           },
+          "options": {
+            "proxyConfig": "projects/menlo-app/src/proxy.conf.json"
+          },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
