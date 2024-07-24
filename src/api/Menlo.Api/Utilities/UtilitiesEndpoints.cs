@@ -10,9 +10,9 @@ namespace Menlo.Utilities;
 
 public static partial class UtilitiesEndpoints
 {
-    public static void MapEndpoints(this WebApplication app)
+    public static void MapEndpoints(this IEndpointRouteBuilder routes)
     {
-        app.MapPost(
+        routes.MapPost(
                 "/utilities/electricity",
                 async (
                     ICommandHandler<CaptureElectricityUsageRequest, string> handler,
@@ -28,7 +28,7 @@ public static partial class UtilitiesEndpoints
             .Produces<Guid>(StatusCodes.Status201Created, contentType: MediaTypeNames.Text.Plain)
             .WithOpenApi();
 
-        app.MapGet(
+        routes.MapGet(
                 "/utilities/electricity",
                 async (
                     IQueryHandler<ElectricityUsageQuery, IEnumerable<ElectricityUsageQueryResponse>> handler,

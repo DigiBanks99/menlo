@@ -12,7 +12,7 @@ export class UtilitiesService {
     constructor(private readonly _http: HttpClient) {}
 
     public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {
-        return this._http.post<string>(`/utilities/electricity`, request);
+        return this._http.post<string>(`/api/utilities/electricity`, request);
     }
 }
 

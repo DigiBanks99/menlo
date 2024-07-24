@@ -28,14 +28,14 @@ describe('UtilitiesService', () => {
             const request$ = service.captureElectricalUsage(captureElectricalUsageRequest);
             const requestPromise = firstValueFrom(request$);
 
-            const request = httpTesting.expectOne('/utilities/electricity', 'Expect capture electricity usage request to be made');
+            const request = httpTesting.expectOne('/api/utilities/electricity', 'Expect capture electricity usage request to be made');
 
             expect(request.request.method).toBe('POST');
             expect(request.request.body as CaptureElectricityUsageRequest).toBe(captureElectricalUsageRequest);
 
-            request.flush('/utilities/electricity/1');
+            request.flush('/api/utilities/electricity/1');
 
-            expect(await requestPromise).toBe('/utilities/electricity/1');
+            expect(await requestPromise).toBe('/api/utilities/electricity/1');
 
             httpTesting.verify();
         });

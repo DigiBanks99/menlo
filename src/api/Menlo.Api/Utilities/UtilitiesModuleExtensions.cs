@@ -17,7 +17,8 @@ internal static class UtilitiesModuleExtensions
         bool isEnabled = featureManager.IsModuleEnabledAsync(UtilitiesConstants.ModuleIdentifier).GetAwaiter().GetResult();
         if (isEnabled)
         {
-            app.MapEndpoints();
+            app.MapGroup("/api")
+                .MapEndpoints();
         }
 
         return app;
