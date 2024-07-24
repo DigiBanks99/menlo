@@ -54,7 +54,7 @@ public static partial class UtilitiesEndpoints
                         : Results.Problem();
                 })
             .WithName("GetElectricityUsage")
-            .Produces<IEnumerable<ElectricityUsageQueryResponse>>(contentType: System.Net.Mime.MediaTypeNames.Application.Json)
+            .Produces<IEnumerable<ElectricityUsageQueryResponse>>(contentType: MediaTypeNames.Application.Json)
             .WithOpenApi(o =>
             {
                 o.Parameters.Add(new OpenApiParameter
