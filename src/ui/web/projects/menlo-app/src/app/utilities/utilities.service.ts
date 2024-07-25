@@ -1,7 +1,7 @@
-import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';
 import { EnvironmentProviders, Injectable, Provider } from '@angular/core';
-import { CaptureElectricityUsageRequest } from './electricity';
-import { Observable, of } from 'rxjs';
+import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityUsageQuery } from './electricity';
+import { Observable } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
@@ -13,6 +13,18 @@ export class UtilitiesService {
 
     public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {
         return this._http.post<string>(`/api/utilities/electricity`, request);
+    }
+
+    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {
+        let queryString = new HttpParams().set('startDate', query.startDate);
+
+        if (query.endDate !== null) {
+            queryString = queryString.set('endDate', query.endDate);
+        }
+
+        queryString = queryString.set('timeZone', query.timeZone);
+
+        return this._http.get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString });
     }
 }
 

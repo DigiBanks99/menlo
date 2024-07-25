@@ -1,6 +1,6 @@
 ### Get Electricity Usage
 
-GET {{ baseUrl }}/utilities/electricity?startDate=2024-07-11&endDate=2024-07-12&timeZone=02:00 HTTP/2
+GET {{ baseUrl }}/utilities/electricity?startDate=2024-07-11&endDate=2024-07-12&timeZone=Africa%2FJohannesburg HTTP/2
 
 ### Capture Electricity Usage
 
