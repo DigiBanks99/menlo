@@ -1,2 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+
 @import 'menlo-lib/scss/core.scss';
+
+menlo-root {
+    height: 100%;
+    width: 100%;
+}
