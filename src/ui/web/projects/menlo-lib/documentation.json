@@ -162,16 +162,6 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story",
-                "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
-            },
-            {
-                "name": "Default",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -179,14 +169,14 @@
                 "defaultValue": "{ args: {} }"
             },
             {
-                "name": "meta",
+                "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<RootComponent>",
-                "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                "type": "Story",
+                "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
             },
             {
                 "name": "meta",
@@ -197,6 +187,16 @@
                 "deprecationMessage": "",
                 "type": "Meta<FormButtonsComponent>",
                 "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    argTypes: {\n        cancel: { action: 'cancel' },\n        submit: { action: 'submit' }\n    },\n    args: {\n        cancel: action('cancel'),\n        submit: action('submit')\n    }\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<RootComponent>",
+                "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
             },
             {
                 "name": "preview",
@@ -215,8 +215,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<RootComponent>",
-                "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                "rawtype": "StoryObj<FormButtonsComponent>",
+                "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -226,8 +226,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<FormButtonsComponent>",
-                "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                "rawtype": "StoryObj<RootComponent>",
+                "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -236,28 +236,6 @@
         ],
         "enumerations": [],
         "groupedVariables": {
-            "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
-                {
-                    "name": "Default",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
-                },
-                {
-                    "name": "meta",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<RootComponent>",
-                    "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
-                }
-            ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
                 {
                     "name": "Default",
@@ -280,6 +258,28 @@
                     "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    argTypes: {\n        cancel: { action: 'cancel' },\n        submit: { action: 'submit' }\n    },\n    args: {\n        cancel: action('cancel'),\n        submit: action('submit')\n    }\n}"
                 }
             ],
+            "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<RootComponent>",
+                    "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                }
+            ],
             "projects/menlo-lib/.storybook/preview.ts": [
                 {
                     "name": "preview",
@@ -296,19 +296,6 @@
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
-            "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
-                {
-                    "name": "Story",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "StoryObj<RootComponent>",
-                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 183
-                }
-            ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
                 {
                     "name": "Story",
@@ -316,6 +303,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<FormButtonsComponent>",
                     "file": "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ],
+            "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<RootComponent>",
+                    "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",

@@ -6,4 +6,17 @@
     @include color-mode(dark, true) {
         --#{$prefix}sidebar-body: #{$sidebar-body-dark};
     }
+
+    @include ag.grid-styles(
+        (
+            theme: quartz-dark
+        )
+    );
+}
+else {
+    @include ag.grid-styles(
+        (
+            theme: quartz
+        )
+    );
 }

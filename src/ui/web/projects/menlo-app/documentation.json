@@ -2,13 +2,13 @@
     "pipes": [],
     "interfaces": [
         {
-            "name": "ApplianceUsageInfo",
-            "id": "interface-ApplianceUsageInfo-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
-            "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+            "name": "ApplianceUsage",
+            "id": "interface-ApplianceUsage-c60df1adbaf0eb6aeea8c9ccec0f7ed3205c03d5a43b9e608b42b9ef014085a65c5cbae7859cc5659f6604c064d41e64b8c3844108db6caeade4ab686f0b1576",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.model.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "sourceCode": "export interface ApplianceUsage {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElectricityUsage {\n    date: string;\n    units: number;\n    applianceUsage: ApplianceUsage[];\n}\n",
             "properties": [
                 {
                     "name": "applianceId",
@@ -33,12 +33,162 @@
             "kind": 171,
             "methods": [],
             "extends": []
+        },
+        {
+            "name": "ApplianceUsageInfo",
+            "id": "interface-ApplianceUsageInfo-f76a6c2a83382785af90112ac096b617b3033f32aa507911037a4017a4b3758b0a8d8033bb9314384f48abe2cde6d0a0b75593e7edb6f89b66c597d92f8c7988",
+            "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\n\nexport interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: DateOrString, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(formatDate(date), units, applianceUsages);\n    }\n}\n",
+            "properties": [
+                {
+                    "name": "applianceId",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 4
+                },
+                {
+                    "name": "hoursOfUse",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 5
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "ApplianceUsageResponse",
+            "id": "interface-ApplianceUsageResponse-c176553669aef01266140b953f78b8b9d8ef785bb58ef74be3e75053d3b297c8ec36647f950ccee88621c8aa02863b7a9722e06ba7aa91d89db5fab8f6889eb5",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ApplianceUsageResponse {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElecricityUsageResponse {\n    date: string;\n    units: number;\n    appliances: ApplianceUsageResponse[];\n}\n",
+            "properties": [
+                {
+                    "name": "applianceId",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 2
+                },
+                {
+                    "name": "hoursOfUse",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 3
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "ElecricityUsageResponse",
+            "id": "interface-ElecricityUsageResponse-c176553669aef01266140b953f78b8b9d8ef785bb58ef74be3e75053d3b297c8ec36647f950ccee88621c8aa02863b7a9722e06ba7aa91d89db5fab8f6889eb5",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ApplianceUsageResponse {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElecricityUsageResponse {\n    date: string;\n    units: number;\n    appliances: ApplianceUsageResponse[];\n}\n",
+            "properties": [
+                {
+                    "name": "appliances",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplianceUsageResponse[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                },
+                {
+                    "name": "date",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "units",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "ElectricityUsage",
+            "id": "interface-ElectricityUsage-c60df1adbaf0eb6aeea8c9ccec0f7ed3205c03d5a43b9e608b42b9ef014085a65c5cbae7859cc5659f6604c064d41e64b8c3844108db6caeade4ab686f0b1576",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.model.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface ApplianceUsage {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElectricityUsage {\n    date: string;\n    units: number;\n    applianceUsage: ApplianceUsage[];\n}\n",
+            "properties": [
+                {
+                    "name": "applianceUsage",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplianceUsage[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 9
+                },
+                {
+                    "name": "date",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "units",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 8
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
         }
     ],
     "injectables": [
         {
             "name": "UtilitiesService",
-            "id": "injectable-UtilitiesService-1953c181da575a58a34b6bf16c528e542d589e27240a4b1f0c897b238889ac7ed501d49cf26cac8eaf7a744b3627cc76a0a1d685c5f686bce59685ebb34334a4",
+            "id": "injectable-UtilitiesService-78782d3f9eb8fd46a221e545b68878690b9a6167620c2a11b4631d7ef6bda3d55e1c4fe2dda9cdcea05c5b6b971cebb1cfd3d73d69df2e31a0fa3625a2b5c450",
             "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
             "properties": [],
             "methods": [
@@ -72,13 +222,44 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "getElectricityUsage",
+                    "args": [
+                        {
+                            "name": "query",
+                            "type": "ElectricityUsageQuery",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Observable<ElecricityUsageResponse[]>",
+                    "typeParameters": [],
+                    "line": 18,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "query",
+                            "type": "ElectricityUsageQuery",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "deprecated": false,
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { HttpClient, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider } from '@angular/core';\nimport { CaptureElectricityUsageRequest } from './electricity';\nimport { Observable, of } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        return this._http.post<string>(`/utilities/electricity`, request);\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {\n    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting()];\n}\n",
+            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider } from '@angular/core';\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityUsageQuery } from './electricity';\nimport { Observable } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        return this._http.post<string>(`/api/utilities/electricity`, request);\n    }\n\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\n        let queryString = new HttpParams().set('startDate', query.startDate);\n\n        if (query.endDate !== null) {\n            queryString = queryString.set('endDate', query.endDate);\n        }\n\n        queryString = queryString.set('timeZone', query.timeZone);\n\n        return this._http.get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString });\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {\n    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting()];\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -114,12 +295,12 @@
     "classes": [
         {
             "name": "CaptureElectricityUsageRequest",
-            "id": "class-CaptureElectricityUsageRequest-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
+            "id": "class-CaptureElectricityUsageRequest-f76a6c2a83382785af90112ac096b617b3033f32aa507911037a4017a4b3758b0a8d8033bb9314384f48abe2cde6d0a0b75593e7edb6f89b66c597d92f8c7988",
             "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\n\nexport interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: DateOrString, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(formatDate(date), units, applianceUsages);\n    }\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -146,7 +327,7 @@
                         "optional": true
                     }
                 ],
-                "line": 7,
+                "line": 9,
                 "jsdoctags": [
                     {
                         "name": "date",
@@ -188,7 +369,7 @@
                     "type": "ApplianceUsageInfo[]",
                     "optional": false,
                     "description": "",
-                    "line": 7,
+                    "line": 9,
                     "modifierKind": [
                         125
                     ]
@@ -200,7 +381,7 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 10,
+                    "line": 12,
                     "modifierKind": [
                         125
                     ]
@@ -212,7 +393,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 11,
+                    "line": 13,
                     "modifierKind": [
                         125
                     ]
@@ -238,7 +419,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 19,
+                    "line": 21,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -273,12 +454,12 @@
         },
         {
             "name": "CaptureElectricityUsageRequestFactory",
-            "id": "class-CaptureElectricityUsageRequestFactory-505b17d2dde4930e2a4fa1eae210aed8cbb1987a929bf088f3a0f62f1a34e012659f55a4a3e54a6ea338cdf1c5883846e364959e00eee7aab85eed772f1e091f",
+            "id": "class-CaptureElectricityUsageRequestFactory-f76a6c2a83382785af90112ac096b617b3033f32aa507911037a4017a4b3758b0a8d8033bb9314384f48abe2cde6d0a0b75593e7edb6f89b66c597d92f8c7988",
             "file": "projects/menlo-app/src/app/utilities/electricity/capture-electricity-usage.request.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);\n    }\n}\n",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\n\nexport interface ApplianceUsageInfo {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport class CaptureElectricityUsageRequest {\n    public applianceUsages: ApplianceUsageInfo[];\n\n    constructor(\n        public date: string,\n        public units: number,\n        applianceUsages?: ApplianceUsageInfo[]\n    ) {\n        this.date = date;\n        this.units = units;\n        this.applianceUsages = applianceUsages ?? [];\n    }\n\n    public addApplianceUsage(applianceId: number, hoursOfUse: number): void {\n        this.applianceUsages.push({ applianceId, hoursOfUse });\n    }\n}\n\nexport class CaptureElectricityUsageRequestFactory {\n    public static create(date: DateOrString, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {\n        return new CaptureElectricityUsageRequest(formatDate(date), units, applianceUsages);\n    }\n}\n",
             "inputsClass": [],
             "outputsClass": [],
             "properties": [],
@@ -288,7 +469,7 @@
                     "args": [
                         {
                             "name": "date",
-                            "type": "Date | string",
+                            "type": "DateOrString",
                             "deprecated": false,
                             "deprecationMessage": ""
                         },
@@ -309,7 +490,7 @@
                     "optional": false,
                     "returnType": "CaptureElectricityUsageRequest",
                     "typeParameters": [],
-                    "line": 25,
+                    "line": 27,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -318,7 +499,7 @@
                     "jsdoctags": [
                         {
                             "name": "date",
-                            "type": "Date | string",
+                            "type": "DateOrString",
                             "deprecated": false,
                             "deprecationMessage": "",
                             "tagName": {
@@ -337,6 +518,202 @@
                         {
                             "name": "applianceUsages",
                             "type": "ApplianceUsageInfo[]",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "ElectricityUsageQuery",
+            "id": "class-ElectricityUsageQuery-47509edf0e837a8c66f6b1250172ad3d390076b9c80c208579a5037433df0b96f354bbab0e7b42e3a3f5f8010efbd84b6dfbe55c5dec3a6c434495f9f0f96b10",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.query.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\n\nexport class ElectricityUsageQuery {\n    constructor(\n        public readonly startDate: string,\n        public readonly endDate: string | null,\n        public readonly timeZone: string\n    ) {\n        this.startDate = startDate;\n        this.endDate = endDate;\n        this.timeZone = timeZone;\n    }\n}\n\nexport class ElectricityUsageQueryFactory {\n    public static create(startDate: DateOrString, endDate?: DateOrString, timeZone?: string): ElectricityUsageQuery {\n        return new ElectricityUsageQuery(\n            formatDate(startDate),\n            endDate !== undefined ? formatDate(endDate) : null,\n            timeZone === undefined ? Intl.DateTimeFormat().resolvedOptions().timeZone : timeZone\n        );\n    }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "startDate",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "endDate",
+                        "type": "string | null",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "timeZone",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 3,
+                "jsdoctags": [
+                    {
+                        "name": "startDate",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "endDate",
+                        "type": "string | null",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "timeZone",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "endDate",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 6,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "startDate",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 5,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "timeZone",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 7,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "ElectricityUsageQueryFactory",
+            "id": "class-ElectricityUsageQueryFactory-47509edf0e837a8c66f6b1250172ad3d390076b9c80c208579a5037433df0b96f354bbab0e7b42e3a3f5f8010efbd84b6dfbe55c5dec3a6c434495f9f0f96b10",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.query.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\n\nexport class ElectricityUsageQuery {\n    constructor(\n        public readonly startDate: string,\n        public readonly endDate: string | null,\n        public readonly timeZone: string\n    ) {\n        this.startDate = startDate;\n        this.endDate = endDate;\n        this.timeZone = timeZone;\n    }\n}\n\nexport class ElectricityUsageQueryFactory {\n    public static create(startDate: DateOrString, endDate?: DateOrString, timeZone?: string): ElectricityUsageQuery {\n        return new ElectricityUsageQuery(\n            formatDate(startDate),\n            endDate !== undefined ? formatDate(endDate) : null,\n            timeZone === undefined ? Intl.DateTimeFormat().resolvedOptions().timeZone : timeZone\n        );\n    }\n}\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [],
+            "methods": [
+                {
+                    "name": "create",
+                    "args": [
+                        {
+                            "name": "startDate",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "endDate",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        },
+                        {
+                            "name": "timeZone",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "ElectricityUsageQuery",
+                    "typeParameters": [],
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "startDate",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "endDate",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "timeZone",
+                            "type": "string",
                             "deprecated": false,
                             "deprecationMessage": "",
                             "optional": true,
@@ -577,6 +954,90 @@
             "extends": [
                 "DestroyableComponent"
             ]
+        },
+        {
+            "name": "ElectricityUsageComponent",
+            "id": "component-ElectricityUsageComponent-4d7d191d2cab742f0155afa689a5bba7c2b4be527eb70b350065dc6eb6c8bacbf4b80a52145475d29b5e70ac10bc89acdee4116cff2d7f8d349f8ac211da7859",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "menlo-electricity-usage",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"h-100\">       <ag-grid-angular class=\"ag-theme-quartz\" [rowData]=\"electricityUsage\" [columnDefs]=\"columnDefs\" [defaultColDef]=\"defaultColDef\" />\n   </div>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "electricityUsage",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 18,
+                    "type": "ElectricityUsage[]",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "columnDefs",
+                    "defaultValue": "[\n        { field: 'date', headerName: 'Date' },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ColDef[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 20,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "defaultColDef",
+                    "defaultValue": "{\n        flex: 1\n    }",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ColDef",
+                    "optional": false,
+                    "description": "",
+                    "line": 25,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "JsonPipe",
+                    "type": "pipe"
+                },
+                {
+                    "name": "AgGridAngular"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, Input } from '@angular/core';\nimport { AgGridAngular } from 'ag-grid-angular';\nimport { ColDef } from 'ag-grid-community';\nimport { ElectricityUsage } from './electricity-usage.model';\nimport { JsonPipe } from '@angular/common';\n\n@Component({\n    selector: 'menlo-electricity-usage',\n    standalone: true,\n    imports: [JsonPipe, AgGridAngular],\n    template: ` <div class=\"h-100\">\n        <ag-grid-angular class=\"ag-theme-quartz\" [rowData]=\"electricityUsage\" [columnDefs]=\"columnDefs\" [defaultColDef]=\"defaultColDef\" />\n    </div>`,\n    styleUrl: './electricity-usage.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityUsageComponent {\n    @Input() public electricityUsage: ElectricityUsage[] = [];\n\n    public readonly columnDefs: ColDef[] = [\n        { field: 'date', headerName: 'Date' },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ];\n\n    public readonly defaultColDef: ColDef = {\n        flex: 1\n    };\n}\n",
+            "styleUrl": "./electricity-usage.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
         },
         {
             "name": "HomeComponent",
@@ -1099,6 +1560,69 @@
                 "status": "low"
             },
             {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.query.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "ElectricityUsageQuery",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.query.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "ElectricityUsageQueryFactory",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ApplianceUsageResponse",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ElecricityUsageResponse",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ElectricityUsageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.model.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ApplianceUsage",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.model.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ElectricityUsage",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
                 "filePath": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
                 "type": "component",
                 "linktype": "component",
@@ -1123,7 +1647,7 @@
                 "linktype": "injectable",
                 "name": "UtilitiesService",
                 "coveragePercent": 0,
-                "coverageCount": "0/3",
+                "coverageCount": "0/4",
                 "status": "low"
             },
             {
