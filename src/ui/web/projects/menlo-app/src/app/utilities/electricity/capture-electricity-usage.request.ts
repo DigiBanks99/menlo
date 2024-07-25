@@ -1,3 +1,5 @@
+import { DateOrString, formatDate } from 'menlo-lib';
+
 export interface ApplianceUsageInfo {
     applianceId: number;
     hoursOfUse: number;
@@ -22,7 +24,7 @@ export class CaptureElectricityUsageRequest {
 }
 
 export class CaptureElectricityUsageRequestFactory {
-    public static create(date: Date | string, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {
-        return new CaptureElectricityUsageRequest(typeof date == 'string' ? date : date.toISOString(), units, applianceUsages);
+    public static create(date: DateOrString, units: number, applianceUsages?: ApplianceUsageInfo[]): CaptureElectricityUsageRequest {
+        return new CaptureElectricityUsageRequest(formatDate(date), units, applianceUsages);
     }
 }

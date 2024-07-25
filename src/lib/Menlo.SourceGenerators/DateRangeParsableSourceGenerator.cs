@@ -67,9 +67,10 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
                         : DateOnly.Parse(endDateValues.Last(), provider);
 
                     string[]? timeZoneValues = parameters.GetValues("timeZone");
+
                     TimeSpan timeZone = timeZoneValues == null
                         ? default
-                        : TimeSpan.Parse(timeZoneValues.Last(), provider);
+                        : TimeZoneInfo.FindSystemTimeZoneById(timeZoneValues.Last()).BaseUtcOffset;
 
                     return new {{recordSymbol.Name}}(startDate, endDate, timeZone);
                 }
