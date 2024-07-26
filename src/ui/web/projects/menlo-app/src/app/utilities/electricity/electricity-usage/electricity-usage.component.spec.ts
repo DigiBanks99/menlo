@@ -1,18 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ElectricityUsageComponent } from './electricity-usage.component';
+import { SIGNAL, signalSetFn } from '@angular/core/primitives/signals';
 
 describe('ElectricityUsageComponent', () => {
     let component: ElectricityUsageComponent;
     let fixture: ComponentFixture<ElectricityUsageComponent>;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await TestBed.configureTestingModule({
             imports: [ElectricityUsageComponent]
         }).compileComponents();
+    });
 
+    beforeEach(async () => {
         fixture = TestBed.createComponent(ElectricityUsageComponent);
         component = fixture.componentInstance;
+        signalSetFn(component.electricityUsage[SIGNAL], []);
+        await fixture.whenStable();
+
         fixture.detectChanges();
     });
 
@@ -21,7 +27,7 @@ describe('ElectricityUsageComponent', () => {
     });
 
     it('should have electricityUsage set to an empty array by default', () => {
-        expect(component.electricityUsage).toBeTruthy([]);
+        expect(component.electricityUsage()).toEqual([]);
     });
 
     it('should have columnDefs set to an array with two elements', () => {
@@ -41,5 +47,14 @@ describe('ElectricityUsageComponent', () => {
     it('should render the ag-grid-angular component', () => {
         const agGridElement = fixture.nativeElement.querySelector('ag-grid-angular');
         expect(agGridElement).toBeTruthy();
+    });
+
+    it('should render the chart element', () => {
+        const chartElement = fixture.nativeElement.querySelector('#chart');
+        expect(chartElement).toBeTruthy();
+    });
+
+    it('should create a chart', () => {
+        expect(component.chart).toBeTruthy();
     });
 });

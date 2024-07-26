@@ -40,7 +40,7 @@ describe('CaptureElectricityUsageRequestFactory', () => {
         it('should return a CaptureElectricityUsageRequest with the date formatted as a string', () => {
             const date = new Date();
             const request = CaptureElectricityUsageRequestFactory.create(date, 1);
-            expect(request.date).toEqual(date.toISOString());
+            expect(request.date).toEqual(date.toISOString().split('T')[0]);
         });
 
         it('should return a CaptureElectricityUsageRequest with the date formatted as a string when provided as a string', () => {

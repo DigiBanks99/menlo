@@ -2,21 +2,17 @@
     --#{$prefix}sidebar-body: #{$sidebar-body};
 }
 
+@include ag.grid-styles(
+    (
+        themes: (
+            quartz,
+            quartz-dark
+        )
+    )
+);
+
 @if $enable-dark-mode {
     @include color-mode(dark, true) {
         --#{$prefix}sidebar-body: #{$sidebar-body-dark};
     }
-
-    @include ag.grid-styles(
-        (
-            theme: quartz-dark
-        )
-    );
-}
-else {
-    @include ag.grid-styles(
-        (
-            theme: quartz
-        )
-    );
 }

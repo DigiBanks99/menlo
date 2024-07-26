@@ -1,6 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UtilitiesDashboardComponent } from './utilities-dashboard.component';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouterLinkWithHref } from '@angular/router';
+import { Component } from '@angular/core';
+import { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';
+import { AsyncPipe, JsonPipe } from '@angular/common';
+import { provideUtilitiesServiceTesting } from '@utilities/utilities.service';
+
+@Component({ selector: 'menlo-electricity-usage', template: '', standalone: true })
+class ElectricityUsageStubComponent {
+    electricityUsage: ElectricityUsage[] = [];
+}
 
 describe('UtilitiesDashboardComponent', () => {
     let component: UtilitiesDashboardComponent;
@@ -8,8 +17,8 @@ describe('UtilitiesDashboardComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [UtilitiesDashboardComponent],
-            providers: [provideRouter([])]
+            imports: [UtilitiesDashboardComponent, ElectricityUsageStubComponent],
+            providers: [provideRouter([]), provideUtilitiesServiceTesting()]
         }).compileComponents();
     });
 

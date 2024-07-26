@@ -1,5 +1,5 @@
 export type DateOrString = Date | string;
 
 export function formatDate(input: DateOrString): string {
-    return typeof input == 'string' ? input : input.toISOString();
+    return typeof input == 'string' ? input : input.toISOString().split('T')[0];
 }

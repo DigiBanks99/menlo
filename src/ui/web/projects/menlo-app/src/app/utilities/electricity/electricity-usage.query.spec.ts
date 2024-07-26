@@ -30,7 +30,7 @@ describe('ElectricityUsageQueryFactory', () => {
         it('should return an ElectricityUsageQuery with the start date formatted as a string', () => {
             const startDate = new Date();
             const query = ElectricityUsageQueryFactory.create(startDate);
-            expect(query.startDate).toEqual(startDate.toISOString());
+            expect(query.startDate).toEqual(startDate.toISOString().split('T')[0]);
         });
 
         it('should return an ElectricityUsageQuery with the start date formatted as a string when provided as a string', () => {
@@ -43,7 +43,7 @@ describe('ElectricityUsageQueryFactory', () => {
             const startDate = new Date();
             const endDate = new Date();
             const query = ElectricityUsageQueryFactory.create(startDate, endDate);
-            expect(query.endDate).toEqual(endDate.toISOString());
+            expect(query.endDate).toEqual(endDate.toISOString().split('T')[0]);
         });
 
         it('should return an ElectricityUsageQuery with the end date formatted as a string when provided as a string', () => {

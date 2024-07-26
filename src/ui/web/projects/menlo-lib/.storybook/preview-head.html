@@ -5,3 +5,23 @@
         height: 100%;
     }
 </style>
+
+<script>
+    function updateColorScheme(event) {
+        const theme = event.matches ? 'dark' : 'light';
+
+        const htmlElements = document.getElementsByTagName('html');
+        const html = htmlElements.length > 0 ? htmlElements[0] : null;
+        html?.setAttribute('data-bs-theme', theme);
+    }
+
+    if (window.matchMedia) {
+        const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateColorScheme);
+        updateColorScheme(
+            new MediaQueryListEvent('change', {
+                matches: colorSchemeQuery.matches
+            })
+        );
+    }
+</script>

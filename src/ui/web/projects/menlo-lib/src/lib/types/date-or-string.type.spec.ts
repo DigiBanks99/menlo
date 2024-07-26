@@ -16,7 +16,7 @@ describe('formatDate', () => {
     it('should return a string when given a Date', () => {
         const date = new Date();
         const formatted = formatDate(date);
-        expect(formatted).toEqual(date.toISOString());
+        expect(formatted).toEqual(date.toISOString().split('T')[0]);
     });
 
     it('should return the string when given a string', () => {

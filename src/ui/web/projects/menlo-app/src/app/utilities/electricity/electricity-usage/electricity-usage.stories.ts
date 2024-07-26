@@ -1,12 +1,14 @@
 import { Meta, StoryObj } from '@storybook/angular';
 import { ElectricityUsageComponent } from './electricity-usage.component';
+import { InputSignal } from '@angular/core';
+import { ElectricityUsage } from './electricity-usage.model';
 
 const meta: Meta<ElectricityUsageComponent> = {
     title: 'Utilities/Electricity/Usage',
     component: ElectricityUsageComponent,
     tags: ['autodocs'],
     render: args => ({
-        props: args
+        props: { ...args }
     })
 };
 
@@ -14,7 +16,11 @@ export default meta;
 
 type Story = StoryObj<ElectricityUsageComponent>;
 
-export const Default: Story = { args: {} };
+export const Default: Story = {
+    args: {
+        electricityUsage: [] as ElectricityUsage[]
+    }
+};
 
 export const WithData: Story = {
     args: {
