@@ -957,43 +957,77 @@
         },
         {
             "name": "ElectricityUsageComponent",
-            "id": "component-ElectricityUsageComponent-4d7d191d2cab742f0155afa689a5bba7c2b4be527eb70b350065dc6eb6c8bacbf4b80a52145475d29b5e70ac10bc89acdee4116cff2d7f8d349f8ac211da7859",
+            "id": "component-ElectricityUsageComponent-90f5b9b93b1063ce067a70446a89e4d88e609fa5439b197f8be48d05455e2cd42a4d6a0f0f706e52736ecdf4672d10d6c0b4bf8119cae0494c5a4dd762ee8835",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
             "outputs": [],
-            "providers": [],
+            "providers": [
+                {
+                    "name": "DatePipe",
+                    "type": "pipe"
+                }
+            ],
             "selector": "menlo-electricity-usage",
             "styleUrls": [],
             "styles": [],
-            "template": "<div class=\"h-100\">       <ag-grid-angular class=\"ag-theme-quartz\" [rowData]=\"electricityUsage\" [columnDefs]=\"columnDefs\" [defaultColDef]=\"defaultColDef\" />\n   </div>",
+            "template": "<div class=\"d-flex justify-content-center h-50\">           <canvas id=\"chart\"></canvas>\n       </div>\n       <div class=\"h-50\">\n           <ag-grid-angular\n               class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n               [rowData]=\"electricityUsage()\"\n               [columnDefs]=\"columnDefs\"\n               [defaultColDef]=\"defaultColDef\" />\n       </div>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
-            "inputsClass": [
-                {
-                    "name": "electricityUsage",
-                    "defaultValue": "[]",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 18,
-                    "type": "ElectricityUsage[]",
-                    "decorators": []
-                }
-            ],
+            "inputsClass": [],
             "outputsClass": [],
             "propertiesClass": [
                 {
+                    "name": "_chartData",
+                    "defaultValue": "computed(() => this.getChartData(this.electricityUsage()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 30,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "_chartElement",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ChartItem | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 28,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "_chartInstance",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Chart | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 29,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
                     "name": "columnDefs",
-                    "defaultValue": "[\n        { field: 'date', headerName: 'Date' },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ]",
+                    "defaultValue": "[\n        {\n            field: 'date',\n            headerName: 'Date',\n            cellRenderer: (params: { value: DateOrString }) => this._datePipe.transform(params.value, 'dd MMM YYYY')\n        },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ]",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ColDef[]",
                     "optional": false,
                     "description": "",
-                    "line": 20,
+                    "line": 34,
                     "modifierKind": [
                         125,
                         148
@@ -1007,14 +1041,99 @@
                     "type": "ColDef",
                     "optional": false,
                     "description": "",
-                    "line": 25,
+                    "line": 43,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "electricityUsage",
+                    "defaultValue": "input.required<ElectricityUsage[]>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 32,
                     "modifierKind": [
                         125,
                         148
                     ]
                 }
             ],
-            "methodsClass": [],
+            "methodsClass": [
+                {
+                    "name": "createChart",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 73,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "getChartData",
+                    "args": [
+                        {
+                            "name": "electricityUsage",
+                            "type": "ElectricityUsage[]",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "ChartData<ChartTypeRegistry, [], >",
+                    "typeParameters": [],
+                    "line": 126,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "electricityUsage",
+                            "type": "ElectricityUsage[]",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 60,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "updateChart",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 116,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -1022,22 +1141,73 @@
             "standalone": true,
             "imports": [
                 {
-                    "name": "JsonPipe",
-                    "type": "pipe"
-                },
-                {
                     "name": "AgGridAngular"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, Input } from '@angular/core';\nimport { AgGridAngular } from 'ag-grid-angular';\nimport { ColDef } from 'ag-grid-community';\nimport { ElectricityUsage } from './electricity-usage.model';\nimport { JsonPipe } from '@angular/common';\n\n@Component({\n    selector: 'menlo-electricity-usage',\n    standalone: true,\n    imports: [JsonPipe, AgGridAngular],\n    template: ` <div class=\"h-100\">\n        <ag-grid-angular class=\"ag-theme-quartz\" [rowData]=\"electricityUsage\" [columnDefs]=\"columnDefs\" [defaultColDef]=\"defaultColDef\" />\n    </div>`,\n    styleUrl: './electricity-usage.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityUsageComponent {\n    @Input() public electricityUsage: ElectricityUsage[] = [];\n\n    public readonly columnDefs: ColDef[] = [\n        { field: 'date', headerName: 'Date' },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ];\n\n    public readonly defaultColDef: ColDef = {\n        flex: 1\n    };\n}\n",
+            "sourceCode": "import { afterRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, OnInit } from '@angular/core';\nimport { AgGridAngular } from 'ag-grid-angular';\nimport { ColDef } from 'ag-grid-community';\nimport { ElectricityUsage } from './electricity-usage.model';\nimport { DatePipe } from '@angular/common';\nimport { DateOrString } from 'menlo-lib';\nimport { Chart, ChartConfiguration, registerables, ChartData, ChartTypeRegistry, Point, BubbleDataPoint, ChartItem } from 'chart.js';\n\n@Component({\n    selector: 'menlo-electricity-usage',\n    standalone: true,\n    imports: [AgGridAngular],\n    providers: [DatePipe],\n    template: ` <div class=\"d-flex justify-content-center h-50\">\n            <canvas id=\"chart\"></canvas>\n        </div>\n        <div class=\"h-50\">\n            <ag-grid-angular\n                class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n                [rowData]=\"electricityUsage()\"\n                [columnDefs]=\"columnDefs\"\n                [defaultColDef]=\"defaultColDef\" />\n        </div>`,\n    styleUrl: './electricity-usage.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityUsageComponent implements OnInit {\n    private _chartElement: ChartItem | null = null;\n    private _chartInstance: Chart | null = null;\n    private _chartData = computed(() => this.getChartData(this.electricityUsage()));\n\n    public readonly electricityUsage = input.required<ElectricityUsage[]>();\n\n    public readonly columnDefs: ColDef[] = [\n        {\n            field: 'date',\n            headerName: 'Date',\n            cellRenderer: (params: { value: DateOrString }) => this._datePipe.transform(params.value, 'dd MMM YYYY')\n        },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ];\n\n    public readonly defaultColDef: ColDef = {\n        flex: 1\n    };\n\n    public get chart(): Chart | null {\n        return this._chartInstance;\n    }\n\n    constructor(\n        private readonly _datePipe: DatePipe,\n        private readonly _elementRef: ElementRef\n    ) {\n        effect(() => {\n            this.updateChart();\n        });\n    }\n\n    public ngOnInit(): void {\n        if (this._chartElement !== null) {\n            return;\n        }\n\n        this._chartElement = this._elementRef.nativeElement.querySelector('#chart');\n        if (this._chartElement === null) {\n            console.error('Could not find chart element');\n            return;\n        }\n        this.createChart();\n    }\n\n    private createChart(): void {\n        if (this._chartElement === null) {\n            return;\n        }\n\n        Chart.register(...registerables);\n\n        const config: ChartConfiguration = {\n            type: 'line',\n            data: this._chartData(),\n            options: {\n                responsive: true,\n                plugins: {\n                    title: {\n                        display: true,\n                        text: 'Electricity Usage'\n                    }\n                },\n                interaction: {\n                    intersect: false\n                },\n                scales: {\n                    x: {\n                        beginAtZero: true,\n                        title: {\n                            display: true,\n                            text: 'Date'\n                        }\n                    },\n                    y: {\n                        beginAtZero: true,\n                        title: {\n                            display: true,\n                            text: 'Units'\n                        }\n                    }\n                }\n            }\n        };\n\n        this._chartInstance = new Chart(this._chartElement!, config);\n    }\n\n    private updateChart(): void {\n        if (this._chartInstance === null) {\n            console.error('Chart instance is null');\n            return;\n        }\n\n        this._chartInstance.data = this._chartData();\n        this._chartInstance.update();\n    }\n\n    private getChartData(\n        electricityUsage: ElectricityUsage[]\n    ): ChartData<keyof ChartTypeRegistry, (number | [number, number] | Point | BubbleDataPoint | null)[], unknown> {\n        return {\n            labels: electricityUsage.map(usage => new Date(usage.date).toLocaleDateString()),\n            datasets: [\n                {\n                    label: 'Electricity Usage',\n                    data: electricityUsage.map(usage => usage.units),\n                    pointStyle: 'circle',\n                    pointRadius: 10\n                }\n            ]\n        };\n    }\n}\n",
             "styleUrl": "./electricity-usage.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
-            "extends": []
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "_datePipe",
+                        "type": "DatePipe",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "_elementRef",
+                        "type": "ElementRef",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 49,
+                "jsdoctags": [
+                    {
+                        "name": "_datePipe",
+                        "type": "DatePipe",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "_elementRef",
+                        "type": "ElementRef",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "implements": [
+                "OnInit"
+            ],
+            "accessors": {
+                "chart": {
+                    "name": "chart",
+                    "getSignature": {
+                        "name": "chart",
+                        "type": "",
+                        "returnType": "Chart | null",
+                        "line": 47
+                    }
+                }
+            }
         },
         {
             "name": "HomeComponent",
@@ -1078,7 +1248,7 @@
         },
         {
             "name": "UtilitiesDashboardComponent",
-            "id": "component-UtilitiesDashboardComponent-61bd68069b8d82d1aac1cb72e711b805f59abfeb838195427468ec34f62c8b94c7e8cc1964ba0d38425e9b6f931c7d588ab1cdcaac55d0ed1bf70d031f905437",
+            "id": "component-UtilitiesDashboardComponent-f4f3e26261f5f567b8a514152c094961f5d2654e2dfbce0cb32b66de0a95e8445bf35ec87186457bed2fe8ce15fc802d859c7ef4dc1e2f3a67df61e4af1b7c78",
             "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1088,14 +1258,42 @@
             "providers": [],
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article></article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
             "inputsClass": [],
             "outputsClass": [],
-            "propertiesClass": [],
-            "methodsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "electricityUsage",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Signal<ElectricityUsage[]>",
+                    "optional": false,
+                    "description": "",
+                    "line": 32,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "setupElectricityUsageObservable",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Observable<ElectricityUsage[]>",
+                    "typeParameters": [],
+                    "line": 39,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -1103,22 +1301,58 @@
             "standalone": true,
             "imports": [
                 {
-                    "name": "CommonModule",
-                    "type": "module"
+                    "name": "AsyncPipe",
+                    "type": "pipe"
+                },
+                {
+                    "name": "JsonPipe",
+                    "type": "pipe"
                 },
                 {
                     "name": "RouterLinkWithHref"
+                },
+                {
+                    "name": "ElectricityUsageComponent",
+                    "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\n\n@Component({\n    standalone: true,\n    imports: [CommonModule, RouterLinkWithHref],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article></article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent {}\n",
+            "sourceCode": "import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';\nimport { ChangeDetectionStrategy, Component, Signal } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\nimport { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { map, Observable, takeUntil } from 'rxjs';\nimport { ElectricityUsageQueryFactory } from '@utilities/electricity';\nimport { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';\nimport { DestroyableComponent } from 'menlo-lib';\nimport { toSignal } from '@angular/core/rxjs-interop';\n\n@Component({\n    standalone: true,\n    imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent extends DestroyableComponent {\n    public readonly electricityUsage: Signal<ElectricityUsage[]>;\n\n    constructor(private readonly _utilitiesService: UtilitiesService) {\n        super();\n        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });\n    }\n\n    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {\n        const today = new Date();\n        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);\n        const request = ElectricityUsageQueryFactory.create(startDate, today);\n        return this._utilitiesService.getElectricityUsage(request).pipe(\n            map(response =>\n                response.map(\n                    item =>\n                        <ElectricityUsage>{\n                            date: item.date,\n                            units: item.units\n                        }\n                )\n            ),\n            takeUntil(this.destroyed$)\n        );\n    }\n}\n",
             "styleUrl": "./utilities-dashboard.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
-            "extends": []
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 32,
+                "jsdoctags": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [
+                "DestroyableComponent"
+            ]
         }
     ],
     "modules": [],
@@ -1601,7 +1835,7 @@
                 "linktype": "component",
                 "name": "ElectricityUsageComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/12",
                 "status": "low"
             },
             {
@@ -1628,7 +1862,7 @@
                 "linktype": "component",
                 "name": "UtilitiesDashboardComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/1",
+                "coverageCount": "0/4",
                 "status": "low"
             },
             {
