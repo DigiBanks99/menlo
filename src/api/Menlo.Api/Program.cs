@@ -17,6 +17,9 @@ builder.AddUtilitiesModule();
 
 WebApplication app = builder.Build();
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -24,7 +27,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseUtilitiesModule();
-
-app.UseHttpsRedirection();
 
 app.Run();
