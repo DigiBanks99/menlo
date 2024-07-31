@@ -18,7 +18,6 @@ builder.AddUtilitiesModule();
 WebApplication app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
@@ -26,6 +25,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseFileServer();
+
 app.UseUtilitiesModule();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
