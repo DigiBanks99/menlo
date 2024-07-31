@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -71,6 +71,8 @@ jobs:
       contents: read
       attestations: write
       id-token: write
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags[0] }}
     steps:
       - uses: actions/checkout@v4
       - name: Login to Docker Hub
@@ -102,3 +104,25 @@ jobs:
           build-args: |
             VERSION=8.0
 
+  deploy_infra:
+    name: Deploy Azure Infra
+    runs-on: ubunut-latest
+    needs: build_docker
+    env:
+      CONTAINER_APP_IMAGE: menlo/menlo:${{ needs.build_docker.outputs.image-tag }}
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure CLI script
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az deployment group create \
+              --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
+              --parameters @infra/main.bicepparam

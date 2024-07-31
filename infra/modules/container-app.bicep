@@ -16,6 +16,12 @@ type ContainerApp = {
   maxReplicas: int
 }
 
+@export()
+type CosmosInfo = {
+    accountEndpoint: string
+    databaseName: string
+}
+
 @description('Location for the container app.')
 param location string = resourceGroup().location
 
@@ -69,52 +75,58 @@ param minReplicas int = 1
 @maxValue(25)
 param maxReplicas int = 1
 
+@description('Cosmos info')
+param cosmos CosmosInfo
+
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
-    name: envionrmentName
-    location: location
-    properties: {
-    }
+  name: envionrmentName
+  location: location
+  properties: {}
 }
 
 resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
-    name: containerAppName
-    location: location
-    identity: {
-        type: 'SystemAssigned'
+  name: containerAppName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: targetPort
+        allowInsecure: false
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
+      }
     }
-    properties: {
-        managedEnvironmentId: containerAppEnv.id
-        configuration:{
-            ingress:{
-                external: true
-                targetPort: targetPort
-                allowInsecure: false
-                traffic: [
-                    {
-                        latestRevision: true
-                        weight: 100
-                    }
-                ]
-            }
+    template: {
+      revisionSuffix: revisionSuffix
+      containers: [
+        {
+          name: containerAppName
+          image: image
+          resources: {
+            cpu: json(cpuCore)
+            memory: '${memorySize}Gi'
+          }
+          env: [
+            { name: 'RepositoryOptions__AccountEndpoint', value: cosmos.accountEndpoint }
+            { name: 'RepositoryOptions__DatabaseId', value: cosmos.databaseName }
+          ]
         }
-        template: {
-            revisionSuffix: revisionSuffix
-            containers: [
-                {
-                    name: containerAppName
-                    image: image
-                    resources: {
-                        cpu: json(cpuCore)
-                        memory: '${memorySize}Gi'
-                    }
-                }
-            ]
-            scale: {
-                minReplicas: minReplicas
-                maxReplicas: maxReplicas
-            }
-        }
+      ]
+      scale: {
+        minReplicas: minReplicas
+        maxReplicas: maxReplicas
+      }
     }
+  }
 }
 
 output id string = containerApp.id

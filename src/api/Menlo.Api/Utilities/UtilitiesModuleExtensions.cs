@@ -6,7 +6,7 @@ internal static class UtilitiesModuleExtensions
 {
     internal static WebApplicationBuilder AddUtilitiesModule(this WebApplicationBuilder builder)
     {
-        builder.Services.AddUtilitiesModule();
+        builder.Services.AddUtilitiesModule(builder.Configuration);
 
         return builder;
     }
