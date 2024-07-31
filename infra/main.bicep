@@ -36,6 +36,10 @@ module app 'modules/container-app.bicep' = {
     minReplicas: containerApp.minReplicas
     maxReplicas: containerApp.maxReplicas
     targetPort: containerApp.targetPort
+    cosmos: {
+        accountEndpoint: cosmos.outputs.endpoint
+        databaseName: cosmosAccount.database.name
+    }
   }
 }
 
