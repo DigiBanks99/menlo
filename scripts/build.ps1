@@ -2,16 +2,18 @@
 Push-Location -Path $PSScriptRoot\..\src\ui\web
 
 # Build lib
-Write-Host "🏗️ Building library..."
+Write-Host "🏗️ Building menlo-lib..."
 npm run build:lib
 if ($LASTEXITCODE -ne 0) {
+    Pop-Location
     exit $LASTEXITCODE
 }
 
 # Build app
-Write-Host "🏗️ Building application..."
+Write-Host "🏗️ Building menlo-app..."
 npm run build:app
 if ($LASTEXITCODE -ne 0) {
+    Pop-Location
     exit $LASTEXITCODE
 }
 
@@ -27,8 +29,8 @@ if (-not (Test-Path -Path wwwroot)) {
 }
 
 # Clear the wwwroot directory
-Write-Host "🧹 Clearing wwwroot...
-Remove-Item -Path wwwroot\* -Recurse -Force"
+Write-Host "🧹 Clearing wwwroot..."
+Remove-Item -Path wwwroot\* -Recurse -Force
 
 # Copy the built files to the wwwroot directory
 Write-Host "📦 Copying files to wwwroot..."
@@ -42,4 +44,26 @@ Push-Location -Path $PSScriptRoot\..\src
 
 # Build the Application
 Write-Host "🏗️ Building application..."
-dotnet build
+dotnet build --configuration release --no-restore
+if ($LASTEXITCODE -ne 0) {
+    Pop-Location
+    exit $LASTEXITCODE
+}
+
+# Publish the linux-musl-x64 binaries
+Write-Host "📦 Publishing the linux x64 binaries..."
+Remove-Item -Path artifacts\publish\Menlo.Api\release_linux-musl-x64\* -Recurse -Force
+Remove-Item -Path artifacts\api\* -Recurse -Force
+dotnet publish api\Menlo.Api\ --configuration Release -r linux-musl-x64
+Copy-Item -Path artifacts\publish\Menlo.Api\release_linux-musl-x64\* -Destination artifacts\api -Recurse -Force
+if ($LASTEXITCODE -ne 0) {
+    Pop-Location
+    exit $LASTEXITCODE
+}
+
+# Build docker image
+Write-Host "🐋 Buidling Docker image"
+podman build -f Dockerfile -t menlo:test . --build-arg VERSION=8.0
+
+# Navigate back to the original directory
+Pop-Location

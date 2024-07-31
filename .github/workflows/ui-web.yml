@@ -11,6 +11,8 @@ on:
 
 jobs:
   build:
+    name: Build and Test
+
     defaults:
       run:
         working-directory: src/ui/web
