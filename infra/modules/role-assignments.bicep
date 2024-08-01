@@ -36,10 +36,10 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = if
 }
 
 resource containerAppCosmosRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(subscription().subscriptionId, 'containerAppCosmosRoleAssignment', containerAppIdentity!.principalId)
+    name: guid(subscription().subscriptionId, 'containerAppCosmosRoleAssignment', containerAppIdentity!.principalId!)
     scope: cosmos
     properties: {
-        principalId: containerAppIdentity!.principalId
+        principalId: containerAppIdentity!.principalId!
         roleDefinitionId: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosIdentity!.name, roleIds.cosmosDbAccountReader)
     }
 }
