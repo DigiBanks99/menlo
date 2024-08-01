@@ -122,12 +122,10 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      CONTAINER_APP_IMAGE: ${{ needs.build_docker.outputs.image-tag }}
     steps:
       - run: echo "Tag used - $CONTAINER_APP_IMAGE"
-      - run: echo "Tag used - ${{ needs.build_docker.outputs.image-tag }}"
-      - run: echo "Tag used - ${{ env.CONTAINER_APP_IMAGE }}"
+        env:
+          CONTAINER_APP_IMAGE: ${{ needs.build_docker.outputs.image-tag }}
       - uses: actions/checkout@v4
       - name: Azure login
         uses: azure/login@v2
@@ -151,7 +149,7 @@ jobs:
           COSMOS_DATABASE_NAME: ${{ vars.COSMOS_DATABASE_NAME}}
           CONTAINER_APP_NAME: ${{ vars.CONTAINER_APP_NAME}}
           CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME}}
-          CONTAINER_APP_IMAGE: ${{ env.CONTAINER_APP_IMAGE }}
+          CONTAINER_APP_IMAGE: ${{ needs.build_docker.outputs.image-tag }}
           CONTAINER_APP_CPU_CORE: ${{ vars.CONTAINER_APP_CPU_CORE }}
           CONTAINER_APP_MEMORY_SIZE: ${{ vars.CONTAINER_APP_MEMORY_SIZE }}
 
