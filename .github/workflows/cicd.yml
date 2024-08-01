@@ -122,6 +122,7 @@ jobs:
     env:
       CONTAINER_APP_IMAGE: menlo/menlo:${{ needs.build_docker.outputs.image-tag }}
     steps:
+      - uses: actions/checkout@v4
       - name: Azure login
         uses: azure/login@v2
         with:
