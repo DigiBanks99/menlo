@@ -105,7 +105,7 @@ resource containerResource 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
         indexingPolicy: {
           indexingMode: container.indexingPolicy.indexingMode
           includedPaths: container.indexingPolicy.?includedPaths ?? []
-          excludedPaths: container.indexingPolicy.?excludePaths ?? [
+          excludedPaths: container.indexingPolicy.?excludedPaths ?? [
             {
               path: '/_etag/?'
             }
