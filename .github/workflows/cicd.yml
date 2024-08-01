@@ -78,8 +78,6 @@ jobs:
       contents: read
       attestations: write
       id-token: write
-    outputs:
-      image-tag: ${{ steps.tags.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Login to Docker Hub
@@ -96,8 +94,6 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{major}}.{{minor}}
-      - run: echo "tag=${{ steps.meta.outputs.tags }}" >> "$GITHUB_OUTPUT"
-        id: tags
       - name: Download published API
         uses: actions/download-artifact@v4
         with:
@@ -123,9 +119,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - run: echo "Tag used - $CONTAINER_APP_IMAGE"
-        env:
-          CONTAINER_APP_IMAGE: ${{ needs.build_docker.outputs.image-tag }}
       - uses: actions/checkout@v4
       - name: Azure login
         uses: azure/login@v2
@@ -149,7 +142,7 @@ jobs:
           COSMOS_DATABASE_NAME: ${{ vars.COSMOS_DATABASE_NAME}}
           CONTAINER_APP_NAME: ${{ vars.CONTAINER_APP_NAME}}
           CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME}}
-          CONTAINER_APP_IMAGE: ${{ needs.build_docker.outputs.image-tag }}
+          CONTAINER_APP_IMAGE: ${{ vars.CONTAINER_APP_IMAGE }}
           CONTAINER_APP_CPU_CORE: ${{ vars.CONTAINER_APP_CPU_CORE }}
           CONTAINER_APP_MEMORY_SIZE: ${{ vars.CONTAINER_APP_MEMORY_SIZE }}
 
