@@ -52,17 +52,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Restore dependencies
-        run: dotnet restore src/Menlo.sln
       - name: Download menlo-app Artifact to wwwroot
         uses: actions/download-artifact@v4
         with:
           name: menlo-app
           path: src/api/Menlo.Api/wwwroot
-      - name: Build
-        run: dotnet build src/Menlo.sln --no-restore --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore src/Menlo.sln --runtime linux-x64
       - name: Publish
-        run: dotnet publish src/api/Menlo.Api --no-restore --no-build --configuration Release --runtime linux-x64
+        run: dotnet publish src/api/Menlo.Api --no-restore --configuration Release --runtime linux-x64
       - name: Publish API Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -95,6 +93,7 @@ jobs:
           images: |
             ${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{major}}.{{minor}}
       - name: Download published API
         uses: actions/download-artifact@v4
