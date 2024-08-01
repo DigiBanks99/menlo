@@ -115,6 +115,9 @@ jobs:
     name: Deploy Azure Infra
     runs-on: ubuntu-latest
     needs: build_docker
+    permissions:
+      id-token: write
+      contents: read
     env:
       CONTAINER_APP_IMAGE: menlo/menlo:${{ needs.build_docker.outputs.image-tag }}
     steps:
