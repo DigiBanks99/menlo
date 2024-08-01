@@ -13,7 +13,7 @@ param cosmosAccount = {
         indexingPolicy: {
           indexingMode: 'consistent'
           includedPaths: [
-            { paths: '/*' }
+            { path: '/*' }
           ]
           excludedPaths: [
             { path: '/_etag/?' }
