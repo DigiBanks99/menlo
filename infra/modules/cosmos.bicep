@@ -50,7 +50,7 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   kind: 'GlobalDocumentDB'
   properties: {
     databaseAccountOfferType: 'Standard'
-    defaultIdentity: 'SystemAssigned'
+    defaultIdentity: 'SystemAssignedIdentity'
     locations: [
       {
         locationName: location
