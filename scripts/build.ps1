@@ -50,12 +50,12 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Publish the linux-musl-x64 binaries
+# Publish the linux-x64 binaries
 Write-Host "📦 Publishing the linux x64 binaries..."
-Remove-Item -Path artifacts\publish\Menlo.Api\release_linux-musl-x64\* -Recurse -Force
+Remove-Item -Path artifacts\publish\Menlo.Api\release_linux-x64\* -Recurse -Force
 Remove-Item -Path artifacts\api\* -Recurse -Force
-dotnet publish api\Menlo.Api\ --configuration Release -r linux-musl-x64
-Copy-Item -Path artifacts\publish\Menlo.Api\release_linux-musl-x64\* -Destination artifacts\api -Recurse -Force
+dotnet publish api\Menlo.Api\ --configuration Release -r linux-x64
+Copy-Item -Path artifacts\publish\Menlo.Api\release_linux-x64\* -Destination artifacts\api -Recurse -Force
 if ($LASTEXITCODE -ne 0) {
     Pop-Location
     exit $LASTEXITCODE

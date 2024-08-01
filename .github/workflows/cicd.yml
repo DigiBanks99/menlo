@@ -62,12 +62,12 @@ jobs:
       - name: Build
         run: dotnet build src/Menlo.sln --no-restore --configuration Release
       - name: Publish
-        run: dotnet publish src/api/Menlo.Api --no-restore --no-build --configuration Release --runtime linux-musl-x64
+        run: dotnet publish src/api/Menlo.Api --no-restore --no-build --configuration Release --runtime linux-x64
       - name: Publish API Artifact
         uses: actions/upload-artifact@v4
         with:
           name: api
-          path: src/artifacts/publish/Menlo.Api/release_linux-musl-x64
+          path: src/artifacts/publish/Menlo.Api/release_linux-x64
           overwrite: true
 
   build_docker:
