@@ -91,7 +91,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}
+            ${{ vars.DOCKER_REPOSITORY }}/${{ vars.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{major}}.{{minor}}
@@ -133,3 +133,11 @@ jobs:
             az deployment group create \
               --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
               --parameters @infra/main.bicepparam
+        env:
+          COSMOS_ACCOUNT_NAME: ${{ vars.COSMOS_ACCOUNT_NAME}}
+          COSMOS_CONTAINER_NAME_UTILITIES: ${{ vars.COSMOS_CONTAINER_NAME_UTILITIES}}
+          COSMOS_DATABASE_NAME: ${{ vars.COSMOS_DATABASE_NAME}}
+          CONTAINER_APP_NAME: ${{ vars.CONTAINER_APP_NAME}}
+          CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME}}
+          CONTAINER_APP_IMAGE: ${{ vars.CONTAINER_APP_IMAGE }}
+
