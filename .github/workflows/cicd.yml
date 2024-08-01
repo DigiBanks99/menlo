@@ -136,7 +136,7 @@ jobs:
           inlineScript: |
             az deployment group create \
               --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
-              --parameters @infra/main.bicepparam
+              --parameters infra/main.bicepparam
         env:
           COSMOS_ACCOUNT_NAME: ${{ vars.COSMOS_ACCOUNT_NAME}}
           COSMOS_CONTAINER_NAME_UTILITIES: ${{ vars.COSMOS_CONTAINER_NAME_UTILITIES}}
