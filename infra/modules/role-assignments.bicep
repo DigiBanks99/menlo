@@ -3,7 +3,7 @@ type PrincipalIdentity = {
   key: 'containerApp' | 'cosmos'
   resourceId: string
   name: string
-  principalId: string
+  principalId: string?
 }
 
 @description('Principal IDs for specific resources')
