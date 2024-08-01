@@ -58,12 +58,6 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
       }
     ]
     capabilities: [
-      {
-        name: 'EnableFreeTier'
-      }
-      {
-        name: 'EnableServerless'
-      }
     ]
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
