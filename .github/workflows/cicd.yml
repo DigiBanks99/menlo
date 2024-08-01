@@ -78,7 +78,7 @@ jobs:
       attestations: write
       id-token: write
     outputs:
-      image-tag: ${{ steps.meta.outputs.bake-file-tags[0] }}
+      image-tag: ${{ steps.tags.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Login to Docker Hub
@@ -95,6 +95,8 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{major}}.{{minor}}
+      - run: echo "tag=${{ steps.meta.outputs.tags }}" >> "$GITHUB_OUTPUT"
+        id: tags
       - name: Download published API
         uses: actions/download-artifact@v4
         with:
