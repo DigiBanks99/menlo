@@ -78,7 +78,7 @@ jobs:
       attestations: write
       id-token: write
     outputs:
-      image-tag: ${{ steps.meta.outputs.tags[0] }}
+      image-tag: ${{ steps.meta.outputs.bake-file-tags[0] }}
     steps:
       - uses: actions/checkout@v4
       - name: Login to Docker Hub
