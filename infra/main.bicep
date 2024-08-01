@@ -51,7 +51,6 @@ module roleAssignment 'modules/role-assignments.bicep' = {
         key: 'cosmos'
         name: cosmos.outputs.accountName
         resourceId: cosmos.outputs.id
-        principalId: cosmos.outputs.identityId
       }
       {
         key: 'containerApp'

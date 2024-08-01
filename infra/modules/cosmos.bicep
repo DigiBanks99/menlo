@@ -114,4 +114,3 @@ output accountName string = account.name
 output resourceGroupName string = resourceGroup().name
 output resourceId string = account.id
 output endpoint string = account.properties.documentEndpoint
-output identityId string = account.identity.principalId
