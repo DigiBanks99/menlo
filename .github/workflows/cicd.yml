@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: menlo-app
-          path: src/ui/web/dist/menlo-app
+          path: src/ui/web/dist/menlo-app/browser
           overwrite: true
 
   build_api:
@@ -145,4 +145,7 @@ jobs:
           CONTAINER_APP_IMAGE: ${{ vars.CONTAINER_APP_IMAGE }}
           CONTAINER_APP_CPU_CORE: ${{ vars.CONTAINER_APP_CPU_CORE }}
           CONTAINER_APP_MEMORY_SIZE: ${{ vars.CONTAINER_APP_MEMORY_SIZE }}
+          CONTAINER_APP_CERTIFICATE_NAME: ${{ secrets.CONTAINER_APP_CERTIFICATE_NAME }}
+          CONTAINER_APP_CERTIFICATE_DOMAIN_CONTROL_VALIDATION: ${{ vars.CONTAINER_APP_CERTIFICATE_DOMAIN_CONTROL_VALIDATION }}
+          CONTAINER_APP_CERTIFICATE_SUBJECT_NAME: ${{ vars.CONTAINER_APP_CERTIFICATE_SUBJECT_NAME }}
 

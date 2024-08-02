@@ -30,12 +30,19 @@ param cosmosAccount = {
 
 param containerApp = {
   containerAppName: readEnvironmentVariable('CONTAINER_APP_NAME')
-  environmentName: readEnvironmentVariable('CONTAINER_APP_ENVIRONMENT_NAME')
+  environment: {
+    name: readEnvironmentVariable('CONTAINER_APP_ENVIRONMENT_NAME')
+    certificate: {
+      name: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_NAME')
+      subjectName: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_SUBJECT_NAME')
+      domainControlValidation: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_DOMAIN_CONTROL_VALIDATION')
+    }
+  }
   image: readEnvironmentVariable('CONTAINER_APP_IMAGE')
   revisionSuffix: readEnvironmentVariable('CONTAINER_APP_REVISION_SUFFIX', 'current')
   cpuCore: readEnvironmentVariable('CONTAINER_APP_CPU_CORE', '0.5')
   memorySize: readEnvironmentVariable('CONTAINER_APP_MEMORY_SIZE', '1.0')
   maxReplicas: int(readEnvironmentVariable('CONTAINER_APP_MAX_REPLICAS', '1'))
   minReplicas: int(readEnvironmentVariable('CONTAINER_APP_MIN_REPLICAS', '1'))
-  targetPort: int(readEnvironmentVariable('CONTAINER_APP_TARGET_PORT', '5001'))
+  targetPort: int(readEnvironmentVariable('CONTAINER_APP_TARGET_PORT', '8080'))
 }

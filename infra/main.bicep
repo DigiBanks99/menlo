@@ -26,7 +26,7 @@ module cosmos 'modules/cosmos.bicep' = {
 module app 'modules/container-app.bicep' = {
   name: 'containerApp'
   params: {
-    envionrmentName: containerApp.environmentName
+    managedEnvironment: containerApp.environment
     containerAppName: containerApp.containerAppName
     location: location
     revisionSuffix: containerApp.revisionSuffix
