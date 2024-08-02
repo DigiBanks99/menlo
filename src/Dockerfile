@@ -9,8 +9,6 @@ RUN apt-get update && \
     addgroup dotnet && \
     adduser -system -u 1000 -group dotnet
 
-ENV ASPNETCORE_URLS=http://+:5000;https://+:5001
-
 ENV TZ=Africa/Johannesburg
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 

@@ -1,6 +1,6 @@
 @export()
 type ContainerApp = {
-  environmentName: string
+  environment: ManagedEnvironment
   containerAppName: string
   targetPort: int
   revisionSuffix: string
@@ -17,16 +17,29 @@ type ContainerApp = {
 }
 
 @export()
+type ManagedEnvironment = {
+  name: string
+  certificate: ManagedCertificate
+}
+
+@export()
+type ManagedCertificate = {
+  name: string
+  subjectName: string
+  domainControlValidation: 'CNAME' | 'TXT' | 'HTTP'
+}
+
+@export()
 type CosmosInfo = {
-    accountEndpoint: string
-    databaseName: string
+  accountEndpoint: string
+  databaseName: string
 }
 
 @description('Location for the container app.')
 param location string = resourceGroup().location
 
 @description('The name of the container app environment.')
-param envionrmentName string
+param managedEnvironment ManagedEnvironment
 
 @description('The name of the container app.')
 param containerAppName string
@@ -79,9 +92,19 @@ param maxReplicas int = 1
 param cosmos CosmosInfo
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
-  name: envionrmentName
+  name: managedEnvironment.name
   location: location
   properties: {}
+}
+
+resource cert 'Microsoft.App/managedEnvironments/managedCertificates@2024-03-01' = {
+  parent: containerAppEnv
+  name: managedEnvironment.certificate.name
+  location: location
+  properties: {
+    subjectName: managedEnvironment.certificate.subjectName
+    domainControlValidation: managedEnvironment.certificate.domainControlValidation
+  }
 }
 
 resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
@@ -102,6 +125,9 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             latestRevision: true
             weight: 100
           }
+        ]
+        customDomains: [
+          { name: managedEnvironment.certificate.subjectName, bindingType: 'SniEnabled', certificateId: cert.id }
         ]
       }
     }
