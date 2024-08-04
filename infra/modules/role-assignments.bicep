@@ -26,7 +26,7 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
         description: 'Read-only access to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/'
+            '/providers/Microsoft.DocumentDB/databaseAccounts'
         ]
         permissions: [
             {
@@ -52,7 +52,7 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
         description: 'Contribute acess to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/'
+            '/providers/Microsoft.DocumentDB/databaseAccounts'
         ]
         permissions: [
             {
@@ -73,7 +73,7 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
     name: identities.cosmos.name
 }
 
-resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+/*resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     name: guid(identities.containerApp.principalId!, roleIds.cosmosDbAccountReader, resourceGroup().id)
     scope: cosmos
     properties: {
@@ -89,7 +89,7 @@ resource roleAssignmentCosmosDataContributorContainerApp 'Microsoft.Authorizatio
         principalId: identities.containerApp.principalId!
         roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountContributor)
     }
-}
+}*/
 
 resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     name: guid(identities.containerApp.principalId!, cosmosRoleDefReadMeta.id, resourceGroup().id)
