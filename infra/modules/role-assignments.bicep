@@ -19,7 +19,7 @@ var roleIds = {
 }
 
 resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-    name: roleIds.cosmosDbAccountReader
+    name: 'cosmosRoleDefReadMeta'
     scope: resourceGroup()
     properties: {
         roleName: 'Cosmos DB Account Meta Reader'
@@ -45,7 +45,7 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
 }
 
 resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-    name: roleIds.cosmosDbAccountReader
+    name: 'cosmosRoleDefContributeMeta'
     scope: resourceGroup()
     properties: {
         roleName: 'Cosmos DB Account Meta Contributor'
