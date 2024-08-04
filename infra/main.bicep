@@ -37,8 +37,8 @@ module app 'modules/container-app.bicep' = {
     maxReplicas: containerApp.maxReplicas
     targetPort: containerApp.targetPort
     cosmos: {
-        accountEndpoint: cosmos.outputs.endpoint
-        databaseName: cosmosAccount.database.name
+      accountEndpoint: cosmos.outputs.endpoint
+      databaseName: cosmosAccount.database.name
     }
   }
 }
@@ -46,19 +46,15 @@ module app 'modules/container-app.bicep' = {
 module roleAssignment 'modules/role-assignments.bicep' = {
   name: 'roleAssignment'
   params: {
-    identities: [
-      {
-        key: 'cosmos'
+    identities: {
+      cosmos: {
         name: cosmos.outputs.accountName
-        resourceId: cosmos.outputs.id
       }
-      {
-        key: 'containerApp'
+      containerApp: {
         name: app.outputs.containerAppName
-        resourceId: app.outputs.id
         principalId: app.outputs.identityId
       }
-    ]
+    }
   }
 }
 
