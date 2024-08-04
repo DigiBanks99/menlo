@@ -96,7 +96,7 @@ resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.Authorization/rol
     scope: cosmos
     properties: {
         principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountReader)
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefReadMeta.id)
     }
 }
 
@@ -105,6 +105,6 @@ resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.Authorizatio
     scope: cosmos
     properties: {
         principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountContributor)
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefContributeMeta.id)
     }
 }
