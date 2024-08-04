@@ -74,37 +74,37 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
 }
 
 resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(subscription().subscriptionId, 'roleAssignmentCosmosDataReaderContainerApp', roleIds.cosmosDbAccountReader, identities.containerApp.principalId!)
+    name: guid(identities.containerApp.principalId!, roleIds.cosmosDbAccountReader, resourceGroup().id)
     scope: cosmos
     properties: {
         principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.DocumentDB/databaseAccounts', identities.cosmos.name, roleIds.cosmosDbAccountReader)
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountReader)
     }
 }
 
 resource roleAssignmentCosmosDataContributorContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(subscription().subscriptionId, 'roleAssignmentCosmosDataContributorContainerApp', roleIds.cosmosDbAccountReader, identities.containerApp.principalId!)
+    name: guid(identities.containerApp.principalId!, roleIds.cosmosDbAccountContributor, resourceGroup().id)
     scope: cosmos
     properties: {
         principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.DocumentDB/databaseAccounts', identities.cosmos.name, roleIds.cosmosDbAccountContributor)
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountContributor)
     }
 }
 
 resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(subscription().subscriptionId, 'roleAssignmentCosmosMetaReaderContainerApp', cosmosRoleDefReadMeta.id, identities.cosmos.name)
+    name: guid(identities.containerApp.principalId!, cosmosRoleDefReadMeta.id, resourceGroup().id)
     scope: cosmos
     properties: {
-        principalId: identities.containerApp.name
-        roleDefinitionId: resourceId('Microsoft.DocumentDB/databaseAccounts', identities.cosmos.name, roleIds.cosmosDbAccountReader)
+        principalId: identities.containerApp.principalId!
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountReader)
     }
 }
 
 resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(subscription().subscriptionId, 'roleAssignmentCosmosMetaContributorContainerApp', cosmosRoleDefContributeMeta.id, identities.cosmos.name)
+    name: guid(identities.containerApp.principalId!, cosmosRoleDefContributeMeta.id, resourceGroup().id)
     scope: cosmos
     properties: {
-        principalId: identities.containerApp.name
-        roleDefinitionId: resourceId('Microsoft.DocumentDB/databaseAccounts', identities.cosmos.name, roleIds.cosmosDbAccountContributor)
+        principalId: identities.containerApp.principalId!
+        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountContributor)
     }
 }
