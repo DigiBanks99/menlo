@@ -31,6 +31,8 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
         type: 'CustomRole'
         assignableScopes: [
             subscription().id
+            resourceGroup().id
+            cosmos.id
         ]
         permissions: [
             {
@@ -57,6 +59,8 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
         type: 'CustomRole'
         assignableScopes: [
             subscription().id
+            resourceGroup().id
+            cosmos.id
         ]
         permissions: [
             {
