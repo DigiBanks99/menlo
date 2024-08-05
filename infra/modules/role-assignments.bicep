@@ -36,14 +36,14 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
         ]
         permissions: [
             {
-                actions: [
+                actions: []
+                notActions: []
+                dataActions: [
                     'Microsoft.DocumentDB/databaseAccounts/readMetadata'
                     'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
                     'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
                     'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
                 ]
-                notActions: []
-                dataActions: []
                 notDataActions: []
             }
         ]
@@ -64,13 +64,13 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
         ]
         permissions: [
             {
-                actions: [
+                actions: []
+                notActions: []
+                dataActions: [
                     'Microsoft.DocumentDB/databaseAccounts/readMetadata'
                     'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
                     'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
                 ]
-                notActions: []
-                dataActions: []
                 notDataActions: []
             }
         ]
