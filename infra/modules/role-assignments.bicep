@@ -19,62 +19,52 @@ param identities IdentityMap
 }*/
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
-    name: identities.cosmos.name
+  name: identities.cosmos.name
 }
 
 resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-    name: guid(subscription().id, 'cosmosRoleDefReadMeta')
-    scope: resourceGroup()
-    properties: {
-        roleName: 'Cosmos DB Account Meta Reader'
-        description: 'Read-only access to Cosmos DB account metadata'
-        type: 'CustomRole'
-        assignableScopes: [
-            subscription().id
-            resourceGroup().id
-            cosmos.id
+  name: guid(subscription().id, 'cosmosRoleDefReadMeta')
+  scope: resourceGroup()
+  properties: {
+    roleName: 'Cosmos DB Account Meta Reader'
+    description: 'Read-only access to Cosmos DB account metadata'
+    type: 'CustomRole'
+    assignableScopes: [
+      '/'
+    ]
+    permissions: [
+      {
+        dataActions: [
+          'Microsoft.DocumentDB/databaseAccounts/readMetadata'
+          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
+          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
+          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
         ]
-        permissions: [
-            {
-                actions: []
-                notActions: []
-                dataActions: [
-                    'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-                    'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read'
-                    'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery'
-                    'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed'
-                ]
-                notDataActions: []
-            }
-        ]
-    }
+      }
+    ]
+  }
 }
 
 resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-    name: guid(subscription().id, 'cosmosRoleDefContributeMeta')
-    scope: resourceGroup()
-    properties: {
-        roleName: 'Cosmos DB Account Meta Contributor'
-        description: 'Contribute acess to Cosmos DB account metadata'
-        type: 'CustomRole'
-        assignableScopes: [
-            subscription().id
-            resourceGroup().id
-            cosmos.id
+  name: guid(subscription().id, 'cosmosRoleDefContributeMeta')
+  scope: resourceGroup()
+  properties: {
+    roleName: 'Cosmos DB Account Meta Contributor'
+    description: 'Contribute acess to Cosmos DB account metadata'
+    type: 'CustomRole'
+    assignableScopes: [
+      '/'
+    ]
+    permissions: [
+      {
+        dataActions: [
+          'Microsoft.DocumentDB/databaseAccounts/readMetadata'
+          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
+          'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
         ]
-        permissions: [
-            {
-                actions: []
-                notActions: []
-                dataActions: [
-                    'Microsoft.DocumentDB/databaseAccounts/readMetadata'
-                    'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*'
-                    'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
-                ]
-                notDataActions: []
-            }
-        ]
-    }
+      }
+    ]
+  }
 }
 
 /*resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -96,19 +86,19 @@ resource roleAssignmentCosmosDataContributorContainerApp 'Microsoft.Authorizatio
 }*/
 
 resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(identities.containerApp.principalId!, cosmosRoleDefReadMeta.id, resourceGroup().id)
-    scope: cosmos
-    properties: {
-        principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefReadMeta.id)
-    }
+  name: guid(identities.containerApp.principalId!, cosmosRoleDefReadMeta.id, resourceGroup().id)
+  scope: cosmos
+  properties: {
+    principalId: identities.containerApp.principalId!
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefReadMeta.id)
+  }
 }
 
 resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(identities.containerApp.principalId!, cosmosRoleDefContributeMeta.id, resourceGroup().id)
-    scope: cosmos
-    properties: {
-        principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefContributeMeta.id)
-    }
+  name: guid(identities.containerApp.principalId!, cosmosRoleDefContributeMeta.id, resourceGroup().id)
+  scope: cosmos
+  properties: {
+    principalId: identities.containerApp.principalId!
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefContributeMeta.id)
+  }
 }
