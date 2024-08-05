@@ -13,9 +13,13 @@ type IdentityMap = {
 @description('Principal IDs for specific resources')
 param identities IdentityMap
 
-var roleIds = {
+/*var roleIds = {
     cosmosDbAccountReader: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
     cosmosDbAccountContributor: '5bd9cd88-fe45-4216-938b-f97437e15450'
+}*/
+
+resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
+    name: identities.cosmos.name
 }
 
 resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
@@ -26,7 +30,7 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
         description: 'Read-only access to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/providers/Microsoft.DocumentDB/databaseAccounts/${identities.cosmos.name}'
+            subscription().id
         ]
         permissions: [
             {
@@ -52,7 +56,7 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
         description: 'Contribute acess to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/providers/Microsoft.DocumentDB/databaseAccounts/${identities.cosmos.name}'
+            subscription().id
         ]
         permissions: [
             {
@@ -67,10 +71,6 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
             }
         ]
     }
-}
-
-resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
-    name: identities.cosmos.name
 }
 
 /*resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
