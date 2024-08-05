@@ -26,7 +26,7 @@ resource cosmosRoleDefReadMeta 'Microsoft.Authorization/roleDefinitions@2022-04-
         description: 'Read-only access to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/providers/Microsoft.DocumentDB'
+            '/providers/Microsoft.DocumentDB/databaseAccounts/${identities.cosmos.name}'
         ]
         permissions: [
             {
@@ -52,7 +52,7 @@ resource cosmosRoleDefContributeMeta 'Microsoft.Authorization/roleDefinitions@20
         description: 'Contribute acess to Cosmos DB account metadata'
         type: 'CustomRole'
         assignableScopes: [
-            '/providers/Microsoft.DocumentDB'
+            '/providers/Microsoft.DocumentDB/databaseAccounts/${identities.cosmos.name}'
         ]
         permissions: [
             {
