@@ -22,11 +22,11 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
   name: identities.cosmos.name
 }
 
-resource cosmosRoleDefReadMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
-  name: '${cosmos.name}/${guid(subscription().id, resourceGroup().id, 'cosmosRoleDefReadMeta')}'
+resource cosmosRoleDefReadMeta 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2021-04-15' = {
+  parent: cosmos
+  name: guid(subscription().id, resourceGroup().id, 'cosmosRoleDefReadMeta')
   properties: {
     roleName: 'Cosmos DB Account Meta Reader'
-    description: 'Read-only access to Cosmos DB account metadata'
     type: 'CustomRole'
     assignableScopes: [
       cosmos.id
@@ -44,11 +44,11 @@ resource cosmosRoleDefReadMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDef
   }
 }
 
-resource cosmosRoleDefContributeMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
-  name: '${cosmos.name}/${guid(subscription().id, resourceGroup().id, 'cosmosRoleDefContributeMeta')}'
+resource cosmosRoleDefContributeMeta 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2021-04-15' = {
+  parent: cosmos
+  name: guid(subscription().id, resourceGroup().id, 'cosmosRoleDefContributeMeta')
   properties: {
     roleName: 'Cosmos DB Account Meta Contributor'
-    description: 'Contribute acess to Cosmos DB account metadata'
     type: 'CustomRole'
     assignableScopes: [
       cosmos.id
