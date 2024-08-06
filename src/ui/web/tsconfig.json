@@ -16,6 +16,9 @@
       "menlo-lib/scss/*": [
         "../dist/menlo-lib/scss/*"
       ],
+      "@dates/*": [
+        "./menlo-app/src/app/dates/*"
+      ],
       "@home/*": [
         "./menlo-app/src/app/home/*"
       ],

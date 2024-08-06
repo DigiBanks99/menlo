@@ -5,6 +5,7 @@ import { ElectricityUsage } from './electricity-usage.model';
 import { DatePipe } from '@angular/common';
 import { DateOrString } from 'menlo-lib';
 import { Chart, ChartConfiguration, registerables, ChartData, ChartTypeRegistry, Point, BubbleDataPoint, ChartItem } from 'chart.js';
+import { compareDates } from '@dates/date-comparer';
 
 @Component({
     selector: 'menlo-electricity-usage',
@@ -126,16 +127,38 @@ export class ElectricityUsageComponent implements OnInit {
     private getChartData(
         electricityUsage: ElectricityUsage[]
     ): ChartData<keyof ChartTypeRegistry, (number | [number, number] | Point | BubbleDataPoint | null)[], unknown> {
+        const usages: number[] = this.calculateDailyDifferences(electricityUsage);
+
         return {
-            labels: electricityUsage.map(usage => new Date(usage.date).toLocaleDateString()),
+            labels: electricityUsage
+                .slice(1) // temporary fix so the first date doesn't show up empty
+                .map(usage => new Date(usage.date).toLocaleDateString()),
             datasets: [
                 {
                     label: 'Electricity Usage',
-                    data: electricityUsage.map(usage => usage.units),
+                    data: usages,
                     pointStyle: 'circle',
                     pointRadius: 10
+                },
+                {
+                    label: 'Average Usage',
+                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / usages.length),
+                    pointStyle: 'circle',
+                    pointRadius: 5
                 }
             ]
         };
+    }
+
+    private calculateDailyDifferences(usages: ElectricityUsage[]): number[] {
+        const differences: number[] = [];
+        const usagesSorted = usages.sort((a, b) => compareDates(a.date, b.date));
+        for (let i = 1; i < usagesSorted.length; i++) {
+            const left: ElectricityUsage = usagesSorted[i - 1];
+            const right: ElectricityUsage = usagesSorted[i];
+            const difference = right.getUnitDifference(left);
+            differences.push(difference);
+        }
+        return differences;
     }
 }

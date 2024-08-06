@@ -4,6 +4,9 @@ import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityUsa
 import { Observable } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideLocationMocks } from '@angular/common/testing';
+import { provideRouter } from '@angular/router';
+import { routes } from './utilities.routes';
 
 @Injectable({
     providedIn: 'root'
@@ -39,5 +42,5 @@ export function provideUtilitiesService(): Provider[] {
 }
 
 export function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {
-    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting()];
+    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting(), provideRouter([...routes]), provideLocationMocks()];
 }

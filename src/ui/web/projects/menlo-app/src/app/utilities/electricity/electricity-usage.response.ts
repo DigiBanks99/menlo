@@ -6,5 +6,5 @@ export interface ApplianceUsageResponse {
 export interface ElecricityUsageResponse {
     date: string;
     units: number;
-    appliances: ApplianceUsageResponse[];
+    applianceUsages: ApplianceUsageResponse[];
 }
