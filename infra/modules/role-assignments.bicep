@@ -44,7 +44,7 @@ resource cosmosRoleDefReadMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDef
   }
 }
 
-resource cosmosRoleDefContributeMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2021-04-15' = {
+resource cosmosRoleDefContributeMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
   name: '${cosmos.name}/${guid(subscription().id, resourceGroup().id, 'cosmosRoleDefContributeMeta')}'
   properties: {
     roleName: 'Cosmos DB Account Meta Contributor'
@@ -88,7 +88,7 @@ resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.DocumentDB/databa
   parent: cosmos
   properties: {
     principalId: identities.containerApp.principalId!
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefReadMeta.id)
+    roleDefinitionId: cosmosRoleDefReadMeta.id
     scope: cosmos.id
   }
 }
@@ -98,7 +98,7 @@ resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.DocumentDB/d
   parent: cosmos
   properties: {
     principalId: identities.containerApp.principalId!
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cosmosRoleDefContributeMeta.id)
+    roleDefinitionId: cosmosRoleDefContributeMeta.id
     scope: cosmos.id
   }
 }
