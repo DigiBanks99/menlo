@@ -69,7 +69,7 @@ export class ElectricityCaptureComponent extends DestroyableComponent {
             .pipe(takeUntil(this.destroyed$))
             .subscribe(() => {
                 this.form.reset();
-                this._router.navigate(['..']);
+                this._router.navigate(['dashboard'], { relativeTo: this._router.routerState.root });
             });
     }
 }

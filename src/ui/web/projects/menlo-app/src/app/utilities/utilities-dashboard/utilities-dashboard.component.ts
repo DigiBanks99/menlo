@@ -42,13 +42,18 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
         const request = ElectricityUsageQueryFactory.create(startDate, today);
         return this._utilitiesService.getElectricityUsage(request).pipe(
             map(response =>
-                response.map(
-                    item =>
-                        <ElectricityUsage>{
-                            date: item.date,
-                            units: item.units
-                        }
-                )
+                response.map(item => {
+                    const usage = new ElectricityUsage();
+                    usage.date = item.date;
+                    usage.units = item.units;
+                    for (const appliance of item.applianceUsages) {
+                        usage.applianceUsage.push({
+                            applianceId: appliance.applianceId,
+                            hoursOfUse: appliance.hoursOfUse
+                        });
+                    }
+                    return usage;
+                })
             ),
             takeUntil(this.destroyed$)
         );
