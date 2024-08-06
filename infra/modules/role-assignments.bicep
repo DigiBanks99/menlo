@@ -23,8 +23,7 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
 }
 
 resource cosmosRoleDefReadMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
-  name: guid(subscription().id, resourceGroup().id, 'cosmosRoleDefReadMeta')
-  parent: cosmos
+  name: '${cosmos.name}/${guid(subscription().id, resourceGroup().id, 'cosmosRoleDefReadMeta')}'
   properties: {
     roleName: 'Cosmos DB Account Meta Reader'
     description: 'Read-only access to Cosmos DB account metadata'
@@ -45,9 +44,8 @@ resource cosmosRoleDefReadMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDef
   }
 }
 
-resource cosmosRoleDefContributeMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
-  name: guid(subscription().id, resourceGroup().id, 'cosmosRoleDefContributeMeta')
-  parent: cosmos
+resource cosmosRoleDefContributeMeta 'Microsoft.DcoumentDB/databaseAccounts/sqlRoleDefinitions@2021-04-15' = {
+  name: '${cosmos.name}/${guid(subscription().id, resourceGroup().id, 'cosmosRoleDefContributeMeta')}'
   properties: {
     roleName: 'Cosmos DB Account Meta Contributor'
     description: 'Contribute acess to Cosmos DB account metadata'
@@ -85,7 +83,7 @@ resource roleAssignmentCosmosDataContributorContainerApp 'Microsoft.Authorizatio
     }
 }*/
 
-resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-04-01' = {
+resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-11-15' = {
   name: guid(subscription().id, resourceGroup().id, cosmosRoleDefReadMeta.id,  identities.containerApp.principalId!)
   parent: cosmos
   properties: {
@@ -95,7 +93,7 @@ resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.DocumentDB/databa
   }
 }
 
-resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-04-01' = {
+resource roleAssignmentCosmosMetaContributorContainerApp 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-11-15' = {
   name: guid(subscription().id, resourceGroup().id, cosmosRoleDefContributeMeta.id,  identities.containerApp.principalId!)
   parent: cosmos
   properties: {
