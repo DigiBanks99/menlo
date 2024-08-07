@@ -5,7 +5,23 @@ param cosmosAccount = {
   database: {
     containers: [
       {
-        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_UTILITIES')
+        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_USAGE')
+        partitionKeys: {
+          paths: ['/id']
+          kind: 'Hash'
+        }
+        indexingPolicy: {
+          indexingMode: 'consistent'
+          includedPaths: [
+            { path: '/*' }
+          ]
+          excludedPaths: [
+            { path: '/_etag/?' }
+          ]
+        }
+      }
+      {
+        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_PURCHASES')
         partitionKeys: {
           paths: ['/id']
           kind: 'Hash'

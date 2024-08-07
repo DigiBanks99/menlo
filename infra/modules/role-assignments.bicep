@@ -65,24 +65,6 @@ resource cosmosRoleDefContributeMeta 'Microsoft.DocumentDB/databaseAccounts/sqlR
   }
 }
 
-/*resource roleAssignmentCosmosDataReaderContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(identities.containerApp.principalId!, roleIds.cosmosDbAccountReader, resourceGroup().id)
-    scope: cosmos
-    properties: {
-        principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountReader)
-    }
-}
-
-resource roleAssignmentCosmosDataContributorContainerApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    name: guid(identities.containerApp.principalId!, roleIds.cosmosDbAccountContributor, resourceGroup().id)
-    scope: cosmos
-    properties: {
-        principalId: identities.containerApp.principalId!
-        roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleIds.cosmosDbAccountContributor)
-    }
-}*/
-
 resource roleAssignmentCosmosMetaReaderContainerApp 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-11-15' = {
   name: guid(subscription().id, resourceGroup().id, cosmosRoleDefReadMeta.id,  identities.containerApp.principalId!)
   parent: cosmos
