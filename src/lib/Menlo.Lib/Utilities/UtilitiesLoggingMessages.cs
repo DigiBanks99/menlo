@@ -10,4 +10,7 @@ public static partial class UtilitiesLoggingMessages
 
     [LoggerMessage(LogLevel.Information, "Handling electricity usage query: {Query}")]
     public static partial void HandlingElectricityUsageQuery(this ILogger logger, ElectricityUsageQuery query);
+
+    [LoggerMessage(LogLevel.Information, "Handling electricity purchase command: {Command}")]
+    public static partial void HandlingRequestToCaptureElectricityPurchase(this ILogger logger, CaptureElectricityPurchaseRequest command);
 }

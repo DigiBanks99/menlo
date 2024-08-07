@@ -15,7 +15,7 @@ public record CaptureElectricityUsageRequest
     public record ApplianceUsageInfo(int ApplianceId, decimal HoursOfUse);
 }
 
-internal class CaptureElectricityUsageHandler(
+internal sealed class CaptureElectricityUsageHandler(
     ILogger<CaptureElectricityUsageHandler> logger,
     IRepository<ElectricityUsage> repo)
     : ICommandHandler<CaptureElectricityUsageRequest, string>
