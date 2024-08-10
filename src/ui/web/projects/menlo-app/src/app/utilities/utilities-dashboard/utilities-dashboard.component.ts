@@ -14,11 +14,25 @@ import { toSignal } from '@angular/core/rxjs-interop';
     imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent],
     template: `<header class="d-flex flex-nowrap p-0">
             <h1 class="me-auto">Utilities</h1>
+            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->
             <div class="px-1">
-                <a class="btn btn-primary text-nowrap" routerLink="../electricity">
-                    <span class="material-symbols-outlined align-text-bottom">bolt</span>
-                    Add
-                </a>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-primary text-nowrap" routerLink="../electricity/usage" role="button">
+                        <span class="material-symbols-outlined align-text-bottom">bolt</span>
+                        Add
+                    </a>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" routerLink="../electricity/purchase">
+                                    <span class="material-symbols-outlined align-text-bottom">shopping_cart</span>
+                                    Electricity Purchase
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </header>
         <article class="h-100">
