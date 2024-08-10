@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { UtilitiesService } from './utilities.service';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { CaptureElectricityUsageRequest, ElectricityUsageQueryFactory } from './electricity';
+import { CaptureElectricityUsageRequest, ElectricityPurchaseRequest, ElectricityUsageQueryFactory } from './electricity';
 import { firstValueFrom } from 'rxjs';
 
 describe('UtilitiesService', () => {
@@ -32,10 +32,31 @@ describe('UtilitiesService', () => {
             const request$ = service.captureElectricalUsage(captureElectricalUsageRequest);
             const requestPromise = firstValueFrom(request$);
 
-            const request = httpTesting.expectOne('/api/utilities/electricity', 'Expect capture electricity usage request to be made');
+            const request = httpTesting.expectOne('/api/utilities/electricity/usage', 'Expect capture electricity usage request to be made');
 
             expect(request.request.method).toBe('POST');
             expect(request.request.body as CaptureElectricityUsageRequest).toBe(captureElectricalUsageRequest);
+
+            request.flush('/api/utilities/electricity/1');
+
+            expect(await requestPromise).toBe('/api/utilities/electricity/1');
+        });
+
+        afterEach(() => {
+            httpTesting.verify();
+        });
+    });
+
+    describe('captureElectricityPurchase', () => {
+        it('should post electricity purchase', async () => {
+            const captureElectricityPurchaseRequest = new ElectricityPurchaseRequest('2024-07-23T00:00:00Z', 1, 60);
+            const request$ = service.captureElectricityPurchase(captureElectricityPurchaseRequest);
+            const requestPromise = firstValueFrom(request$);
+
+            const request = httpTesting.expectOne('/api/utilities/electricity/purchase', 'Expect capture electricity purchase request to be made');
+
+            expect(request.request.method).toBe('POST');
+            expect(request.request.body as ElectricityPurchaseRequest).toBe(captureElectricityPurchaseRequest);
 
             request.flush('/api/utilities/electricity/1');
 
