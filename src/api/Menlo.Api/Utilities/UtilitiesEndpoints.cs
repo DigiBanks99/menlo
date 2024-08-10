@@ -13,7 +13,7 @@ public static partial class UtilitiesEndpoints
     public static void MapEndpoints(this IEndpointRouteBuilder routes)
     {
         routes.MapPost(
-                "/utilities/electricity",
+                "/utilities/electricity/usage",
                 async (
                     ICommandHandler<CaptureElectricityUsageRequest, string> handler,
                     CaptureElectricityUsageRequest request,
@@ -25,6 +25,22 @@ public static partial class UtilitiesEndpoints
                         : Results.Problem();
                 })
             .WithName("CaptureElectricityUsage")
+            .Produces<Guid>(StatusCodes.Status201Created, contentType: MediaTypeNames.Text.Plain)
+            .WithOpenApi();
+
+        routes.MapPost(
+                "/utilities/electricity/purchase",
+                async (
+                    ICommandHandler<CaptureElectricityPurchaseRequest, string> handler,
+                    CaptureElectricityPurchaseRequest request,
+                    CancellationToken requestAborted) =>
+                {
+                    Response<string, MenloError> response = await handler.HandleAsync(request, requestAborted);
+                    return response.IsSuccess
+                        ? Results.Created($"/utilities/electricity/{response.Data}", response.Data)
+                        : Results.Problem();
+                })
+            .WithName("CaptureElectricityPurchase")
             .Produces<Guid>(StatusCodes.Status201Created, contentType: MediaTypeNames.Text.Plain)
             .WithOpenApi();
 
