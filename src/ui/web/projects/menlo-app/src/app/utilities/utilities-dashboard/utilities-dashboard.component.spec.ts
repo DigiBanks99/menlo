@@ -32,13 +32,24 @@ describe('UtilitiesDashboardComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should have a header with the title', () => {
-        const compiled = fixture.nativeElement;
-        expect(compiled.querySelector('header h1').textContent).toContain('Utilities');
-    });
+    describe('header', () => {
+        it('should have a header with the title', () => {
+            const compiled = fixture.nativeElement;
+            expect(compiled.querySelector('header h1').textContent).toContain('Utilities');
+        });
 
-    it('should have a button to add a new electricity usage', () => {
-        const compiled = fixture.nativeElement;
-        expect(compiled.querySelector('header a').textContent).toContain('Add');
+        it('should have a button to add a new electricity usage', () => {
+            const compiled: HTMLElement = fixture.nativeElement;
+            const button: HTMLButtonElement = compiled.querySelector('header div.btn-group a.btn.btn-primary') as HTMLButtonElement;
+            expect(button).toBeTruthy();
+            expect(button.getAttribute('routerLink')).toBe('../electricity/usage');
+        });
+
+        it('should have a button to add a new electricity purchase', () => {
+            const compiled = fixture.nativeElement;
+            const button: HTMLButtonElement = compiled.querySelector('header div.btn-group div.btn-group a') as HTMLButtonElement;
+            expect(button).toBeTruthy();
+            expect(button.getAttribute('routerLink')).toBe('../electricity/purchase');
+        });
     });
 });

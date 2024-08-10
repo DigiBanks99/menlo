@@ -1,29 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { UtilitiesService } from '@utilities/utilities.service';
-import { CaptureElectricityUsageRequest, CaptureElectricityUsageRequestFactory } from '../capture-electricity-usage.request';
-import { Router } from '@angular/router';
-import { takeUntil } from 'rxjs';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';
+import { ElectricityPurchaseRequest, ElectricityPurchaseRequestFactory } from '../electricity-purchase.request';
+import { takeUntil } from 'rxjs';
+import { UtilitiesService } from '@utilities/utilities.service';
+import { Router } from '@angular/router';
 
-type ApplianceUsageForm = {
-    applianceId: FormControl<number>;
-    hoursOfUse: FormControl<number>;
-};
-
-type ElectricityCaptureForm = {
+type ElectricityPurchaseForm = {
     date: FormControl<Date>;
     units: FormControl<number>;
-    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;
+    cost: FormControl<number>;
 };
 
 @Component({
-    selector: 'menlo-electricity-capture',
+    selector: 'menlo-electricity-purchase',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],
-    template: ` <header class="d-flex flex-nowrap p-0">
-            <h1 class="me-auto">Electricity Capture</h1>
+    template: `
+        <header class="d-flex flex-nowrap p-0">
+            <h1 class="me-auto">Electricity Purchase</h1>
             <menlo-form-buttons (submit)="onSubmit()" (cancel)="onCancel()"></menlo-form-buttons>
         </header>
         <article>
@@ -39,16 +35,23 @@ type ElectricityCaptureForm = {
                     </div>
                     <span class="input-group-text">kW/h</span>
                 </div>
+                <div class="form-group input-group">
+                    <span class="input-group-text">R</span>
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="cost" formControlName="cost" placeholder="Cost" pattern="#.##" />
+                        <label for="cost">Cost</label>
+                    </div>
+                </div>
             </form>
-        </article>`,
-    styleUrl: './electricity-capture.component.scss',
+        </article>
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ElectricityCaptureComponent extends DestroyableComponent {
-    public readonly form = new FormGroup<ElectricityCaptureForm>({
+export class ElectricityPurchaseComponent extends DestroyableComponent {
+    public readonly form = new FormGroup<ElectricityPurchaseForm>({
         date: new FormControl<Date>(new Date(), { nonNullable: true }),
         units: new FormControl<number>(0, { nonNullable: true }),
-        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])
+        cost: new FormControl<number>(0, { nonNullable: true })
     });
 
     constructor(
@@ -58,21 +61,22 @@ export class ElectricityCaptureComponent extends DestroyableComponent {
         super();
     }
 
-    public onCancel(): void {
-        this.form.reset();
-    }
-
-    public onSubmit(): void {
-        const request: CaptureElectricityUsageRequest = CaptureElectricityUsageRequestFactory.create(
+    onSubmit(): void {
+        const request: ElectricityPurchaseRequest = ElectricityPurchaseRequestFactory.create(
             this.form.value.date ?? new Date(),
-            this.form.value.units ?? 0
+            this.form.value.units ?? 0,
+            this.form.value.cost ?? 0
         );
         this._utilitiesService
-            .captureElectricalUsage(request)
+            .captureElectricityPurchase(request)
             .pipe(takeUntil(this.destroyed$))
             .subscribe(() => {
                 this.form.reset();
                 this._router.navigate(['dashboard'], { relativeTo: this._router.routerState.root });
             });
+    }
+
+    onCancel(): void {
+        this.form.reset();
     }
 }

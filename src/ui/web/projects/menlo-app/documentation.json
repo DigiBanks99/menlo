@@ -69,12 +69,12 @@
         },
         {
             "name": "ApplianceUsageResponse",
-            "id": "interface-ApplianceUsageResponse-c8ffc2e8e281912af74d1b5e1b847dd6090b52e96f10bf7ed753dab5fa139ebb79569e64e052c575b37325a0b1fa082d48470b115a2d5a816150fc6c59afec72",
+            "id": "interface-ApplianceUsageResponse-3f594265987ccc49480872fa8937dfc1784c491d5965b47731946b79f1fd34785a304cd49733e369fa474a5eaba33bc1bf60ab4db72ed3b93c085e9238ccf357",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ApplianceUsageResponse {\r\n    applianceId: number;\r\n    hoursOfUse: number;\r\n}\r\n\r\nexport interface ElecricityUsageResponse {\r\n    date: string;\r\n    units: number;\r\n    appliances: ApplianceUsageResponse[];\r\n}\r\n",
+            "sourceCode": "export interface ApplianceUsageResponse {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElecricityUsageResponse {\n    date: string;\n    units: number;\n    applianceUsages: ApplianceUsageResponse[];\n}\n",
             "properties": [
                 {
                     "name": "applianceId",
@@ -102,15 +102,15 @@
         },
         {
             "name": "ElecricityUsageResponse",
-            "id": "interface-ElecricityUsageResponse-c8ffc2e8e281912af74d1b5e1b847dd6090b52e96f10bf7ed753dab5fa139ebb79569e64e052c575b37325a0b1fa082d48470b115a2d5a816150fc6c59afec72",
+            "id": "interface-ElecricityUsageResponse-3f594265987ccc49480872fa8937dfc1784c491d5965b47731946b79f1fd34785a304cd49733e369fa474a5eaba33bc1bf60ab4db72ed3b93c085e9238ccf357",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.response.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "export interface ApplianceUsageResponse {\r\n    applianceId: number;\r\n    hoursOfUse: number;\r\n}\r\n\r\nexport interface ElecricityUsageResponse {\r\n    date: string;\r\n    units: number;\r\n    appliances: ApplianceUsageResponse[];\r\n}\r\n",
+            "sourceCode": "export interface ApplianceUsageResponse {\n    applianceId: number;\n    hoursOfUse: number;\n}\n\nexport interface ElecricityUsageResponse {\n    date: string;\n    units: number;\n    applianceUsages: ApplianceUsageResponse[];\n}\n",
             "properties": [
                 {
-                    "name": "appliances",
+                    "name": "applianceUsages",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplianceUsageResponse[]",
@@ -146,7 +146,7 @@
     "injectables": [
         {
             "name": "UtilitiesService",
-            "id": "injectable-UtilitiesService-e09312de30284ccbda2d83f05e844cece0b1b5e0701a8e66c0a9a275b645f6a4eebc0d6acc1c077372b3828f82043915eb8630b1bb4e48a4df9f049383636a2c",
+            "id": "injectable-UtilitiesService-79d0782245b0dc315e695c7d5366eb231aa02f9b4eab596c338af53be304dd4b253d314425d7e3996b458fac320d424867c5a39853915c52fb7ba25b83170370",
             "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
             "properties": [],
             "methods": [
@@ -182,6 +182,37 @@
                     ]
                 },
                 {
+                    "name": "captureElectricityPurchase",
+                    "args": [
+                        {
+                            "name": "request",
+                            "type": "ElectricityPurchaseRequest",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 21,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "request",
+                            "type": "ElectricityPurchaseRequest",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "getElectricityUsage",
                     "args": [
                         {
@@ -194,7 +225,7 @@
                     "optional": false,
                     "returnType": "Observable<ElecricityUsageResponse[]>",
                     "typeParameters": [],
-                    "line": 21,
+                    "line": 25,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -217,7 +248,7 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider } from '@angular/core';\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityUsageQuery } from './electricity';\nimport { Observable } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\nimport { provideLocationMocks } from '@angular/common/testing';\nimport { provideRouter } from '@angular/router';\nimport { routes } from './utilities.routes';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        return this._http.post<string>(`/api/utilities/electricity`, request);\n    }\n\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\n        let queryString = new HttpParams().set('startDate', query.startDate);\n\n        if (query.endDate !== null) {\n            queryString = queryString.set('endDate', query.endDate);\n        }\n\n        queryString = queryString.set('timeZone', query.timeZone);\n\n        return this._http.get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString });\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {\n    return [provideUtilitiesService(), provideHttpClient(), provideHttpClientTesting(), provideRouter([...routes]), provideLocationMocks()];\n}\n",
+            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider } from '@angular/core';\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';\nimport { Observable } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\nimport { provideLocationMocks } from '@angular/common/testing';\nimport { provideRouter } from '@angular/router';\nimport { NoopComponent } from 'menlo-lib';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        return this._http.post<string>(`/api/utilities/electricity/usage`, request);\n    }\n\n    public captureElectricityPurchase(request: ElectricityPurchaseRequest) {\n        return this._http.post<string>(`/api/utilities/electricity/purchase`, request);\n    }\n\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\n        let queryString = new HttpParams().set('startDate', query.startDate);\n\n        if (query.endDate !== null) {\n            queryString = queryString.set('endDate', query.endDate);\n        }\n\n        queryString = queryString.set('timeZone', query.timeZone);\n\n        return this._http.get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString });\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {\n    return [\n        provideUtilitiesService(),\n        provideHttpClient(),\n        provideHttpClientTesting(),\n        provideRouter([\n            {\n                path: 'dashboard',\n                component: NoopComponent\n            }\n        ]),\n        provideLocationMocks()\n    ];\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -479,6 +510,195 @@
                             "deprecated": false,
                             "deprecationMessage": "",
                             "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "ElectricityPurchaseRequest",
+            "id": "class-ElectricityPurchaseRequest-5a9a88419cf2780b3a5aa0e2d1bebbd5909f64b6d72c2e2ba664046bd023aa7ec67ee377db8d61ffb6c20cf1fab7643b3c9d9fc0f670dca559be26c999fc529d",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\r\n\r\nexport class ElectricityPurchaseRequest {\r\n    constructor(\r\n        public date: string,\r\n        public units: number,\r\n        public cost: number\r\n    ) {\r\n        this.date = date;\r\n        this.units = units;\r\n        this.cost = cost;\r\n    }\r\n}\r\n\r\nexport class ElectricityPurchaseRequestFactory {\r\n    public static create(date: DateOrString, units: number, cost: number): ElectricityPurchaseRequest {\r\n        return new ElectricityPurchaseRequest(formatDate(date), units, cost);\r\n    }\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "date",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "units",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "cost",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 3,
+                "jsdoctags": [
+                    {
+                        "name": "date",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "units",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "cost",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "cost",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 7,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "date",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 5,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "units",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 6,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "ElectricityPurchaseRequestFactory",
+            "id": "class-ElectricityPurchaseRequestFactory-5a9a88419cf2780b3a5aa0e2d1bebbd5909f64b6d72c2e2ba664046bd023aa7ec67ee377db8d61ffb6c20cf1fab7643b3c9d9fc0f670dca559be26c999fc529d",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase.request.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { DateOrString, formatDate } from 'menlo-lib';\r\n\r\nexport class ElectricityPurchaseRequest {\r\n    constructor(\r\n        public date: string,\r\n        public units: number,\r\n        public cost: number\r\n    ) {\r\n        this.date = date;\r\n        this.units = units;\r\n        this.cost = cost;\r\n    }\r\n}\r\n\r\nexport class ElectricityPurchaseRequestFactory {\r\n    public static create(date: DateOrString, units: number, cost: number): ElectricityPurchaseRequest {\r\n        return new ElectricityPurchaseRequest(formatDate(date), units, cost);\r\n    }\r\n}\r\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [],
+            "methods": [
+                {
+                    "name": "create",
+                    "args": [
+                        {
+                            "name": "date",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "units",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "cost",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "ElectricityPurchaseRequest",
+                    "typeParameters": [],
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "date",
+                            "type": "DateOrString",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "units",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "cost",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
                             "tagName": {
                                 "text": "param"
                             }
@@ -977,7 +1197,7 @@
         },
         {
             "name": "ElectricityCaptureComponent",
-            "id": "component-ElectricityCaptureComponent-dcb5fb739e34da3bcb5733a2be672dc7af2a40273dde39b2906612175fba86f60ebe7bbd62f7e42bf42f4144c6268a8681314150e216e820a6576dc902bebc01",
+            "id": "component-ElectricityCaptureComponent-ff8dc2dd2a815c3ad4ef054f3201c8e725156cc2d4ec51ca673f664e5b61e8ec0a1e9cdb1418545c60751111410e34721fc623b61a56c324bad3a2595fc1fc35",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-capture/electricity-capture.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -988,7 +1208,7 @@
             "selector": "menlo-electricity-capture",
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\">           <h1 class=\"me-auto\">Electricity Capture</h1>\n           <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n       </header>\n       <article>\n           <form [formGroup]=\"form\">\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"form-floating\">\n                   <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                   <label for=\"units\">Units (kW)</label>\n               </div>\n           </form>\n       </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">           <h1 class=\"me-auto\">Electricity Capture</h1>\n           <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n       </header>\n       <article>\n           <form [formGroup]=\"form\">\n               <div class=\"form-floating\">\n                   <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" placeholder=\"Date\" />\n                   <label for=\"date\">Date</label>\n               </div>\n               <div class=\"form-group input-group\">\n                   <div class=\"form-floating\">\n                       <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" placeholder=\"Units\" />\n                       <label for=\"units\">Units</label>\n                   </div>\n                   <span class=\"input-group-text\">kW/h</span>\n               </div>\n           </form>\n       </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -997,13 +1217,13 @@
             "propertiesClass": [
                 {
                     "name": "form",
-                    "defaultValue": "new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    })",
+                    "defaultValue": "new FormGroup<ElectricityCaptureForm>({\r\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\r\n        units: new FormControl<number>(0, { nonNullable: true }),\r\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\r\n    })",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 45,
+                    "line": 48,
                     "modifierKind": [
                         125,
                         148
@@ -1017,7 +1237,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 58,
+                    "line": 61,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1030,7 +1250,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 65,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1060,7 +1280,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { CaptureElectricityUsageRequest, CaptureElectricityUsageRequestFactory } from '../capture-electricity-usage.request';\nimport { Router } from '@angular/router';\nimport { takeUntil } from 'rxjs';\nimport { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';\n\ntype ApplianceUsageForm = {\n    applianceId: FormControl<number>;\n    hoursOfUse: FormControl<number>;\n};\n\ntype ElectricityCaptureForm = {\n    date: FormControl<Date>;\n    units: FormControl<number>;\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\n};\n\n@Component({\n    selector: 'menlo-electricity-capture',\n    standalone: true,\n    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],\n    template: ` <header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Electricity Capture</h1>\n            <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n        </header>\n        <article>\n            <form [formGroup]=\"form\">\n                <div class=\"form-floating\">\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" />\n                    <label for=\"date\">Date</label>\n                </div>\n                <div class=\"form-floating\">\n                    <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" />\n                    <label for=\"units\">Units (kW)</label>\n                </div>\n            </form>\n        </article>`,\n    styleUrl: './electricity-capture.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityCaptureComponent extends DestroyableComponent {\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\n        units: new FormControl<number>(0, { nonNullable: true }),\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\n    });\n\n    constructor(\n        private readonly _utilitiesService: UtilitiesService,\n        private readonly _router: Router\n    ) {\n        super();\n    }\n\n    public onCancel(): void {\n        this.form.reset();\n    }\n\n    public onSubmit(): void {\n        const request: CaptureElectricityUsageRequest = CaptureElectricityUsageRequestFactory.create(\n            this.form.value.date ?? new Date(),\n            this.form.value.units ?? 0\n        );\n        this._utilitiesService\n            .captureElectricalUsage(request)\n            .pipe(takeUntil(this.destroyed$))\n            .subscribe(() => {\n                this.form.reset();\n                this._router.navigate(['../dashboard']);\n            });\n    }\n}\n",
+            "sourceCode": "import { CommonModule } from '@angular/common';\r\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\r\nimport { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\r\nimport { UtilitiesService } from '@utilities/utilities.service';\r\nimport { CaptureElectricityUsageRequest, CaptureElectricityUsageRequestFactory } from '../capture-electricity-usage.request';\r\nimport { Router } from '@angular/router';\r\nimport { takeUntil } from 'rxjs';\r\nimport { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';\r\n\r\ntype ApplianceUsageForm = {\r\n    applianceId: FormControl<number>;\r\n    hoursOfUse: FormControl<number>;\r\n};\r\n\r\ntype ElectricityCaptureForm = {\r\n    date: FormControl<Date>;\r\n    units: FormControl<number>;\r\n    applianceUsages: FormArray<FormGroup<ApplianceUsageForm>>;\r\n};\r\n\r\n@Component({\r\n    selector: 'menlo-electricity-capture',\r\n    standalone: true,\r\n    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],\r\n    template: ` <header class=\"d-flex flex-nowrap p-0\">\r\n            <h1 class=\"me-auto\">Electricity Capture</h1>\r\n            <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\r\n        </header>\r\n        <article>\r\n            <form [formGroup]=\"form\">\r\n                <div class=\"form-floating\">\r\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" placeholder=\"Date\" />\r\n                    <label for=\"date\">Date</label>\r\n                </div>\r\n                <div class=\"form-group input-group\">\r\n                    <div class=\"form-floating\">\r\n                        <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" placeholder=\"Units\" />\r\n                        <label for=\"units\">Units</label>\r\n                    </div>\r\n                    <span class=\"input-group-text\">kW/h</span>\r\n                </div>\r\n            </form>\r\n        </article>`,\r\n    styleUrl: './electricity-capture.component.scss',\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nexport class ElectricityCaptureComponent extends DestroyableComponent {\r\n    public readonly form = new FormGroup<ElectricityCaptureForm>({\r\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\r\n        units: new FormControl<number>(0, { nonNullable: true }),\r\n        applianceUsages: new FormArray<FormGroup<ApplianceUsageForm>>([])\r\n    });\r\n\r\n    constructor(\r\n        private readonly _utilitiesService: UtilitiesService,\r\n        private readonly _router: Router\r\n    ) {\r\n        super();\r\n    }\r\n\r\n    public onCancel(): void {\r\n        this.form.reset();\r\n    }\r\n\r\n    public onSubmit(): void {\r\n        const request: CaptureElectricityUsageRequest = CaptureElectricityUsageRequestFactory.create(\r\n            this.form.value.date ?? new Date(),\r\n            this.form.value.units ?? 0\r\n        );\r\n        this._utilitiesService\r\n            .captureElectricalUsage(request)\r\n            .pipe(takeUntil(this.destroyed$))\r\n            .subscribe(() => {\r\n                this.form.reset();\r\n                this._router.navigate(['dashboard'], { relativeTo: this._router.routerState.root });\r\n            });\r\n    }\r\n}\r\n",
             "styleUrl": "./electricity-capture.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1084,7 +1304,135 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 49,
+                "line": 52,
+                "jsdoctags": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "_router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [
+                "DestroyableComponent"
+            ]
+        },
+        {
+            "name": "ElectricityPurchaseComponent",
+            "id": "component-ElectricityPurchaseComponent-7657ba18e002fe06c887c1d2a36fb012609839c1d1a6f99401ba126926b4da591365941085158b989ef87516ac04d59248c4179dfe4423bdb65400a083abf746",
+            "file": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase/electricity-purchase.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "menlo-electricity-purchase",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<header class=\"d-flex flex-nowrap p-0\">\n    <h1 class=\"me-auto\">Electricity Purchase</h1>\n    <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\n</header>\n<article>\n    <form [formGroup]=\"form\">\n        <div class=\"form-floating\">\n            <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" placeholder=\"Date\" />\n            <label for=\"date\">Date</label>\n        </div>\n        <div class=\"form-group input-group\">\n            <div class=\"form-floating\">\n                <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" placeholder=\"Units\" />\n                <label for=\"units\">Units</label>\n            </div>\n            <span class=\"input-group-text\">kW/h</span>\n        </div>\n        <div class=\"form-group input-group\">\n            <span class=\"input-group-text\">R</span>\n            <div class=\"form-floating\">\n                <input type=\"number\" class=\"form-control\" id=\"cost\" formControlName=\"cost\" placeholder=\"Cost\" pattern=\"#.##\" />\n                <label for=\"cost\">Cost</label>\n            </div>\n        </div>\n    </form>\n</article>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "form",
+                    "defaultValue": "new FormGroup<ElectricityPurchaseForm>({\r\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\r\n        units: new FormControl<number>(0, { nonNullable: true }),\r\n        cost: new FormControl<number>(0, { nonNullable: true })\r\n    })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 51,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "onCancel",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 79,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "onSubmit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 64,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                },
+                {
+                    "name": "ReactiveFormsModule",
+                    "type": "module"
+                },
+                {
+                    "name": "FormButtonsComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { CommonModule } from '@angular/common';\r\nimport { Component } from '@angular/core';\r\nimport { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\r\nimport { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';\r\nimport { ElectricityPurchaseRequest, ElectricityPurchaseRequestFactory } from '../electricity-purchase.request';\r\nimport { takeUntil } from 'rxjs';\r\nimport { UtilitiesService } from '@utilities/utilities.service';\r\nimport { Router } from '@angular/router';\r\n\r\ntype ElectricityPurchaseForm = {\r\n    date: FormControl<Date>;\r\n    units: FormControl<number>;\r\n    cost: FormControl<number>;\r\n};\r\n\r\n@Component({\r\n    selector: 'menlo-electricity-purchase',\r\n    standalone: true,\r\n    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],\r\n    template: `\r\n        <header class=\"d-flex flex-nowrap p-0\">\r\n            <h1 class=\"me-auto\">Electricity Purchase</h1>\r\n            <menlo-form-buttons (submit)=\"onSubmit()\" (cancel)=\"onCancel()\"></menlo-form-buttons>\r\n        </header>\r\n        <article>\r\n            <form [formGroup]=\"form\">\r\n                <div class=\"form-floating\">\r\n                    <input type=\"date\" class=\"form-control\" id=\"date\" formControlName=\"date\" placeholder=\"Date\" />\r\n                    <label for=\"date\">Date</label>\r\n                </div>\r\n                <div class=\"form-group input-group\">\r\n                    <div class=\"form-floating\">\r\n                        <input type=\"number\" class=\"form-control\" id=\"units\" formControlName=\"units\" placeholder=\"Units\" />\r\n                        <label for=\"units\">Units</label>\r\n                    </div>\r\n                    <span class=\"input-group-text\">kW/h</span>\r\n                </div>\r\n                <div class=\"form-group input-group\">\r\n                    <span class=\"input-group-text\">R</span>\r\n                    <div class=\"form-floating\">\r\n                        <input type=\"number\" class=\"form-control\" id=\"cost\" formControlName=\"cost\" placeholder=\"Cost\" pattern=\"#.##\" />\r\n                        <label for=\"cost\">Cost</label>\r\n                    </div>\r\n                </div>\r\n            </form>\r\n        </article>\r\n    `,\r\n    styleUrl: './electricity-purchase.component.scss'\r\n})\r\nexport class ElectricityPurchaseComponent extends DestroyableComponent {\r\n    public readonly form = new FormGroup<ElectricityPurchaseForm>({\r\n        date: new FormControl<Date>(new Date(), { nonNullable: true }),\r\n        units: new FormControl<number>(0, { nonNullable: true }),\r\n        cost: new FormControl<number>(0, { nonNullable: true })\r\n    });\r\n\r\n    constructor(\r\n        private readonly _utilitiesService: UtilitiesService,\r\n        private readonly _router: Router\r\n    ) {\r\n        super();\r\n    }\r\n\r\n    onSubmit(): void {\r\n        const request: ElectricityPurchaseRequest = ElectricityPurchaseRequestFactory.create(\r\n            this.form.value.date ?? new Date(),\r\n            this.form.value.units ?? 0,\r\n            this.form.value.cost ?? 0\r\n        );\r\n        this._utilitiesService\r\n            .captureElectricityPurchase(request)\r\n            .pipe(takeUntil(this.destroyed$))\r\n            .subscribe(() => {\r\n                this.form.reset();\r\n                this._router.navigate(['dashboard'], { relativeTo: this._router.routerState.root });\r\n            });\r\n    }\r\n\r\n    onCancel(): void {\r\n        this.form.reset();\r\n    }\r\n}\r\n",
+            "styleUrl": "./electricity-purchase.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "_utilitiesService",
+                        "type": "UtilitiesService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "_router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 55,
                 "jsdoctags": [
                     {
                         "name": "_utilitiesService",
@@ -1434,7 +1782,7 @@
         },
         {
             "name": "UtilitiesDashboardComponent",
-            "id": "component-UtilitiesDashboardComponent-1268af66c5ccd9b1e69bb95ee9899a961a7fc06d5699190c69dbb3b9f31e39c9fba9193671e9101892a2d31e6dbf8f73fb9d585f4a9ff73bfeeaac68c5f7994c",
+            "id": "component-UtilitiesDashboardComponent-07c8f997a123976f6d850a6bbc998d50a100b4d29791fd8a68ebf027bfb092d10ed19b93e3edc2c2f4263366cf3ed813a2559de696fbd265e27b10beae384b76",
             "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1444,7 +1792,7 @@
             "providers": [],
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <div class=\"px-1\">\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                    Add\n                </a>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/capture\" role=\"button\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -1458,7 +1806,7 @@
                     "type": "Signal<ElectricityUsage[]>",
                     "optional": false,
                     "description": "",
-                    "line": 32,
+                    "line": 46,
                     "modifierKind": [
                         125,
                         148
@@ -1472,7 +1820,7 @@
                     "optional": false,
                     "returnType": "Observable<ElectricityUsage[]>",
                     "typeParameters": [],
-                    "line": 39,
+                    "line": 53,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1505,7 +1853,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';\r\nimport { ChangeDetectionStrategy, Component, Signal } from '@angular/core';\r\nimport { RouterLinkWithHref } from '@angular/router';\r\nimport { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';\r\nimport { UtilitiesService } from '@utilities/utilities.service';\r\nimport { map, Observable, takeUntil } from 'rxjs';\r\nimport { ElectricityUsageQueryFactory } from '@utilities/electricity';\r\nimport { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';\r\nimport { DestroyableComponent } from 'menlo-lib';\r\nimport { toSignal } from '@angular/core/rxjs-interop';\r\n\r\n@Component({\r\n    standalone: true,\r\n    imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent],\r\n    template: `<header class=\"d-flex flex-nowrap p-0\">\r\n            <h1 class=\"me-auto\">Utilities</h1>\r\n            <div class=\"px-1\">\r\n                <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity\">\r\n                    <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\r\n                    Add\r\n                </a>\r\n            </div>\r\n        </header>\r\n        <article class=\"h-100\">\r\n            <h3>Electricity Usage</h3>\r\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\r\n        </article>`,\r\n    styleUrl: './utilities-dashboard.component.scss',\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nexport class UtilitiesDashboardComponent extends DestroyableComponent {\r\n    public readonly electricityUsage: Signal<ElectricityUsage[]>;\r\n\r\n    constructor(private readonly _utilitiesService: UtilitiesService) {\r\n        super();\r\n        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });\r\n    }\r\n\r\n    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {\r\n        const today = new Date();\r\n        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);\r\n        const request = ElectricityUsageQueryFactory.create(startDate, today);\r\n        return this._utilitiesService.getElectricityUsage(request).pipe(\r\n            map(response =>\r\n                response.map(\r\n                    item =>\r\n                        <ElectricityUsage>{\r\n                            date: item.date,\r\n                            units: item.units\r\n                        }\r\n                )\r\n            ),\r\n            takeUntil(this.destroyed$)\r\n        );\r\n    }\r\n}\r\n",
+            "sourceCode": "import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';\nimport { ChangeDetectionStrategy, Component, Signal } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\nimport { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { map, Observable, takeUntil } from 'rxjs';\nimport { ElectricityUsageQueryFactory } from '@utilities/electricity';\nimport { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';\nimport { DestroyableComponent } from 'menlo-lib';\nimport { toSignal } from '@angular/core/rxjs-interop';\n\n@Component({\n    standalone: true,\n    imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/capture\" role=\"button\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent extends DestroyableComponent {\n    public readonly electricityUsage: Signal<ElectricityUsage[]>;\n\n    constructor(private readonly _utilitiesService: UtilitiesService) {\n        super();\n        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });\n    }\n\n    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {\n        const today = new Date();\n        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);\n        const request = ElectricityUsageQueryFactory.create(startDate, today);\n        return this._utilitiesService.getElectricityUsage(request).pipe(\n            map(response =>\n                response.map(item => {\n                    const usage = new ElectricityUsage();\n                    usage.date = item.date;\n                    usage.units = item.units;\n                    for (const appliance of item.applianceUsages) {\n                        usage.applianceUsage.push({\n                            applianceId: appliance.applianceId,\n                            hoursOfUse: appliance.hoursOfUse\n                        });\n                    }\n                    return usage;\n                })\n            ),\n            takeUntil(this.destroyed$)\n        );\n    }\n}\n",
             "styleUrl": "./utilities-dashboard.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1523,7 +1871,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 32,
+                "line": 46,
                 "jsdoctags": [
                     {
                         "name": "_utilitiesService",
@@ -1713,6 +2061,17 @@
                 "subtype": "typealias",
                 "rawtype": "literal type",
                 "file": "projects/menlo-app/src/app/utilities/electricity/electricity-capture/electricity-capture.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 187
+            },
+            {
+                "name": "ElectricityPurchaseForm",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase/electricity-purchase.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -1943,6 +2302,19 @@
                     "kind": 187
                 }
             ],
+            "projects/menlo-app/src/app/utilities/electricity/electricity-purchase/electricity-purchase.component.ts": [
+                {
+                    "name": "ElectricityPurchaseForm",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase/electricity-purchase.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 187
+                }
+            ],
             "projects/menlo-app/src/main.ts": [
                 {
                     "name": "LogEntry",
@@ -2072,6 +2444,33 @@
                 "status": "low"
             },
             {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase.request.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "ElectricityPurchaseRequest",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase.request.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "ElectricityPurchaseRequestFactory",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-purchase/electricity-purchase.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ElectricityPurchaseComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
                 "filePath": "projects/menlo-app/src/app/utilities/electricity/electricity-usage.query.ts",
                 "type": "class",
                 "linktype": "classe",
@@ -2159,7 +2558,7 @@
                 "linktype": "injectable",
                 "name": "UtilitiesService",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/5",
                 "status": "low"
             },
             {
