@@ -4,11 +4,23 @@ GET {{ baseUrl }}/utilities/electricity?startDate=2024-07-11&endDate=2024-07-12&
 
 ### Capture Electricity Usage
 
-POST {{ baseUrl }}/utilities/electricity HTTP/2
+POST {{ baseUrl }}/utilities/electricity/usage HTTP/2
 Content-Type: application/json
 
 {
-    "date": "2024-07-11",
-    "units": "572.61",
+    "date": "2024-08-04",
+    "units": "715.43",
+    "applianceUsages": []
+}
+
+### Capture Electricity Purchase
+
+POST {{ baseUrl }}/utilities/electricity/purchase HTTP/2
+Content-Type: application/json
+
+{
+    "date": "2024-08-01",
+    "units": "675.00",
+    "cost": "2500.00",
     "applianceUsages": []
 }
