@@ -17,7 +17,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
             <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->
             <div class="px-1">
                 <div class="btn-group" role="group">
-                    <a class="btn btn-primary text-nowrap" routerLink="../electricity/usage" role="button">
+                    <a class="btn btn-primary text-nowrap" routerLink="../electricity/usage" role="button" id="addElectricityUsage">
                         <span class="material-symbols-outlined align-text-bottom">bolt</span>
                         Add
                     </a>
@@ -60,6 +60,7 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
                     const usage = new ElectricityUsage();
                     usage.date = item.date;
                     usage.units = item.units;
+                    usage.usage = item.usage;
                     for (const appliance of item.applianceUsages) {
                         usage.applianceUsage.push({
                             applianceId: appliance.applianceId,

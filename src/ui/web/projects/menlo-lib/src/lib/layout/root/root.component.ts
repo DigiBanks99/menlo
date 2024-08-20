@@ -34,7 +34,7 @@ import { RouterModule } from '@angular/router';
                             @for (navItem of navItems; track $index) {
                                 <li class="nav-item">
                                     <a class="nav-link" [routerLink]="navItem.route">
-                                        <span class="material-icons-outlined feather feather-home align-text-bottom"> {{ navItem.iconName }} </span>
+                                        <span class="material-symbols-outlined feather feather-home align-text-bottom"> {{ navItem.iconName }} </span>
                                         {{ navItem.description }}
                                     </a>
                                 </li>

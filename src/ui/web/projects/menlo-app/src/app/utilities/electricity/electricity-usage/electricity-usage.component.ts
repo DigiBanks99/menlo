@@ -1,11 +1,10 @@
-import { afterRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, OnInit } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { ElectricityUsage } from './electricity-usage.model';
 import { DatePipe } from '@angular/common';
-import { DateOrString } from 'menlo-lib';
+import { DateOrString, formatDate } from 'menlo-lib';
 import { Chart, ChartConfiguration, registerables, ChartData, ChartTypeRegistry, Point, BubbleDataPoint, ChartItem } from 'chart.js';
-import { compareDates } from '@dates/date-comparer';
 
 @Component({
     selector: 'menlo-electricity-usage',
@@ -111,7 +110,7 @@ export class ElectricityUsageComponent implements OnInit {
             }
         };
 
-        this._chartInstance = new Chart(this._chartElement!, config);
+        this._chartInstance = new Chart(this._chartElement, config);
     }
 
     private updateChart(): void {
@@ -127,12 +126,10 @@ export class ElectricityUsageComponent implements OnInit {
     private getChartData(
         electricityUsage: ElectricityUsage[]
     ): ChartData<keyof ChartTypeRegistry, (number | [number, number] | Point | BubbleDataPoint | null)[], unknown> {
-        const usages: number[] = this.calculateDailyDifferences(electricityUsage);
+        const usages: number[] = electricityUsage.map(usage => usage.usage);
 
         return {
-            labels: electricityUsage
-                .slice(1) // temporary fix so the first date doesn't show up empty
-                .map(usage => new Date(usage.date).toLocaleDateString()),
+            labels: electricityUsage.map(usage => formatDate(usage.date)),
             datasets: [
                 {
                     label: 'Electricity Usage',
@@ -148,17 +145,5 @@ export class ElectricityUsageComponent implements OnInit {
                 }
             ]
         };
-    }
-
-    private calculateDailyDifferences(usages: ElectricityUsage[]): number[] {
-        const differences: number[] = [];
-        const usagesSorted = usages.sort((a, b) => compareDates(a.date, b.date));
-        for (let i = 1; i < usagesSorted.length; i++) {
-            const left: ElectricityUsage = usagesSorted[i - 1];
-            const right: ElectricityUsage = usagesSorted[i];
-            const difference = right.getUnitDifference(left);
-            differences.push(difference);
-        }
-        return differences;
     }
 }

@@ -7,6 +7,7 @@ export class ElectricityUsage {
     private _applianceUsage: ApplianceUsage[] = [];
     private _date: string | undefined;
     private _units: number | undefined;
+    private _usage: number | undefined;
 
     public get date(): string {
         if (this._date === undefined) {
@@ -28,14 +29,20 @@ export class ElectricityUsage {
         this._units = value;
     }
 
+    public get usage(): number {
+        if (this._usage === undefined) {
+            throw new Error('usage is required');
+        }
+        return this._usage;
+    }
+    public set usage(value: number) {
+        this._usage = value;
+    }
+
     public get applianceUsage(): ApplianceUsage[] {
         return this._applianceUsage;
     }
     public set applianceUsage(value: ApplianceUsage[]) {
         this._applianceUsage = value;
-    }
-
-    public getUnitDifference(from: ElectricityUsage): number {
-        return from.units - this.units;
     }
 }

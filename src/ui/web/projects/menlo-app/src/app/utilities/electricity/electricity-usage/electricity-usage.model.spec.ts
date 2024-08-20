@@ -5,18 +5,6 @@ describe('ElectricityUsage', () => {
         expect(new ElectricityUsage()).toBeTruthy();
     });
 
-    describe('getUnitDifference', () => {
-        it('should return the difference between the units of two ElectricityUsage instances', () => {
-            const usage1 = new ElectricityUsage();
-            usage1.units = 100;
-
-            const usage2 = new ElectricityUsage();
-            usage2.units = 50;
-
-            expect(usage2.getUnitDifference(usage1)).toBe(50);
-        });
-    });
-
     describe('date', () => {
         it('should throw an error if date is not set', () => {
             const usage = new ElectricityUsage();
@@ -40,6 +28,19 @@ describe('ElectricityUsage', () => {
             const usage = new ElectricityUsage();
             usage.units = 318.16;
             expect(usage.units).toBe(318.16);
+        });
+    });
+
+    describe('usage', () => {
+        it('should throw an error if usage is not set', () => {
+            const usage = new ElectricityUsage();
+            expect(() => usage.usage).toThrowError('usage is required');
+        });
+
+        it('should return the usage', () => {
+            const usage = new ElectricityUsage();
+            usage.usage = 318.16;
+            expect(usage.usage).toBe(318.16);
         });
     });
 

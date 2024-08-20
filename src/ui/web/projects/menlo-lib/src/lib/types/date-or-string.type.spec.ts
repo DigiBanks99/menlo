@@ -16,12 +16,13 @@ describe('formatDate', () => {
     it('should return a string when given a Date', () => {
         const date = new Date();
         const formatted = formatDate(date);
-        expect(formatted).toEqual(date.toISOString().split('T')[0]);
+        expect(formatted).toEqual(Intl.DateTimeFormat().format(date));
     });
 
-    it('should return the string when given a string', () => {
-        const date = '2021-01-01';
-        const formatted = formatDate(date);
-        expect(formatted).toEqual(date);
-    });
+    for (const date of ['2024-08-01', '2024-08-01T00:00:00Z', '2024-08-01T00:00:00+02:00']) {
+        it(`should return the string when given a string - ${date}`, () => {
+            const formatted = formatDate(date);
+            expect(formatted).toEqual('2024-08-01');
+        });
+    }
 });
