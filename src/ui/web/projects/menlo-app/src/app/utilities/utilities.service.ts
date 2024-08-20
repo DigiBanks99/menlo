@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';
 import { EnvironmentProviders, Injectable, Provider } from '@angular/core';
 import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideLocationMocks } from '@angular/common/testing';

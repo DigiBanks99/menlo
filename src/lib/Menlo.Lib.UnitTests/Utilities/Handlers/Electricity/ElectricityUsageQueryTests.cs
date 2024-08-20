@@ -52,6 +52,44 @@ public class ElectricityUsageQueryTests
         secondUsage.Usage.ShouldBe(138.22m + 685.00m - 795.98m);
     }
 
+    [Fact]
+    public async Task HandleAsync_Should_ReturnTheCorrectUnitsUsed()
+    {
+        ElectricityUsageQuery query = new(DateOnly.Parse("2024-07-01"), DateOnly.Parse("2024-07-31"), TimeSpan.FromHours(2));
+
+        Response<IEnumerable<ElectricityUsageQueryResponse>, MenloError> response = await _handler.HandleAsync(query, CancellationToken.None);
+
+        response.Error.ShouldBeNull();
+        ElectricityUsageQueryResponse[] data = response.Data.ShouldNotBeNull().ToArray();
+        ElectricityUsageQueryResponse firstUsage = data[0];
+        firstUsage.Units.ShouldBe(138.22m);
+        firstUsage.Usage.ShouldBe(155.85m - 138.22m);
+
+        ElectricityUsageQueryResponse secondUsage = data[1];
+        secondUsage.Units.ShouldBe(795.98m);
+        secondUsage.Usage.ShouldBe(138.22m + 685.00m - 795.98m);
+
+        ElectricityUsageQueryResponse thirdUsage = data[2];
+        thirdUsage.Units.ShouldBe(739.28m);
+        thirdUsage.Usage.ShouldBe(795.98m - 739.28m);
+
+        ElectricityUsageQueryResponse fourthUsage = data[3];
+        fourthUsage.Units.ShouldBe(713.44m);
+        fourthUsage.Usage.ShouldBe(739.28m - 713.44m);
+
+        ElectricityUsageQueryResponse fifthUsage = data[4];
+        fifthUsage.Units.ShouldBe(687.87m);
+        fifthUsage.Usage.ShouldBe(713.44m - 687.87m);
+
+        ElectricityUsageQueryResponse sixthUsage = data[5];
+        sixthUsage.Units.ShouldBe(664.44m);
+        sixthUsage.Usage.ShouldBe(687.87m - 664.44m);
+
+        ElectricityUsageQueryResponse seventhUsage = data[6];
+        seventhUsage.Units.ShouldBe(644.59m);
+        seventhUsage.Usage.ShouldBe(664.44m - 644.59m);
+    }
+
     private static IRepository<ElectricityUsage> SetupUsageRepo()
     {
         ElectricityUsage[] data =
