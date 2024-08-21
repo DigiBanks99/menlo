@@ -81,7 +81,7 @@ describe('UtilitiesService', () => {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
             const request = httpTesting.expectOne(
-                `/api/utilities/electricity?startDate=2024-07-23T00:00:00Z&timeZone=${timeZone}`,
+                `/api/utilities/electricity?startDate=2024-07-23&timeZone=${timeZone}`,
                 'Expect get electricity usage request to be made'
             );
 
@@ -99,7 +99,7 @@ describe('UtilitiesService', () => {
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
             const request = httpTesting.expectOne(
-                `/api/utilities/electricity?startDate=2024-07-24T00:00:00Z&endDate=2024-07-25T00:00:00Z&timeZone=${timeZone}`,
+                `/api/utilities/electricity?startDate=2024-07-24&endDate=2024-07-25&timeZone=${timeZone}`,
                 'Expect get electricity usage request to be made with an end date'
             );
 
@@ -116,7 +116,7 @@ describe('UtilitiesService', () => {
             const requestPromise = firstValueFrom(request$);
 
             const request = httpTesting.expectOne(
-                '/api/utilities/electricity?startDate=2024-07-01T00:00:00Z&endDate=2024-07-31T00:00:00Z&timeZone=Africa/Johannesburg',
+                '/api/utilities/electricity?startDate=2024-07-01&endDate=2024-07-31&timeZone=Africa/Johannesburg',
                 'Expect get electricity usage request to be made'
             );
 

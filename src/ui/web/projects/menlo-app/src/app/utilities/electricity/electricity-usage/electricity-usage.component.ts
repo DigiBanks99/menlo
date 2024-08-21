@@ -3,7 +3,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { ElectricityUsage } from './electricity-usage.model';
 import { DatePipe } from '@angular/common';
-import { DateOrString, formatDate } from 'menlo-lib';
+import { DateFormat, DateOrString, formatDate } from 'menlo-lib';
 import { Chart, ChartConfiguration, registerables, ChartData, ChartTypeRegistry, Point, BubbleDataPoint, ChartItem } from 'chart.js';
 
 @Component({
@@ -35,7 +35,7 @@ export class ElectricityUsageComponent implements OnInit {
         {
             field: 'date',
             headerName: 'Date',
-            cellRenderer: (params: { value: DateOrString }) => this._datePipe.transform(params.value, 'dd MMM YYYY')
+            cellRenderer: (params: { value: DateOrString }) => formatDate(params.value, DateFormat.ShortDisplay)
         },
         { field: 'units', headerName: 'Units', type: 'numericColumn' }
     ];
@@ -129,7 +129,7 @@ export class ElectricityUsageComponent implements OnInit {
         const usages: number[] = electricityUsage.map(usage => usage.usage);
 
         return {
-            labels: electricityUsage.map(usage => formatDate(usage.date)),
+            labels: electricityUsage.map(usage => formatDate(usage.date, DateFormat.ShortDisplay)),
             datasets: [
                 {
                     label: 'Electricity Usage',
