@@ -14,9 +14,9 @@ describe('DateOrString', () => {
 
 describe('formatDate', () => {
     it('should return a string when given a Date', () => {
-        const date = new Date();
+        const date = new Date(2024, 7, 1);
         const formatted = formatDate(date);
-        expect(formatted).toEqual(Intl.DateTimeFormat().format(date));
+        expect(formatted).toEqual('2024-08-01');
     });
 
     for (const date of ['2024-08-01', '2024-08-01T00:00:00Z', '2024-08-01T00:00:00+02:00']) {
