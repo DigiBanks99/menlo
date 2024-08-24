@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';
-import { EnvironmentProviders, Injectable, Provider } from '@angular/core';
+import { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';
 import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';
 import { Observable, tap } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';
@@ -12,17 +12,22 @@ import { NoopComponent } from 'menlo-lib';
     providedIn: 'root'
 })
 export class UtilitiesService {
+    public loading = signal(false);
+
     constructor(private readonly _http: HttpClient) {}
 
     public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {
-        return this._http.post<string>(`/api/utilities/electricity/usage`, request);
+        this.loading.set(true);
+        return this._http.post<string>(`/api/utilities/electricity/usage`, request).pipe(tap(() => this.loading.set(false)));
     }
 
     public captureElectricityPurchase(request: ElectricityPurchaseRequest) {
-        return this._http.post<string>(`/api/utilities/electricity/purchase`, request);
+        this.loading.set(true);
+        return this._http.post<string>(`/api/utilities/electricity/purchase`, request).pipe(tap(() => this.loading.set(false)));
     }
 
     public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {
+        this.loading.set(true);
         let queryString = new HttpParams().set('startDate', query.startDate);
 
         if (query.endDate !== null) {
@@ -31,7 +36,9 @@ export class UtilitiesService {
 
         queryString = queryString.set('timeZone', query.timeZone);
 
-        return this._http.get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString });
+        return this._http
+            .get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString })
+            .pipe(tap(() => this.loading.set(false)));
     }
 }
 
@@ -45,8 +52,12 @@ export function provideUtilitiesService(): Provider[] {
     ];
 }
 
-export function provideUtilitiesServiceTesting(): (Provider | EnvironmentProviders)[] {
-    return [
+export interface UtilitiesServiceTestingOptions {
+    loading: boolean;
+}
+
+export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {
+    const providers: (Provider | EnvironmentProviders)[] = [
         provideUtilitiesService(),
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -58,4 +69,18 @@ export function provideUtilitiesServiceTesting(): (Provider | EnvironmentProvide
         ]),
         provideLocationMocks()
     ];
+
+    if (options !== null) {
+        providers.push({
+            provide: UtilitiesService,
+            useFactory: (http: HttpClient) => {
+                const service = new UtilitiesService(http);
+                service.loading.set(options.loading);
+                return service;
+            },
+            deps: [HttpClient]
+        });
+    }
+
+    return providers;
 }
