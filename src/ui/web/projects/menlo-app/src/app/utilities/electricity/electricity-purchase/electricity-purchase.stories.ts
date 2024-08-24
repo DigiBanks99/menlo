@@ -1,10 +1,10 @@
 import { applicationConfig, Meta, StoryObj } from '@storybook/angular';
-import { ElectricityCaptureComponent } from './electricity-capture.component';
+import { ElectricityPurchaseComponent } from './electricity-purchase.component';
 import { provideUtilitiesServiceTesting } from '@utilities/utilities.service';
 
-const meta: Meta<ElectricityCaptureComponent> = {
-    title: 'Utilities/Electricity/Capture',
-    component: ElectricityCaptureComponent,
+const meta: Meta<ElectricityPurchaseComponent> = {
+    title: 'Utilities/Electricity/Purchase',
+    component: ElectricityPurchaseComponent,
     tags: ['autodocs'],
     render: args => ({
         props: args
@@ -18,7 +18,7 @@ const meta: Meta<ElectricityCaptureComponent> = {
 
 export default meta;
 
-type Story = StoryObj<ElectricityCaptureComponent>;
+type Story = StoryObj<ElectricityPurchaseComponent>;
 
 export const Default: Story = { args: {} };
 

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { DestroyableComponent, FormButtonsComponent } from 'menlo-lib';
+import { DestroyableComponent, FormButtonsComponent, LoadingComponent } from 'menlo-lib';
 import { ElectricityPurchaseRequest, ElectricityPurchaseRequestFactory } from '../electricity-purchase.request';
 import { takeUntil } from 'rxjs';
 import { UtilitiesService } from '@utilities/utilities.service';
@@ -16,33 +16,37 @@ type ElectricityPurchaseForm = {
 @Component({
     selector: 'menlo-electricity-purchase',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormButtonsComponent, LoadingComponent],
     template: `
         <header class="d-flex flex-nowrap p-0">
             <h1 class="me-auto">Electricity Purchase</h1>
             <menlo-form-buttons (submit)="onSubmit()" (cancel)="onCancel()"></menlo-form-buttons>
         </header>
         <article>
-            <form [formGroup]="form">
-                <div class="form-floating">
-                    <input type="date" class="form-control" id="date" formControlName="date" placeholder="Date" />
-                    <label for="date">Date</label>
-                </div>
-                <div class="form-group input-group">
+            @if (loading()) {
+                <menlo-loading />
+            } @else {
+                <form [formGroup]="form">
                     <div class="form-floating">
-                        <input type="number" class="form-control" id="units" formControlName="units" placeholder="Units" />
-                        <label for="units">Units</label>
+                        <input type="date" class="form-control" id="date" formControlName="date" placeholder="Date" />
+                        <label for="date">Date</label>
                     </div>
-                    <span class="input-group-text">kW/h</span>
-                </div>
-                <div class="form-group input-group">
-                    <span class="input-group-text">R</span>
-                    <div class="form-floating">
-                        <input type="number" class="form-control" id="cost" formControlName="cost" placeholder="Cost" pattern="#.##" />
-                        <label for="cost">Cost</label>
+                    <div class="form-group input-group">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="units" formControlName="units" placeholder="Units" />
+                            <label for="units">Units</label>
+                        </div>
+                        <span class="input-group-text">kW/h</span>
                     </div>
-                </div>
-            </form>
+                    <div class="form-group input-group">
+                        <span class="input-group-text">R</span>
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="cost" formControlName="cost" placeholder="Cost" pattern="#.##" />
+                            <label for="cost">Cost</label>
+                        </div>
+                    </div>
+                </form>
+            }
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -53,6 +57,8 @@ export class ElectricityPurchaseComponent extends DestroyableComponent {
         units: new FormControl<number>(0, { nonNullable: true }),
         cost: new FormControl<number>(0, { nonNullable: true })
     });
+
+    public readonly loading = this._utilitiesService.loading;
 
     constructor(
         private readonly _utilitiesService: UtilitiesService,
@@ -72,7 +78,7 @@ export class ElectricityPurchaseComponent extends DestroyableComponent {
             .pipe(takeUntil(this.destroyed$))
             .subscribe(() => {
                 this.form.reset();
-                this._router.navigate(['dashboard'], { relativeTo: this._router.routerState.root });
+                this._router.navigate(['../dashboard']);
             });
     }
 

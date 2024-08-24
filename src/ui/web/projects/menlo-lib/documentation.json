@@ -9,7 +9,7 @@
     "components": [
         {
             "name": "BudgetComponent",
-            "id": "component-BudgetComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
+            "id": "component-BudgetComponent-9293f4abbea193186baae94d703d3e54e87b5cf8fb659dcf46c7bb5d0c722df78eba1580174efea40fae560bde1576777e1ed6f18ed81b385eda69895de0e8b0",
             "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -50,7 +50,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\r\nimport { RootComponent } from './root.component';\r\nimport { provideRouter } from '@angular/router';\r\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\r\nimport { LorumIpsum } from '../../story.constants';\r\nimport { provideLocationMocks } from '@angular/common/testing';\r\n\r\n@Component({\r\n    template: `<p>{{ lorumIpsum }}</p>`,\r\n    standalone: true,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass LorumIpsumComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Utilities</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass UtilitiesComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Budget</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass BudgetComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\nconst meta: Meta<RootComponent> = {\r\n    title: 'Layout/Root',\r\n    component: RootComponent,\r\n    tags: ['autodocs'],\r\n    render: (args: RootComponent) => ({\r\n        props: {\r\n            ...args\r\n        }\r\n    }),\r\n    decorators: [\r\n        applicationConfig({\r\n            providers: [\r\n                provideRouter([\r\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\r\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\r\n                    { path: 'utilities', component: UtilitiesComponent },\r\n                    { path: 'budget', component: BudgetComponent }\r\n                ]),\r\n                provideLocationMocks()\r\n            ]\r\n        })\r\n    ]\r\n};\r\n\r\nexport default meta;\r\n\r\ntype Story = StoryObj<RootComponent>;\r\n\r\nexport const Default: Story = {\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n};\r\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -58,7 +58,7 @@
         },
         {
             "name": "LorumIpsumComponent",
-            "id": "component-LorumIpsumComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
+            "id": "component-LorumIpsumComponent-9293f4abbea193186baae94d703d3e54e87b5cf8fb659dcf46c7bb5d0c722df78eba1580174efea40fae560bde1576777e1ed6f18ed81b385eda69895de0e8b0",
             "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -99,7 +99,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\r\nimport { RootComponent } from './root.component';\r\nimport { provideRouter } from '@angular/router';\r\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\r\nimport { LorumIpsum } from '../../story.constants';\r\nimport { provideLocationMocks } from '@angular/common/testing';\r\n\r\n@Component({\r\n    template: `<p>{{ lorumIpsum }}</p>`,\r\n    standalone: true,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass LorumIpsumComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Utilities</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass UtilitiesComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Budget</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass BudgetComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\nconst meta: Meta<RootComponent> = {\r\n    title: 'Layout/Root',\r\n    component: RootComponent,\r\n    tags: ['autodocs'],\r\n    render: (args: RootComponent) => ({\r\n        props: {\r\n            ...args\r\n        }\r\n    }),\r\n    decorators: [\r\n        applicationConfig({\r\n            providers: [\r\n                provideRouter([\r\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\r\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\r\n                    { path: 'utilities', component: UtilitiesComponent },\r\n                    { path: 'budget', component: BudgetComponent }\r\n                ]),\r\n                provideLocationMocks()\r\n            ]\r\n        })\r\n    ]\r\n};\r\n\r\nexport default meta;\r\n\r\ntype Story = StoryObj<RootComponent>;\r\n\r\nexport const Default: Story = {\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n};\r\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -107,7 +107,7 @@
         },
         {
             "name": "UtilitiesComponent",
-            "id": "component-UtilitiesComponent-7a82a39cd00524df0148241fe3ed3ad7842018c252e9d9d7a8bebe90218acbcd93a9091cbc7f4aed588a425c8dc815a0ee2e599458c6814814a0aef92c291202",
+            "id": "component-UtilitiesComponent-9293f4abbea193186baae94d703d3e54e87b5cf8fb659dcf46c7bb5d0c722df78eba1580174efea40fae560bde1576777e1ed6f18ed81b385eda69895de0e8b0",
             "file": "projects/menlo-lib/src/lib/layout/root/root.stories.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -148,7 +148,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\nimport { RootComponent } from './root.component';\nimport { provideRouter } from '@angular/router';\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { LorumIpsum } from '../../story.constants';\nimport { provideLocationMocks } from '@angular/common/testing';\n\n@Component({\n    template: `<p>{{ lorumIpsum }}</p>`,\n    standalone: true,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass LorumIpsumComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Utilities</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass UtilitiesComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\n@Component({\n    standalone: true,\n    template: `<h1>Budget</h1> <p>It works!</>`,\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nclass BudgetComponent {\n    public lorumIpsum: string = LorumIpsum;\n}\n\nconst meta: Meta<RootComponent> = {\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n};\n\nexport default meta;\n\ntype Story = StoryObj<RootComponent>;\n\nexport const Default: Story = {\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n};\n",
+            "sourceCode": "import { applicationConfig, Meta, StoryObj } from '@storybook/angular';\r\nimport { RootComponent } from './root.component';\r\nimport { provideRouter } from '@angular/router';\r\nimport { ChangeDetectionStrategy, Component } from '@angular/core';\r\nimport { LorumIpsum } from '../../story.constants';\r\nimport { provideLocationMocks } from '@angular/common/testing';\r\n\r\n@Component({\r\n    template: `<p>{{ lorumIpsum }}</p>`,\r\n    standalone: true,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass LorumIpsumComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Utilities</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass UtilitiesComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\n@Component({\r\n    standalone: true,\r\n    template: `<h1>Budget</h1> <p>It works!</>`,\r\n    changeDetection: ChangeDetectionStrategy.OnPush\r\n})\r\nclass BudgetComponent {\r\n    public lorumIpsum: string = LorumIpsum;\r\n}\r\n\r\nconst meta: Meta<RootComponent> = {\r\n    title: 'Layout/Root',\r\n    component: RootComponent,\r\n    tags: ['autodocs'],\r\n    render: (args: RootComponent) => ({\r\n        props: {\r\n            ...args\r\n        }\r\n    }),\r\n    decorators: [\r\n        applicationConfig({\r\n            providers: [\r\n                provideRouter([\r\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\r\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\r\n                    { path: 'utilities', component: UtilitiesComponent },\r\n                    { path: 'budget', component: BudgetComponent }\r\n                ]),\r\n                provideLocationMocks()\r\n            ]\r\n        })\r\n    ]\r\n};\r\n\r\nexport default meta;\r\n\r\ntype Story = StoryObj<RootComponent>;\r\n\r\nexport const Default: Story = {\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n};\r\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -158,6 +158,26 @@
     "modules": [],
     "miscellaneous": {
         "variables": [
+            {
+                "name": "Contained",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                    display: flex;\n                    flex: 1;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: {} }"
+            },
             {
                 "name": "Default",
                 "ctype": "miscellaneous",
@@ -176,7 +196,27 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
+                "defaultValue": "{\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n}"
+            },
+            {
+                "name": "FullScreen",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { kind: LoadKind.FullScreen } }"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<LoadingComponent>",
+                "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
             },
             {
                 "name": "meta",
@@ -186,7 +226,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<FormButtonsComponent>",
-                "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    argTypes: {\n        cancel: { action: 'cancel' },\n        submit: { action: 'submit' }\n    },\n    args: {\n        cancel: action('cancel'),\n        submit: action('submit')\n    }\n}"
+                "defaultValue": "{\r\n    title: 'Forms/Buttons',\r\n    component: FormButtonsComponent,\r\n    tags: ['autodocs'],\r\n    argTypes: {\r\n        cancel: { action: 'cancel' },\r\n        submit: { action: 'submit' }\r\n    },\r\n    args: {\r\n        cancel: action('cancel'),\r\n        submit: action('submit')\r\n    }\r\n}"
             },
             {
                 "name": "meta",
@@ -196,7 +236,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<RootComponent>",
-                "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                "defaultValue": "{\r\n    title: 'Layout/Root',\r\n    component: RootComponent,\r\n    tags: ['autodocs'],\r\n    render: (args: RootComponent) => ({\r\n        props: {\r\n            ...args\r\n        }\r\n    }),\r\n    decorators: [\r\n        applicationConfig({\r\n            providers: [\r\n                provideRouter([\r\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\r\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\r\n                    { path: 'utilities', component: UtilitiesComponent },\r\n                    { path: 'budget', component: BudgetComponent }\r\n                ]),\r\n                provideLocationMocks()\r\n            ]\r\n        })\r\n    ]\r\n}"
             },
             {
                 "name": "preview",
@@ -206,11 +246,32 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Preview",
-                "defaultValue": "{\n    parameters: {\n        controls: {\n            matchers: {\n                color: /(background|color)$/i,\n                date: /Date$/i\n            }\n        }\n    }\n}"
+                "defaultValue": "{\r\n    parameters: {\r\n        controls: {\r\n            matchers: {\r\n                color: /(background|color)$/i,\r\n                date: /Date$/i\r\n            }\r\n        }\r\n    }\r\n}"
+            },
+            {
+                "name": "Small",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { kind: LoadKind.Small } }"
             }
         ],
         "functions": [],
         "typealiases": [
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<LoadingComponent>",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 183
+            },
             {
                 "name": "Story",
                 "ctype": "miscellaneous",
@@ -236,6 +297,58 @@
         ],
         "enumerations": [],
         "groupedVariables": {
+            "projects/menlo-lib/src/lib/common/loading/loading.stories.ts": [
+                {
+                    "name": "Contained",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                    display: flex;\n                    flex: 1;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
+                },
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: {} }"
+                },
+                {
+                    "name": "FullScreen",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { kind: LoadKind.FullScreen } }"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<LoadingComponent>",
+                    "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
+                },
+                {
+                    "name": "Small",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { kind: LoadKind.Small } }"
+                }
+            ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
                 {
                     "name": "Default",
@@ -255,7 +368,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<FormButtonsComponent>",
-                    "defaultValue": "{\n    title: 'Forms/Buttons',\n    component: FormButtonsComponent,\n    tags: ['autodocs'],\n    argTypes: {\n        cancel: { action: 'cancel' },\n        submit: { action: 'submit' }\n    },\n    args: {\n        cancel: action('cancel'),\n        submit: action('submit')\n    }\n}"
+                    "defaultValue": "{\r\n    title: 'Forms/Buttons',\r\n    component: FormButtonsComponent,\r\n    tags: ['autodocs'],\r\n    argTypes: {\r\n        cancel: { action: 'cancel' },\r\n        submit: { action: 'submit' }\r\n    },\r\n    args: {\r\n        cancel: action('cancel'),\r\n        submit: action('submit')\r\n    }\r\n}"
                 }
             ],
             "projects/menlo-lib/src/lib/layout/root/root.stories.ts": [
@@ -267,7 +380,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\n    args: {\n        navItems: [\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\n        ]\n    }\n}"
+                    "defaultValue": "{\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n}"
                 },
                 {
                     "name": "meta",
@@ -277,7 +390,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<RootComponent>",
-                    "defaultValue": "{\n    title: 'Layout/Root',\n    component: RootComponent,\n    tags: ['autodocs'],\n    render: (args: RootComponent) => ({\n        props: {\n            ...args\n        }\n    }),\n    decorators: [\n        applicationConfig({\n            providers: [\n                provideRouter([\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\n                    { path: 'utilities', component: UtilitiesComponent },\n                    { path: 'budget', component: BudgetComponent }\n                ]),\n                provideLocationMocks()\n            ]\n        })\n    ]\n}"
+                    "defaultValue": "{\r\n    title: 'Layout/Root',\r\n    component: RootComponent,\r\n    tags: ['autodocs'],\r\n    render: (args: RootComponent) => ({\r\n        props: {\r\n            ...args\r\n        }\r\n    }),\r\n    decorators: [\r\n        applicationConfig({\r\n            providers: [\r\n                provideRouter([\r\n                    { path: '', pathMatch: 'full', redirectTo: 'lorum-ipsum' },\r\n                    { path: 'lorum-ipsum', component: LorumIpsumComponent },\r\n                    { path: 'utilities', component: UtilitiesComponent },\r\n                    { path: 'budget', component: BudgetComponent }\r\n                ]),\r\n                provideLocationMocks()\r\n            ]\r\n        })\r\n    ]\r\n}"
                 }
             ],
             "projects/menlo-lib/.storybook/preview.ts": [
@@ -289,13 +402,26 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Preview",
-                    "defaultValue": "{\n    parameters: {\n        controls: {\n            matchers: {\n                color: /(background|color)$/i,\n                date: /Date$/i\n            }\n        }\n    }\n}"
+                    "defaultValue": "{\r\n    parameters: {\r\n        controls: {\r\n            matchers: {\r\n                color: /(background|color)$/i,\r\n                date: /Date$/i\r\n            }\r\n        }\r\n    }\r\n}"
                 }
             ]
         },
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
+            "projects/menlo-lib/src/lib/common/loading/loading.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<LoadingComponent>",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
                 {
                     "name": "Story",
@@ -335,6 +461,56 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "preview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Contained",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "FullScreen",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Small",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
