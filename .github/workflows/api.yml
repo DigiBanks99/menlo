@@ -26,15 +26,28 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Restore local tools
+      run: dotnet tool restore
     - name: Restore dependencies
       run: dotnet restore src/Menlo.sln
     - name: Build
       run: dotnet build src/Menlo.sln --no-restore
     - name: Test
-      run: dotnet test src/Menlo.sln --no-build --verbosity normal --logger trx
-    - name: Test Report
+      run: dotnet test src/Menlo.sln --no-build --verbosity normal --logger trx --collect:"XPlat Code Coverage"
+    - name: Generate Test Report
       uses: dorny/test-reporter@v1
       with:
         name: Tests
         path: 'src/**/*.trx'
         reporter: dotnet-trx
+    - name: Generate Coverage Report
+      run: dotnet reportgenerator -reports:src/**/TestResults/**/coverage.cobertura.xml -targetdir:./coverage -reporttypes:MarkdownSummary
+    - name: Coverage Check
+      uses: LouisBrunner/checks-action@v2.0.0
+      if: always()
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: Code coverage
+        conclusion: ${{ job.status }}
+        output: '{"summary":"Code coverage"}'
+        output_text_description_file: coverage/Summary.md
