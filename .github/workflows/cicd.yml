@@ -137,6 +137,9 @@ jobs:
               --parameters infra/main.bicepparam \
               --name main-${{ github.run_id }}
         env:
+          AZUREAD__DOMAIN: ${{ secrets.AZUREAD__DOMAIN }}
+          AZUREAD__TENANTID: ${{ secrets.AZUREAD__TENANTID }}
+          AZUREAD__CLIENTID: ${{ secrets.AZUREAD__CLIENTID }}
           COSMOS_ACCOUNT_NAME: ${{ vars.COSMOS_ACCOUNT_NAME}}
           COSMOS_CONTAINER_NAME_ELECTRICITY_USAGE: ${{ vars.COSMOS_CONTAINER_NAME_ELECTRICITY_USAGE }}
           COSMOS_CONTAINER_NAME_ELECTRICITY_PURCHASES: ${{ vars.COSMOS_CONTAINER_NAME_ELECTRICITY_PURCHASES }}
