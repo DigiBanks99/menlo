@@ -132,6 +132,8 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
+            tdnf install -y icu
+            tdnf install –y jq
             az deployment group create \
               --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
               --parameters infra/main.bicepparam \
