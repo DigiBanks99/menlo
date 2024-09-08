@@ -62,3 +62,9 @@ param containerApp = {
   minReplicas: int(readEnvironmentVariable('CONTAINER_APP_MIN_REPLICAS', '1'))
   targetPort: int(readEnvironmentVariable('CONTAINER_APP_TARGET_PORT', '8080'))
 }
+
+param azureAd = {
+  domain: readEnvironmentVariable('AZUREAD__DOMAIN')
+  tenantId: readEnvironmentVariable('AZUREAD__TENANT_ID')
+  clientId: readEnvironmentVariable('AZUREAD__CLIENT_ID')
+}

@@ -1,5 +1,5 @@
 import { CosmosDatabase } from './modules/cosmos.bicep'
-import { ContainerApp } from './modules/container-app.bicep'
+import { AzureAd, ContainerApp } from './modules/container-app.bicep'
 
 type CosmosAccount = {
   accountName: string
@@ -11,6 +11,9 @@ param cosmosAccount CosmosAccount
 
 @description('Container App Parameters')
 param containerApp ContainerApp
+
+@description('Azure AD Parameters')
+param azureAd AzureAd
 
 param location string = resourceGroup().location
 
@@ -40,6 +43,7 @@ module app 'modules/container-app.bicep' = {
       accountEndpoint: cosmos.outputs.endpoint
       databaseName: cosmosAccount.database.name
     }
+    azureAd: azureAd
   }
 }
 
