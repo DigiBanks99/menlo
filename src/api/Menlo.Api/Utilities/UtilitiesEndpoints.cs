@@ -1,7 +1,6 @@
 using Menlo.Common;
 using Menlo.Common.Errors;
 using Menlo.Utilities.Handlers.Electricity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Net.Mime;
