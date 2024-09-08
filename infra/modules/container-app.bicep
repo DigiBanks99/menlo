@@ -35,6 +35,14 @@ type CosmosInfo = {
   databaseName: string
 }
 
+@export()
+type AzureAd = {
+  domain: string
+  tenantId: string
+  clientId: string
+  clientSecret: string?
+}
+
 @description('Location for the container app.')
 param location string = resourceGroup().location
 
@@ -91,6 +99,9 @@ param maxReplicas int = 1
 @description('Cosmos info')
 param cosmos CosmosInfo
 
+@description('Azure AD info')
+param azureAd AzureAd
+
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: managedEnvironment.name
   location: location
@@ -142,6 +153,9 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             memory: '${memorySize}Gi'
           }
           env: [
+            { name: 'AzureAd__Domain', value: azureAd.domain }
+            { name: 'AzureAd__TenantId', value: azureAd.tenantId }
+            { name: 'AzureAd__ClientId', value: azureAd.clientId }
             { name: 'RepositoryOptions__AccountEndpoint', value: cosmos.accountEndpoint }
             { name: 'RepositoryOptions__DatabaseId', value: cosmos.databaseName }
           ]
