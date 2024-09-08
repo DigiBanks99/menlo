@@ -15,8 +15,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER dotnet
 WORKDIR /app
 
-EXPOSE 5000
-EXPOSE 5001
+EXPOSE 8080
+EXPOSE 443
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
