@@ -65,6 +65,6 @@ param containerApp = {
 
 param azureAd = {
   domain: readEnvironmentVariable('AZUREAD__DOMAIN')
-  tenantId: readEnvironmentVariable('AZUREAD__TENANT_ID')
-  clientId: readEnvironmentVariable('AZUREAD__CLIENT_ID')
+  tenantId: readEnvironmentVariable('AZUREAD__TENANTID')
+  clientId: readEnvironmentVariable('AZUREAD__CLIENTID')
 }
