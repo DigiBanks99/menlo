@@ -130,10 +130,8 @@ jobs:
       - name: Azure CLI script
         uses: azure/cli@v2
         with:
-          azcliversion: latest
+          azcliversion: 2.63.0
           inlineScript: |
-            tdnf install -y icu
-            tdnf install –y jq
             az deployment group create \
               --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} \
               --parameters infra/main.bicepparam \
