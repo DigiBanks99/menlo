@@ -1,4 +1,5 @@
 using Menlo.Auth;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.CosmosRepository.AspNetCore.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddSwaggerGen();
 builder.Services
     .AddHealthChecks()
     .AddCosmosRepository();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
 
@@ -34,6 +38,8 @@ builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 WebApplication app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UseSecurityHeaders(new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
