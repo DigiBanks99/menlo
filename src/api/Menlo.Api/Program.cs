@@ -13,15 +13,16 @@ builder.Services
     .AddHealthChecks()
     .AddCosmosRepository();
 
-builder.Services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
-
-builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
-
 builder.Services
-    .AddAuthorizationBuilder()
-    .AddPolicy(AuthConstants.PolicyNameAuthenticatedUsersOnly, op => op.RequireAuthenticatedUser().Build())
-    .AddUtilitiesPolicy();
+    .Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+
+MicrosoftIdentityOptions? azureAdOptions = builder.Configuration.GetSection("AzureAd").Get<MicrosoftIdentityOptions>();
+if (azureAdOptions is null)
+{
+    throw new InvalidOperationException("AzureAd section is missing from configuration");
+}
+
+AuthorizationBuilder authBuilder = builder.AddAuth();
 
 builder.Services.AddControllersWithViews();
 
@@ -31,7 +32,7 @@ builder.Services
 
 builder.Services.RegisterFeatureManagement();
 
-builder.AddUtilitiesModule();
+builder.AddUtilitiesModule(authBuilder);
 
 builder.Services
     .AddReverseProxy()
