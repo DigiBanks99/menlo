@@ -156,7 +156,6 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'AzureAd__Domain', value: azureAd.domain }
             { name: 'AzureAd__TenantId', value: azureAd.tenantId }
             { name: 'AzureAd__ClientId', value: azureAd.clientId }
-            { name: 'ASPNETCORE_HTTPS_PORTS', value: '443' }
             { name: 'RepositoryOptions__AccountEndpoint', value: cosmos.accountEndpoint }
             { name: 'RepositoryOptions__DatabaseId', value: cosmos.databaseName }
           ]
