@@ -16,12 +16,6 @@ builder.Services
 builder.Services
     .Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
-MicrosoftIdentityOptions? azureAdOptions = builder.Configuration.GetSection("AzureAd").Get<MicrosoftIdentityOptions>();
-if (azureAdOptions is null)
-{
-    throw new InvalidOperationException("AzureAd section is missing from configuration");
-}
-
 AuthorizationBuilder authBuilder = builder.AddAuth();
 
 builder.Services.AddControllersWithViews();
