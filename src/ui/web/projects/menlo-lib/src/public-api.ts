@@ -2,6 +2,8 @@
  * Public API Surface of menlo-lib
  */
 export * from './lib/common/loading/loading.component';
+export * from './lib/charts/chart.component';
+export * from './lib/charts/chart.types';
 export * from './lib/destroyable.component';
 export * from './lib/forms/form-buttons/form-buttons.component';
 export * from './lib/layout/root/root.component';

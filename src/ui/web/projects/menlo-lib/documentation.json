@@ -159,6 +159,16 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "Button",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\r\n    args: { ...Default.args, kind: LoadKind.Small },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\r\n                    ${story}\r\n                    Submit\r\n            </button>`\r\n        )\r\n    ]\r\n}"
+            },
+            {
                 "name": "Contained",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -166,7 +176,37 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                    display: flex;\n                    flex: 1;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
+                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 300px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+            },
+            {
+                "name": "ContainedSmaller",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 150px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+            },
+            {
+                "name": "ContainedXL",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 500px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n    args: {\n        data: {\n            datasets: []\n        },\n        type: 'line'\n    }\n}"
             },
             {
                 "name": "Default",
@@ -199,14 +239,34 @@
                 "defaultValue": "{\r\n    args: {\r\n        navItems: [\r\n            { description: 'Lorum Ipsum', alternateText: 'Lorum Ipsum', route: 'lorum-ipsum', iconName: 'article' },\r\n            { description: 'Utilities', alternateText: 'Utilities', route: 'utilities', iconName: 'water_ec' },\r\n            { description: 'Budget', alternateText: 'Budget', route: 'budget', iconName: 'account_balance_wallet' }\r\n        ]\r\n    }\r\n}"
             },
             {
-                "name": "FullScreen",
+                "name": "Line",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{ args: { kind: LoadKind.FullScreen } }"
+                "defaultValue": "{\n    args: {\n        data: {\n            datasets: [\n                {\n                    label: 'Dataset 1',\n                    data: [10, 20, 30, 40, 50]\n                }\n            ],\n            labels: ['January', 'February', 'March', 'April', 'May']\n        },\n        title: 'Chart Title',\n        type: 'line',\n        scales: linearScale\n    }\n}"
+            },
+            {
+                "name": "linearScale",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MenloChartLinearScale",
+                "defaultValue": "{\n    x: {\n        beginAtZero: true,\n        title: {\n            display: true,\n            text: 'Date'\n        }\n    },\n    y: {\n        beginAtZero: true,\n        title: {\n            display: true,\n            text: 'Units'\n        }\n    }\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<ChartComponent>",
+                "defaultValue": "{\n    title: 'Charts/Chart',\n    component: ChartComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
             },
             {
                 "name": "meta",
@@ -216,7 +276,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<LoadingComponent>",
-                "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
+                "defaultValue": "{\r\n    title: 'Common/Loading',\r\n    component: LoadingComponent,\r\n    tags: ['autodocs'],\r\n    render: args => ({\r\n        props: args\r\n    })\r\n}"
             },
             {
                 "name": "meta",
@@ -265,6 +325,17 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
+                "rawtype": "StoryObj<ChartComponent>",
+                "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 183
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
                 "rawtype": "StoryObj<LoadingComponent>",
                 "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
                 "deprecated": false,
@@ -299,6 +370,16 @@
         "groupedVariables": {
             "projects/menlo-lib/src/lib/common/loading/loading.stories.ts": [
                 {
+                    "name": "Button",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\r\n    args: { ...Default.args, kind: LoadKind.Small },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\r\n                    ${story}\r\n                    Submit\r\n            </button>`\r\n        )\r\n    ]\r\n}"
+                },
+                {
                     "name": "Contained",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -306,7 +387,27 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                    display: flex;\n                    flex: 1;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
+                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 300px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                },
+                {
+                    "name": "ContainedSmaller",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 150px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                },
+                {
+                    "name": "ContainedXL",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 500px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
                 },
                 {
                     "name": "Default",
@@ -319,16 +420,6 @@
                     "defaultValue": "{ args: {} }"
                 },
                 {
-                    "name": "FullScreen",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{ args: { kind: LoadKind.FullScreen } }"
-                },
-                {
                     "name": "meta",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -336,7 +427,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<LoadingComponent>",
-                    "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
+                    "defaultValue": "{\r\n    title: 'Common/Loading',\r\n    component: LoadingComponent,\r\n    tags: ['autodocs'],\r\n    render: args => ({\r\n        props: args\r\n    })\r\n}"
                 },
                 {
                     "name": "Small",
@@ -347,6 +438,48 @@
                     "deprecationMessage": "",
                     "type": "Story",
                     "defaultValue": "{ args: { kind: LoadKind.Small } }"
+                }
+            ],
+            "projects/menlo-lib/src/lib/charts/chart.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n    args: {\n        data: {\n            datasets: []\n        },\n        type: 'line'\n    }\n}"
+                },
+                {
+                    "name": "Line",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n    args: {\n        data: {\n            datasets: [\n                {\n                    label: 'Dataset 1',\n                    data: [10, 20, 30, 40, 50]\n                }\n            ],\n            labels: ['January', 'February', 'March', 'April', 'May']\n        },\n        title: 'Chart Title',\n        type: 'line',\n        scales: linearScale\n    }\n}"
+                },
+                {
+                    "name": "linearScale",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MenloChartLinearScale",
+                    "defaultValue": "{\n    x: {\n        beginAtZero: true,\n        title: {\n            display: true,\n            text: 'Date'\n        }\n    },\n    y: {\n        beginAtZero: true,\n        title: {\n            display: true,\n            text: 'Units'\n        }\n    }\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<ChartComponent>",
+                    "defaultValue": "{\n    title: 'Charts/Chart',\n    component: ChartComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
                 }
             ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
@@ -409,6 +542,19 @@
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
+            "projects/menlo-lib/src/lib/charts/chart.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<ChartComponent>",
+                    "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ],
             "projects/menlo-lib/src/lib/common/loading/loading.stories.ts": [
                 {
                     "name": "Story",
@@ -466,6 +612,56 @@
                 "status": "low"
             },
             {
+                "filePath": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Line",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "linearScale",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Button",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
@@ -480,7 +676,7 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "Default",
+                "name": "ContainedSmaller",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -490,7 +686,17 @@
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "FullScreen",
+                "name": "ContainedXL",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
