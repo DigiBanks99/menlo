@@ -70,17 +70,16 @@ export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingO
         provideLocationMocks()
     ];
 
-    if (options !== null) {
-        providers.push({
-            provide: UtilitiesService,
-            useFactory: (http: HttpClient) => {
-                const service = new UtilitiesService(http);
-                service.loading.set(options.loading);
-                return service;
-            },
-            deps: [HttpClient]
-        });
-    }
+    const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };
+    providers.push({
+        provide: UtilitiesService,
+        useFactory: (http: HttpClient) => {
+            const service = new UtilitiesService(http);
+            service.loading.set(effectiveOptions.loading);
+            return service;
+        },
+        deps: [HttpClient]
+    });
 
     return providers;
 }

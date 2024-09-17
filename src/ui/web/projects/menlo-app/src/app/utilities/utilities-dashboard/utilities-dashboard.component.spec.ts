@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UtilitiesDashboardComponent } from './utilities-dashboard.component';
-import { provideRouter, RouterLinkWithHref } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { Component } from '@angular/core';
 import { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';
-import { AsyncPipe, JsonPipe } from '@angular/common';
 import { provideUtilitiesServiceTesting } from '@utilities/utilities.service';
 
 @Component({ selector: 'menlo-electricity-usage', template: '', standalone: true })
 class ElectricityUsageStubComponent {
     electricityUsage: ElectricityUsage[] = [];
+    loading = false;
 }
 
 describe('UtilitiesDashboardComponent', () => {
