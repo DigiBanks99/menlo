@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Signal } from '@angular/core';
 import { RouterLinkWithHref } from '@angular/router';
 import { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';
 import { UtilitiesService } from '@utilities/utilities.service';
@@ -37,13 +37,15 @@ import { toSignal } from '@angular/core/rxjs-interop';
         </header>
         <article class="h-100">
             <h3>Electricity Usage</h3>
-            <menlo-electricity-usage [electricityUsage]="electricityUsage()" />
+            <menlo-electricity-usage [electricityUsage]="electricityUsage()" [loading]="loading()" />
         </article>`,
     styleUrl: './utilities-dashboard.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UtilitiesDashboardComponent extends DestroyableComponent {
     public readonly electricityUsage: Signal<ElectricityUsage[]>;
+
+    public readonly loading = computed(() => this._utilitiesService.loading());
 
     constructor(private readonly _utilitiesService: UtilitiesService) {
         super();

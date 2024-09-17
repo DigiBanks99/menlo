@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ElectricityUsageComponent } from './electricity-usage.component';
 import { SIGNAL, signalSetFn } from '@angular/core/primitives/signals';
 
@@ -17,6 +16,7 @@ describe('ElectricityUsageComponent', () => {
         fixture = TestBed.createComponent(ElectricityUsageComponent);
         component = fixture.componentInstance;
         signalSetFn(component.electricityUsage[SIGNAL], []);
+        signalSetFn(component.loading[SIGNAL], false);
         await fixture.whenStable();
 
         fixture.detectChanges();
@@ -50,11 +50,30 @@ describe('ElectricityUsageComponent', () => {
     });
 
     it('should render the chart element', () => {
-        const chartElement = fixture.nativeElement.querySelector('#chart');
+        const chartElement = fixture.nativeElement.querySelector('menlo-chart');
         expect(chartElement).toBeTruthy();
     });
 
-    it('should create a chart', () => {
-        expect(component.chart).toBeTruthy();
+    describe('when loading is true', () => {
+        beforeEach(async () => {
+            signalSetFn(component.loading[SIGNAL], true);
+            await fixture.whenStable();
+            fixture.detectChanges();
+        });
+
+        it('should render the loading component', () => {
+            const loadingElement = fixture.nativeElement.querySelector('menlo-loading');
+            expect(loadingElement).toBeTruthy();
+        });
+
+        it('should not render the chart element', () => {
+            const chartElement = fixture.nativeElement.querySelector('menlo-chart');
+            expect(chartElement).toBeFalsy();
+        });
+
+        it('should not render the ag-grid-angular component', () => {
+            const agGridElement = fixture.nativeElement.querySelector('ag-grid-angular');
+            expect(agGridElement).toBeFalsy();
+        });
     });
 });

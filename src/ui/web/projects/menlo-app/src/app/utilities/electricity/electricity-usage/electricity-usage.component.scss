@@ -15,3 +15,20 @@ body {
 .ag-theme-quartz {
     height: 100%;
 }
+
+menlo-chart {
+    display: block;
+    width: 75%;
+}
+
+.electricity-usage {
+    height: 100%;
+    width: 100%;
+}
+
+.electricity-usage__chart {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

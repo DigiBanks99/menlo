@@ -1,35 +1,54 @@
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { ElectricityUsage } from './electricity-usage.model';
 import { DatePipe } from '@angular/common';
-import { DateFormat, DateOrString, formatDate } from 'menlo-lib';
-import { Chart, ChartConfiguration, registerables, ChartData, ChartTypeRegistry, Point, BubbleDataPoint, ChartItem } from 'chart.js';
+import { ChartComponent, DateFormat, DateOrString, formatDate, LoadingComponent, MenloChartData, MenloChartLinearScale } from 'menlo-lib';
 
 @Component({
     selector: 'menlo-electricity-usage',
     standalone: true,
-    imports: [AgGridAngular],
+    imports: [AgGridAngular, ChartComponent, LoadingComponent],
     providers: [DatePipe],
-    template: ` <div class="d-flex justify-content-center h-50">
-            <canvas id="chart"></canvas>
-        </div>
-        <div class="h-50">
-            <ag-grid-angular
-                class="ag-theme-quartz ag-theme-quartz-auto-dark"
-                [rowData]="electricityUsage()"
-                [columnDefs]="columnDefs"
-                [defaultColDef]="defaultColDef" />
-        </div>`,
+    template: ` @if (loading()) {
+            <menlo-loading />
+        } @else {
+            <div class="electricity-usage">
+                <div class="electricity-usage__chart">
+                    <menlo-chart [data]="chartData()" title="Electricity Usage" type="line" [scales]="chartScales" />
+                </div>
+                <div class="h-50">
+                    <ag-grid-angular
+                        class="ag-theme-quartz ag-theme-quartz-auto-dark"
+                        [rowData]="electricityUsage()"
+                        [columnDefs]="columnDefs"
+                        [defaultColDef]="defaultColDef" />
+                </div>
+            </div>
+        }`,
     styleUrl: './electricity-usage.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ElectricityUsageComponent implements OnInit {
-    private _chartElement: ChartItem | null = null;
-    private _chartInstance: Chart | null = null;
-    private _chartData = computed(() => this.getChartData(this.electricityUsage()));
-
+export class ElectricityUsageComponent {
     public readonly electricityUsage = input.required<ElectricityUsage[]>();
+    public readonly loading = input.required<boolean>();
+
+    public readonly chartData = computed(() => this.getChartData(this.electricityUsage()));
+
+    public readonly chartScales: MenloChartLinearScale = {
+        x: {
+            title: {
+                display: true,
+                text: 'Date'
+            }
+        },
+        y: {
+            title: {
+                display: true,
+                text: 'Usage'
+            }
+        }
+    };
 
     public readonly columnDefs: ColDef[] = [
         {
@@ -44,88 +63,7 @@ export class ElectricityUsageComponent implements OnInit {
         flex: 1
     };
 
-    public get chart(): Chart | null {
-        return this._chartInstance;
-    }
-
-    constructor(
-        private readonly _datePipe: DatePipe,
-        private readonly _elementRef: ElementRef
-    ) {
-        effect(() => {
-            this.updateChart();
-        });
-    }
-
-    public ngOnInit(): void {
-        if (this._chartElement !== null) {
-            return;
-        }
-
-        this._chartElement = this._elementRef.nativeElement.querySelector('#chart');
-        if (this._chartElement === null) {
-            console.error('Could not find chart element');
-            return;
-        }
-        this.createChart();
-    }
-
-    private createChart(): void {
-        if (this._chartElement === null) {
-            return;
-        }
-
-        Chart.register(...registerables);
-
-        const config: ChartConfiguration = {
-            type: 'line',
-            data: this._chartData(),
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Electricity Usage'
-                    }
-                },
-                interaction: {
-                    intersect: false
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Units'
-                        }
-                    }
-                }
-            }
-        };
-
-        this._chartInstance = new Chart(this._chartElement, config);
-    }
-
-    private updateChart(): void {
-        if (this._chartInstance === null) {
-            console.error('Chart instance is null');
-            return;
-        }
-
-        this._chartInstance.data = this._chartData();
-        this._chartInstance.update();
-    }
-
-    private getChartData(
-        electricityUsage: ElectricityUsage[]
-    ): ChartData<keyof ChartTypeRegistry, (number | [number, number] | Point | BubbleDataPoint | null)[], unknown> {
+    private getChartData(electricityUsage: ElectricityUsage[]): MenloChartData {
         const usages: number[] = electricityUsage.map(usage => usage.usage);
 
         return {

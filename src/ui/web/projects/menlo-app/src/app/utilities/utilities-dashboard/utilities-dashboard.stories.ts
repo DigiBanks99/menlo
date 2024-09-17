@@ -13,7 +13,7 @@ const meta: Meta<UtilitiesDashboardComponent> = {
     }),
     decorators: [
         applicationConfig({
-            providers: [provideRouter(routes), provideUtilitiesServiceTesting()]
+            providers: [provideRouter(routes), provideUtilitiesServiceTesting({ loading: false })]
         })
     ]
 };
@@ -23,3 +23,12 @@ export default meta;
 type Story = StoryObj<UtilitiesDashboardComponent>;
 
 export const Default: Story = { args: {} };
+
+export const Loading: Story = {
+    args: {},
+    decorators: [
+        applicationConfig({
+            providers: [provideUtilitiesServiceTesting({ loading: true })]
+        })
+    ]
+};
