@@ -1,4 +1,4 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, Signal } from '@angular/core';
 import { RouterLinkWithHref } from '@angular/router';
 import { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';
