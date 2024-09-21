@@ -45,7 +45,6 @@ function getIntlFormatOptions(format: DateFormat): Intl.DateTimeFormatOptions {
 
 function buildDateString(input: Date | number, format: DateFormat, intlOptions: Intl.DateTimeFormatOptions): string {
     const formatter = Intl.DateTimeFormat(Intl.DateTimeFormat().resolvedOptions().locale, intlOptions);
-    console.log('Intl options:', intlOptions);
     const parts = formatter.formatToParts(input);
 
     const yearPart = parts.find(part => part.type == 'year');

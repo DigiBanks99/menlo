@@ -11,10 +11,14 @@ export class DateRangeService {
         const priorDate = new Date(snapshotDate);
         switch (filter.unit) {
             case DateRangeFilterUnit.Minutes:
-                priorDate.setMinutes(priorDate.getMinutes() - filter.value);
+                if (this.isTimeApplicable(format)) {
+                    priorDate.setMinutes(priorDate.getMinutes() - filter.value);
+                }
                 break;
             case DateRangeFilterUnit.Hours:
-                priorDate.setHours(priorDate.getHours() - filter.value);
+                if (this.isTimeApplicable(format)) {
+                    priorDate.setHours(priorDate.getHours() - filter.value);
+                }
                 break;
             case DateRangeFilterUnit.Days:
                 priorDate.setDate(priorDate.getDate() - filter.value);
@@ -38,10 +42,14 @@ export class DateRangeService {
         const futureDate = new Date(snapshotDate);
         switch (filter.unit) {
             case DateRangeFilterUnit.Minutes:
-                futureDate.setMinutes(futureDate.getMinutes() + filter.value);
+                if (this.isTimeApplicable(format)) {
+                    futureDate.setMinutes(futureDate.getMinutes() + filter.value);
+                }
                 break;
             case DateRangeFilterUnit.Hours:
-                futureDate.setHours(futureDate.getHours() + filter.value);
+                if (this.isTimeApplicable(format)) {
+                    futureDate.setHours(futureDate.getHours() + filter.value);
+                }
                 break;
             case DateRangeFilterUnit.Days:
                 futureDate.setDate(futureDate.getDate() + filter.value);
@@ -59,6 +67,10 @@ export class DateRangeService {
                 throw new Error(`'${filter.unit}' is not supported for computing a future date`);
         }
         return formatDate(futureDate, format);
+    }
+
+    private isTimeApplicable(format: DateFormat): boolean {
+        return format === DateFormat.ISO8601;
     }
 }
 
