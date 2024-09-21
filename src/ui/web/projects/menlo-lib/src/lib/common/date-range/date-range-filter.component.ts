@@ -23,13 +23,27 @@ type DateRangeFilterForm = {
         <div class="form-group input-group">
             @if (label()) {
                 <div class="form-floating">
-                    <input type="number" class="form-control" id="value" formControlName="value" placeholder="Value" />
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="value"
+                        formControlName="value"
+                        placeholder="Value"
+                        (ngModelChange)="notifyChange()"
+                        (blur)="notifyTouched()" />
                     <label for="value">{{ label() }}</label>
                 </div>
             } @else {
-                <input type="number" class="form-control" id="value" formControlName="value" placeholder="Value" />
+                <input
+                    type="number"
+                    class="form-control"
+                    id="value"
+                    formControlName="value"
+                    placeholder="Value"
+                    (ngModelChange)="notifyChange()"
+                    (blur)="notifyTouched()" />
             }
-            <select class="form-select input-group-text" id="unit" formControlName="unit">
+            <select class="form-select input-group-text" id="unit" formControlName="unit" (ngModelChange)="notifyChange()" (blur)="notifyTouched()">
                 @for (unit of unitOptions; track $index) {
                     <option [value]="unit[1]">{{ unit[0] }}</option>
                 }
@@ -61,19 +75,6 @@ export class DateRangeFilterComponent implements ControlValueAccessor {
     private _onChange: (val: DateRangeFilter) => void = () => {};
     private _onTouched: () => void = () => {};
 
-    constructor() {
-        this.form.valueChanges.subscribe(value => {
-            this._onChange({
-                unit: value.unit ?? DateRangeFilterUnit.Days,
-                value: value.value ?? 0
-            });
-        });
-
-        this.form.statusChanges.subscribe(_ => {
-            this._onTouched();
-        });
-    }
-
     writeValue(filter: DateRangeFilter): void {
         this.form.patchValue({
             unit: filter.unit ?? DateRangeFilterUnit.Days,
@@ -95,5 +96,13 @@ export class DateRangeFilterComponent implements ControlValueAccessor {
         } else {
             this.form.enable();
         }
+    }
+
+    public notifyChange(): void {
+        this._onChange(this.form.getRawValue());
+    }
+
+    public notifyTouched(): void {
+        this._onTouched();
     }
 }

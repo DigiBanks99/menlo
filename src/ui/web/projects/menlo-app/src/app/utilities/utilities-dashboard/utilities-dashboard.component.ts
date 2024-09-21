@@ -1,13 +1,13 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, signal, Signal, WritableSignal } from '@angular/core';
 import { RouterLinkWithHref } from '@angular/router';
 import { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';
 import { UtilitiesService } from '@utilities/utilities.service';
-import { map, Observable, takeUntil } from 'rxjs';
+import { catchError, distinct, distinctUntilChanged, distinctUntilKeyChanged, map, Observable, switchMap, takeUntil, tap } from 'rxjs';
 import { ElectricityUsageQueryFactory } from '@utilities/electricity';
 import { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';
 import { DateRangeFilter, DateRangeFilterComponent, DateRangeFilterUnit, DateRangeService, DestroyableComponent } from 'menlo-lib';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 type DateRangeFilterForm = {
@@ -66,13 +66,10 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
     public readonly form = new FormGroup<DateRangeFilterForm>({
         dateRange: new FormControl<DateRangeFilter>(new DateRangeFilter(DateRangeFilterUnit.Weeks, 1), { nonNullable: true })
     });
-
     public readonly loading = computed(() => this._utilitiesService.loading());
-    public readonly filter = computed(() => this._dateRangeFilter().value);
-    private readonly _defaultDateRange = new DateRangeFilter(DateRangeFilterUnit.Weeks, 1);
 
-    private _dateRangeFilter(): DateRangeFilter {
-        return this.form.get('dateRange')?.value ?? this._defaultDateRange;
+    private _dateRangeFilter(): FormControl<DateRangeFilter> {
+        return this.form.get('dateRange') as FormControl<DateRangeFilter>;
     }
 
     constructor(
@@ -81,22 +78,25 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
     ) {
         super();
 
-        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });
-
-        effect(() => {
-            if (this.loading()) {
-                this.form.disable();
-            } else {
-                this.form.enable();
-            }
-        });
+        this.electricityUsage = toSignal(this.getElectricityUsage(), { initialValue: [] });
     }
 
-    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {
+    private getElectricityUsage(): Observable<ElectricityUsage[]> {
+        return this._dateRangeFilter().valueChanges.pipe(
+            switchMap(filter => this.fetchElectricityUsage(filter)),
+            takeUntil(this.destroyed$)
+        );
+    }
+
+    private fetchElectricityUsage(filter: DateRangeFilter): Observable<ElectricityUsage[]> {
         const today = new Date();
-        const startDate = this._dateRangeService.getPriorDate(today, this._dateRangeFilter());
+        const startDate = this._dateRangeService.getPriorDate(today, filter);
         const request = ElectricityUsageQueryFactory.create(startDate, today);
         return this._utilitiesService.getElectricityUsage(request).pipe(
+            catchError(err => {
+                console.error('Error fetching electricity usage', err);
+                return [];
+            }),
             map(response =>
                 response.map(item => {
                     const usage = new ElectricityUsage();
@@ -112,6 +112,10 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
                     return usage;
                 })
             ),
+            catchError(err => {
+                console.error('Error mapping electricity usage', err);
+                return [];
+            }),
             takeUntil(this.destroyed$)
         );
     }
