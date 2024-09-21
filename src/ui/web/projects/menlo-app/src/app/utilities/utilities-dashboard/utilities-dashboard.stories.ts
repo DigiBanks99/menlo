@@ -13,7 +13,7 @@ const meta: Meta<UtilitiesDashboardComponent> = {
     }),
     decorators: [
         applicationConfig({
-            providers: [provideRouter(routes), provideUtilitiesServiceTesting({ loading: false })]
+            providers: [provideRouter(routes), provideUtilitiesServiceTesting()]
         })
     ]
 };

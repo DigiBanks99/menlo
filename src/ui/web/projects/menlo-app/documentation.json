@@ -153,12 +153,12 @@
         },
         {
             "name": "UtilitiesServiceTestingOptions",
-            "id": "interface-UtilitiesServiceTestingOptions-9061b454e88008c8fa21b376376de758b1fca4770a55d24425ceff5e6890293ec478734eee8552cabc88f90423ce374214b93d91cf402c7c96820c520a0557ca",
+            "id": "interface-UtilitiesServiceTestingOptions-5a88afd3cdcec01ef25aebd10c51baf0390f2399568c0657608ddb89b24fd6a16e3f7602efddaa1a5e80db32fb1ceb27d6e3a20a63c05b5d6e4fe3f0eb5f75aa",
             "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\r\nimport { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';\r\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';\r\nimport { Observable, tap } from 'rxjs';\r\nimport { APP_BASE_HREF } from '@angular/common';\r\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\r\nimport { provideLocationMocks } from '@angular/common/testing';\r\nimport { provideRouter } from '@angular/router';\r\nimport { NoopComponent } from 'menlo-lib';\r\n\r\n@Injectable({\r\n    providedIn: 'root'\r\n})\r\nexport class UtilitiesService {\r\n    public loading = signal(false);\r\n\r\n    constructor(private readonly _http: HttpClient) {}\r\n\r\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\r\n        this.loading.set(true);\r\n        return this._http.post<string>(`/api/utilities/electricity/usage`, request).pipe(tap(() => this.loading.set(false)));\r\n    }\r\n\r\n    public captureElectricityPurchase(request: ElectricityPurchaseRequest) {\r\n        this.loading.set(true);\r\n        return this._http.post<string>(`/api/utilities/electricity/purchase`, request).pipe(tap(() => this.loading.set(false)));\r\n    }\r\n\r\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\r\n        this.loading.set(true);\r\n        let queryString = new HttpParams().set('startDate', query.startDate);\r\n\r\n        if (query.endDate !== null) {\r\n            queryString = queryString.set('endDate', query.endDate);\r\n        }\r\n\r\n        queryString = queryString.set('timeZone', query.timeZone);\r\n\r\n        return this._http\r\n            .get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString })\r\n            .pipe(tap(() => this.loading.set(false)));\r\n    }\r\n}\r\n\r\nexport function provideUtilitiesService(): Provider[] {\r\n    return [\r\n        UtilitiesService,\r\n        {\r\n            provide: APP_BASE_HREF,\r\n            useValue: '/'\r\n        }\r\n    ];\r\n}\r\n\r\nexport interface UtilitiesServiceTestingOptions {\r\n    loading: boolean;\r\n}\r\n\r\nexport function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {\r\n    const providers: (Provider | EnvironmentProviders)[] = [\r\n        provideUtilitiesService(),\r\n        provideHttpClient(),\r\n        provideHttpClientTesting(),\r\n        provideRouter([\r\n            {\r\n                path: 'dashboard',\r\n                component: NoopComponent\r\n            }\r\n        ]),\r\n        provideLocationMocks()\r\n    ];\r\n\r\n    if (options !== null) {\r\n        providers.push({\r\n            provide: UtilitiesService,\r\n            useFactory: (http: HttpClient) => {\r\n                const service = new UtilitiesService(http);\r\n                service.loading.set(options.loading);\r\n                return service;\r\n            },\r\n            deps: [HttpClient]\r\n        });\r\n    }\r\n\r\n    return providers;\r\n}\r\n",
+            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';\nimport { Observable, tap } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\nimport { provideLocationMocks } from '@angular/common/testing';\nimport { provideRouter } from '@angular/router';\nimport { NoopComponent } from 'menlo-lib';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    public loading = signal(false);\n\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        this.loading.set(true);\n        return this._http.post<string>(`/api/utilities/electricity/usage`, request).pipe(tap(() => this.loading.set(false)));\n    }\n\n    public captureElectricityPurchase(request: ElectricityPurchaseRequest) {\n        this.loading.set(true);\n        return this._http.post<string>(`/api/utilities/electricity/purchase`, request).pipe(tap(() => this.loading.set(false)));\n    }\n\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\n        this.loading.set(true);\n        let queryString = new HttpParams().set('startDate', query.startDate);\n\n        if (query.endDate !== null) {\n            queryString = queryString.set('endDate', query.endDate);\n        }\n\n        queryString = queryString.set('timeZone', query.timeZone);\n\n        return this._http\n            .get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString })\n            .pipe(tap(() => this.loading.set(false)));\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport interface UtilitiesServiceTestingOptions {\n    loading: boolean;\n}\n\nexport function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {\n    const providers: (Provider | EnvironmentProviders)[] = [\n        provideUtilitiesService(),\n        provideHttpClient(),\n        provideHttpClientTesting(),\n        provideRouter([\n            {\n                path: 'dashboard',\n                component: NoopComponent\n            }\n        ]),\n        provideLocationMocks()\n    ];\n\n    const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };\n    providers.push({\n        provide: UtilitiesService,\n        useFactory: (http: HttpClient) => {\n            const service = new UtilitiesService(http);\n            service.loading.set(effectiveOptions.loading);\n            return service;\n        },\n        deps: [HttpClient]\n    });\n\n    return providers;\n}\n",
             "properties": [
                 {
                     "name": "loading",
@@ -179,7 +179,7 @@
     "injectables": [
         {
             "name": "UtilitiesService",
-            "id": "injectable-UtilitiesService-9061b454e88008c8fa21b376376de758b1fca4770a55d24425ceff5e6890293ec478734eee8552cabc88f90423ce374214b93d91cf402c7c96820c520a0557ca",
+            "id": "injectable-UtilitiesService-5a88afd3cdcec01ef25aebd10c51baf0390f2399568c0657608ddb89b24fd6a16e3f7602efddaa1a5e80db32fb1ceb27d6e3a20a63c05b5d6e4fe3f0eb5f75aa",
             "file": "projects/menlo-app/src/app/utilities/utilities.service.ts",
             "properties": [
                 {
@@ -295,7 +295,7 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\r\nimport { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';\r\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';\r\nimport { Observable, tap } from 'rxjs';\r\nimport { APP_BASE_HREF } from '@angular/common';\r\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\r\nimport { provideLocationMocks } from '@angular/common/testing';\r\nimport { provideRouter } from '@angular/router';\r\nimport { NoopComponent } from 'menlo-lib';\r\n\r\n@Injectable({\r\n    providedIn: 'root'\r\n})\r\nexport class UtilitiesService {\r\n    public loading = signal(false);\r\n\r\n    constructor(private readonly _http: HttpClient) {}\r\n\r\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\r\n        this.loading.set(true);\r\n        return this._http.post<string>(`/api/utilities/electricity/usage`, request).pipe(tap(() => this.loading.set(false)));\r\n    }\r\n\r\n    public captureElectricityPurchase(request: ElectricityPurchaseRequest) {\r\n        this.loading.set(true);\r\n        return this._http.post<string>(`/api/utilities/electricity/purchase`, request).pipe(tap(() => this.loading.set(false)));\r\n    }\r\n\r\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\r\n        this.loading.set(true);\r\n        let queryString = new HttpParams().set('startDate', query.startDate);\r\n\r\n        if (query.endDate !== null) {\r\n            queryString = queryString.set('endDate', query.endDate);\r\n        }\r\n\r\n        queryString = queryString.set('timeZone', query.timeZone);\r\n\r\n        return this._http\r\n            .get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString })\r\n            .pipe(tap(() => this.loading.set(false)));\r\n    }\r\n}\r\n\r\nexport function provideUtilitiesService(): Provider[] {\r\n    return [\r\n        UtilitiesService,\r\n        {\r\n            provide: APP_BASE_HREF,\r\n            useValue: '/'\r\n        }\r\n    ];\r\n}\r\n\r\nexport interface UtilitiesServiceTestingOptions {\r\n    loading: boolean;\r\n}\r\n\r\nexport function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {\r\n    const providers: (Provider | EnvironmentProviders)[] = [\r\n        provideUtilitiesService(),\r\n        provideHttpClient(),\r\n        provideHttpClientTesting(),\r\n        provideRouter([\r\n            {\r\n                path: 'dashboard',\r\n                component: NoopComponent\r\n            }\r\n        ]),\r\n        provideLocationMocks()\r\n    ];\r\n\r\n    if (options !== null) {\r\n        providers.push({\r\n            provide: UtilitiesService,\r\n            useFactory: (http: HttpClient) => {\r\n                const service = new UtilitiesService(http);\r\n                service.loading.set(options.loading);\r\n                return service;\r\n            },\r\n            deps: [HttpClient]\r\n        });\r\n    }\r\n\r\n    return providers;\r\n}\r\n",
+            "sourceCode": "import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';\nimport { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';\nimport { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';\nimport { Observable, tap } from 'rxjs';\nimport { APP_BASE_HREF } from '@angular/common';\nimport { provideHttpClientTesting } from '@angular/common/http/testing';\nimport { provideLocationMocks } from '@angular/common/testing';\nimport { provideRouter } from '@angular/router';\nimport { NoopComponent } from 'menlo-lib';\n\n@Injectable({\n    providedIn: 'root'\n})\nexport class UtilitiesService {\n    public loading = signal(false);\n\n    constructor(private readonly _http: HttpClient) {}\n\n    public captureElectricalUsage(request: CaptureElectricityUsageRequest): Observable<string> {\n        this.loading.set(true);\n        return this._http.post<string>(`/api/utilities/electricity/usage`, request).pipe(tap(() => this.loading.set(false)));\n    }\n\n    public captureElectricityPurchase(request: ElectricityPurchaseRequest) {\n        this.loading.set(true);\n        return this._http.post<string>(`/api/utilities/electricity/purchase`, request).pipe(tap(() => this.loading.set(false)));\n    }\n\n    public getElectricityUsage(query: ElectricityUsageQuery): Observable<ElecricityUsageResponse[]> {\n        this.loading.set(true);\n        let queryString = new HttpParams().set('startDate', query.startDate);\n\n        if (query.endDate !== null) {\n            queryString = queryString.set('endDate', query.endDate);\n        }\n\n        queryString = queryString.set('timeZone', query.timeZone);\n\n        return this._http\n            .get<ElecricityUsageResponse[]>(`/api/utilities/electricity`, { params: queryString })\n            .pipe(tap(() => this.loading.set(false)));\n    }\n}\n\nexport function provideUtilitiesService(): Provider[] {\n    return [\n        UtilitiesService,\n        {\n            provide: APP_BASE_HREF,\n            useValue: '/'\n        }\n    ];\n}\n\nexport interface UtilitiesServiceTestingOptions {\n    loading: boolean;\n}\n\nexport function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {\n    const providers: (Provider | EnvironmentProviders)[] = [\n        provideUtilitiesService(),\n        provideHttpClient(),\n        provideHttpClientTesting(),\n        provideRouter([\n            {\n                path: 'dashboard',\n                component: NoopComponent\n            }\n        ]),\n        provideLocationMocks()\n    ];\n\n    const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };\n    providers.push({\n        provide: UtilitiesService,\n        useFactory: (http: HttpClient) => {\n            const service = new UtilitiesService(http);\n            service.loading.set(effectiveOptions.loading);\n            return service;\n        },\n        deps: [HttpClient]\n    });\n\n    return providers;\n}\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1559,7 +1559,7 @@
         },
         {
             "name": "ElectricityUsageComponent",
-            "id": "component-ElectricityUsageComponent-e2525c5ccccced5b3bceae26618099d3c7230388d501607e74c2d7fea1d0e1d5808d118cc171fe4f0c4fa34cb1c583012f5cda256f680cc4b5ec433713119b6a",
+            "id": "component-ElectricityUsageComponent-9f52c804d5dbbe755c53f79c1ac0c4abfb38d92eb5fd5288aa8d0486fc563f4b117d6afb495180704b5665c0e31cf1918c1c1257e8416bd4e9860caad9d3a6e2",
             "file": "projects/menlo-app/src/app/utilities/electricity/electricity-usage/electricity-usage.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1575,7 +1575,7 @@
             "selector": "menlo-electricity-usage",
             "styleUrls": [],
             "styles": [],
-            "template": "@if (loading()) {           <menlo-loading />\n       } @else {\n           <div class=\"d-flex justify-content-center h-50\">\n               <menlo-chart [data]=\"chartData()\" title=\"Electricity Usage\" type=\"line\" [scales]=\"chartScales\" />\n           </div>\n           <div class=\"h-50\">\n               <ag-grid-angular\n                   class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n                   [rowData]=\"electricityUsage()\"\n                   [columnDefs]=\"columnDefs\"\n                   [defaultColDef]=\"defaultColDef\" />\n           </div>\n       }",
+            "template": "@if (loading()) {           <menlo-loading />\n       } @else {\n           <div class=\"electricity-usage\">\n               <div class=\"electricity-usage__chart\">\n                   <menlo-chart [data]=\"chartData()\" title=\"Electricity Usage\" type=\"line\" [scales]=\"chartScales\" />\n               </div>\n               <div class=\"h-50\">\n                   <ag-grid-angular\n                       class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n                       [rowData]=\"electricityUsage()\"\n                       [columnDefs]=\"columnDefs\"\n                       [defaultColDef]=\"defaultColDef\" />\n               </div>\n           </div>\n       }",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -1587,7 +1587,7 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 32,
+                    "line": 34,
                     "modifierKind": [
                         125,
                         148
@@ -1599,13 +1599,13 @@
             "propertiesClass": [
                 {
                     "name": "chartData",
-                    "defaultValue": "computed(this.getChartData)",
+                    "defaultValue": "computed(() => this.getChartData(this.electricityUsage()))",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 34,
+                    "line": 36,
                     "modifierKind": [
                         125,
                         148
@@ -1613,13 +1613,13 @@
                 },
                 {
                     "name": "chartScales",
-                    "defaultValue": "{\n        x: {\n            beginAtZero: true,\n            title: {\n                display: true,\n                text: 'Date'\n            }\n        },\n        y: {\n            beginAtZero: true,\n            title: {\n                display: true,\n                text: 'Usage'\n            }\n        }\n    }",
+                    "defaultValue": "{\n        x: {\n            title: {\n                display: true,\n                text: 'Date'\n            }\n        },\n        y: {\n            title: {\n                display: true,\n                text: 'Usage'\n            }\n        }\n    }",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "MenloChartLinearScale",
                     "optional": false,
                     "description": "",
-                    "line": 36,
+                    "line": 38,
                     "modifierKind": [
                         125,
                         148
@@ -1661,7 +1661,7 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 31,
+                    "line": 33,
                     "modifierKind": [
                         125,
                         148
@@ -1674,7 +1674,7 @@
                     "type": "",
                     "optional": false,
                     "description": "",
-                    "line": 32,
+                    "line": 34,
                     "modifierKind": [
                         125,
                         148
@@ -1685,7 +1685,14 @@
             "methodsClass": [
                 {
                     "name": "getChartData",
-                    "args": [],
+                    "args": [
+                        {
+                            "name": "electricityUsage",
+                            "type": "ElectricityUsage[]",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
                     "optional": false,
                     "returnType": "MenloChartData",
                     "typeParameters": [],
@@ -1694,6 +1701,17 @@
                     "deprecationMessage": "",
                     "modifierKind": [
                         123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "electricityUsage",
+                            "type": "ElectricityUsage[]",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
                     ]
                 }
             ],
@@ -1718,7 +1736,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\nimport { AgGridAngular } from 'ag-grid-angular';\nimport { ColDef } from 'ag-grid-community';\nimport { ElectricityUsage } from './electricity-usage.model';\nimport { DatePipe } from '@angular/common';\nimport { ChartComponent, DateFormat, DateOrString, formatDate, LoadingComponent, MenloChartData, MenloChartLinearScale } from 'menlo-lib';\n\n@Component({\n    selector: 'menlo-electricity-usage',\n    standalone: true,\n    imports: [AgGridAngular, ChartComponent, LoadingComponent],\n    providers: [DatePipe],\n    template: ` @if (loading()) {\n            <menlo-loading />\n        } @else {\n            <div class=\"d-flex justify-content-center h-50\">\n                <menlo-chart [data]=\"chartData()\" title=\"Electricity Usage\" type=\"line\" [scales]=\"chartScales\" />\n            </div>\n            <div class=\"h-50\">\n                <ag-grid-angular\n                    class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n                    [rowData]=\"electricityUsage()\"\n                    [columnDefs]=\"columnDefs\"\n                    [defaultColDef]=\"defaultColDef\" />\n            </div>\n        }`,\n    styleUrl: './electricity-usage.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityUsageComponent {\n    public readonly electricityUsage = input.required<ElectricityUsage[]>();\n    public readonly loading = input.required<boolean>();\n\n    public readonly chartData = computed(this.getChartData);\n\n    public readonly chartScales: MenloChartLinearScale = {\n        x: {\n            beginAtZero: true,\n            title: {\n                display: true,\n                text: 'Date'\n            }\n        },\n        y: {\n            beginAtZero: true,\n            title: {\n                display: true,\n                text: 'Usage'\n            }\n        }\n    };\n\n    public readonly columnDefs: ColDef[] = [\n        {\n            field: 'date',\n            headerName: 'Date',\n            cellRenderer: (params: { value: DateOrString }) => formatDate(params.value, DateFormat.ShortDisplay)\n        },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ];\n\n    public readonly defaultColDef: ColDef = {\n        flex: 1\n    };\n\n    private getChartData(): MenloChartData {\n        const usages: number[] = this.electricityUsage().map(usage => usage.usage);\n\n        return {\n            labels: this.electricityUsage().map(usage => formatDate(usage.date, DateFormat.ShortDisplay)),\n            datasets: [\n                {\n                    label: 'Electricity Usage',\n                    data: usages,\n                    pointStyle: 'circle',\n                    pointRadius: 10\n                },\n                {\n                    label: 'Average Usage',\n                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / usages.length),\n                    pointStyle: 'circle',\n                    pointRadius: 5\n                }\n            ]\n        };\n    }\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\nimport { AgGridAngular } from 'ag-grid-angular';\nimport { ColDef } from 'ag-grid-community';\nimport { ElectricityUsage } from './electricity-usage.model';\nimport { DatePipe } from '@angular/common';\nimport { ChartComponent, DateFormat, DateOrString, formatDate, LoadingComponent, MenloChartData, MenloChartLinearScale } from 'menlo-lib';\n\n@Component({\n    selector: 'menlo-electricity-usage',\n    standalone: true,\n    imports: [AgGridAngular, ChartComponent, LoadingComponent],\n    providers: [DatePipe],\n    template: ` @if (loading()) {\n            <menlo-loading />\n        } @else {\n            <div class=\"electricity-usage\">\n                <div class=\"electricity-usage__chart\">\n                    <menlo-chart [data]=\"chartData()\" title=\"Electricity Usage\" type=\"line\" [scales]=\"chartScales\" />\n                </div>\n                <div class=\"h-50\">\n                    <ag-grid-angular\n                        class=\"ag-theme-quartz ag-theme-quartz-auto-dark\"\n                        [rowData]=\"electricityUsage()\"\n                        [columnDefs]=\"columnDefs\"\n                        [defaultColDef]=\"defaultColDef\" />\n                </div>\n            </div>\n        }`,\n    styleUrl: './electricity-usage.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class ElectricityUsageComponent {\n    public readonly electricityUsage = input.required<ElectricityUsage[]>();\n    public readonly loading = input.required<boolean>();\n\n    public readonly chartData = computed(() => this.getChartData(this.electricityUsage()));\n\n    public readonly chartScales: MenloChartLinearScale = {\n        x: {\n            title: {\n                display: true,\n                text: 'Date'\n            }\n        },\n        y: {\n            title: {\n                display: true,\n                text: 'Usage'\n            }\n        }\n    };\n\n    public readonly columnDefs: ColDef[] = [\n        {\n            field: 'date',\n            headerName: 'Date',\n            cellRenderer: (params: { value: DateOrString }) => formatDate(params.value, DateFormat.ShortDisplay)\n        },\n        { field: 'units', headerName: 'Units', type: 'numericColumn' }\n    ];\n\n    public readonly defaultColDef: ColDef = {\n        flex: 1\n    };\n\n    private getChartData(electricityUsage: ElectricityUsage[]): MenloChartData {\n        const usages: number[] = electricityUsage.map(usage => usage.usage);\n\n        return {\n            labels: electricityUsage.map(usage => formatDate(usage.date, DateFormat.ShortDisplay)),\n            datasets: [\n                {\n                    label: 'Electricity Usage',\n                    data: usages,\n                    pointStyle: 'circle',\n                    pointRadius: 10\n                },\n                {\n                    label: 'Average Usage',\n                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / usages.length),\n                    pointStyle: 'circle',\n                    pointRadius: 5\n                }\n            ]\n        };\n    }\n}\n",
             "styleUrl": "./electricity-usage.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1764,7 +1782,7 @@
         },
         {
             "name": "UtilitiesDashboardComponent",
-            "id": "component-UtilitiesDashboardComponent-30333a8645d7b9c9ac04729fe214a69a6dd851c7ee50b2c76eed2b28d7af29a2a3d2a7af2ae42ed572b5bb58bebdf8d3e2ca1770c83047497efbc485f7b348e5",
+            "id": "component-UtilitiesDashboardComponent-0d689c9f7a6edfa614ddf0578b329155c605f00d00516d8912516837bb7e4823b6f7e00c7e0c76b038705a775c90101cbe26254cf3c75443eb9f76486635cd81",
             "file": "projects/menlo-app/src/app/utilities/utilities-dashboard/utilities-dashboard.component.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -1774,7 +1792,7 @@
             "providers": [],
             "styleUrls": [],
             "styles": [],
-            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/usage\" role=\"button\" id=\"addElectricityUsage\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>",
+            "template": "<header class=\"d-flex flex-nowrap p-0\">            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <form [formGroup]=\"form\">\n                    <menlo-date-range-filter formControlName=\"dateRange\"></menlo-date-range-filter>\n                </form>\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/usage\" role=\"button\" id=\"addElectricityUsage\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" [loading]=\"loading()\" />\n        </article>",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -1788,7 +1806,35 @@
                     "type": "Signal<ElectricityUsage[]>",
                     "optional": false,
                     "description": "",
-                    "line": 46,
+                    "line": 50,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "form",
+                    "defaultValue": "new FormGroup({\n        dateRange: new FormControl({ unit: 1, value: DateRangeFilterUnit.Weeks })\n    })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 51,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "loading",
+                    "defaultValue": "computed(() => this._utilitiesService.loading())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 55,
                     "modifierKind": [
                         125,
                         148
@@ -1802,7 +1848,7 @@
                     "optional": false,
                     "returnType": "Observable<ElectricityUsage[]>",
                     "typeParameters": [],
-                    "line": 53,
+                    "line": 62,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1830,12 +1876,20 @@
                 {
                     "name": "ElectricityUsageComponent",
                     "type": "component"
+                },
+                {
+                    "name": "DateRangeFilterComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "ReactiveFormsModule",
+                    "type": "module"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';\nimport { ChangeDetectionStrategy, Component, Signal } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\nimport { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { map, Observable, takeUntil } from 'rxjs';\nimport { ElectricityUsageQueryFactory } from '@utilities/electricity';\nimport { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';\nimport { DestroyableComponent } from 'menlo-lib';\nimport { toSignal } from '@angular/core/rxjs-interop';\n\n@Component({\n    standalone: true,\n    imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/usage\" role=\"button\" id=\"addElectricityUsage\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" />\n        </article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent extends DestroyableComponent {\n    public readonly electricityUsage: Signal<ElectricityUsage[]>;\n\n    constructor(private readonly _utilitiesService: UtilitiesService) {\n        super();\n        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });\n    }\n\n    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {\n        const today = new Date();\n        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);\n        const request = ElectricityUsageQueryFactory.create(startDate, today);\n        return this._utilitiesService.getElectricityUsage(request).pipe(\n            map(response =>\n                response.map(item => {\n                    const usage = new ElectricityUsage();\n                    usage.date = item.date;\n                    usage.units = item.units;\n                    usage.usage = item.usage;\n                    for (const appliance of item.applianceUsages) {\n                        usage.applianceUsage.push({\n                            applianceId: appliance.applianceId,\n                            hoursOfUse: appliance.hoursOfUse\n                        });\n                    }\n                    return usage;\n                })\n            ),\n            takeUntil(this.destroyed$)\n        );\n    }\n}\n",
+            "sourceCode": "import { AsyncPipe, CommonModule, JsonPipe } from '@angular/common';\nimport { ChangeDetectionStrategy, Component, computed, Signal } from '@angular/core';\nimport { RouterLinkWithHref } from '@angular/router';\nimport { ElectricityUsageComponent } from '../electricity/electricity-usage/electricity-usage.component';\nimport { UtilitiesService } from '@utilities/utilities.service';\nimport { map, Observable, takeUntil } from 'rxjs';\nimport { ElectricityUsageQueryFactory } from '@utilities/electricity';\nimport { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';\nimport { DateRangeFilterComponent, DateRangeFilterUnit, DestroyableComponent } from 'menlo-lib';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\n\n@Component({\n    standalone: true,\n    imports: [AsyncPipe, JsonPipe, RouterLinkWithHref, ElectricityUsageComponent, DateRangeFilterComponent, ReactiveFormsModule],\n    template: `<header class=\"d-flex flex-nowrap p-0\">\n            <h1 class=\"me-auto\">Utilities</h1>\n            <!-- add the buttons to a div with 1 px to prevent them from filling the whole box -->\n            <div class=\"px-1\">\n                <form [formGroup]=\"form\">\n                    <menlo-date-range-filter formControlName=\"dateRange\"></menlo-date-range-filter>\n                </form>\n                <div class=\"btn-group\" role=\"group\">\n                    <a class=\"btn btn-primary text-nowrap\" routerLink=\"../electricity/usage\" role=\"button\" id=\"addElectricityUsage\">\n                        <span class=\"material-symbols-outlined align-text-bottom\">bolt</span>\n                        Add\n                    </a>\n                    <div class=\"btn-group\" role=\"group\">\n                        <button type=\"button\" class=\"btn btn-primary dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"></button>\n                        <ul class=\"dropdown-menu\">\n                            <li>\n                                <a class=\"dropdown-item\" routerLink=\"../electricity/purchase\">\n                                    <span class=\"material-symbols-outlined align-text-bottom\">shopping_cart</span>\n                                    Electricity Purchase\n                                </a>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </header>\n        <article class=\"h-100\">\n            <h3>Electricity Usage</h3>\n            <menlo-electricity-usage [electricityUsage]=\"electricityUsage()\" [loading]=\"loading()\" />\n        </article>`,\n    styleUrl: './utilities-dashboard.component.scss',\n    changeDetection: ChangeDetectionStrategy.OnPush\n})\nexport class UtilitiesDashboardComponent extends DestroyableComponent {\n    public readonly electricityUsage: Signal<ElectricityUsage[]>;\n    public readonly form = new FormGroup({\n        dateRange: new FormControl({ unit: 1, value: DateRangeFilterUnit.Weeks })\n    });\n\n    public readonly loading = computed(() => this._utilitiesService.loading());\n\n    constructor(private readonly _utilitiesService: UtilitiesService) {\n        super();\n        this.electricityUsage = toSignal(this.setupElectricityUsageObservable(), { initialValue: [] });\n    }\n\n    private setupElectricityUsageObservable(): Observable<ElectricityUsage[]> {\n        const today = new Date();\n        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);\n        const request = ElectricityUsageQueryFactory.create(startDate, today);\n        return this._utilitiesService.getElectricityUsage(request).pipe(\n            map(response =>\n                response.map(item => {\n                    const usage = new ElectricityUsage();\n                    usage.date = item.date;\n                    usage.units = item.units;\n                    usage.usage = item.usage;\n                    for (const appliance of item.applianceUsages) {\n                        usage.applianceUsage.push({\n                            applianceId: appliance.applianceId,\n                            hoursOfUse: appliance.hoursOfUse\n                        });\n                    }\n                    return usage;\n                })\n            ),\n            takeUntil(this.destroyed$)\n        );\n    }\n}\n",
             "styleUrl": "./utilities-dashboard.component.scss",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1853,7 +1907,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 46,
+                "line": 55,
                 "jsdoctags": [
                     {
                         "name": "_utilitiesService",
@@ -2477,7 +2531,7 @@
                 "linktype": "component",
                 "name": "UtilitiesDashboardComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/6",
                 "status": "low"
             },
             {
