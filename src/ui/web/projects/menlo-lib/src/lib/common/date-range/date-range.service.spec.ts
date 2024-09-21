@@ -57,7 +57,6 @@ describe('DateRangeService', () => {
             it(`should return a date that is ${scenario.value} ${scenario.unit} after the snapshot date when formatted as ${scenario.format}`, () => {
                 const filter = { unit: scenario.unit, value: scenario.value } as DateRangeFilter;
                 const result = service.getFutureDate(snapshotDate, filter, scenario.format);
-                console.log(`Expecting ${scenario.expectedDate}, got ${result}`);
                 expect(result).toEqual(scenario.expectedDate);
             });
         });
