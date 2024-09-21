@@ -166,7 +166,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n    args: { ...Default.args, kind: LoadKind.Small },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\r\n                    ${story}\r\n                    Submit\r\n            </button>`\r\n        )\r\n    ]\r\n}"
+                "defaultValue": "{\n    args: { ...Default.args, kind: LoadKind.Small },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\n                    ${story}\n                    Submit\n            </button>`\n        )\n    ]\n}"
             },
             {
                 "name": "Contained",
@@ -176,7 +176,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 300px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
             },
             {
                 "name": "ContainedSmaller",
@@ -186,7 +186,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 150px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 150px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
             },
             {
                 "name": "ContainedXL",
@@ -196,7 +196,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 500px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 500px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
             },
             {
                 "name": "Default",
@@ -276,7 +276,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<LoadingComponent>",
-                "defaultValue": "{\r\n    title: 'Common/Loading',\r\n    component: LoadingComponent,\r\n    tags: ['autodocs'],\r\n    render: args => ({\r\n        props: args\r\n    })\r\n}"
+                "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
             },
             {
                 "name": "meta",
@@ -377,7 +377,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n    args: { ...Default.args, kind: LoadKind.Small },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\r\n                    ${story}\r\n                    Submit\r\n            </button>`\r\n        )\r\n    ]\r\n}"
+                    "defaultValue": "{\n    args: { ...Default.args, kind: LoadKind.Small },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <button class=\"btn btn-primary d-flex justify-content-evenly\" disabled>\n                    ${story}\n                    Submit\n            </button>`\n        )\n    ]\n}"
                 },
                 {
                     "name": "Contained",
@@ -387,7 +387,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 300px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                    "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 300px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
                 },
                 {
                     "name": "ContainedSmaller",
@@ -397,7 +397,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 150px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                    "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 150px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
                 },
                 {
                     "name": "ContainedXL",
@@ -407,7 +407,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n    args: { ...Default.args },\r\n    decorators: [\r\n        componentWrapperDecorator(\r\n            story => `\r\n            <style>\r\n                .card-body {\r\n                    height: 500px;\r\n                }\r\n            </style>\r\n            <div class=\"card\">\r\n                <div class=\"card-header\">\r\n                    <h5 class=\"card-title\">Loading</h5>\r\n                </div>\r\n                <div class=\"card-body\">\r\n                    ${story}\r\n                </div>\r\n            </div>`\r\n        )\r\n    ]\r\n}"
+                    "defaultValue": "{\n    args: { ...Default.args },\n    decorators: [\n        componentWrapperDecorator(\n            story => `\n            <style>\n                .card-body {\n                    height: 500px;\n                }\n            </style>\n            <div class=\"card\">\n                <div class=\"card-header\">\n                    <h5 class=\"card-title\">Loading</h5>\n                </div>\n                <div class=\"card-body\">\n                    ${story}\n                </div>\n            </div>`\n        )\n    ]\n}"
                 },
                 {
                     "name": "Default",
@@ -427,7 +427,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<LoadingComponent>",
-                    "defaultValue": "{\r\n    title: 'Common/Loading',\r\n    component: LoadingComponent,\r\n    tags: ['autodocs'],\r\n    render: args => ({\r\n        props: args\r\n    })\r\n}"
+                    "defaultValue": "{\n    title: 'Common/Loading',\n    component: LoadingComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
                 },
                 {
                     "name": "Small",

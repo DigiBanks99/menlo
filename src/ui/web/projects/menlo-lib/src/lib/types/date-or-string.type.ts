@@ -1,9 +1,10 @@
 export type DateOrString = Date | string;
-export enum DateFormat {
-    DateOnly,
-    ISO8601,
-    ShortDisplay
-}
+export const DateFormat = {
+    DateOnly: 'DateOnly',
+    ISO8601: 'ISO8601',
+    ShortDisplay: 'ShortDisplay'
+} as const;
+export type DateFormat = (typeof DateFormat)[keyof typeof DateFormat];
 
 export function formatDate(input: DateOrString, format: DateFormat = DateFormat.DateOnly): string {
     let dateString: string;

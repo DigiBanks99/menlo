@@ -9,7 +9,6 @@ import { ChangeDetectionStrategy, Component, EventEmitter, output } from '@angul
         <div class="w-100"></div>
         <button class="btn btn-primary" type="submit" (click)="submit.emit()">Submit</button>
     </div>`,
-    styleUrl: './form-buttons.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormButtonsComponent {

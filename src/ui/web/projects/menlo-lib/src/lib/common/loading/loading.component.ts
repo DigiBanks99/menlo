@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, InputSignal, ViewEncapsulation } from '@angular/core';
-import { LoadKind } from './load-kind.enum';
+import { LoadKind } from './load-kind.type';
 
 @Component({
     selector: 'menlo-loading',
@@ -14,7 +14,46 @@ import { LoadKind } from './load-kind.enum';
             </div>
         </div>
     </div>`,
-    styleUrl: './loading.component.scss',
+    styles: [
+        `
+            .loader-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                margin-right: 1rem;
+                justify-content: center;
+                align-items: center;
+
+                .loader {
+                    position: relative;
+                    margin: auto;
+                    width: 70%;
+                    height: 70%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    .loader__center {
+                        height: 75%;
+                        width: auto;
+                        aspect-ratio: 1/1;
+
+                        .spinner-border {
+                            --menlo-spinner-width: 100%;
+                            --menlo-spinner-height: 100%;
+                            min-height: 1rem;
+                            min-width: 1rem;
+                        }
+
+                        .spinner-border-sm {
+                            --menlo-spinner-width: 1rem;
+                            --menlo-spinner-height: 1rem;
+                        }
+                    }
+                }
+            }
+        `
+    ],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
