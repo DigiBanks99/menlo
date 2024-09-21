@@ -12,10 +12,13 @@ export function formatDate(input: DateOrString, format: DateFormat = DateFormat.
         dateString = input;
     } else {
         const intlOptions: Intl.DateTimeFormatOptions = getIntlFormatOptions(format);
-        const formatter = Intl.DateTimeFormat(Intl.DateTimeFormat().resolvedOptions().locale, intlOptions);
-        const parts = formatter.formatToParts(input);
-        dateString = buildDateString(parts, format);
+        dateString = buildDateString(input, format, intlOptions);
     }
+
+    if (format == DateFormat.ISO8601) {
+        return dateString;
+    }
+
     const parts = dateString.replace('/', '-').split('T');
     return parts.length > 1 ? parts[0] : dateString;
 }
@@ -25,13 +28,25 @@ function getIntlFormatOptions(format: DateFormat): Intl.DateTimeFormatOptions {
         case DateFormat.DateOnly:
             return { year: 'numeric', month: '2-digit', day: '2-digit' };
         case DateFormat.ISO8601:
-            return { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            return {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'UTC'
+            };
         case DateFormat.ShortDisplay:
             return { year: 'numeric', month: 'short', day: 'numeric' };
     }
 }
 
-function buildDateString(parts: Intl.DateTimeFormatPart[], format: DateFormat): string {
+function buildDateString(input: Date | number, format: DateFormat, intlOptions: Intl.DateTimeFormatOptions): string {
+    const formatter = Intl.DateTimeFormat(Intl.DateTimeFormat().resolvedOptions().locale, intlOptions);
+    const parts = formatter.formatToParts(input);
+
     const yearPart = parts.find(part => part.type == 'year');
     const monthPart = parts.find(part => part.type == 'month');
     const dayPart = parts.find(part => part.type == 'day');
@@ -43,7 +58,7 @@ function buildDateString(parts: Intl.DateTimeFormatPart[], format: DateFormat): 
         case DateFormat.DateOnly:
             return `${yearPart?.value}-${monthPart?.value}-${dayPart?.value}`;
         case DateFormat.ISO8601:
-            return 'TODO';
+            return `${yearPart?.value}-${monthPart?.value}-${dayPart?.value}T${hourPart?.value}:${minutePart?.value}:${secondPart?.value}Z`;
         case DateFormat.ShortDisplay:
             return `${dayPart?.value} ${monthPart?.value} ${yearPart?.value}`;
     }
