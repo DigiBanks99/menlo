@@ -35,4 +35,20 @@ public static class AuthHostExtensions
             .AddAuthorizationBuilder()
             .AddPolicy(AuthConstants.PolicyNameAuthenticatedUsersOnly, op => op.RequireAuthenticatedUser().Build());
     }
+
+    public static RouteGroupBuilder RequireAuthorizationWithBypass(
+        this RouteGroupBuilder builder,
+        WebApplication app,
+        string policyName)
+    {
+        return app.BypassAuthentication()
+            ? builder
+            : builder.RequireAuthorization(policyName);
+    }
+
+    public static bool BypassAuthentication(this WebApplication app)
+    {
+        return !app.Environment.IsProduction()
+&& app.Configuration.GetValue<bool>("Authorization:Bypass", true);
+    }
 }
