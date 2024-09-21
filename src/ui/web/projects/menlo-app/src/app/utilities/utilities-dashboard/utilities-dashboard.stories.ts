@@ -3,6 +3,7 @@ import { UtilitiesDashboardComponent } from './utilities-dashboard.component';
 import { provideRouter } from '@angular/router';
 import { routes } from '@utilities/utilities.routes';
 import { provideUtilitiesServiceTesting } from '@utilities/utilities.service';
+import { electricityUsageResponseData } from '@utilities/mock-data';
 
 const meta: Meta<UtilitiesDashboardComponent> = {
     title: 'Utilities/Dashboard',
@@ -13,7 +14,7 @@ const meta: Meta<UtilitiesDashboardComponent> = {
     }),
     decorators: [
         applicationConfig({
-            providers: [provideRouter(routes), provideUtilitiesServiceTesting()]
+            providers: [provideRouter(routes), provideUtilitiesServiceTesting({ loading: false, electricityUsage: electricityUsageResponseData })]
         })
     ]
 };

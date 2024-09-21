@@ -54,6 +54,7 @@ export function provideUtilitiesService(): Provider[] {
 
 export interface UtilitiesServiceTestingOptions {
     loading: boolean;
+    electricityUsage?: ElecricityUsageResponse[];
 }
 
 type UtilitiesServiceTestingProviders = (Provider | EnvironmentProviders)[];
@@ -73,6 +74,7 @@ export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingO
     ];
 
     const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };
+    console.log(effectiveOptions);
 
     providers.push({
         provide: UtilitiesService,
@@ -85,7 +87,7 @@ export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingO
                 return [];
             },
             getElectricityUsage: (query: ElectricityUsageQuery) => {
-                return of([]);
+                return of(effectiveOptions.electricityUsage ?? []);
             }
         }
     });
