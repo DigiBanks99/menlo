@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';
-import { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';
+import { computed, EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';
 import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideLocationMocks } from '@angular/common/testing';
@@ -56,7 +56,9 @@ export interface UtilitiesServiceTestingOptions {
     loading: boolean;
 }
 
-export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): (Provider | EnvironmentProviders)[] {
+type UtilitiesServiceTestingProviders = (Provider | EnvironmentProviders)[];
+
+export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingOptions | null = null): UtilitiesServiceTestingProviders {
     const providers: (Provider | EnvironmentProviders)[] = [
         provideUtilitiesService(),
         provideHttpClient(),
@@ -71,14 +73,21 @@ export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingO
     ];
 
     const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };
+
     providers.push({
         provide: UtilitiesService,
-        useFactory: (http: HttpClient) => {
-            const service = new UtilitiesService(http);
-            service.loading.set(effectiveOptions.loading);
-            return service;
-        },
-        deps: [HttpClient]
+        useValue: {
+            loading: signal(effectiveOptions.loading),
+            captureElectricalUsage: (request: CaptureElectricityUsageRequest) => {
+                return [];
+            },
+            captureElectricityPurchase: (request: ElectricityPurchaseRequest) => {
+                return [];
+            },
+            getElectricityUsage: (query: ElectricityUsageQuery) => {
+                return of([]);
+            }
+        }
     });
 
     return providers;
