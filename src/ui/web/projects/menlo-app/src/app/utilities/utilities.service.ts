@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams, provideHttpClient } from '@angular/common/http';
-import { computed, EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';
+import { EnvironmentProviders, Injectable, Provider, signal } from '@angular/core';
 import { CaptureElectricityUsageRequest, ElecricityUsageResponse, ElectricityPurchaseRequest, ElectricityUsageQuery } from './electricity';
 import { Observable, of, tap } from 'rxjs';
 import { APP_BASE_HREF } from '@angular/common';

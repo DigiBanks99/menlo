@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { DateRangeFilter, DateRangeFilterUnit } from './date-range-filter.type';
 
@@ -21,10 +21,14 @@ type DateRangeFilterForm = {
     ],
     template: `<form [formGroup]="form">
         <div class="form-group input-group">
-            <div class="form-floating">
+            @if (label()) {
+                <div class="form-floating">
+                    <input type="number" class="form-control" id="value" formControlName="value" placeholder="Value" />
+                    <label for="value">{{ label() }}</label>
+                </div>
+            } @else {
                 <input type="number" class="form-control" id="value" formControlName="value" placeholder="Value" />
-                <label for="value">Value</label>
-            </div>
+            }
             <select class="form-select input-group-text" id="unit" formControlName="unit">
                 @for (unit of unitOptions; track $index) {
                     <option [value]="unit[1]">{{ unit[0] }}</option>
@@ -46,6 +50,7 @@ type DateRangeFilterForm = {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DateRangeFilterComponent implements ControlValueAccessor {
+    public readonly label = input<string>();
     public readonly form = new FormGroup<DateRangeFilterForm>({
         unit: new FormControl<DateRangeFilterUnit>(DateRangeFilterUnit.Days, { nonNullable: true }),
         value: new FormControl<number>(0, { nonNullable: true })
