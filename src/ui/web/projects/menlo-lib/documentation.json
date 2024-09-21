@@ -212,6 +212,16 @@
                 "name": "Default",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: {} }"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -272,6 +282,16 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<DateRangeFilterComponent>",
+                "defaultValue": "{\n    title: 'Common/Date Range Filter',\n    component: DateRangeFilterComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/common/loading/loading.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -327,6 +347,17 @@
                 "subtype": "typealias",
                 "rawtype": "StoryObj<ChartComponent>",
                 "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 183
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<DateRangeFilterComponent>",
+                "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -482,6 +513,28 @@
                     "defaultValue": "{\n    title: 'Charts/Chart',\n    component: ChartComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
                 }
             ],
+            "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: {} }"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<DateRangeFilterComponent>",
+                    "defaultValue": "{\n    title: 'Common/Date Range Filter',\n    component: DateRangeFilterComponent,\n    tags: ['autodocs'],\n    render: args => ({\n        props: args\n    })\n}"
+                }
+            ],
             "projects/menlo-lib/src/lib/forms/form-buttons/form-buttons.stories.ts": [
                 {
                     "name": "Default",
@@ -549,6 +602,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<ChartComponent>",
                     "file": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ],
+            "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<DateRangeFilterComponent>",
+                    "file": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -643,6 +709,26 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/charts/chart.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/common/date-range-filter/date-range-filter.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
