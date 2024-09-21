@@ -1,6 +1,6 @@
 import { componentWrapperDecorator, Meta, StoryObj } from '@storybook/angular';
 import { LoadingComponent } from './loading.component';
-import { LoadKind } from './load-kind.enum';
+import { LoadKind } from './load-kind.type';
 
 const meta: Meta<LoadingComponent> = {
     title: 'Common/Loading',

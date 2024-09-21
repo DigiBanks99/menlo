@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LoadingComponent } from './loading.component';
 import { SIGNAL, signalSetFn } from '@angular/core/primitives/signals';
-import { LoadKind } from './load-kind.enum';
+import { LoadKind } from './load-kind.type';
 
 describe('LoadingComponent', () => {
     let component: LoadingComponent;
