@@ -64,7 +64,7 @@ type DateRangeFilterForm = {
 export class UtilitiesDashboardComponent extends DestroyableComponent {
     public readonly electricityUsage: Signal<ElectricityUsage[]>;
     public readonly form = new FormGroup<DateRangeFilterForm>({
-        dateRange: new FormControl<DateRangeFilter>(new DateRangeFilter(DateRangeFilterUnit.Weeks, 1), { nonNullable: true })
+        dateRange: new FormControl<DateRangeFilter>(new DateRangeFilter(DateRangeFilterUnit.Days, 1), { nonNullable: true })
     });
     public readonly loading = computed(() => this._utilitiesService.loading());
 
@@ -79,6 +79,7 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
         super();
 
         this.electricityUsage = toSignal(this.getElectricityUsage(), { initialValue: [] });
+        this.form.patchValue({ dateRange: new DateRangeFilter(DateRangeFilterUnit.Weeks, 1) }); // force fetch
     }
 
     private getElectricityUsage(): Observable<ElectricityUsage[]> {
@@ -90,7 +91,7 @@ export class UtilitiesDashboardComponent extends DestroyableComponent {
 
     private fetchElectricityUsage(filter: DateRangeFilter): Observable<ElectricityUsage[]> {
         const today = new Date();
-        const startDate = this._dateRangeService.getPriorDate(today, filter);
+        const startDate = this._dateRangeService.getDuration(filter);
         const request = ElectricityUsageQueryFactory.create(startDate, today);
         return this._utilitiesService.getElectricityUsage(request).pipe(
             catchError(err => {
