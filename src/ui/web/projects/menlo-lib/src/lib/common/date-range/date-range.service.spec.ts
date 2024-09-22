@@ -20,6 +20,45 @@ describe('DateRangeService', () => {
     const service = new DateRangeService();
     const snapshotDate = new Date('2024-09-21T00:00:00Z');
 
+    describe('getDuration', () => {
+        it('should return the duration string for minutes', () => {
+            const filter = { unit: DateRangeFilterUnit.Minutes, value: 30 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('PT30M');
+        });
+
+        it('should return the duration string for hours', () => {
+            const filter = { unit: DateRangeFilterUnit.Hours, value: 2 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('PT2H');
+        });
+
+        it('should return the duration string for days', () => {
+            const filter = { unit: DateRangeFilterUnit.Days, value: 7 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('P7D');
+        });
+
+        it('should return the duration string for weeks', () => {
+            const filter = { unit: DateRangeFilterUnit.Weeks, value: 1 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('P7D');
+        });
+
+        it('should return the duration string for months', () => {
+            const filter = { unit: DateRangeFilterUnit.Months, value: 1 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('P1M');
+        });
+
+        it('should return the duration string for years', () => {
+            const filter = { unit: DateRangeFilterUnit.Years, value: 4 } as DateRangeFilter;
+            const result = service.getDuration(filter);
+            expect(result).toEqual('P4Y');
+        });
+    });
+
+    // Obsolete method
     describe('getPriorDate', () => {
         const scenarios: Scenario[] = [
             new Scenario(DateRangeFilterUnit.Minutes, 30, '2024-09-20T23:30:00Z', DateFormat.ISO8601),
@@ -41,6 +80,7 @@ describe('DateRangeService', () => {
         });
     });
 
+    // Obsolete method
     describe('getFutureDate', () => {
         const scenarios: Scenario[] = [
             new Scenario(DateRangeFilterUnit.Minutes, 30, '2024-09-21T00:30:00Z', DateFormat.ISO8601),

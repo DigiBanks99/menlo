@@ -7,6 +7,28 @@ import { APP_BASE_HREF } from '@angular/common';
     providedIn: 'root'
 })
 export class DateRangeService {
+    public getDuration(filter: DateRangeFilter): string {
+        switch (filter.unit) {
+            case DateRangeFilterUnit.Minutes:
+                return `PT${filter.value}M`;
+            case DateRangeFilterUnit.Hours:
+                return `PT${filter.value}H`;
+            case DateRangeFilterUnit.Days:
+                return `P${filter.value}D`;
+            case DateRangeFilterUnit.Weeks:
+                return `P${filter.value * 7}D`;
+            case DateRangeFilterUnit.Months:
+                return `P${filter.value}M`;
+            case DateRangeFilterUnit.Years:
+                return `P${filter.value}Y`;
+            default:
+                return 'P';
+        }
+    }
+
+    /**
+     * @obsolete Use getDuration instead. This is iffy with time zones.
+     */
     public getPriorDate(snapshotDate: DateOrString, filter: DateRangeFilter, format: DateFormat = DateFormat.DateOnly): DateOrString {
         const priorDate = new Date(snapshotDate);
         switch (filter.unit) {
@@ -38,6 +60,9 @@ export class DateRangeService {
         return formatDate(priorDate, format);
     }
 
+    /**
+     * @obsolete Use getDuration instead. This is iffy with time zones.
+     */
     public getFutureDate(snapshotDate: DateOrString, filter: DateRangeFilter, format: DateFormat = DateFormat.DateOnly): DateOrString {
         const futureDate = new Date(snapshotDate);
         switch (filter.unit) {
