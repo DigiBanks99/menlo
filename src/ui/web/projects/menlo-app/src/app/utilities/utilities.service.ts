@@ -74,7 +74,6 @@ export function provideUtilitiesServiceTesting(options: UtilitiesServiceTestingO
     ];
 
     const effectiveOptions: UtilitiesServiceTestingOptions = options ?? { loading: false };
-    console.log(effectiveOptions);
 
     providers.push({
         provide: UtilitiesService,

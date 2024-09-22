@@ -44,6 +44,7 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
             using System.Collections.Specialized;
             using System.Diagnostics.CodeAnalysis;
             using System.Web;
+            using System.Xml;
 
             namespace {{recordSymbol.ContainingNamespace.ToDisplayString()}};
 
@@ -52,19 +53,29 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
             public partial record {{recordSymbol.Name}}(DateOnly StartDate, DateOnly? EndDate = null, TimeSpan TimeZone = default)
             : DateRangeQuery(StartDate, EndDate, TimeZone), IParsable<{{recordSymbol.Name}}>
             {
+                public const string DefaultDuration = "P7D";
+
                 public static {{recordSymbol.Name}} Parse(string query, IFormatProvider? provider)
                 {
                     NameValueCollection parameters = HttpUtility.ParseQueryString(query);
 
-                    string[]? startDateValues = parameters.GetValues("startDate");
-                    DateOnly startDate = startDateValues == null || startDateValues.Length == 0
-                        ? new DateOnly()
-                        : DateOnly.Parse(startDateValues.Last(), provider);
+                    string? endDateValue = parameters.GetValues("endDate")?.Last();
+                    DateOnly endDate = string.IsNullOrEmpty(endDateValue)
+                        ? DateOnly.FromDateTime(DateTime.Today)
+                        : DateOnly.Parse(endDateValue, provider);
 
-                    string[]? endDateValues = parameters.GetValues("endDate");
-                    DateOnly? endDate = endDateValues == null || endDateValues.Length == 0
-                        ? null
-                        : DateOnly.Parse(endDateValues.Last(), provider);
+                    string startDateValue = parameters.GetValues("startDate")?.Last() ?? DefaultDuration;
+                    TimeSpan? duration = GetDuration(startDateValue);
+                    DateOnly startDate;
+                    if (duration is null)
+                    {
+                        startDate = DateOnly.Parse(startDateValue, provider);
+                    }
+                    else
+                    {
+                        startDate = new DateOnly(endDate.Year, endDate.Month, endDate.Day);
+                        startDate = SubtractDuration(startDate, duration.Value);
+                    }
 
                     string[]? timeZoneValues = parameters.GetValues("timeZone");
 
@@ -95,6 +106,23 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
                     [MaybeNullWhen(false)] out {{recordSymbol.Name}} result)
                 {
                     return TryParse(query, CultureInfo.CurrentCulture, out result);
+                }
+
+                private static TimeSpan? GetDuration(string value)
+                {
+                    try
+                    {
+                        return XmlConvert.ToTimeSpan(value);
+                    }
+                    catch (FormatException)
+                    {
+                        return null;
+                    }
+                }
+
+                private static DateOnly SubtractDuration(DateOnly date, TimeSpan duration)
+                {
+                    return date.AddDays(-duration.Days);
                 }
             }
             """;
