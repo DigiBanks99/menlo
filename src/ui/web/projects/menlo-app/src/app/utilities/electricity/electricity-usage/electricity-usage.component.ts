@@ -89,7 +89,7 @@ export class ElectricityUsageComponent {
                 },
                 {
                     label: 'Average Usage',
-                    data: [avgUsage],
+                    data: usages.map(_ => avgUsage), // one dot per usage
                     pointStyle: 'circle',
                     pointRadius: 5
                 }

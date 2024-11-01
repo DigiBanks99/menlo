@@ -108,7 +108,7 @@ describe('ElectricityUsageComponent', () => {
 
             // 23.35 + 14.8 + 0 + 0 + 39.35 = 77.5 / 5 = 15.5
             const expectedAverage = usages.map(usage => usage.usage).reduce((acc, curr) => acc + curr, 0) / 5;
-            expect(chartData.datasets[1].data).toEqual([expectedAverage]);
+            expect(chartData.datasets[1].data).toEqual(usages.map(_ => expectedAverage));
         });
     });
 });
