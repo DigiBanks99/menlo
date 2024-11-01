@@ -86,16 +86,29 @@ describe('ElectricityUsageComponent', () => {
             firstUsage.usage = 23.35;
             firstUsage.applianceUsage = [];
 
+            const secondUsage = new ElectricityUsage();
+            secondUsage.date = '2024-10-18';
+            secondUsage.units = 530.0;
+            secondUsage.usage = 14.8;
+            secondUsage.applianceUsage = [];
+
+            // 2024-10-19 would be 0
+            // 2024-10-20 would be 0
+
             const lastUsage = new ElectricityUsage();
             lastUsage.date = '2024-10-21';
             lastUsage.units = 490.65;
-            lastUsage.usage = 54.15;
+            lastUsage.usage = 39.35;
             lastUsage.applianceUsage = [];
-            signalSetFn(component.electricityUsage[SIGNAL], [firstUsage, lastUsage]);
+
+            const usages = [firstUsage, secondUsage, lastUsage];
+            signalSetFn(component.electricityUsage[SIGNAL], usages);
 
             const chartData = component.chartData();
-            const expectedAverage = (lastUsage.usage + firstUsage.usage) / 4;
-            expect(chartData.datasets[1].data).toEqual([expectedAverage, expectedAverage]);
+
+            // 23.35 + 14.8 + 0 + 0 + 39.35 = 77.5 / 5 = 15.5
+            const expectedAverage = usages.map(usage => usage.usage).reduce((acc, curr) => acc + curr, 0) / 5;
+            expect(chartData.datasets[1].data).toEqual([expectedAverage]);
         });
     });
 });

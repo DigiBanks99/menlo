@@ -8,7 +8,8 @@ import {
     DateFormat,
     DateOrString,
     DateRangeService,
-    formatDate, getDateDiff,
+    formatDate,
+    getDateDiff,
     LoadingComponent,
     MenloChartData,
     MenloChartLinearScale
@@ -74,7 +75,8 @@ export class ElectricityUsageComponent {
 
     private getChartData(electricityUsage: ElectricityUsage[]): MenloChartData {
         const usages: number[] = electricityUsage.map(usage => usage.usage);
-        const days = electricityUsage.length > 0 ? getDateDiff(electricityUsage[0].date, electricityUsage[1].date) : 1;
+        const days = electricityUsage.length > 0 ? getDateDiff(electricityUsage[0].date, electricityUsage[electricityUsage.length - 1].date) : 0;
+        const avgUsage = usages.reduce((acc, val) => acc + val, 0) / (days + 1);
 
         return {
             labels: electricityUsage.map(usage => formatDate(usage.date, DateFormat.ShortDisplay)),
@@ -87,7 +89,7 @@ export class ElectricityUsageComponent {
                 },
                 {
                     label: 'Average Usage',
-                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / days),
+                    data: [avgUsage],
                     pointStyle: 'circle',
                     pointRadius: 5
                 }

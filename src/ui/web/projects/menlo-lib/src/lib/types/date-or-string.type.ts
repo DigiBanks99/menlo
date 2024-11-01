@@ -66,11 +66,11 @@ function buildDateString(input: Date | number, format: DateFormat, intlOptions: 
     }
 }
 
-export function getDateDiff(left: DateOrString, right: DateOrString, unit: DateRangeFilterUnit = 'days') {
+export function getDateDiff(left: DateOrString, right: DateOrString, unit: DateRangeFilterUnit = 'days'): number {
     const leftDate = new Date(left);
     const rightDate = new Date(right);
 
-    let diff: number;
+    let diff = 0;
     switch (unit) {
         case 'years':
             diff = leftDate.getFullYear() - rightDate.getFullYear();
