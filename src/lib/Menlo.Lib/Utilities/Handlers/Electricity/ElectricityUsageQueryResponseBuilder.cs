@@ -11,7 +11,9 @@ public record class ElectricityUsageQueryResponseBuilder
 
     public ElectricityUsageQueryResponse Build()
     {
-        List<ApplianceUsageQueryResponse>? applianceUsageQueryResponses = CurrentUsageRecord.ApplianceUsages?.Select(ApplianceUsageQueryResponse.From).ToList() ?? [];
+        List<ApplianceUsageQueryResponse>? applianceUsageQueryResponses = CurrentUsageRecord.ApplianceUsages?
+            .Select(ApplianceUsageQueryResponse.From)
+            .ToList() ?? [];
 
         decimal previousUnits = PreviousUsageRecord?.Units ?? 0;
         decimal purchaseUnits = PurchaseRecord?.Units ?? 0;

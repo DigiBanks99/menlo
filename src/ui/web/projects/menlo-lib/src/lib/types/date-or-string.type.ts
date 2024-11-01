@@ -1,3 +1,5 @@
+import { DateRangeFilterUnit } from '../common/date-range';
+
 export type DateOrString = Date | string;
 export const DateFormat = {
     DateOnly: 'DateOnly',
@@ -62,4 +64,32 @@ function buildDateString(input: Date | number, format: DateFormat, intlOptions: 
         case DateFormat.ShortDisplay:
             return `${dayPart?.value} ${monthPart?.value} ${yearPart?.value}`;
     }
+}
+
+export function getDateDiff(left: DateOrString, right: DateOrString, unit: DateRangeFilterUnit = 'days') {
+    const leftDate = new Date(left);
+    const rightDate = new Date(right);
+
+    let diff: number;
+    switch (unit) {
+        case 'years':
+            diff = leftDate.getFullYear() - rightDate.getFullYear();
+            break;
+        case 'months':
+            diff = (leftDate.getFullYear() - rightDate.getFullYear()) * 12 + leftDate.getMonth() - rightDate.getMonth();
+            break;
+        case 'days':
+            diff = (leftDate.getTime() - rightDate.getTime()) / (1000 * 60 * 60 * 24);
+            break;
+        case 'hours':
+            diff = (leftDate.getTime() - rightDate.getTime()) / (1000 * 60 * 60);
+            break;
+        case 'minutes':
+            diff = (leftDate.getTime() - rightDate.getTime()) / (1000 * 60);
+            break;
+        default:
+            throw new Error(`Unsupported unit: ${unit}`);
+    }
+
+    return Math.ceil(Math.abs(diff));
 }
