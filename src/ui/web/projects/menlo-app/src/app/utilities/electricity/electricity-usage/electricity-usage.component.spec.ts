@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElectricityUsageComponent } from './electricity-usage.component';
 import { SIGNAL, signalSetFn } from '@angular/core/primitives/signals';
+import { ElectricityUsage } from '@utilities/electricity/electricity-usage/electricity-usage.model';
 
 describe('ElectricityUsageComponent', () => {
     let component: ElectricityUsageComponent;
@@ -74,6 +75,27 @@ describe('ElectricityUsageComponent', () => {
         it('should not render the ag-grid-angular component', () => {
             const agGridElement = fixture.nativeElement.querySelector('ag-grid-angular');
             expect(agGridElement).toBeFalsy();
+        });
+    });
+
+    describe('chartData', () => {
+        it('should calculate the average based on the days between the first and last usage', () => {
+            const firstUsage = new ElectricityUsage();
+            firstUsage.date = '2024-10-17';
+            firstUsage.units = 544.8;
+            firstUsage.usage = 23.35;
+            firstUsage.applianceUsage = [];
+
+            const lastUsage = new ElectricityUsage();
+            lastUsage.date = '2024-10-21';
+            lastUsage.units = 490.65;
+            lastUsage.usage = 54.15;
+            lastUsage.applianceUsage = [];
+            signalSetFn(component.electricityUsage[SIGNAL], [firstUsage, lastUsage]);
+
+            const chartData = component.chartData();
+            const expectedAverage = (lastUsage.usage + firstUsage.usage) / 4;
+            expect(chartData.datasets[1].data).toEqual([expectedAverage, expectedAverage]);
         });
     });
 });

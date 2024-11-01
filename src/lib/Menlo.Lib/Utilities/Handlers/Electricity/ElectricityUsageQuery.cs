@@ -3,6 +3,7 @@ using Menlo.Common.Errors;
 using Menlo.Utilities.Extensions;
 using Menlo.Utilities.Models;
 using Microsoft.Azure.CosmosRepository;
+using Microsoft.Azure.CosmosRepository.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 
@@ -24,22 +25,30 @@ internal class ElectricityUsageQueryHandler(ILogger<ElectricityUsageQueryHandler
     {
         _logger.HandlingElectricityUsageQuery(query);
 
-        IEnumerable<ElectricityUsage> usages = await _repoUsages.GetByQueryAsync(query.GetCosmosQuery(), cancellationToken);
-        IEnumerable<ElectricityPurchase> purchases = await _repoPurchases.GetByQueryAsync(query.GetPurchaseCosmosQuery(), cancellationToken);
+        List<ElectricityUsage> usages = await _repoUsages
+            .GetByQueryAsync(query.GetCosmosQuery(), cancellationToken)
+            .ToListAsync();
+        List<ElectricityPurchase> purchases = await _repoPurchases
+            .GetByQueryAsync(query.GetPurchaseCosmosQuery(), cancellationToken)
+            .ToListAsync();
 
-        usages = usages.OrderByDescending(usage => usage.Date);
-        purchases = purchases.OrderByDescending(purchase => purchase.Date);
+        usages = usages.OrderBy(usage => usage.Date).ToList();
+        purchases = purchases.OrderByDescending(purchase => purchase.Date).ToList();
 
-        List<ElectricityUsageQueryResponse> data = [];
-        ElectricityUsageQueryResponseBuilder builder;
+        Queue<ElectricityUsage> usagesQueue = new();
         foreach (ElectricityUsage usage in usages)
         {
-            // Possibly optimize this.
-            // We could use a queue to store the previous usage records and pop them off as we iterate through the usage records.
-            ElectricityUsage? previousUsage = usages.FirstOrDefault(u => u.Date == usage.Date.AddDays(-1));
+            usagesQueue.Enqueue(usage);
+        }
+
+        List<ElectricityUsageQueryResponse> data = [];
+        ElectricityUsage? previousUsage = null;
+        while (usagesQueue.Count > 0)
+        {
+            ElectricityUsage usage = usagesQueue.Dequeue();
             ElectricityPurchase? purchase = purchases.FirstOrDefault(p => p.Date == usage.Date.AddDays(-1));
 
-            builder = new ElectricityUsageQueryResponseBuilder
+            ElectricityUsageQueryResponseBuilder builder = new()
             {
                 CurrentUsageRecord = usage,
                 PreviousUsageRecord = previousUsage,
@@ -48,6 +57,7 @@ internal class ElectricityUsageQueryHandler(ILogger<ElectricityUsageQueryHandler
 
             ElectricityUsageQueryResponse queryResponse = builder.Build();
             data.Add(queryResponse);
+            previousUsage = usage;
         }
 
         return new Response<IEnumerable<ElectricityUsageQueryResponse>, MenloError>()

@@ -3,7 +3,16 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { ElectricityUsage } from './electricity-usage.model';
 import { DatePipe } from '@angular/common';
-import { ChartComponent, DateFormat, DateOrString, formatDate, LoadingComponent, MenloChartData, MenloChartLinearScale } from 'menlo-lib';
+import {
+    ChartComponent,
+    DateFormat,
+    DateOrString,
+    DateRangeService,
+    formatDate, getDateDiff,
+    LoadingComponent,
+    MenloChartData,
+    MenloChartLinearScale
+} from 'menlo-lib';
 
 @Component({
     selector: 'menlo-electricity-usage',
@@ -65,6 +74,7 @@ export class ElectricityUsageComponent {
 
     private getChartData(electricityUsage: ElectricityUsage[]): MenloChartData {
         const usages: number[] = electricityUsage.map(usage => usage.usage);
+        const days = electricityUsage.length > 0 ? getDateDiff(electricityUsage[0].date, electricityUsage[1].date) : 1;
 
         return {
             labels: electricityUsage.map(usage => formatDate(usage.date, DateFormat.ShortDisplay)),
@@ -77,7 +87,7 @@ export class ElectricityUsageComponent {
                 },
                 {
                     label: 'Average Usage',
-                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / usages.length),
+                    data: usages.map(() => usages.reduce((acc, val) => acc + val, 0) / days),
                     pointStyle: 'circle',
                     pointRadius: 5
                 }
