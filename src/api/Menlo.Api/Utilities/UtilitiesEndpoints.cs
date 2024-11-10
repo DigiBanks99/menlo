@@ -12,7 +12,7 @@ public static partial class UtilitiesEndpoints
     public static void MapEndpoints(this IEndpointRouteBuilder routes)
     {
         routes.MapPost(
-                "/utilities/electricity/usage",
+                "/electricity/usage",
                 async (
                     ICommandHandler<CaptureElectricityUsageRequest, string> handler,
                     CaptureElectricityUsageRequest request,
@@ -28,7 +28,7 @@ public static partial class UtilitiesEndpoints
             .WithOpenApi();
 
         routes.MapPost(
-                "/utilities/electricity/purchase",
+                "/electricity/purchase",
                 async (
                     ICommandHandler<CaptureElectricityPurchaseRequest, string> handler,
                     CaptureElectricityPurchaseRequest request,
@@ -44,7 +44,7 @@ public static partial class UtilitiesEndpoints
             .WithOpenApi();
 
         routes.MapGet(
-                "/utilities/electricity",
+                "/electricity",
                 async (
                     IQueryHandler<ElectricityUsageQuery, IEnumerable<ElectricityUsageQueryResponse>> handler,
                     HttpRequest request,

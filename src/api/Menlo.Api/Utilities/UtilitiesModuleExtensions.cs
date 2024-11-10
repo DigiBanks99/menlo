@@ -28,7 +28,7 @@ internal static class UtilitiesModuleExtensions
             return app;
         }
 
-        app.MapGroup("/api")
+        app.MapGroup("/api/utilities")
             .RequireAuthorizationWithBypass(app, AuthConstants.PolicyNameUtilities)
             .MapEndpoints();
 
