@@ -4,9 +4,11 @@ namespace Menlo.Utilities;
 
 internal static class UtilitiesModuleExtensions
 {
-    internal static WebApplicationBuilder AddUtilitiesModule(this WebApplicationBuilder builder, AuthorizationBuilder authorizationBuilder)
+    internal static WebApplicationBuilder AddUtilitiesModule(
+        this WebApplicationBuilder builder,
+        AuthorizationBuilder authorizationBuilder)
     {
-        builder.Services.AddUtilitiesModule(builder.Configuration);
+        builder.Services.AddUtilitiesModule(builder.Configuration, builder.Environment.IsProduction());
 
         authorizationBuilder.AddUtilitiesPolicy();
 

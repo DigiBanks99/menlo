@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using Menlo.Common;
 using Menlo.Utilities.Handlers.Electricity;
@@ -9,7 +10,10 @@ namespace Menlo.Utilities;
 
 public static class UtilitiesModuleExtensions
 {
-    public static IServiceCollection AddUtilitiesModule(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddUtilitiesModule(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        bool isAzureEnvironment = false)
     {
         services.AddCosmosRepository(options =>
         {
@@ -18,16 +22,16 @@ public static class UtilitiesModuleExtensions
             bool useTokenCredential = repoConfig.GetValue("UseTokenCredential", true);
             if (useTokenCredential)
             {
-#if DEBUG
-                ChainedTokenCredential credentialChain = new(new VisualStudioCredential(), new AzureCliCredential());
-#else
-                ChainedTokenCredential credentialChain = new(new ManagedIdentityCredential());
-#endif
+                TokenCredential credentialChain = isAzureEnvironment
+                    ? new ChainedTokenCredential(new VisualStudioCredential(), new AzureCliCredential())
+                    : new ChainedTokenCredential(new ManagedIdentityCredential());
                 options.TokenCredential = credentialChain;
             }
 
-            options.ContainerBuilder.Configure<ElectricityUsage>(containerOptions => containerOptions.WithContainer(nameof(ElectricityUsage)));
-            options.ContainerBuilder.Configure<ElectricityPurchase>(containerOptions => containerOptions.WithContainer(nameof(ElectricityPurchase)));
+            options.ContainerBuilder.Configure<ElectricityUsage>(containerOptions =>
+                containerOptions.WithContainer(nameof(ElectricityUsage)));
+            options.ContainerBuilder.Configure<ElectricityPurchase>(containerOptions =>
+                containerOptions.WithContainer(nameof(ElectricityPurchase)));
         });
 
         return services
