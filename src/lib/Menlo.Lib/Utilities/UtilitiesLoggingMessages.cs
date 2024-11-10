@@ -1,4 +1,5 @@
 using Menlo.Utilities.Handlers.Electricity;
+using Menlo.Utilities.Handlers.Water;
 using Microsoft.Extensions.Logging;
 
 namespace Menlo.Utilities;
@@ -13,4 +14,7 @@ public static partial class UtilitiesLoggingMessages
 
     [LoggerMessage(LogLevel.Information, "Handling electricity purchase command: {Command}")]
     public static partial void HandlingRequestToCaptureElectricityPurchase(this ILogger logger, CaptureElectricityPurchaseRequest command);
+
+    [LoggerMessage(LogLevel.Information, "Handling water reading capture command: {@Command}")]
+    public static partial void HandlingCommandToCaptureWaterReading(this ILogger logger, CaptureWaterReadingCommand command);
 }

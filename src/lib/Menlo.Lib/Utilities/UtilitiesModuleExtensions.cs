@@ -2,6 +2,7 @@ using Azure.Core;
 using Azure.Identity;
 using Menlo.Common;
 using Menlo.Utilities.Handlers.Electricity;
+using Menlo.Utilities.Handlers.Water;
 using Menlo.Utilities.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ public static class UtilitiesModuleExtensions
         return services
             .AddScoped<ICommandHandler<CaptureElectricityUsageRequest, string>, CaptureElectricityUsageHandler>()
             .AddScoped<IQueryHandler<ElectricityUsageQuery, IEnumerable<ElectricityUsageQueryResponse>>, ElectricityUsageQueryHandler>()
-            .AddScoped<ICommandHandler<CaptureElectricityPurchaseRequest, string>, CaptureElectricityPurchaseHandler>();
+            .AddScoped<ICommandHandler<CaptureElectricityPurchaseRequest, string>, CaptureElectricityPurchaseHandler>()
+            .AddScoped<ICommandHandler<CaptureWaterReadingCommand, string>, CaptureWaterReadingHandler>();
     }
 }

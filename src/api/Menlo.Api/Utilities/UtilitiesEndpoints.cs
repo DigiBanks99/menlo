@@ -1,6 +1,7 @@
 using Menlo.Common;
 using Menlo.Common.Errors;
 using Menlo.Utilities.Handlers.Electricity;
+using Menlo.Utilities.Handlers.Water;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
 using System.Net.Mime;
@@ -104,6 +105,20 @@ public static partial class UtilitiesEndpoints
 
                 return o;
             });
+
+        routes.MapPost(
+            "/water/reading",
+            async (ICommandHandler<CaptureWaterReadingCommand, string> Handlers, CaptureWaterReadingCommand command,
+                CancellationToken requestAborted) =>
+            {
+                Response<string, MenloError> response = await Handlers.HandleAsync(command, requestAborted);
+                return response.IsSuccess
+                    ? Results.Created($"/utilities/water/{response.Data}", response.Data)
+                    : Results.Problem();
+            })
+            .WithName("CaptureWaterReading")
+            .Produces<string>(StatusCodes.Status201Created, contentType: MediaTypeNames.Application.Json)
+            .WithOpenApi();
     }
 
     [System.Text.RegularExpressions.GeneratedRegex(@"[+-]{1}\d2:\d2")]
