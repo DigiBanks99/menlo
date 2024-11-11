@@ -8,7 +8,7 @@ internal static class UtilitiesModuleExtensions
         this WebApplicationBuilder builder,
         AuthorizationBuilder authorizationBuilder)
     {
-        builder.Services.AddUtilitiesModule(builder.Configuration, builder.Environment.IsProduction());
+        builder.Services.AddUtilitiesModule(builder.Configuration, !builder.Environment.IsProduction());
 
         authorizationBuilder.AddUtilitiesPolicy();
 
