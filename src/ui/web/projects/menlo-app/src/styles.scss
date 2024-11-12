@@ -2,6 +2,11 @@
 
 @import 'menlo-lib/scss/core.scss';
 
+html {
+    max-height: 100vh;
+    overflow: hidden;
+}
+
 menlo-root {
     height: 100%;
     width: 100%;
