@@ -24,6 +24,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Menlo.SourceGenerators", "lib\Menlo.SourceGenerators\Menlo.SourceGenerators.csproj", "{245D2A48-4B81-4512-A9AA-6530554A67C0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{B780659C-D06D-4B88-90FD-D17BEE58F1BD}"
+	ProjectSection(SolutionItems) = preProject
+		api\http\utilities.http = api\http\utilities.http
+		api\http\http-client.env.json = api\http\http-client.env.json
+		api\http\http-client.private.env.json = api\http\http-client.private.env.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +67,7 @@ Global
 		{E975433C-97E0-4900-9247-DA1F62FF9371} = {589526E8-CB68-4475-8CF1-0B784F298A51}
 		{F072235B-2C38-40D1-ACA8-44ACF1305AFE} = {589526E8-CB68-4475-8CF1-0B784F298A51}
 		{245D2A48-4B81-4512-A9AA-6530554A67C0} = {FF839DCC-C8CC-437F-AE91-A35585E23369}
+		{B780659C-D06D-4B88-90FD-D17BEE58F1BD} = {589526E8-CB68-4475-8CF1-0B784F298A51}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76072843-83C4-41AE-9B99-B02175CA986A}
