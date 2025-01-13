@@ -4,11 +4,9 @@ using Menlo.Common;
 using Menlo.Utilities.Handlers.Electricity;
 using Menlo.Utilities.Handlers.Water;
 using Menlo.Utilities.Models;
-using Microsoft.Azure.CosmosRepository.Options;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Menlo.Utilities;
 
@@ -22,6 +20,7 @@ public static class UtilitiesModuleExtensions
         services.AddCosmosRepository(options =>
         {
             options.ContainerPerItemType = true;
+            options.IsAutoResourceCreationIfNotExistsEnabled = false;
             IConfiguration repoConfig = configuration.GetSection("RepositoryOptions");
             bool useTokenCredential = repoConfig.GetValue("UseTokenCredential", true);
             if (useTokenCredential)
@@ -38,11 +37,12 @@ public static class UtilitiesModuleExtensions
                 containerOptions.WithContainer(nameof(ElectricityPurchase)));
             options.ContainerBuilder.Configure<WaterReading>(containerOptions =>
                 containerOptions.WithContainer(nameof(WaterReading)));
-        });
+        }/*, options => options.ConnectionMode = ConnectionMode.Gateway*/);
 
         return services
             .AddScoped<ICommandHandler<CaptureElectricityUsageRequest, string>, CaptureElectricityUsageHandler>()
-            .AddScoped<IQueryHandler<ElectricityUsageQuery, IEnumerable<ElectricityUsageQueryResponse>>, ElectricityUsageQueryHandler>()
+            .AddScoped<IQueryHandler<ElectricityUsageQuery, IEnumerable<ElectricityUsageQueryResponse>>,
+                ElectricityUsageQueryHandler>()
             .AddScoped<ICommandHandler<CaptureElectricityPurchaseRequest, string>, CaptureElectricityPurchaseHandler>()
             .AddScoped<ICommandHandler<CaptureWaterReadingCommand, string>, CaptureWaterReadingHandler>()
             .AddScoped<IQueryHandler<WaterReadingQuery, IEnumerable<WaterReading>>, WaterReadingQueryHandler>();

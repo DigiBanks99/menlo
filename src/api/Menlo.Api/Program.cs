@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Menlo.Auth;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.CosmosRepository.AspNetCore.Extensions;
@@ -40,9 +41,9 @@ app.UseSecurityHeaders(new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
     .AddContentTypeOptionsNoSniff()
     .AddReferrerPolicyStrictOriginWhenCrossOrigin()
-    .AddCrossOriginOpenerPolicy(builder => builder.SameOrigin())
-    .AddCrossOriginResourcePolicy(builder => builder.SameOrigin())
-    .AddCrossOriginEmbedderPolicy(builder => builder.RequireCorp())
+    .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.SameOrigin())
+    .AddCrossOriginResourcePolicy(policyBuilder => policyBuilder.SameOrigin())
+    .AddCrossOriginEmbedderPolicy(policyBuilder => policyBuilder.RequireCorp())
     .RemoveServerHeader()
     .ApplyDocumentHeadersToAllResponses());
 
