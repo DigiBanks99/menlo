@@ -108,7 +108,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=8.0
+            VERSION=9.0
 
   deploy_infra:
     name: Deploy Azure Infra
