@@ -1,11 +1,11 @@
 using './main.bicep'
 
 param cosmosAccount = {
-  accountName: readEnvironmentVariable('COSMOS_ACCOUNT_NAME')
+  accountName: readEnvironmentVariable('COSMOS_ACCOUNT_NAME', '')
   database: {
     containers: [
       {
-        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_USAGE')
+        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_USAGE', '')
         partitionKeys: {
           paths: ['/id']
           kind: 'Hash'
@@ -21,7 +21,23 @@ param cosmosAccount = {
         }
       }
       {
-        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_PURCHASES')
+        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_ELECTRICITY_PURCHASES', '')
+        partitionKeys: {
+          paths: ['/id']
+          kind: 'Hash'
+        }
+        indexingPolicy: {
+          indexingMode: 'consistent'
+          includedPaths: [
+            { path: '/*' }
+          ]
+          excludedPaths: [
+            { path: '/_etag/?' }
+          ]
+        }
+      }
+      {
+        name: readEnvironmentVariable('COSMOS_CONTAINER_NAME_WATER_READING', '')
         partitionKeys: {
           paths: ['/id']
           kind: 'Hash'
@@ -37,7 +53,7 @@ param cosmosAccount = {
         }
       }
     ]
-    name: readEnvironmentVariable('COSMOS_DATABASE_NAME')
+    name: readEnvironmentVariable('COSMOS_DATABASE_NAME', '')
     options: {
       throughput: 1000
     }
@@ -45,13 +61,13 @@ param cosmosAccount = {
 }
 
 param containerApp = {
-  containerAppName: readEnvironmentVariable('CONTAINER_APP_NAME')
+  containerAppName: readEnvironmentVariable('CONTAINER_APP_NAME', '')
   environment: {
-    name: readEnvironmentVariable('CONTAINER_APP_ENVIRONMENT_NAME')
+    name: readEnvironmentVariable('CONTAINER_APP_ENVIRONMENT_NAME', '')
     certificate: {
-      name: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_NAME')
-      subjectName: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_SUBJECT_NAME')
-      domainControlValidation: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_DOMAIN_CONTROL_VALIDATION')
+      name: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_NAME', '')
+      subjectName: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_SUBJECT_NAME', '')
+      domainControlValidation: readEnvironmentVariable('CONTAINER_APP_CERTIFICATE_DOMAIN_CONTROL_VALIDATION', '')
     }
   }
   image: readEnvironmentVariable('CONTAINER_APP_IMAGE')
@@ -64,7 +80,7 @@ param containerApp = {
 }
 
 param azureAd = {
-  domain: readEnvironmentVariable('AZUREAD__DOMAIN')
-  tenantId: readEnvironmentVariable('AZUREAD__TENANTID')
-  clientId: readEnvironmentVariable('AZUREAD__CLIENTID')
+  domain: readEnvironmentVariable('AZUREAD__DOMAIN', '')
+  tenantId: readEnvironmentVariable('AZUREAD__TENANTID', '')
+  clientId: readEnvironmentVariable('AZUREAD__CLIENTID', '')
 }
