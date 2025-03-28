@@ -1,12 +1,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Menlo.SourceGenerators;
 
 [Generator]
-public class DateRangeParsableSourceGenerator : ISourceGenerator
+public sealed class DateRangeParsableSourceGenerator: ISourceGenerator
 {
     public void Initialize(GeneratorInitializationContext context)
     {
@@ -15,8 +16,8 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        var syntaxReceiver = context.SyntaxReceiver as DateRangeParsableSyntaxReceiver ??
-                             new DateRangeParsableSyntaxReceiver();
+        var syntaxReceiver = context.SyntaxReceiver as DateRangeParsableSyntaxReceiver
+                             ?? new DateRangeParsableSyntaxReceiver();
 
         foreach (var recordToAugment in syntaxReceiver.RecordsToAugment.OfType<RecordDeclarationSyntax>())
         {
@@ -144,20 +145,15 @@ public class DateRangeParsableSourceGenerator : ISourceGenerator
                 return;
             }
 
-            foreach (AttributeListSyntax attributeList in cds.AttributeLists)
+            foreach (var attribute in cds.AttributeLists.SelectMany(attributeList => attributeList.Attributes).ToList())
             {
-                foreach (AttributeSyntax attribute in attributeList.Attributes)
+                if (attribute.Name is not IdentifierNameSyntax identifier
+                    || !identifier.Identifier.ValueText.Equals("DateRangeParsable", StringComparison.InvariantCulture))
                 {
-                    if (attribute.Name is not IdentifierNameSyntax identifier)
-                    {
-                        continue;
-                    }
-
-                    if (identifier.Identifier.ValueText == "DateRangeParsable")
-                    {
-                        RecordsToAugment.Add(cds);
-                    }
+                    continue;
                 }
+
+                RecordsToAugment.Add(cds);
             }
         }
     }
