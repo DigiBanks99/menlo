@@ -36,6 +36,7 @@ jobs:
       run: dotnet test src/Menlo.sln --no-build --verbosity normal --logger trx --collect:"XPlat Code Coverage"
     - name: Generate Test Report
       uses: dorny/test-reporter@v1
+      if: always()
       with:
         name: Tests
         path: 'src/**/*.trx'
