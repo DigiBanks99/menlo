@@ -32,6 +32,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{B780659C-D
 		api\http\http-client.private.env.json = api\http\http-client.private.env.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{638B8E76-0E4A-4D1E-8B36-B950660ED475}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\api.yml = ..\.github\workflows\api.yml
+		..\.github\workflows\cicd.yml = ..\.github\workflows\cicd.yml
+		..\.github\workflows\ui-web.yml = ..\.github\workflows\ui-web.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +76,7 @@ Global
 		{F072235B-2C38-40D1-ACA8-44ACF1305AFE} = {589526E8-CB68-4475-8CF1-0B784F298A51}
 		{245D2A48-4B81-4512-A9AA-6530554A67C0} = {FF839DCC-C8CC-437F-AE91-A35585E23369}
 		{B780659C-D06D-4B88-90FD-D17BEE58F1BD} = {589526E8-CB68-4475-8CF1-0B784F298A51}
+		{638B8E76-0E4A-4D1E-8B36-B950660ED475} = {60B47506-2374-4612-9513-5094A429BE25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76072843-83C4-41AE-9B99-B02175CA986A}
