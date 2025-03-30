@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Menlo.Common.Extensions;
 using System.Globalization;
 
 namespace Menlo.Common;
@@ -31,7 +32,7 @@ public class MoneyTests
     {
         Money money = new(value, Currency.FromCode(ccy));
 
-        money.ToString(CultureInfo.GetCultureInfo(culture)).ShouldBe(expected);
+        money.ToString(CultureInfoExtensions.GetCultureInfo(culture)).ShouldBe(expected);
     }
 
     [Theory]

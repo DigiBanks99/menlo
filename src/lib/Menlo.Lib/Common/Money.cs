@@ -27,6 +27,13 @@ public sealed class Money(decimal amount, Currency ccy)
     {
         CultureInfo effectiveCulture = CultureInfo.CreateSpecificCulture(culture.Name);
         effectiveCulture.NumberFormat.CurrencySymbol = Ccy.Symbol;
+        if (effectiveCulture.Name == "en-ZA")
+        {
+            effectiveCulture.NumberFormat.NumberDecimalSeparator = ",";
+            effectiveCulture.NumberFormat.NumberGroupSeparator = " ";
+            effectiveCulture.NumberFormat.CurrencyDecimalSeparator = ",";
+            effectiveCulture.NumberFormat.CurrencyGroupSeparator = " ";
+        }
         return Amount.ToString("C", effectiveCulture);
     }
 }
