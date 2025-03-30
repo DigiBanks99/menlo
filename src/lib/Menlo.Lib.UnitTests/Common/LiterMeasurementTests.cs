@@ -1,4 +1,6 @@
 ﻿using JetBrains.Annotations;
+using Menlo.Common.Extensions;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace Menlo.Common;
@@ -70,11 +72,13 @@ public class LiterMeasurementTests
     [InlineData(159_999, "159.999kl", "en-IN")]
     [InlineData(1000_000, "1000kl", "en-IN")]
     [InlineData(1000_001, "1.000001ml", "en-IN")]
-    public void ToString_ShouldReturn_TheCorrectDescription_WithCultureInfo(decimal value, string expected,
+    public void ToString_ShouldReturn_TheCorrectDescription_WithCultureInfo(
+        decimal value,
+        string expected,
         string cultureInfo)
     {
         LiterMeasurement measurement = new(value);
-        measurement.ToString(CultureInfo.GetCultureInfo(cultureInfo)).ShouldBe(expected);
+        measurement.ToString(CultureInfoExtensions.GetCultureInfo(cultureInfo)).ShouldBe(expected);
     }
 
     [Fact]

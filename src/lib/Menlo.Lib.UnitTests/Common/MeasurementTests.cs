@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Menlo.Common.Extensions;
 using System.Globalization;
 
 namespace Menlo.Common;
@@ -13,7 +14,7 @@ public class MeasurementTests
     {
         MyMeasurement measurement = new(1234.56m);
 
-        measurement.ToString(CultureInfo.GetCultureInfo(culture)).ShouldBe(expected);
+        measurement.ToString(CultureInfoExtensions.GetCultureInfo(culture)).ShouldBe(expected);
     }
 
     record MyUnit : IUnit
