@@ -4,6 +4,10 @@ using Microsoft.Azure.CosmosRepository.AspNetCore.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
+builder.Services.AddHttpForwarderWithServiceDiscovery();
+
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -14,7 +18,8 @@ builder.Services
     .AddCosmosRepository();
 
 builder.Services
-    .Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+    .Configure<ForwardedHeadersOptions>(options =>
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
 AuthorizationBuilder authBuilder = builder.AddAuth();
 
@@ -30,7 +35,8 @@ builder.AddUtilitiesModule(authBuilder);
 
 builder.Services
     .AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddServiceDiscoveryDestinationResolver();
 
 WebApplication app = builder.Build();
 
@@ -40,9 +46,9 @@ app.UseSecurityHeaders(new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
     .AddContentTypeOptionsNoSniff()
     .AddReferrerPolicyStrictOriginWhenCrossOrigin()
-    .AddCrossOriginOpenerPolicy(builder => builder.SameOrigin())
-    .AddCrossOriginResourcePolicy(builder => builder.SameOrigin())
-    .AddCrossOriginEmbedderPolicy(builder => builder.RequireCorp())
+    .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.SameOrigin())
+    .AddCrossOriginResourcePolicy(policyBuilder => policyBuilder.SameOrigin())
+    .AddCrossOriginEmbedderPolicy(policyBuilder => policyBuilder.RequireCorp())
     .RemoveServerHeader()
     .ApplyDocumentHeadersToAllResponses());
 
@@ -54,7 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseFileServer();
 }
@@ -73,6 +79,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapFallbackToFile("index.html")
-    .RequireAuthorization(AuthConstants.PolicyNameAuthenticatedUsersOnly);
+    .RequireAuthorization(AuthConstants.PolicyNameAuthenticatedUsersOnly)
+    .CacheOutput(p => p.NoCache());
 
 app.Run();

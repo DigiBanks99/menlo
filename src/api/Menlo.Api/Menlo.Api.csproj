@@ -12,6 +12,7 @@
     <PackageReference Include="IEvangelist.Azure.CosmosRepository.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.Identity.Web.GraphServiceClient" />
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\lib\Menlo.Lib\Menlo.Lib.csproj" />
+    <ProjectReference Include="..\Menlo.ServiceDefaults\Menlo.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
