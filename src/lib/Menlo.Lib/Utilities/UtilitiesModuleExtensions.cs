@@ -18,6 +18,7 @@ public static class UtilitiesModuleExtensions
     {
         services.AddCosmosRepository(options =>
         {
+            options.DatabaseId = "menlo";
             options.ContainerPerItemType = true;
             IConfiguration repoConfig = configuration.GetSection("RepositoryOptions");
             bool useTokenCredential = repoConfig.GetValue("UseTokenCredential", true);

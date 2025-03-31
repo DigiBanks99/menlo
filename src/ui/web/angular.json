@@ -126,7 +126,7 @@
             }
           },
           "options": {
-            "proxyConfig": "projects/menlo-app/src/proxy.conf.json",
+            "proxyConfig": "projects/menlo-app/src/proxy.conf.js",
             "sslCert": "projects/menlo-app/certs/menlo-dev.pem",
             "sslKey": "projects/menlo-app/certs/menlo-dev.key"
           },
