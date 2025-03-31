@@ -17,4 +17,7 @@ public static partial class UtilitiesLoggingMessages
 
     [LoggerMessage(LogLevel.Information, "Handling water reading capture command: {@Command}")]
     public static partial void HandlingCommandToCaptureWaterReading(this ILogger logger, CaptureWaterReadingCommand command);
+
+    [LoggerMessage(LogLevel.Information, "Handling water reading query: {Query}")]
+    public static partial void HandlingWaterReadingQuery(this ILogger logger, WaterReadingQuery query);
 }
