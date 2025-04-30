@@ -49,8 +49,7 @@ app.UseSecurityHeaders(new HeaderPolicyCollection()
     .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.SameOrigin())
     .AddCrossOriginResourcePolicy(policyBuilder => policyBuilder.SameOrigin())
     .AddCrossOriginEmbedderPolicy(policyBuilder => policyBuilder.RequireCorp())
-    .RemoveServerHeader()
-    .ApplyDocumentHeadersToAllResponses());
+    .RemoveServerHeader());
 
 app.UseHttpsRedirection();
 
