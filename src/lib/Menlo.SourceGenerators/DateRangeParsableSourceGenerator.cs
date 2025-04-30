@@ -1,43 +1,78 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Menlo.SourceGenerators;
 
-[Generator]
-public sealed class DateRangeParsableSourceGenerator: ISourceGenerator
+/// <summary>
+/// Model that holds the record declaration and its symbol for source generation
+/// </summary>
+internal class RecordToGenerate
 {
-    public void Initialize(GeneratorInitializationContext context)
+    public INamedTypeSymbol RecordSymbol { get; set; } = null!;
+}
+
+[Generator]
+public sealed class DateRangeParsableSourceGenerator : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new DateRangeParsableSyntaxReceiver());
+        // Register for records with the DateRangeParsable attribute
+        IncrementalValuesProvider<RecordDeclarationSyntax> recordDeclarations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (s, _) => s is RecordDeclarationSyntax r && r.AttributeLists.Count > 0,
+                transform: static (ctx, _) =>
+                    GetRecordIfHasDateRangeParsableAttribute(ctx.Node as RecordDeclarationSyntax))
+            .Where(static m => m is not null)!;
+
+        // Combine with compilation to get the semantic model information
+        IncrementalValuesProvider<RecordToGenerate> recordsWithSymbols = recordDeclarations
+            .Combine(context.CompilationProvider)
+            .Select((tuple, _) => GetRecordSymbolInfo(tuple.Left, tuple.Right))
+            .Where(static m => m is not null)!;
+
+        // Generate the source
+        context.RegisterSourceOutput(recordsWithSymbols, GenerateSource);
     }
 
-    public void Execute(GeneratorExecutionContext context)
+    private static RecordDeclarationSyntax? GetRecordIfHasDateRangeParsableAttribute(
+        RecordDeclarationSyntax? recordSyntax)
     {
-        var syntaxReceiver = context.SyntaxReceiver as DateRangeParsableSyntaxReceiver
-                             ?? new DateRangeParsableSyntaxReceiver();
+        if (recordSyntax == null)
+            return null;
 
-        foreach (var recordToAugment in syntaxReceiver.RecordsToAugment.OfType<RecordDeclarationSyntax>())
+        foreach (var attribute in recordSyntax.AttributeLists.SelectMany(attributeList => attributeList.Attributes))
         {
-            ProcessClass(context, recordToAugment);
+            if (attribute.Name is IdentifierNameSyntax identifier &&
+                identifier.Identifier.ValueText.Equals("DateRangeParsable", StringComparison.InvariantCulture))
+            {
+                return recordSyntax;
+            }
         }
+
+        return null;
     }
 
-    private static void ProcessClass(GeneratorExecutionContext context, RecordDeclarationSyntax recordSyntax)
+    private static RecordToGenerate? GetRecordSymbolInfo(RecordDeclarationSyntax recordSyntax, Compilation compilation)
     {
         if (recordSyntax.Identifier.SyntaxTree is null)
         {
-            return;
+            return null;
         }
 
-        SemanticModel model = context.Compilation.GetSemanticModel(recordSyntax.Identifier.SyntaxTree);
-        ISymbol? recordSymbol = model.GetDeclaredSymbol(recordSyntax);
-        if (recordSymbol is null)
-        {
-            return;
-        }
+        SemanticModel model = compilation.GetSemanticModel(recordSyntax.Identifier.SyntaxTree);
+        return model.GetDeclaredSymbol(recordSyntax) is not INamedTypeSymbol recordSymbol
+            ? null
+            : new RecordToGenerate()
+            {
+                RecordSymbol = recordSymbol
+            };
+    }
+
+    private static void GenerateSource(SourceProductionContext context, RecordToGenerate record)
+    {
+        var recordSymbol = record.RecordSymbol;
 
         string source =
             $$"""
@@ -132,29 +167,5 @@ public sealed class DateRangeParsableSourceGenerator: ISourceGenerator
               """;
 
         context.AddSource($"{recordSymbol.Name}.Parsable.cs", source);
-    }
-
-    private class DateRangeParsableSyntaxReceiver : ISyntaxReceiver
-    {
-        public List<RecordDeclarationSyntax?> RecordsToAugment { get; } = [];
-
-        public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-        {
-            if (syntaxNode is not RecordDeclarationSyntax cds)
-            {
-                return;
-            }
-
-            foreach (var attribute in cds.AttributeLists.SelectMany(attributeList => attributeList.Attributes).ToList())
-            {
-                if (attribute.Name is not IdentifierNameSyntax identifier
-                    || !identifier.Identifier.ValueText.Equals("DateRangeParsable", StringComparison.InvariantCulture))
-                {
-                    continue;
-                }
-
-                RecordsToAugment.Add(cds);
-            }
-        }
     }
 }
