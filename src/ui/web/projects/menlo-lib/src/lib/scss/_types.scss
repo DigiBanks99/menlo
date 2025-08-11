@@ -1,8 +1,0 @@
-@use "sass:math";
-
-@for $counter from 1 through 6 {
-  h#{$counter} {
-    color: var(--#{$prefix}primary);
-    margin-bottom: math.div(6, $counter) * 0.25rem;
-  }
-}
