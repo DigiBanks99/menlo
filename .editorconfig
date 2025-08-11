@@ -13,6 +13,10 @@ end_of_line = lf
 [*.ts]
 quote_type = single
 
+[*.md]
+indent_size = 2
+max_line_length = off
+
 # Xml files
 [*.{xml,csproj}]
 indent_size = 2
