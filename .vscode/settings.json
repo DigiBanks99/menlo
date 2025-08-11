@@ -1,5 +1,10 @@
 {
   "files.associations": {
     "**/.github/workflows/*.yml": "github-actions-workflow"
+  },
+  "chat.tools.autoApprove": true,
+  "chat.agent.maxRequests": 500,
+  "[mermaid]": {
+    "editor.colorDecorators": true
   }
 }
