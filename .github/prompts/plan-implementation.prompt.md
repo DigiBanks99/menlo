@@ -1,6 +1,6 @@
 ---
 description: Plan the implementation details for a feature specification
-mode: CodeImplementation
+mode: CodePlanner
 model: GPT-5 (Preview)
 tools: ['codebase', 'usages', 'think', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'runTests', 'editFiles', 'search', 'runCommands', 'runTasks', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking', 'get_syntax_docs', 'mermaid-diagram-validator', 'mermaid-diagram-preview', 'azure_summarize_topic', 'azure_query_azure_resource_graph', 'azure_get_schema_for_Bicep', 'azure_recommend_service_config', 'azure_get_dotnet_template_tags', 'azure_design_architecture', 'azure_check_region_availability', 'azure_check_quota_availability']
 ---
