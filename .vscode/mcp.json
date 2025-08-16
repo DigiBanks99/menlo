@@ -18,6 +18,9 @@
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
       ]
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/"
     }
   }
 }
