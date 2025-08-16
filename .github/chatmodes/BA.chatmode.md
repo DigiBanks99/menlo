@@ -1,6 +1,6 @@
 ---
 description: 'This chat mode is designed for requirements analysis and business analysis tasks.'
-tools: ['codebase', 'editFiles', 'extensions', 'fetch', 'openSimpleBrowser', 'problems', 'runCommands', 'search', 'searchResults', 'Microsoft Docs', 'add_issue_comment', 'create_issue', 'get_file_contents', 'get_issue', 'get_issue_comments', 'get_me', 'get_tag', 'list_issues', 'list_tags', 'search_issues', 'update_issue', 'sequential-thinking']
+tools: ['codebase', 'usages', 'think', 'problems', 'openSimpleBrowser', 'fetch', 'searchResults', 'githubRepo', 'extensions', 'editFiles', 'search', 'runCommands', 'sequential-thinking']
 ---
 
 # Business Analysis v1.0
