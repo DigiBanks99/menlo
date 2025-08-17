@@ -9,6 +9,155 @@ This document outlines the step-by-step process for integrating Ollama with Sema
 - .NET 9 SDK or later installed.
 - Docker Desktop or Podman for container orchestration.
 
+## Windows setup (native, no containers) — winget + PowerShell
+
+If you prefer running Ollama directly on Windows (outside of .NET Aspire containers), follow these steps. This is useful for quick local development, laptop demos, or when you don’t want to run Docker.
+
+### A. Install required tools
+
+```powershell
+# 1) Update winget sources (optional but recommended)
+winget source update
+
+# 2) Install Ollama (official package)
+winget install --id Ollama.Ollama --silent --accept-package-agreements --accept-source-agreements
+
+# 3) (Optional) Install Docker Desktop for Open WebUI or container scenarios
+winget install --id Docker.DockerDesktop --silent --accept-package-agreements --accept-source-agreements
+
+# 4) (Optional) Install Git if not present
+winget install --id Git.Git --silent --accept-package-agreements --accept-source-agreements
+```
+
+Verify installation:
+
+```powershell
+ollama --version
+```
+
+### B. Start or check the Ollama service
+
+The Windows installer registers a background service. Confirm and start it:
+
+```powershell
+# Check service state
+Get-Service -Name "Ollama" -ErrorAction SilentlyContinue
+
+# Start (if not running)
+Start-Service -Name "Ollama"
+
+# Set to start automatically on boot
+Set-Service -Name "Ollama" -StartupType Automatic
+```
+
+By default the Ollama API listens on http://localhost:11434.
+
+### C. Open firewall (if needed)
+
+Most setups won’t require this for localhost access. If you’re calling from other devices on your LAN and explicitly bind externally, add a firewall rule:
+
+```powershell
+New-NetFirewallRule -DisplayName "Ollama 11434" -Direction Inbound -Protocol TCP -LocalPort 11434 -Action Allow
+```
+
+### D. Download models
+
+Pull the models used by Menlo. If a specific model variant isn’t available on your machine, use the alternative development-friendly models noted below.
+
+```powershell
+# Preferred text model (small, efficient). If unavailable, see alternative below.
+ollama pull phi4:latest  # or a small variant like phi4:mini when available on your setup
+
+# Preferred vision model (for handwriting and images). If unavailable, use llava as an alternative.
+ollama pull phi4-vision:latest  # if not present on your catalog, use llava:latest
+
+# Alternatives for constrained/dev environments
+ollama pull phi3.5:3.8b   # lightweight text model (~2GB)
+ollama pull llava:latest   # common community vision model
+```
+
+List available models to confirm downloads:
+
+```powershell
+ollama list
+```
+
+### E. Quick verification (PowerShell)
+
+```powershell
+# 1) Check tags via API
+Invoke-RestMethod -Uri http://localhost:11434/api/tags -Method Get | ConvertTo-Json -Depth 5
+
+# 2) Test a text generation call (replace model with the one you pulled)
+$body = @{ model = "phi4"; prompt = "Say hello from Menlo"; stream = $false } | ConvertTo-Json
+Invoke-RestMethod -Uri http://localhost:11434/api/generate -Method Post -Body $body -ContentType "application/json"
+
+# 3) (Optional) Test a vision call with an image (Base64)
+$imgPath = "C:\\path\\to\\image.jpg"
+$imgBytes = [Convert]::ToBase64String([IO.File]::ReadAllBytes($imgPath))
+$vbody = @{ model = "phi4-vision"; prompt = "Describe this image"; images = @($imgBytes); stream = $false } | ConvertTo-Json -Depth 5
+Invoke-RestMethod -Uri http://localhost:11434/api/generate -Method Post -Body $vbody -ContentType "application/json"
+```
+
+ℹ️ Gotcha: Model names vary per catalog
+> If `phi4`/`phi4-vision` are not available through your Ollama index, use `phi3.5:3.8b` for text and `llava:latest` for vision during development. In container/Aspire mode, models are bootstrapped using the AppHost configuration and may reference provider-specific names.
+
+### F. Optional: Open WebUI on Windows (connect to native Ollama)
+
+```powershell
+# Requires Docker Desktop
+docker run -d --name open-webui -p 3000:8080 `
+    -e OLLAMA_BASE_URL=http://host.docker.internal:11434 `
+    ghcr.io/open-webui/open-webui:main
+
+# Then open http://localhost:3000 and point it at the Ollama endpoint if needed
+```
+
+### G. Optional: GPU acceleration on Windows
+
+- NVIDIA: Ensure recent NVIDIA drivers and CUDA runtime. Ollama can use CUDA when available.
+- Set environment variables (service restart required after changes):
+
+```powershell
+# Use more GPU layers (tune per VRAM)
+setx OLLAMA_GPU_LAYERS -1
+
+# Parallel requests (adjust for your CPU/GPU)
+setx OLLAMA_NUM_PARALLEL 2
+
+# Keep models warm in memory
+setx OLLAMA_KEEP_ALIVE 1h
+```
+
+Restart the Ollama service to apply environment changes:
+
+```powershell
+Restart-Service -Name "Ollama"
+```
+
+### H. Point Menlo API to native Ollama (when not using Aspire)
+
+If you’re running the API without the Aspire AppHost, configure the Ollama endpoint explicitly:
+
+```csharp
+// In AddMenloAi (manual configuration path)
+services.AddOllamaChatCompletion(
+        modelId: "phi4",  // or your chosen local model id
+        endpoint: new Uri("http://localhost:11434"));
+```
+
+Add an appsetting for manual configuration if needed:
+
+```json
+{
+    "ConnectionStrings": {
+        "ollama": "http://localhost:11434"
+    }
+}
+```
+
+This keeps development flexible: you can switch between native Windows Ollama and containerized Aspire Ollama with minimal code changes.
+
 ## Steps
 
 ### 1. Add AI NuGet Packages ✅
