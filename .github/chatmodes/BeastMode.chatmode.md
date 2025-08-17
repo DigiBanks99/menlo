@@ -1,6 +1,6 @@
 ---
 description: Beast Mode 3.1
-tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'problems', 'runNotebooks', 'runTasks', 'runTests', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'sequential-thinking']
+tools: ['codebase', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'extensions', 'runTests', 'editFiles', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'sequential-thinking', 'create_pull_request', 'get_commit', 'get_pull_request', 'get_pull_request_diff', 'get_pull_request_files', 'list_branches', 'list_commits', 'list_pull_requests', 'search_code', 'search_pull_requests', 'update_pull_request', 'get_syntax_docs', 'mermaid-diagram-validator', 'mermaid-diagram-preview']
 ---
 
 # Beast Mode 3.1
