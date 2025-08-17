@@ -81,6 +81,12 @@ Instructions for generating high-quality Angular applications with TypeScript, u
 - Mock HTTP requests using `HttpClientTestingModule`
 - Ensure high test coverage for critical functionality
 
+### Error handling and exceptions
+- Prefer the use of the Result pattern over throwing errors code we control
+- Catch exceptions within the code-base boundary where interacting with vendor components and transform them to the Result pattern
+- Error results should be rendered in a toaster/snackbar system except for validation errors which need to be displayed inline
+- APIs will return ProblemDetails so errors need to be mapped to the Result pattern for meaningful error handling
+
 ## Implementation Process
 1. Plan project structure and feature modules
 2. Define TypeScript interfaces and models
