@@ -128,6 +128,23 @@ FR-7: Telemetry and Audit (minimal)
 - Data access layer or repository for Budget and Allocations
 - UI framework (Angular per repo standards) for tree visualisation
 
+### Dependencies Map
+
+- Upstream:
+  - Domain Abstractions: strongly-typed IDs, domain events, auditing contract
+    - See: `../domain-abstractions/specifications.md`
+  - Minimum Budget Aggregate: provides the category tree and totals semantics
+    - See: `../budget-aggregate-minimum/specifications.md`
+
+```mermaid
+graph TD
+  A[Domain Abstractions] --> B[Minimum Budget Aggregate]
+  B --> C[Add Budget Item]
+
+  click A href "../domain-abstractions/specifications.md" _blank
+  click B href "../budget-aggregate-minimum/specifications.md" _blank
+```
+
 ## Decisions (Resolved)
 
 - Realized visibility: Hide when none exist; show only when realized items are present
