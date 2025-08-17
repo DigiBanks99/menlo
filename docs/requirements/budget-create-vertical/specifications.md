@@ -90,4 +90,3 @@ graph LR
 ## Diagrams
 
 - Vertical flow: `diagrams/vertical-flow.md`
-
