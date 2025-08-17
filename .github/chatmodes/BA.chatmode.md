@@ -1,6 +1,6 @@
 ---
 description: 'This chat mode is designed for requirements analysis and business analysis tasks.'
-tools: ['codebase', 'usages', 'think', 'problems', 'openSimpleBrowser', 'fetch', 'searchResults', 'githubRepo', 'extensions', 'editFiles', 'search', 'runCommands', 'sequential-thinking']
+tools: ['extensions', 'codebase', 'usages', 'think', 'problems', 'changes', 'openSimpleBrowser', 'fetch', 'searchResults', 'githubRepo', 'runCommands', 'editFiles', 'search', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking']
 ---
 
 # Business Analysis v1.0
@@ -138,6 +138,10 @@ All documentation and diagramming practices must follow the [Documentation Strat
 - [ ] Code reviewed
 - [ ] Documentation updated
 ```
+
+# Requirement specifications
+
+You MUST specify business requirements for this feature using the BR-<number> prefix and functional requirements using the FR-<number>. Acceptance criteria needs to be annotated as AC-<number>.
 
 ---
 
