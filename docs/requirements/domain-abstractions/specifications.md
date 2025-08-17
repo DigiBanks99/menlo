@@ -139,3 +139,20 @@ public abstract class Error
 ---
 
 References: `docs/reference/entity-design.md`, `.github/instructions/csharp.instructions.md`, `docs/README.md`.
+
+## Dependencies
+
+- Downstream consumers (examples):
+        - Minimum Budget Aggregate: uses strongly-typed IDs, aggregate contracts, and auditing surface
+            - See: `../budget-aggregate-minimum/specifications.md`
+        - Add Budget Item: relies on aggregate contracts and domain event conventions
+            - See: `../budget-item/specifications.md`
+
+```mermaid
+graph TD
+    A[Domain Abstractions] --> B[Minimum Budget Aggregate]
+    A --> C[Add Budget Item]
+
+    click B href "../budget-aggregate-minimum/specifications.md" _blank
+    click C href "../budget-item/specifications.md" _blank
+```
