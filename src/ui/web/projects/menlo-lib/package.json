@@ -1,9 +1,13 @@
 {
   "name": "menlo-lib",
   "version": "0.0.1",
+  "main": "./bundles/menlo-lib.umd.js",
+  "types": "index.d.ts",
   "peerDependencies": {
     "@angular/common": "^20.1.0",
-    "@angular/core": "^20.1.0"
+    "@angular/core": "^20.1.0",
+    "shared-util": "workspace:*",
+    "data-access-menlo-api": "workspace:*"
   },
   "dependencies": {
     "tslib": "^2.3.0"
