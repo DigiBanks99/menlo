@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Align target frameworks to .NET 9 per architecture document -->
+  <TargetFramework>net9.0</TargetFramework>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+</Project>
