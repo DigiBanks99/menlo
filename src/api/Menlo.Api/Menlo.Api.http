@@ -1,0 +1,6 @@
+@Menlo.Api_HostAddress = http://localhost:5271
+
+GET {{Menlo.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
