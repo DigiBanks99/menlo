@@ -88,6 +88,20 @@
               "projects/menlo-app/src/styles.scss"
             ]
           }
+        },
+        "storybook": {
+          "builder": "@analogjs/storybook-angular:start-storybook",
+          "options": {
+            "configDir": "projects/menlo-app/.storybook",
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@analogjs/storybook-angular:build-storybook",
+          "options": {
+            "configDir": "projects/menlo-app/.storybook",
+            "outputDir": "dist/storybook/menlo-app"
+          }
         }
       }
     },
@@ -165,6 +179,20 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "projects/menlo-lib/tsconfig.spec.json"
+          }
+        },
+        "storybook": {
+          "builder": "@analogjs/storybook-angular:start-storybook",
+          "options": {
+            "configDir": "projects/menlo-lib/.storybook",
+            "port": 6007
+          }
+        },
+        "build-storybook": {
+          "builder": "@analogjs/storybook-angular:build-storybook",
+          "options": {
+            "configDir": "projects/menlo-lib/.storybook",
+            "outputDir": "dist/storybook/menlo-lib"
           }
         }
       }
