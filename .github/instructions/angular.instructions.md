@@ -87,6 +87,22 @@ Instructions for generating high-quality Angular applications with TypeScript, u
 - Error results should be rendered in a toaster/snackbar system except for validation errors which need to be displayed inline
 - APIs will return ProblemDetails so errors need to be mapped to the Result pattern for meaningful error handling
 
+### Build and Development Process Validation
+- **ALWAYS verify command outputs**: Read the complete output of build commands, test runs, and installations
+- **Never assume success**: Check for explicit success messages, error indicators, or "failed"/"broken" statements
+- **Read error messages completely**: Pay attention to the final lines of output which often contain crucial error summaries
+- **Verify file existence**: When builds claim success, verify expected output files actually exist and contain expected content
+- **Check dependency conflicts**: When integrating tools like Storybook, ensure all required dependencies are installed and compatible
+
+### Third-Party Tool Integration
+- **Storybook Setup**: When adding Storybook with Vite integration:
+  - Install required dependencies: `@analogjs/storybook-angular`, `@angular/animations`
+  - Use correct import paths in configuration files (relative to the config file location)
+  - Remove conflicting configuration options that aren't supported by the chosen builder
+  - Test both development server AND build processes before claiming success
+- **Configuration File Interactions**: Understand how `angular.json`, `package.json`, and tool-specific config files interact
+- **Path Resolution**: Be careful with relative vs absolute paths, especially in multi-project workspaces
+
 ## Implementation Process
 1. Plan project structure and feature modules
 2. Define TypeScript interfaces and models
