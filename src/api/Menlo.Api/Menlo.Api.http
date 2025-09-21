@@ -1,6 +1,6 @@
-@Menlo.Api_HostAddress = http://localhost:5271
+@Api_HostAddress = https://localhost:7298
 
-GET {{Menlo.Api_HostAddress}}/weatherforecast/
+GET {{Api_HostAddress}}/api/weatherforecast/
 Accept: application/json
 
 ###

@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/.config/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path=".config/dotnet-tools.json" />
+    <File Path=".gitignore" />
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/api/">
+    <Project Path="src/api/Menlo.Api.Tests/Menlo.Api.Tests.csproj" />
+    <Project Path="src/api/Menlo.Api/Menlo.Api.csproj" />
+    <Project Path="src/api/Menlo.AppHost/Menlo.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/lib/">
+    <Project Path="src/lib/Menlo.AI/Menlo.AI.csproj" />
+    <Project Path="src/lib/Menlo.Lib.Tests/Menlo.Lib.Tests.csproj" />
+    <Project Path="src/lib/Menlo.Lib/Menlo.Lib.csproj" />
+    <Project Path="src/lib/Menlo.ServiceDefaults/Menlo.ServiceDefaults.csproj" />
+  </Folder>
+</Solution>
