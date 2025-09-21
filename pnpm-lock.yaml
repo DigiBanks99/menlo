@@ -7,10 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       corepack:
         specifier: ^0.34.0
         version: 0.34.0
+      pnpm:
+        specifier: ^10.17.0
+        version: 10.17.0
 
 packages:
 
@@ -19,6 +22,13 @@ packages:
     engines: {node: ^20.10.0 || ^22.11.0 || >=24.0.0}
     hasBin: true
 
+  pnpm@10.17.0:
+    resolution: {integrity: sha512-/Oij3Smk7S7FZvtT77sE2MRKDwW8bySnMEaRD7nDznr6NaCYBQBmj6NXM0W9ZEZE+pgzj6FoI1yA9KoXqhf77w==}
+    engines: {node: '>=18.12'}
+    hasBin: true
+
 snapshots:
 
   corepack@0.34.0: {}
+
+  pnpm@10.17.0: {}

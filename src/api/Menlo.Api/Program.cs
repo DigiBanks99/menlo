@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Menlo: Apply shared service defaults (health checks, telemetry, discovery)
+builder.Services.AddProblemDetails();
+
 builder.AddServiceDefaults();
 
 // Add services to the container.
@@ -8,6 +9,11 @@ builder.AddServiceDefaults();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+var securityPolicy = new HeaderPolicyCollection()
+    .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
+
+app.UseSecurityHeaders(securityPolicy);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -22,7 +28,7 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/api/weatherforecast", () =>
 {
     var forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast

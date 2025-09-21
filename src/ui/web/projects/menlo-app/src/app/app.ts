@@ -1,10 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MenloLib } from 'menlo-lib';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenloLib],
+  imports: [RouterOutlet, MenloLib, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

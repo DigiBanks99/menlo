@@ -1,9 +1,18 @@
 {
-  "/api": {
+  "/api/*": {
+    "target": "https://localhost:7298",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info",
+    "ws": true,
+    "headers": {
+      "Connection": "Keep-Alive"
+    }
+  },
+  "/health": {
     "target": "https://localhost:7298",
     "secure": false,
     "changeOrigin": false,
-    "logLevel": "debug",
-    "ws": true
+    "logLevel": "info"
   }
 }

@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -13,15 +11,9 @@
     "experimentalDecorators": true,
     "inlineSourceMap": true,
     "paths": {
-      "data-access-menlo-api": [
-        "./dist/data-access-menlo-api"
-      ],
-      "menlo-lib": [
-        "./dist/menlo-lib"
-      ],
-      "shared-util": [
-        "./dist/shared-util"
-      ]
+      "data-access-menlo-api": ["./dist/data-access-menlo-api"],
+      "menlo-lib": ["./dist/menlo-lib"],
+      "shared-util": ["./dist/shared-util"]
     },
     "importHelpers": true,
     "target": "ES2022",
