@@ -1,4 +1,4 @@
-# Ollama AI Infrastructure Setup Implementation Guide
+# AI Infrastructure Setup Implementation Guide
 
 This document outlines the step-by-step process for integrating Ollama with Semantic Kernel and .NET Aspire to provide local AI processing capabilities in the Menlo Home Management solution.
 
@@ -8,6 +8,18 @@ This document outlines the step-by-step process for integrating Ollama with Sema
 - Review the [Concepts & Terminology](../../explanations/concepts-and-terminology.md) for the "Blueberry Muffin" AI integration philosophy.
 - .NET 9 SDK or later installed.
 - Docker Desktop or Podman for container orchestration.
+
+## Implementation Overview
+
+This implementation focuses on setting up the foundational AI infrastructure with the absolute minimum components required for:
+
+1. **Ollama Container Hosting**: Using Aspire to host Ollama with automated model bootstrapping
+2. **Semantic Kernel Integration**: Setting up Microsoft Semantic Kernel for AI orchestration
+3. **Communication Protocol**: Establishing typed interfaces for API-to-AI communication
+4. **Dependency Injection**: Proper DI setup for AI services in the Menlo.AI library
+5. **Aspire Configuration**: Integration with .NET Aspire for orchestration and health checks
+
+**Note**: This implementation does NOT include actual AI logic, prompts, or business-specific AI features. Those will be implemented in future phases.
 
 ## Windows setup (native, no containers) — winget + PowerShell
 
@@ -158,92 +170,579 @@ Add an appsetting for manual configuration if needed:
 
 This keeps development flexible: you can switch between native Windows Ollama and containerized Aspire Ollama with minimal code changes.
 
-## Steps
+## Implementation Steps
 
-### 1. Add AI NuGet Packages ✅
+### Phase 1: Package Installation and Setup
 
-Add the required AI and Semantic Kernel packages:
+#### 1.1 Configure Menlo.AI Library Project
 
-```sh
-# Core Semantic Kernel
-dotnet add src/api/Menlo.Api/Menlo.Api.csproj package Microsoft.SemanticKernel
+**Setup the Menlo.AI project structure:**
 
-# Ollama connector (experimental)
-dotnet add src/api/Menlo.Api/Menlo.Api.csproj package Microsoft.SemanticKernel.Connectors.Ollama --prerelease
+```bash
+# Navigate to Menlo.AI project
+cd src/lib/Menlo.AI
 
-# Aspire Community Toolkit for Ollama hosting
-dotnet add src/api/Menlo.AppHost/Menlo.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Ollama
-
-# Aspire Community Toolkit for Ollama client integration  
-dotnet add src/api/Menlo.Api/Menlo.Api.csproj package CommunityToolkit.Aspire.Ollama
+# Remove the placeholder class
+rm Class1.cs
 ```
 
-### 2. Configure Ollama Models in AppHost ✅
+**Add required dependencies using dotnet CLI:**
 
-Update `AppHost.cs` in `Menlo.AppHost` to include Ollama container with automated model bootstrapping:
+```bash
+# Navigate to Menlo.AI project directory
+cd src/lib/Menlo.AI
+
+# Add core Semantic Kernel packages
+dotnet add package Microsoft.SemanticKernel --version 1.65.0
+dotnet add package Microsoft.SemanticKernel.Connectors.Ollama --version 1.65.0-alpha --prerelease
+
+# Add Microsoft.Extensions.AI abstractions
+dotnet add package Microsoft.Extensions.AI --version 9.9.0
+
+# Add Aspire Ollama client integration
+dotnet add package CommunityToolkit.Aspire.OllamaSharp --version 9.7.2
+
+# Add required Microsoft Extensions packages
+dotnet add package Microsoft.Extensions.Hosting.Abstractions
+dotnet add package Microsoft.Extensions.DependencyInjection.Abstractions
+dotnet add package Microsoft.Extensions.Configuration.Abstractions
+dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions
+
+# Add project reference to Menlo.Lib
+dotnet add reference ..\Menlo.Lib\Menlo.Lib.csproj
+```
+
+#### 1.2 Update AppHost Dependencies
+
+**Add Ollama hosting packages using dotnet CLI:**
+
+```bash
+# Navigate to AppHost project directory
+cd src/api/Menlo.AppHost
+
+# Add Ollama hosting support
+dotnet add package CommunityToolkit.Aspire.Hosting.Ollama --version 9.7.2
+```
+
+#### 1.3 Update API Project Dependencies
+
+**Add AI client packages using dotnet CLI:**
+
+```bash
+# Navigate to API project directory
+cd src/api/Menlo.Api
+
+# Add Ollama client integration
+dotnet add package CommunityToolkit.Aspire.OllamaSharp --version 9.7.2
+```
+
+### Phase 2: Menlo.AI Library Implementation
+
+#### 2.1 Create Core AI Interfaces
+
+**Create AI service interfaces in Menlo.AI:**
 
 ```csharp
+// src/lib/Menlo.AI/Interfaces/IChatService.cs
+using Microsoft.Extensions.AI;
+
+namespace Menlo.AI.Interfaces;
+
+/// <summary>
+/// Core chat service interface for AI text generation
+/// </summary>
+public interface IChatService
+{
+    /// <summary>
+    /// Generate a chat completion response
+    /// </summary>
+    Task<string> GetResponseAsync(string prompt, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Generate a streaming chat completion response
+    /// </summary>
+    IAsyncEnumerable<string> GetStreamingResponseAsync(string prompt, CancellationToken cancellationToken = default);
+}
+
+// src/lib/Menlo.AI/Interfaces/IEmbeddingService.cs
+namespace Menlo.AI.Interfaces;
+
+/// <summary>
+/// Text embedding service for vector generation
+/// </summary>
+public interface IEmbeddingService
+{
+    /// <summary>
+    /// Generate embeddings for text input
+    /// </summary>
+    Task<float[]> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Generate embeddings for multiple text inputs
+    /// </summary>
+    Task<float[][]> GenerateEmbeddingsAsync(IEnumerable<string> texts, CancellationToken cancellationToken = default);
+}
+
+// src/lib/Menlo.AI/Interfaces/IVisionService.cs
+namespace Menlo.AI.Interfaces;
+
+/// <summary>
+/// Vision service for image analysis and OCR
+/// </summary>
+public interface IVisionService
+{
+    /// <summary>
+    /// Analyze image with text prompt
+    /// </summary>
+    Task<string> AnalyzeImageAsync(byte[] imageData, string prompt, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Extract text from image (OCR)
+    /// </summary>
+    Task<string> ExtractTextAsync(byte[] imageData, CancellationToken cancellationToken = default);
+}
+```
+
+#### 2.2 Create Service Implementations
+
+**Create basic service implementations:**
+
+```csharp
+// src/lib/Menlo.AI/Services/ChatService.cs
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel;
+using Menlo.AI.Interfaces;
+
+namespace Menlo.AI.Services;
+
+internal sealed class ChatService : IChatService
+{
+    private readonly Kernel _kernel;
+    private readonly IChatClient? _chatClient;
+
+    public ChatService(Kernel kernel, IChatClient? chatClient = null)
+    {
+        _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
+        _chatClient = chatClient;
+    }
+
+    public async Task<string> GetResponseAsync(string prompt, CancellationToken cancellationToken = default)
+    {
+        if (_chatClient is not null)
+        {
+            var response = await _chatClient.GetResponseAsync(prompt, cancellationToken: cancellationToken);
+            return response.Text ?? string.Empty;
+        }
+
+        var result = await _kernel.InvokePromptAsync(prompt, cancellationToken: cancellationToken);
+        return result.GetValue<string>() ?? string.Empty;
+    }
+
+    public async IAsyncEnumerable<string> GetStreamingResponseAsync(string prompt, 
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (_chatClient is not null)
+        {
+            await foreach (var item in _chatClient.GetStreamingResponseAsync(prompt, cancellationToken: cancellationToken))
+            {
+                if (!string.IsNullOrEmpty(item.Text))
+                    yield return item.Text;
+            }
+        }
+        else
+        {
+            // Fallback to non-streaming for Semantic Kernel
+            var result = await GetResponseAsync(prompt, cancellationToken);
+            yield return result;
+        }
+    }
+}
+
+// src/lib/Menlo.AI/Services/EmbeddingService.cs
+using Microsoft.Extensions.AI;
+using Menlo.AI.Interfaces;
+
+namespace Menlo.AI.Services;
+
+internal sealed class EmbeddingService : IEmbeddingService
+{
+    private readonly IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
+
+    public EmbeddingService(IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator)
+    {
+        _embeddingGenerator = embeddingGenerator;
+    }
+
+    public async Task<float[]> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
+    {
+        if (_embeddingGenerator is null)
+            return [];
+
+        var embeddings = await _embeddingGenerator.GenerateAsync([text], cancellationToken: cancellationToken);
+        return embeddings.FirstOrDefault()?.Vector.ToArray() ?? [];
+    }
+
+    public async Task<float[][]> GenerateEmbeddingsAsync(IEnumerable<string> texts, 
+        CancellationToken cancellationToken = default)
+    {
+        if (_embeddingGenerator is null)
+            return [];
+
+        var embeddings = await _embeddingGenerator.GenerateAsync(texts, cancellationToken: cancellationToken);
+        return embeddings.Select(e => e.Vector.ToArray()).ToArray();
+    }
+}
+
+// src/lib/Menlo.AI/Services/VisionService.cs
+using Menlo.AI.Interfaces;
+
+namespace Menlo.AI.Services;
+
+internal sealed class VisionService : IVisionService
+{
+    // Placeholder implementation - will be implemented in future phases
+    public Task<string> AnalyzeImageAsync(byte[] imageData, string prompt, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Vision service will be implemented in future phases");
+    }
+
+    public Task<string> ExtractTextAsync(byte[] imageData, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException("Vision service will be implemented in future phases");
+    }
+}
+```
+
+#### 2.3 Create Configuration Models
+
+**Create configuration models:**
+
+```csharp
+// src/lib/Menlo.AI/Configuration/AiSettings.cs
+namespace Menlo.AI.Configuration;
+
+/// <summary>
+/// Configuration settings for AI services
+/// </summary>
+public sealed class AiSettings
+{
+    public const string SectionName = "Menlo:AI";
+    
+    /// <summary>
+    /// Ollama connection name for Aspire integration
+    /// </summary>
+    public string OllamaConnectionName { get; init; } = "ollama";
+    
+    /// <summary>
+    /// Text model name for chat completion
+    /// </summary>
+    public string TextModelName { get; init; } = "phi4-mini";
+    
+    /// <summary>
+    /// Vision model name for image analysis
+    /// </summary>
+    public string VisionModelName { get; init; } = "phi4-vision";
+    
+    /// <summary>
+    /// Embedding model name for vector generation
+    /// </summary>
+    public string EmbeddingModelName { get; init; } = "phi4-mini";
+    
+    /// <summary>
+    /// Enable health checks for AI services
+    /// </summary>
+    public bool EnableHealthChecks { get; init; } = true;
+    
+    /// <summary>
+    /// Enable telemetry and logging for AI operations
+    /// </summary>
+    public bool EnableTelemetry { get; init; } = true;
+}
+```
+
+#### 2.4 Create Service Registration Extensions
+
+**Create DI extension methods:**
+
+```csharp
+// src/lib/Menlo.AI/Extensions/ServiceCollectionExtensions.cs
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel;
+using Menlo.AI.Configuration;
+using Menlo.AI.Interfaces;
+using Menlo.AI.Services;
+
+namespace Menlo.AI.Extensions;
+
+/// <summary>
+/// Extension methods for registering Menlo AI services
+/// </summary>
+public static class ServiceCollectionExtensions
+{
+    /// <summary>
+    /// Add Menlo AI services to the service collection
+    /// </summary>
+    public static IServiceCollection AddMenloAI(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Configure AI settings
+        services.Configure<AiSettings>(configuration.GetSection(AiSettings.SectionName));
+        var aiSettings = configuration.GetSection(AiSettings.SectionName).Get<AiSettings>() ?? new AiSettings();
+        
+        // Register Semantic Kernel
+        services.AddKernel();
+        
+        // Register AI service interfaces
+        services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IEmbeddingService, EmbeddingService>();
+        services.AddScoped<IVisionService, VisionService>();
+        
+        return services;
+    }
+    
+    /// <summary>
+    /// Add Menlo AI services with Aspire Ollama integration
+    /// </summary>
+    public static IServiceCollection AddMenloAIWithAspire(this IServiceCollection services, 
+        IHostApplicationBuilder builder)
+    {
+        var configuration = builder.Configuration;
+        
+        // Configure AI settings
+        services.Configure<AiSettings>(configuration.GetSection(AiSettings.SectionName));
+        var aiSettings = configuration.GetSection(AiSettings.SectionName).Get<AiSettings>() ?? new AiSettings();
+        
+        // Add Ollama client with Aspire integration
+        builder.AddOllamaClientApi(aiSettings.OllamaConnectionName)
+               .AddChatClient()
+               .AddEmbeddingGenerator();
+        
+        // Register Semantic Kernel with Ollama
+        services.AddKernel()
+                .AddOllamaChatCompletion(
+                    modelId: aiSettings.TextModelName,
+                    endpoint: new Uri($"http://{aiSettings.OllamaConnectionName}:11434"));
+        
+        // Register AI service interfaces
+        services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IEmbeddingService, EmbeddingService>();
+        services.AddScoped<IVisionService, VisionService>();
+        
+        return services;
+    }
+}
+```
+
+### Phase 3: Aspire Configuration
+
+#### 3.1 Update AppHost Configuration
+
+**Update AppHost.cs with Ollama integration:**
+
+```csharp
+// src/api/Menlo.AppHost/AppHost.cs
+using Microsoft.Extensions.Hosting;
 using CommunityToolkit.Aspire.Hosting;
 
-var builder = DistributedApplication.CreateBuilder(args);
+IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 // Add PostgreSQL
 IResourceBuilder<PostgresServerResource> postgres = builder
     .AddPostgres("postgres")
-    .WithLifetime(ContainerLifetime.Persistent);
-IResourceBuilder<PostgresDatabaseResource> postgresDb = postgres
-    .AddDatabase("postgresdb");
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume("postgres-menlo")
+    .WithPgAdmin(); // Add PgAdmin for database management
+
+IResourceBuilder<PostgresDatabaseResource> db = postgres
+    .AddDatabase("menlo");
 
 // Add Ollama with automatic model bootstrapping and persistent storage
 var ollama = builder.AddOllama("ollama")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume("ollama-models")  // Persist models across container restarts
-    .WithOpenWebUI();  // Optional: Add Open WebUI for model testing
+    .WithDataVolume("ollama-models") // Persist models across container restarts
+    .WithOpenWebUI(); // Optional: Add Open WebUI for model testing
 
-// Add Phi-4-mini for text processing (downloads automatically on startup)
-var phi4Mini = ollama.AddModel("phi4-mini", "microsoft/phi-4:latest");
+// Add models for different AI capabilities
+var phi4Mini = ollama.AddModel("phi4-mini", "microsoft/phi-4:latest"); // Text processing
+var phi4Vision = ollama.AddModel("phi4-vision", "microsoft/phi-4-vision:latest"); // Vision processing
 
-// Add Phi-4-vision for image/handwriting recognition (downloads automatically on startup)
-var phi4Vision = ollama.AddModel("phi4-vision", "microsoft/phi-4-vision:latest");
+// Alternative lightweight models for development
+// var phi35 = ollama.AddModel("phi35-mini", "phi3.5:3.8b"); // Smaller text model
+// var llava = ollama.AddModel("llava-vision", "llava:latest"); // Alternative vision model
 
-// Alternative: Use Hugging Face models directly
-// var llamaModel = ollama.AddHuggingFaceModel("llama", "bartowski/Llama-3.2-1B-Instruct-GGUF:IQ4_XS");
+// Add Menlo.Api project with AI dependencies
+IResourceBuilder<ProjectResource> api = builder
+    .AddProject<Projects.Menlo_Api>("menlo-api")
+    .WithReference(db)
+    .WithReference(phi4Mini)      // Reference text model
+    .WithReference(phi4Vision)    // Reference vision model
+    .WaitFor(db)
+    .WaitFor(phi4Mini)           // Wait for models to be ready
+    .WaitFor(phi4Vision)
+    .WithOtlpExporter(); // Enable telemetry
 
-// Optional: GPU support (uncomment if you have GPU available)
-// var ollama = builder.AddOllama("ollama")
-//     .WithDataVolume("ollama-models")
-//     .WithContainerRuntimeArgs("--device", "nvidia.com/gpu=all");
+// Add UI applications
+string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
+IResourceBuilder<NodeAppResource> ui = builder
+    .AddPnpmApp("web-ui", uiPath)
+    .WithPnpmPackageInstallation()
+    .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
+    .WithHttpEndpoint(name: "https", isProxied: false, port: 4200, env: "PORT")
+    .WithHttpHealthCheck()
+    .WithReference(api)
+    .WaitFor(api);
 
-// Add API project with model references
-var api = builder.AddProject<Projects.Menlo_Api>("menlo-api")
-    .WithReference(postgres)
-    .WithReference(phi4Mini)
-    .WithReference(phi4Vision)
-    .WaitFor(postgres)
-    .WaitFor(phi4Mini)
-    .WaitFor(phi4Vision);
+IResourceBuilder<NodeAppResource> uiStorybook = builder
+    .AddPnpmApp("web-ui-storybook", uiPath, "storybook")
+    .WithExternalHttpEndpoints()
+    .WithHttpEndpoint(name: "https", isProxied: false, port: 6006)
+    .WithHttpHealthCheck()
+    .WithExplicitStart();
+
+IResourceBuilder<NodeAppResource> libStorybook = builder
+    .AddPnpmApp("lib-ui-storybook", uiPath, "storybook:lib")
+    .WithExternalHttpEndpoints()
+    .WithHttpEndpoint(name: "https", isProxied: false, port: 6007)
+    .WithHttpHealthCheck()
+    .WithExplicitStart();
+
+uiStorybook.WithParentRelationship(ui);
+libStorybook.WithParentRelationship(ui);
 
 builder.Build().Run();
 ```
 
-**Automatic Model Bootstrapping Features:**
+#### 3.2 Update API Program.cs
 
-- **Auto-download**: Models download automatically when Ollama container starts
-- **Progress tracking**: Download progress visible in .NET Aspire dashboard with real-time status
-- **Health checks**: Ollama server and individual models have separate health checks
-  - Server health: Verifies Ollama API is running and accessible
-  - Model health: Models marked unhealthy until download completes (prevents premature API calls)
-- **Persistent storage**: Models cached in Docker volumes for faster subsequent startups
-- **GPU support**: Optional GPU acceleration for faster inference (Docker/Podman compatible)
-- **Open WebUI**: Optional web interface for testing models directly in browser
-- **Hugging Face integration**: Direct support for Hugging Face model hub models
+**Integrate AI services in Menlo.Api:**
 
-**Important Notes:**
+```csharp
+// src/api/Menlo.Api/Program.cs
+using Menlo.AI.Extensions;
 
-- **Keep AppHost running**: Model downloads will be cancelled if AppHost stops during download
-- **Volume persistence**: Without `WithDataVolume()`, models re-download on each container restart
-- **Model size**: Phi-4 models are 7-14GB each - ensure adequate disk space and bandwidth
-- **First startup**: Initial startup may take 10-30 minutes depending on internet speed
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails();
+
+builder.AddServiceDefaults();
+
+// Add Menlo AI services with Aspire integration
+builder.Services.AddMenloAIWithAspire(builder);
+
+// Add services to the container.
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+var securityPolicy = new HeaderPolicyCollection()
+    .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
+
+app.UseSecurityHeaders(securityPolicy);
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+var summaries = new[]
+{
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
+
+app.MapGet("/api/weatherforecast", () =>
+{
+    var forecast =  Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast
+        (
+            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Random.Shared.Next(-20, 55),
+            summaries[Random.Shared.Next(summaries.Length)]
+        ))
+        .ToArray();
+    return forecast;
+})
+.WithName("GetWeatherForecast");
+
+// Add simple AI health check endpoint
+app.MapGet("/api/ai/health", async (IChatService chatService) =>
+{
+    try
+    {
+        var response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
+        return Results.Ok(new { Status = "Healthy", Response = response });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"AI service unavailable: {ex.Message}");
+    }
+})
+.WithName("GetAiHealth");
+
+// Menlo: Expose default health endpoints in development
+app.MapDefaultEndpoints();
+
+app.Run();
+
+record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+// Expose Program for WebApplicationFactory in tests
+public partial class Program { }
+```
+
+#### 3.3 Add Configuration Settings
+
+**Add AI configuration to appsettings.json:**
+
+```json
+// src/api/Menlo.Api/appsettings.json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Menlo": {
+    "AI": {
+      "OllamaConnectionName": "ollama",
+      "TextModelName": "phi4-mini",
+      "VisionModelName": "phi4-vision",
+      "EmbeddingModelName": "phi4-mini",
+      "EnableHealthChecks": true,
+      "EnableTelemetry": true
+    }
+  }
+}
+```
+
+```json
+// src/api/Menlo.Api/appsettings.Development.json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.SemanticKernel": "Debug",
+      "Menlo.AI": "Debug"
+    }
+  },
+  "Menlo": {
+    "AI": {
+      "EnableTelemetry": true
+    }
+  }
+}
+```
 
 ### 2.1. Understanding Ollama Bootstrapping Process ✅
 
@@ -1160,3 +1659,167 @@ services.Configure<LoggerFilterOptions>(options =>
     options.AddFilter("CommunityToolkit.Aspire", LogLevel.Debug);  // Show download progress
 });
 ```
+
+### Phase 4: Testing and Validation
+
+#### 4.1 Create Basic Tests
+
+**Create test project using dotnet CLI:**
+
+```bash
+# Navigate to the lib directory
+cd src/lib
+
+# Create new test project
+dotnet new xunit -n Menlo.AI.Tests
+
+# Navigate to test project directory
+cd Menlo.AI.Tests
+
+# Add required test packages
+dotnet add package NSubstitute
+dotnet add package Shouldly
+dotnet add package Microsoft.Extensions.Hosting
+dotnet add package Microsoft.Extensions.Configuration
+
+# Add project reference to Menlo.AI
+dotnet add reference ..\Menlo.AI\Menlo.AI.csproj
+
+# Add the test project to the solution
+cd ..\..\..
+dotnet sln add src/lib/Menlo.AI.Tests/Menlo.AI.Tests.csproj
+```
+
+**Verification Commands:**
+
+```bash
+# Verify all packages are correctly installed
+dotnet list src/lib/Menlo.AI/Menlo.AI.csproj package
+dotnet list src/api/Menlo.AppHost/Menlo.AppHost.csproj package
+dotnet list src/api/Menlo.Api/Menlo.Api.csproj package
+
+# Verify solution integrity
+dotnet sln list
+
+# Build entire solution to verify dependencies
+dotnet build
+```
+
+// src/lib/Menlo.AI.Tests/Services/ChatServiceTests.cs
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel;
+using NSubstitute;
+using Shouldly;
+using Menlo.AI.Services;
+
+namespace Menlo.AI.Tests.Services;
+
+public sealed class ChatServiceTests
+{
+    [Fact]
+    public async Task GivenChatService_WhenGetResponseAsync_ThenShouldReturnResponse()
+    {
+        // Given
+        var kernel = Substitute.For<Kernel>();
+        var chatClient = Substitute.For<IChatClient>();
+        var expectedResponse = "Hello, this is a test response";
+        
+        chatClient.GetResponseAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+                  .Returns(new ChatResponse(expectedResponse));
+        
+        var chatService = new ChatService(kernel, chatClient);
+        
+        // When
+        var result = await chatService.GetResponseAsync("Test prompt");
+        
+        // Then
+        result.ShouldBe(expectedResponse);
+    }
+}
+```
+
+#### 4.2 Validation Steps
+
+**Manual validation checklist:**
+
+1. **Package Installation**: Verify all NuGet packages are properly installed
+2. **Compilation**: Ensure all projects compile without errors
+3. **Aspire Dashboard**: Check Ollama resources appear in Aspire dashboard
+4. **Health Checks**: Verify AI health check endpoint responds correctly
+5. **Model Download**: Monitor model download progress in Aspire dashboard
+6. **Service Registration**: Confirm AI services are properly registered in DI container
+
+## Implementation Checklist
+
+### Prerequisites
+- [ ] .NET 9 SDK installed and verified
+- [ ] Docker Desktop running and accessible
+- [ ] Sufficient disk space for model downloads (minimum 20GB free)
+
+### Phase 1: Package Installation and Setup
+- [ ] Add required AI packages to Menlo.AI using dotnet CLI
+- [ ] Add Ollama hosting package to Menlo.AppHost using dotnet CLI
+- [ ] Add Ollama client package to Menlo.Api using dotnet CLI
+- [ ] Remove placeholder Class1.cs from Menlo.AI project
+- [ ] Verify all projects compile without errors after package installations
+
+### Phase 2: Menlo.AI Library Implementation
+- [ ] Create AI service interfaces (IChatService, IEmbeddingService, IVisionService)
+- [ ] Create service implementations (ChatService, EmbeddingService, VisionService)
+- [ ] Create configuration models (AiSettings)
+- [ ] Create service registration extensions (ServiceCollectionExtensions)
+- [ ] Add necessary using statements and namespace declarations
+- [ ] Verify Menlo.AI project compiles without errors
+
+### Phase 3: Aspire Configuration
+- [ ] Update AppHost.cs with Ollama integration and model definitions
+- [ ] Update Menlo.Api Program.cs with AI service registration
+- [ ] Add AI configuration to appsettings.json and appsettings.Development.json
+- [ ] Add AI health check endpoint to API
+- [ ] Verify all projects compile after changes
+
+### Phase 4: Testing and Validation
+- [ ] Create test project for AI services using dotnet CLI
+- [ ] Add required test packages using dotnet CLI
+- [ ] Add test project to solution using dotnet CLI
+- [ ] Create fundamental service tests
+- [ ] Run dotnet build on entire solution successfully
+- [ ] Start AppHost and verify Ollama container starts
+- [ ] Monitor model download progress in Aspire dashboard
+- [ ] Test AI health check endpoint responds
+- [ ] Verify no critical errors in application logs
+
+### Completion Criteria
+- [ ] All projects compile without errors or warnings
+- [ ] Aspire AppHost starts successfully and shows healthy services
+- [ ] Ollama models download and become healthy in dashboard
+- [ ] AI health check endpoint returns successful response
+- [ ] No critical errors in logs during startup and basic operations
+
+## Important Notes
+
+- **Model Download Time**: Initial startup will take 10-30 minutes depending on internet speed
+- **Disk Space**: Phi-4 models require 7-14GB each - monitor disk usage
+- **Container Persistence**: Keep AppHost running during model downloads to avoid cancellation
+- **Development vs Production**: Use smaller models (phi3.5:3.8b) for development, full models for production
+- **Health Checks**: Models will be marked unhealthy until fully downloaded and loaded
+
+## Troubleshooting
+
+| Issue | Symptoms | Solution |
+|-------|----------|----------|
+| **Compilation Errors** | Build failures, missing references | Verify all package versions match, check project references |
+| **Ollama Won't Start** | Container failures in dashboard | Check Docker is running, verify port 11434 is available |
+| **Models Not Downloading** | Stuck in downloading state | Ensure internet connectivity, check available disk space |
+| **Health Check Fails** | AI endpoint returns errors | Verify models are downloaded and healthy, check logs for details |
+| **High Memory Usage** | System slowdown during startup | Consider using smaller models for development |
+
+## Next Steps
+
+After completing this implementation:
+
+1. **Business Logic Implementation**: Add actual AI prompts and business-specific logic
+2. **Domain Integration**: Integrate AI services with budget, transaction, and planning domains
+3. **Error Handling**: Implement comprehensive error handling and fallback strategies
+4. **Performance Optimization**: Add caching, request queuing, and performance monitoring
+5. **Security**: Implement proper authentication, input validation, and PII protection
