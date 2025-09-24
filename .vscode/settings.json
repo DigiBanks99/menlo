@@ -19,5 +19,7 @@
   "chat.agent.maxRequests": 500,
   "[mermaid]": {
     "editor.colorDecorators": true
-  }
+  },
+  "nxConsole.nxWorkspacePath": "src\\ui\\web",
+  "nxConsole.generateAiAgentRules": true
 }

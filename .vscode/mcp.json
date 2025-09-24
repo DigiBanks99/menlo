@@ -21,6 +21,22 @@
     },
     "github": {
       "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "nuget": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "NuGet.Mcp.Server",
+        "--prerelease",
+        "--yes"
+      ]
+    },
+    "podman": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "podman-mcp-server@latest"
+      ]
     }
   }
 }
