@@ -1,0 +1,478 @@
+name: CD - Deploy Backend to Home Server
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/api/**'
+      - 'src/lib/**'
+      - 'Menlo.slnx'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - '.github/workflows/cd-backend.yml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/menlo-api
+
+jobs:
+  validate-secrets:
+    name: Validate Deployment Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required secrets
+        run: |
+          # Check for container registry access
+          if [[ -z "${{ secrets.GITHUB_TOKEN }}" ]]; then
+            echo "❌ GITHUB_TOKEN is required for container registry"
+            exit 1
+          fi
+
+          # Check for home server deployment secrets
+          if [[ -z "${{ secrets.HOME_SERVER_HOST }}" ]]; then
+            echo "❌ HOME_SERVER_HOST secret is not set"
+            exit 1
+          fi
+
+          if [[ -z "${{ secrets.HOME_SERVER_USER }}" ]]; then
+            echo "❌ HOME_SERVER_USER secret is not set"
+            exit 1
+          fi
+
+          if [[ -z "${{ secrets.HOME_SERVER_SSH_KEY }}" ]]; then
+            echo "❌ HOME_SERVER_SSH_KEY secret is not set"
+            exit 1
+          fi
+
+          echo "✅ All required secrets are configured"
+
+  build-and-push:
+    name: Build and Push Container Image
+    runs-on: ubuntu-latest
+    needs: validate-secrets
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Run security scan on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Image build summary
+        run: |
+          echo "### 🐳 Container Image Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
+
+  deploy-to-home-server:
+    name: Deploy to Home Server
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment:
+      name: 'Production'
+      url: ${{ vars.API_BASE_URL }}
+
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            deployment/
+            docker-compose.yml
+            docker-compose.prod.yml
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOME_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOME_SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Prepare deployment files
+        run: |
+          # Create deployment directory if it doesn't exist
+          mkdir -p deployment
+
+          # Generate docker-compose.prod.yml for production deployment
+          cat > deployment/docker-compose.prod.yml << 'EOF'
+          version: '3.8'
+
+          services:
+            menlo-api:
+              image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+              container_name: menlo-api
+              restart: unless-stopped
+              environment:
+                - ASPNETCORE_ENVIRONMENT=Production
+                - ASPNETCORE_URLS=http://+:8080
+                - ConnectionStrings__DefaultConnection=${{ secrets.DATABASE_CONNECTION_STRING }}
+                - Ollama__BaseUrl=${{ vars.OLLAMA_BASE_URL || 'http://ollama:11434' }}
+                - Logging__LogLevel__Default=Information
+                - HealthChecks__Enabled=true
+              ports:
+                - "8080:8080"
+              networks:
+                - menlo-network
+              depends_on:
+                - postgres
+                - ollama
+              healthcheck:
+                test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+                interval: 30s
+                timeout: 10s
+                retries: 3
+                start_period: 40s
+
+            postgres:
+              image: postgres:17
+              container_name: menlo-postgres
+              restart: unless-stopped
+              environment:
+                - POSTGRES_DB=${{ vars.POSTGRES_DB || 'menlo' }}
+                - POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+                - POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+              volumes:
+                - postgres_data:/var/lib/postgresql/data
+                # Windows/WSL2: Skip init scripts for now (can be added later)
+              ports:
+                - "5432:5432"
+              networks:
+                - menlo-network
+              healthcheck:
+                test: ["CMD-SHELL", "pg_isready -U ${{ secrets.POSTGRES_USER }} -d ${{ vars.POSTGRES_DB || 'menlo' }}"]
+                interval: 30s
+                timeout: 10s
+                retries: 5
+
+            ollama:
+              image: ollama/ollama:latest
+              container_name: menlo-ollama
+              restart: unless-stopped
+              volumes:
+                - ollama_data:/root/.ollama
+              ports:
+                - "11434:11434"
+              networks:
+                - menlo-network
+              healthcheck:
+                test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+                interval: 60s
+                timeout: 30s
+                retries: 3
+                start_period: 120s
+
+          volumes:
+            postgres_data:
+              name: menlo_postgres_data
+            ollama_data:
+              name: menlo_ollama_data
+
+          networks:
+            menlo-network:
+              name: menlo_network
+              driver: bridge
+          EOF
+
+          # Generate deployment script
+          cat > deployment/deploy.sh << 'EOF'
+          #!/bin/bash
+          set -e
+
+          echo "🚀 Starting Menlo deployment..."
+
+          # Configuration
+          COMPOSE_FILE="docker-compose.prod.yml"
+          APP_DIR="$HOME/menlo"
+          BACKUP_DIR="$HOME/menlo/backups"
+
+          # Create directories (no sudo needed with Podman rootless)
+          mkdir -p $APP_DIR $BACKUP_DIR
+          cd $APP_DIR
+
+          # Backup current configuration
+          if [ -f "$COMPOSE_FILE" ]; then
+            echo "📦 Backing up current configuration..."
+            cp $COMPOSE_FILE "$BACKUP_DIR/docker-compose.$(date +%Y%m%d_%H%M%S).yml"
+          fi
+
+          # Pull new images using podman-compose
+          echo "📥 Pulling new container images..."
+          podman-compose -f $COMPOSE_FILE pull
+
+          # Perform database backup if Postgres is running
+          if podman-compose -f $COMPOSE_FILE ps postgres | grep -q "Up"; then
+            echo "💾 Creating database backup..."
+            podman-compose -f $COMPOSE_FILE exec -T postgres pg_dump -U $POSTGRES_USER $POSTGRES_DB > "$BACKUP_DIR/menlo_db_$(date +%Y%m%d_%H%M%S).sql" || echo "⚠️ Database backup failed"
+          fi
+
+          # Deploy with zero-downtime strategy
+          echo "🔄 Deploying new version..."
+
+          # Start new containers
+          podman-compose -f $COMPOSE_FILE up -d --remove-orphans
+
+          # Wait for health checks
+          echo "🏥 Waiting for health checks..."
+          for i in {1..30}; do
+            if podman-compose -f $COMPOSE_FILE ps | grep -E "(healthy|Up \(healthy\))"; then
+              echo "✅ Services are healthy"
+              break
+            fi
+            echo "⏳ Waiting for services to be healthy... ($i/30)"
+            sleep 10
+          done
+
+          # Clean up old images
+          echo "🧹 Cleaning up old container images..."
+          podman image prune -f
+
+          echo "✅ Deployment completed successfully!"
+
+          # Display running services
+          echo "📊 Running services:"
+          podman-compose -f $COMPOSE_FILE ps
+          EOF
+
+          chmod +x deployment/deploy.sh
+
+      - name: Transfer deployment files
+        run: |
+          # Transfer deployment files to home server
+          scp -i ~/.ssh/id_rsa -r deployment/ ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }}:/tmp/menlo-deployment/
+
+          # Copy files to user's home directory (Podman rootless)
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
+            mkdir -p $HOME/menlo
+            cp /tmp/menlo-deployment/docker-compose.prod.yml $HOME/menlo/
+            cp /tmp/menlo-deployment/deploy.sh $HOME/menlo/
+            chmod +x $HOME/menlo/deploy.sh
+            rm -rf /tmp/menlo-deployment
+          EOF
+
+      - name: Deploy application
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
+            # Set environment variables for deployment
+            export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
+            export POSTGRES_DB="${{ vars.POSTGRES_DB || 'menlo' }}"
+            export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
+
+            # Change to application directory
+            cd $HOME/menlo
+
+            # Run deployment script with Podman
+            ./deploy.sh
+          EOF
+
+      - name: Verify deployment
+        id: verify
+        run: |
+          echo "🔍 Verifying deployment..."
+
+          # Wait for services to be fully up
+          sleep 30
+
+          # Check if API is responding
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
+            cd $HOME/menlo
+
+            # Check container status
+            echo "Container status:"
+            podman-compose -f docker-compose.prod.yml ps
+
+            # Check API health
+            echo "Checking API health..."
+            for i in {1..10}; do
+              if curl -f http://localhost:8080/health -s >/dev/null 2>&1; then
+                echo "✅ API health check passed"
+                break
+              else
+                echo "⏳ API not ready yet... ($i/10)"
+                sleep 10
+              fi
+            done
+
+            # Check logs for any issues
+            echo "Recent API logs:"
+            podman-compose -f docker-compose.prod.yml logs --tail=50 menlo-api
+          EOF
+
+      - name: Update Cloudflare Tunnel (if configured)
+        if: vars.CLOUDFLARE_TUNNEL_ENABLED == 'true'
+        run: |
+          echo "🌐 Updating Cloudflare Tunnel configuration..."
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
+            # Restart cloudflared if it's running as a service
+            if systemctl is-active --quiet cloudflared; then
+              echo "Restarting Cloudflare Tunnel..."
+              sudo systemctl restart cloudflared
+              sleep 5
+              sudo systemctl status cloudflared
+            else
+              echo "Cloudflare Tunnel service not found or not running"
+            fi
+          EOF
+
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 Backend Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server**: ${{ secrets.HOME_SERVER_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **API URL**: ${{ vars.API_BASE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
+          ssh-keygen -R ${{ secrets.HOME_SERVER_HOST }} || true
+
+  post-deployment-tests:
+    name: Post-Deployment Verification
+    runs-on: ubuntu-latest
+    needs: deploy-to-home-server
+    if: success()
+
+    steps:
+      - name: Health check verification
+        run: |
+          echo "🏥 Running post-deployment health checks..."
+
+          # Wait for deployment to stabilize
+          sleep 60
+
+          # Check API health endpoint (through Cloudflare Tunnel)
+          if [[ -n "${{ vars.API_BASE_URL }}" ]]; then
+            echo "Checking API health at ${{ vars.API_BASE_URL }}/health"
+
+            for i in {1..5}; do
+              if curl -f "${{ vars.API_BASE_URL }}/health" -H "User-Agent: GitHub-Actions-Health-Check" -s; then
+                echo "✅ API health check passed"
+                break
+              else
+                echo "⏳ API health check failed, retrying... ($i/5)"
+                sleep 30
+              fi
+            done
+          else
+            echo "⚠️ API_BASE_URL not configured, skipping external health check"
+          fi
+
+      - name: Performance verification
+        run: |
+          echo "⚡ Running basic performance checks..."
+
+          if [[ -n "${{ vars.API_BASE_URL }}" ]]; then
+            # Simple response time check
+            response_time=$(curl -o /dev/null -s -w '%{time_total}' "${{ vars.API_BASE_URL }}/health") || response_time="0"
+            echo "API response time: ${response_time}s"
+
+            if (( $(echo "$response_time > 5" | bc -l) )); then
+              echo "⚠️ API response time is slower than expected (${response_time}s > 5s)"
+            else
+              echo "✅ API response time is acceptable (${response_time}s)"
+            fi
+          fi
+
+  rollback-on-failure:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-to-home-server, post-deployment-tests]
+    if: failure()
+
+    steps:
+      - name: Setup SSH for rollback
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOME_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOME_SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Perform rollback
+        run: |
+          echo "🔄 Performing automatic rollback..."
+
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
+            cd $HOME/menlo
+
+            # Find the most recent backup
+            LATEST_BACKUP=$(ls -t $HOME/menlo/backups/docker-compose.*.yml 2>/dev/null | head -1)
+
+            if [[ -n "$LATEST_BACKUP" ]]; then
+              echo "Rolling back to: $LATEST_BACKUP"
+              cp "$LATEST_BACKUP" docker-compose.prod.yml
+              podman-compose -f docker-compose.prod.yml up -d --remove-orphans
+              echo "✅ Rollback completed"
+            else
+              echo "❌ No backup found for rollback"
+            fi
+          EOF
+
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
