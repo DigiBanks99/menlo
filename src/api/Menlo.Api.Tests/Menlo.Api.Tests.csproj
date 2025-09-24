@@ -11,13 +11,15 @@
   <ItemGroup>
   <PackageReference Include="coverlet.collector" />
   <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  <PackageReference Include="Shouldly" />
   <PackageReference Include="xunit.v3" />
   <PackageReference Include="xunit.runner.visualstudio" />
   <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  <PackageReference Include="NSubstitute" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <Using Include="Shouldly;Xunit" />
   </ItemGroup>
 
   <ItemGroup>

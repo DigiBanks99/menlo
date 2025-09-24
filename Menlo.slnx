@@ -13,6 +13,7 @@
     <Project Path="src/api/Menlo.AppHost/Menlo.AppHost.csproj" />
   </Folder>
   <Folder Name="/lib/">
+    <Project Path="src/lib/Menlo.AI.Tests/Menlo.AI.Tests.csproj" />
     <Project Path="src/lib/Menlo.AI/Menlo.AI.csproj" />
     <Project Path="src/lib/Menlo.Lib.Tests/Menlo.Lib.Tests.csproj" />
     <Project Path="src/lib/Menlo.Lib/Menlo.Lib.csproj" />

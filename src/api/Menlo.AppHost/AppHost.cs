@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
+// Add PostgreSQL
 IResourceBuilder<PostgresServerResource> postgres = builder
     .AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent)
@@ -11,11 +12,29 @@ IResourceBuilder<PostgresServerResource> postgres = builder
 IResourceBuilder<PostgresDatabaseResource> db = postgres
     .AddDatabase("menlo");
 
-// Add Menlo.Api project as a distributed service
+// Add Ollama with automatic model bootstrapping and persistent storage
+var ollama = builder.AddOllama("ollama")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume("ollama-models") // Persist models across container restarts
+    .WithOpenWebUI(); // Optional: Add Open WebUI for model testing
+
+// Add models for different AI capabilities
+var phi4Mini = ollama.AddModel("phi4-mini", "microsoft/phi-4:latest"); // Text processing
+var phi4Vision = ollama.AddModel("phi4-vision", "microsoft/phi-4-vision:latest"); // Vision processing
+
+// Alternative lightweight models for development
+// var phi35 = ollama.AddModel("phi35-mini", "phi3.5:3.8b"); // Smaller text model
+// var llava = ollama.AddModel("llava-vision", "llava:latest"); // Alternative vision model
+
+// Add Menlo.Api project with AI dependencies
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Projects.Menlo_Api>("menlo-api")
     .WithReference(db)
+    .WithReference(phi4Mini)      // Reference text model
+    .WithReference(phi4Vision)    // Reference vision model
     .WaitFor(db)
+    .WaitFor(phi4Mini)           // Wait for models to be ready
+    .WaitFor(phi4Vision)
     .WithOtlpExporter(); // Enable telemetry
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
