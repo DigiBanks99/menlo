@@ -1,6 +1,6 @@
 ---
 description: 'This chat mode is intended for taking business requirements and turning them into technical implementation plans.'
-tools: ['editFiles', 'search', 'runCommands', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'runTests', 'search', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking', 'get-latest-package-version', 'get-package-readme', 'azure_generate_azure_cli_command', 'azure_get_current_tenant', 'azure_get_available_tenants', 'azure_get_selected_subscriptions', 'azure_get_dotnet_template_tags', 'azure_get_dotnet_templates_for_tag']
+tools: ['editFiles', 'search', 'runCommands', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'runTests', 'search', 'Nx Mcp Server', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking', 'get-latest-package-version', 'get-package-readme', 'azure_generate_azure_cli_command', 'azure_get_current_tenant', 'azure_get_available_tenants', 'azure_get_selected_subscriptions', 'azure_get_dotnet_template_tags', 'azure_get_dotnet_templates_for_tag']
 ---
 
 # Code Planner v1.0

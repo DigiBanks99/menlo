@@ -1,8 +1,14 @@
+using Menlo.AI.Extensions;
+using Menlo.AI.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 
 builder.AddServiceDefaults();
+
+// Add Menlo AI services with Aspire integration
+builder.Services.AddMenloAIWithAspire(builder);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -41,6 +47,21 @@ app.MapGet("/api/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+// Add simple AI health check endpoint
+app.MapGet("/api/ai/health", async (IChatService chatService) =>
+{
+    try
+    {
+        var response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
+        return Results.Ok(new { Status = "Healthy", Response = response });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"AI service unavailable: {ex.Message}");
+    }
+})
+.WithName("GetAiHealth");
 
 // Menlo: Expose default health endpoints in development
 app.MapDefaultEndpoints();
