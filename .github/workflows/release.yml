@@ -1,0 +1,356 @@
+name: Release Management
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '22.18.0'
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+          else
+            VERSION="${{ github.ref_name }}"
+            # Check if it's a pre-release (contains alpha, beta, rc, etc.)
+            if [[ "$VERSION" =~ (alpha|beta|rc|pre) ]]; then
+              IS_PRERELEASE="true"
+            else
+              IS_PRERELEASE="false"
+            fi
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is-prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+
+          echo "Release version: $VERSION"
+          echo "Is pre-release: $IS_PRERELEASE"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Remove 'v' prefix if present
+          VERSION_NO_V=${VERSION#v}
+
+          # Validate semantic version format
+          if [[ ! "$VERSION_NO_V" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\-\.]+)?$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: v1.0.0 or v1.0.0-alpha.1"
+            exit 1
+          fi
+
+          echo "✅ Version format is valid: $VERSION"
+
+      - name: Check if tag exists
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          if git tag -l | grep -q "^$VERSION$"; then
+            echo "❌ Tag $VERSION already exists"
+            exit 1
+          fi
+
+          echo "✅ Tag $VERSION is available"
+
+  build-release-artifacts:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: validate-release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.7.0
+
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      - name: Install frontend dependencies
+        working-directory: src/ui/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Update version in project files
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          VERSION_NO_V=${VERSION#v}
+
+          # Update .NET project versions
+          find . -name "*.csproj" -exec sed -i "s/<Version>.*<\/Version>/<Version>$VERSION_NO_V<\/Version>/g" {} \;
+          find . -name "*.csproj" -exec sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>$VERSION_NO_V<\/AssemblyVersion>/g" {} \;
+
+          # Update frontend package.json versions
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION_NO_V\"/" src/ui/web/package.json
+
+      - name: Build .NET solution
+        run: |
+          dotnet build --no-restore --configuration Release \
+            -p:Version=${{ needs.validate-release.outputs.version }} \
+            -p:AssemblyVersion=${{ needs.validate-release.outputs.version }}
+
+      - name: Run tests
+        run: |
+          dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Build frontend
+        working-directory: src/ui/web
+        run: |
+          pnpm run build:all:prod
+        env:
+          MENLO_APP_VERSION: ${{ needs.validate-release.outputs.version }}
+
+      - name: Publish .NET application
+        run: |
+          dotnet publish src/api/Menlo.Api/Menlo.Api.csproj \
+            --no-build \
+            --configuration Release \
+            --output ./publish/api \
+            --self-contained false \
+            -p:Version=${{ needs.validate-release.outputs.version }}
+
+      - name: Create release archives
+        run: |
+          mkdir -p release-artifacts
+
+          # Backend archive
+          cd publish/api
+          tar -czf ../../release-artifacts/menlo-api-${{ needs.validate-release.outputs.version }}-linux-x64.tar.gz *
+          cd ../..
+
+          # Frontend archive
+          cd src/ui/web/dist
+          tar -czf ../../../../release-artifacts/menlo-web-${{ needs.validate-release.outputs.version }}.tar.gz *
+          cd ../../../..
+
+          # Documentation archive
+          tar -czf release-artifacts/menlo-docs-${{ needs.validate-release.outputs.version }}.tar.gz docs/
+
+      - name: Generate checksums
+        run: |
+          cd release-artifacts
+          sha256sum *.tar.gz > checksums.txt
+          cat checksums.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts/
+
+  build-docker-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release-artifacts]
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/menlo-api
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.validate-release.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.validate-release.outputs.version }}
+            type=semver,pattern={{major}},value=${{ needs.validate-release.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.validate-release.outputs.version }}
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release-artifacts, build-docker-images]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts/
+
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+
+          # Get the previous tag
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "^$VERSION$" | head -1)
+
+          echo "## 🚀 What's New in $VERSION" > release-notes.md
+          echo "" >> release-notes.md
+
+          if [[ -n "$PREVIOUS_TAG" ]]; then
+            echo "### 📝 Changes since $PREVIOUS_TAG" >> release-notes.md
+            echo "" >> release-notes.md
+
+            # Get commits since last tag
+            git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD >> release-notes.md
+          else
+            echo "### 📝 Initial Release" >> release-notes.md
+            echo "" >> release-notes.md
+            echo "This is the first release of Menlo Home Management." >> release-notes.md
+          fi
+
+          echo "" >> release-notes.md
+          echo "### 🐳 Docker Images" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "- \`ghcr.io/${{ github.repository }}/menlo-api:$VERSION\`" >> release-notes.md
+          echo "- \`ghcr.io/${{ github.repository }}/menlo-api:latest\`" >> release-notes.md
+          echo "" >> release-notes.md
+
+          echo "### 📦 Release Artifacts" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "- **Backend API**: \`menlo-api-$VERSION-linux-x64.tar.gz\`" >> release-notes.md
+          echo "- **Frontend Web App**: \`menlo-web-$VERSION.tar.gz\`" >> release-notes.md
+          echo "- **Documentation**: \`menlo-docs-$VERSION.tar.gz\`" >> release-notes.md
+          echo "- **Checksums**: \`checksums.txt\`" >> release-notes.md
+          echo "" >> release-notes.md
+
+          echo "### 🔧 Installation" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "See the [deployment documentation](docs/requirements/implementation-roadmap.md) for installation instructions." >> release-notes.md
+          echo "" >> release-notes.md
+
+          if [[ "${{ needs.validate-release.outputs.is-prerelease }}" == "true" ]]; then
+            echo "### ⚠️ Pre-release Notice" >> release-notes.md
+            echo "" >> release-notes.md
+            echo "This is a pre-release version and may contain bugs or incomplete features." >> release-notes.md
+            echo "Use with caution in production environments." >> release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate-release.outputs.version }}
+          name: ${{ needs.validate-release.outputs.version }}
+          body_path: release-notes.md
+          files: release-artifacts/*
+          prerelease: ${{ needs.validate-release.outputs.is-prerelease }}
+          generate_release_notes: false
+          make_latest: ${{ needs.validate-release.outputs.is-prerelease == 'false' }}
+
+      - name: Update release summary
+        run: |
+          echo "### 🎉 Release ${{ needs.validate-release.outputs.version }} Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pre-release**: ${{ needs.validate-release.outputs.is-prerelease }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Image**: \`ghcr.io/${{ github.repository }}/menlo-api:${{ needs.validate-release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release URL**: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+  deploy-release:
+    name: Deploy Release to Production
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-github-release]
+    if: needs.validate-release.outputs.is-prerelease == 'false'
+    environment:
+      name: 'Production Release'
+      url: ${{ vars.API_BASE_URL }}
+
+    steps:
+      - name: Trigger deployment workflows
+        run: |
+          echo "🚀 Triggering deployment of release ${{ needs.validate-release.outputs.version }}"
+
+          # Trigger frontend deployment
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/cd-frontend.yml/dispatches" \
+            -d '{"ref":"main"}'
+
+          # Trigger backend deployment
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/cd-backend.yml/dispatches" \
+            -d '{"ref":"main"}'
+
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 Production Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Release ${{ needs.validate-release.outputs.version }} deployment has been triggered." >> $GITHUB_STEP_SUMMARY
+          echo "Monitor the deployment workflows for progress." >> $GITHUB_STEP_SUMMARY
