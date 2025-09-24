@@ -81,9 +81,12 @@ jobs:
           delete-branch: true
           base: main
 
-  update-frontend-dependencies:
-    name: Update Frontend Dependencies
+  check-frontend-updates:
+    name: Check Frontend Dependencies
     runs-on: ubuntu-latest
+    outputs:
+      has_updates: ${{ steps.outdated-frontend.outputs.has_updates }}
+      updates_summary: ${{ steps.outdated-frontend.outputs.updates_summary }}
 
     steps:
       - name: Checkout code
@@ -98,8 +101,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.7.0
 
       - name: Install dependencies
         working-directory: src/ui/web
@@ -192,8 +193,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.7.0
 
       - name: Audit .NET packages
         run: |

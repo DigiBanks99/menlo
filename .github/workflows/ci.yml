@@ -111,6 +111,8 @@ jobs:
           directory: ./coverage
           flags: backend
           name: backend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+        continue-on-error: true
 
   backend-security:
     name: Backend - Security Scan
@@ -161,8 +163,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.7.0
 
       - name: Get pnpm store directory
         shell: bash
@@ -214,6 +214,8 @@ jobs:
           directory: ./src/ui/web/coverage
           flags: frontend
           name: frontend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+        continue-on-error: true
 
       - name: Build Storybook (App)
         working-directory: src/ui/web
@@ -248,8 +250,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.7.0
 
       - name: Install dependencies (root)
         run: pnpm install --frozen-lockfile
@@ -310,8 +310,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.7.0
 
       - name: Restore .NET dependencies
         run: dotnet restore
@@ -368,7 +366,7 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Lint documentation
-        run: markdownlint docs/**/*.md README.md
+        run: markdownlint --config .markdownlint.json docs/**/*.md README.md
 
       - name: Check for broken links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
@@ -398,7 +396,8 @@ jobs:
              [[ "${{ needs.frontend-tests.result }}" == "failure" ]] || \
              [[ "${{ needs.backend-security.result }}" == "failure" ]] || \
              [[ "${{ needs.frontend-security.result }}" == "failure" ]] || \
-             [[ "${{ needs.integration-tests.result }}" == "failure" ]]; then
+             [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.docs-validation.result }}" == "failure" ]]; then
             echo "❌ Quality gate failed - one or more required checks failed"
             exit 1
           fi
