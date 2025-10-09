@@ -483,7 +483,11 @@ $RECYCLE.BIN/
 *.lnk
 
 # Vim temporary swap files
-*.swp
+*.sw
+
+# Tools
+.nx/*
+
 
 # Project Specific
 src/api/Menlo.Api/wwwroot/*
