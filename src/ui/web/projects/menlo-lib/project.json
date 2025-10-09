@@ -31,6 +31,18 @@
         "reportsDirectory": "../../coverage/projects/menlo-lib"
       }
     },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "projects/menlo-lib/**/*.ts",
+          "projects/menlo-lib/**/*.html"
+        ]
+      }
+    },
     "storybook": {
       "executor": "@analogjs/storybook-angular:start-storybook",
       "options": {
