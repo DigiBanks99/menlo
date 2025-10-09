@@ -6,20 +6,20 @@
   "prefix": "lib",
   "targets": {
     "build": {
-      "executor": "@nx/vite:build",
+      "executor": "@nx/angular:package",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/projects/data-access-menlo-api"
+        "project": "projects/data-access-menlo-api/ng-package.json"
       },
       "configurations": {
-        "development": {
-          "mode": "development"
-        },
         "production": {
-          "mode": "production"
+          "tsConfig": "projects/data-access-menlo-api/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "projects/data-access-menlo-api/tsconfig.lib.json"
         }
-      }
+      },
+      "defaultConfiguration": "production"
     },
     "test": {
       "executor": "@nx/vite:test",

@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": ".",
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -13,7 +14,7 @@
     "paths": {
       "data-access-menlo-api": ["./dist/data-access-menlo-api"],
       "menlo-lib": ["./dist/menlo-lib"],
-      "shared-util": ["./dist/shared-util"]
+      "shared-util": ["./dist/projects/shared-util"]
     },
     "importHelpers": true,
     "target": "ES2022",
