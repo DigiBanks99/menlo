@@ -4,7 +4,8 @@ An AI-enhanced family home management application designed for a South African f
 
 ## 🎯 Core Philosophy
 
-This application follows a **"Blueberry Muffin" approach** to AI integration - where AI agents are embedded seamlessly throughout existing workflows rather than existing as separate features. The goal is to preserve natural family workflows (especially handwritten planning lists) while adding intelligent automation behind the scenes.
+This application follows a **"Blueberry Muffin" approach** to AI integration - where AI agents are embedded seamlessly throughout existing workflows rather than existing as separate features.
+The goal is to preserve natural family workflows (especially handwritten planning lists) while adding intelligent automation behind the scenes.
 
 ## 🏗️ Architecture
 

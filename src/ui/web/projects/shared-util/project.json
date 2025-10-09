@@ -30,6 +30,18 @@
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/projects/shared-util"
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "projects/shared-util/**/*.ts",
+          "projects/shared-util/**/*.html"
+        ]
+      }
     }
   }
 }

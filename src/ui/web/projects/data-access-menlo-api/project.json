@@ -30,6 +30,18 @@
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/projects/data-access-menlo-api"
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "projects/data-access-menlo-api/**/*.ts",
+          "projects/data-access-menlo-api/**/*.html"
+        ]
+      }
     }
   }
 }

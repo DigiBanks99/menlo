@@ -87,6 +87,18 @@
         "reportsDirectory": "../../coverage/projects/menlo-app"
       }
     },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "projects/menlo-app/**/*.ts",
+          "projects/menlo-app/**/*.html"
+        ]
+      }
+    },
     "storybook": {
       "executor": "@analogjs/storybook-angular:start-storybook",
       "options": {
