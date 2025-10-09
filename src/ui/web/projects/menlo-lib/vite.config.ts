@@ -1,13 +1,16 @@
+/// <reference types="vitest" />
+import angular from '@analogjs/vite-plugin-angular';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import * as path from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/projects/menlo-lib',
   plugins: [
+    angular(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),
     dts({
@@ -15,47 +18,52 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
       pathsToAliases: false,
     }),
-    dts({
-      entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
-      pathsToAliases: false,
-    }),
   ],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
-  // Configuration for building your library.
-  // See: https://vitejs.dev/guide/build.html#library-mode
-  build: {
-    emptyOutDir: true,
-    transformMixedEsModules: true,
-    entry: 'src/index.ts',
-    name: 'menlo-lib',
-    fileName: 'index',
-    formats: ['es' as const],
-    external: [],
-    lib: {
-      entry: 'src/index.ts',
-      name: 'menlo-lib',
-      fileName: 'index',
-      formats: ['es' as const],
-    },
-    rollupOptions: { external: [] },
-    outDir: '../../dist/projects/menlo-lib',
-    reportCompressedSize: true,
-    commonjsOptions: { transformMixedEsModules: true },
-  },
   test: {
     name: 'menlo-lib',
-    watch: false,
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['src/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
       reportsDirectory: '../../coverage/projects/menlo-lib',
       provider: 'v8' as const,
     },
+    server: {
+      deps: {
+        inline: [
+          '@angular/core',
+          '@angular/core/testing',
+          '@angular/platform-browser',
+          '@angular/platform-browser/testing',
+          '@angular/common',
+          '@angular/router',
+          '@angular/forms',
+          '@angular/platform-browser-dynamic',
+          '@angular/compiler',
+          '@angular/animations',
+          //@angular\//,
+        ],
+      },
+    },
+  },
+  // Configuration for building your library.
+  // See: https://vitejs.dev/guide/build.html#library-mode
+  build: {
+    emptyOutDir: true,
+    outDir: '../../dist/projects/menlo-lib',
+    lib: {
+      entry: 'src/index.ts',
+      name: 'menlo-lib',
+      fileName: 'index',
+      formats: ['es' as const],
+    },
+    rollupOptions: {
+      external: ['@angular/core', '@angular/common', '@angular/platform-browser']
+    },
+  },
+  define: {
+    'import.meta.vitest': mode !== 'production',
   },
 }));

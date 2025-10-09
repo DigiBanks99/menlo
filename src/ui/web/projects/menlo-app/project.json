@@ -78,19 +78,13 @@
       "executor": "@angular/build:extract-i18n"
     },
     "test": {
-      "executor": "@angular/build:karma",
+      "executor": "@nx/vite:test",
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
-        "tsConfig": "projects/menlo-app/tsconfig.spec.json",
-        "inlineStyleLanguage": "scss",
-        "assets": [
-          {
-            "glob": "**/*",
-            "input": "projects/menlo-app/public"
-          }
-        ],
-        "styles": [
-          "projects/menlo-app/src/styles.scss"
-        ]
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/projects/menlo-app"
       }
     },
     "storybook": {
