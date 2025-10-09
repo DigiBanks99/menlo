@@ -59,7 +59,9 @@
 
 ### Purpose
 
-Develop a comprehensive home management application for a family of 5 (2 adults, 3 children) that preserves natural planning workflows while intelligently interpreting them into budget impacts, coordinated schedules, and informed financial decisions, particularly regarding potential rental income from their new home. The application acts as an AI interpreter that transforms handwritten planning lists into organized family management without disrupting existing thinking processes.
+Develop a comprehensive home management application for a family of 5 (2 adults, 3 children) that preserves natural planning workflows while intelligently interpreting them into budget impacts,
+coordinated schedules, and informed financial decisions, particularly regarding potential rental income from their new home.
+The application acts as an AI interpreter that transforms handwritten planning lists into organized family management without disrupting existing thinking processes.
 
 ### Context
 

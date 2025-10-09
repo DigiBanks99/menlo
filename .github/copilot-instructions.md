@@ -10,7 +10,7 @@ When assisting me, always reference the documentation in the [docs](../docs) fol
 
 For C# code, project scaffolding and dotnet CLI based actions, you MUST follow the instructions in [.github/csharp.instructions.md](instructions/csharp.instructions.md) by loading it into context.
 
-For Angular and TypeScript code, you MUST follow the instructions in [.github/angular.instructions.md](instructions/angular.instructions.md) by loading it into context.
+For Angular and TypeScript code, you MUST follow the instructions in [.github/angular.instructions.md](instructions/angular.instructions.md) by loading it into context. We use pnpm as our package manager so prefer pnpm exec or pnpm dlx commands over npx or npm exec.
 
 For other languages, you will follow the instructions in [.github/copilot-instructions.md](./copilot-instructions.md).
 

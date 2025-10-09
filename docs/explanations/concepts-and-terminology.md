@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document defines the key concepts, terminology, and design philosophy that guide the Menlo Home Management Application. These concepts emerged from our analysis of family workflows and AI integration patterns.
+This document defines the key concepts, terminology, and design philosophy that guide the Menlo Home Management Application.
+These concepts emerged from our analysis of family workflows and AI integration patterns.
 
 ## Core Design Philosophy
 

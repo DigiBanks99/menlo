@@ -61,7 +61,8 @@
 
 ## Executive Summary
 
-This document defines the comprehensive architecture for the Menlo Home Management application, establishing the foundational principles, patterns, and constraints that will guide all future development. The architecture embodies a **cost-conscious, family-first, AI-enhanced** approach to home management software, designed to respect natural workflows while providing intelligent automation.
+This document defines the comprehensive architecture for the Menlo Home Management application, establishing the foundational principles, patterns, and constraints that will guide all future development.
+The architecture embodies a **cost-conscious, family-first, AI-enhanced** approach to home management software, designed to respect natural workflows while providing intelligent automation.
 
 **Core Philosophy**: "*The Blueberry Muffin Approach*" - AI enhances existing processes without replacing them, like blueberries in a muffin.
 
@@ -94,13 +95,13 @@ Household Management Slice
 
 The system is organized into **5 primary bounded contexts**:
 
-| Bounded Context | Aggregate Root | Primary Responsibility | AI Integration |
-|---|---|---|---|
-| **Planning & Inventory** | `PlanningList` | Handwritten list capture, meal planning, inventory | `ListPhotoInterpreter`, `BudgetImpactAnalyser` |
-| **Budget Management** | `Budget` | Hierarchical budget categories, allocation tracking | `BudgetAnalyser`, `TransactionCategorizer` |
-| **Financial Management** | `FinancialAccount` | Bank transaction import, categorization, reconciliation | `ImportProcessor`, `AttributionSuggester` |
-| **Event Management** | `Event` | Calendar scheduling, time planning | `SmartScheduler`, `AutomatedEventCreator` |
-| **Household Management** | `Household`/`UtilityAccount` | Family structure, appliances, SA utilities | `ApplianceMaintenanceRequirements`, `UtilityOptimizer` |
+| Bounded Context          | Aggregate Root               | Primary Responsibility                                  | AI Integration                                         |
+| ------------------------ | ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------ |
+| **Planning & Inventory** | `PlanningList`               | Handwritten list capture, meal planning, inventory      | `ListPhotoInterpreter`, `BudgetImpactAnalyser`         |
+| **Budget Management**    | `Budget`                     | Hierarchical budget categories, allocation tracking     | `BudgetAnalyser`, `TransactionCategorizer`             |
+| **Financial Management** | `FinancialAccount`           | Bank transaction import, categorization, reconciliation | `ImportProcessor`, `AttributionSuggester`              |
+| **Event Management**     | `Event`                      | Calendar scheduling, time planning                      | `SmartScheduler`, `AutomatedEventCreator`              |
+| **Household Management** | `Household`/`UtilityAccount` | Family structure, appliances, SA utilities              | `ApplianceMaintenanceRequirements`, `UtilityOptimizer` |
 
 ### Architectural Constraints
 
@@ -251,12 +252,12 @@ public class SemanticKernelBudgetAnalyser : IBudgetImpactAnalyser
 
 ### AI Service Categories
 
-| AI Service Category | Purpose | Model Requirements | Learning Strategy |
-|---|---|---|---|
-| **Text Processing** | Handwritten list interpretation | Phi-4-vision | User correction feedback |
-| **Financial Analysis** | Transaction categorization, attribution | Phi-4-mini | Historical pattern learning |
-| **Planning Optimization** | Schedule conflict detection, meal planning | Phi-4-mini | Family preference learning |
-| **Predictive Insights** | Budget variance, maintenance scheduling | Phi-4-mini | Time-series pattern recognition |
+| AI Service Category       | Purpose                                    | Model Requirements | Learning Strategy               |
+| ------------------------- | ------------------------------------------ | ------------------ | ------------------------------- |
+| **Text Processing**       | Handwritten list interpretation            | Phi-4-vision       | User correction feedback        |
+| **Financial Analysis**    | Transaction categorization, attribution    | Phi-4-mini         | Historical pattern learning     |
+| **Planning Optimization** | Schedule conflict detection, meal planning | Phi-4-mini         | Family preference learning      |
+| **Predictive Insights**   | Budget variance, maintenance scheduling    | Phi-4-mini         | Time-series pattern recognition |
 
 ### AI Architecture Constraints
 
@@ -276,13 +277,13 @@ public class SemanticKernelBudgetAnalyser : IBudgetImpactAnalyser
 
 The application is explicitly designed for family-scale usage:
 
-| Metric | Target | Maximum | Design Constraint |
-|---|---|---|---|
-| **Concurrent Users** | 2-4 | 6 | Family members only |
-| **Monthly Transactions** | 200-500 | 1,000 | Typical family banking |
-| **Planning Lists/Month** | 10-20 | 50 | Weekly shopping + events |
-| **Budget Categories** | 50-100 | 200 | Detailed personal budgeting |
-| **Data Growth** | 10MB/month | 100MB/month | Text and small images only |
+| Metric                   | Target     | Maximum     | Design Constraint           |
+| ------------------------ | ---------- | ----------- | --------------------------- |
+| **Concurrent Users**     | 2-4        | 6           | Family members only         |
+| **Monthly Transactions** | 200-500    | 1,000       | Typical family banking      |
+| **Planning Lists/Month** | 10-20      | 50          | Weekly shopping + events    |
+| **Budget Categories**    | 50-100     | 200         | Detailed personal budgeting |
+| **Data Growth**          | 10MB/month | 100MB/month | Text and small images only  |
 
 ### Performance Requirements
 
