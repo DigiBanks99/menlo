@@ -1,35 +1,43 @@
-# Windows PowerShell Deployment Script for Menlo with Podman
-# This script handles the same deployment logic as the GitHub Actions workflow
-# but can be run locally for testing using Podman instead of Docker
+# Menlo Windows 10 + Podman Deployment Script
+# Simplified deployment for Windows 10 Home using Podman containers
 
 param(
     [Parameter(Mandatory = $true)]
     [string]$ImageTag,
-    
+
     [Parameter(Mandatory = $false)]
     [string]$Registry = "ghcr.io",
-    
+
     [Parameter(Mandatory = $false)]
-    [string]$ImageName = "your-username/menlo-api",
-    
+    [string]$ImageName = "digibanks99/menlo/menlo-api",
+
     [Parameter(Mandatory = $false)]
-    [string]$DeploymentPath = "/home/menlo/deployment",
-    
+    [string]$AppPath = "$env:USERPROFILE\menlo",
+
     [Parameter(Mandatory = $false)]
     [switch]$SkipBackup
 )
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "🚀 Starting Menlo deployment with Podman..." -ForegroundColor Green
+Write-Host "🚀 Starting Menlo deployment..." -ForegroundColor Green
 Write-Host "Image: $Registry/$ImageName`:$ImageTag" -ForegroundColor Cyan
+Write-Host "App Path: $AppPath" -ForegroundColor Cyan
+Write-Host ""
 
-# Create deployment directory structure
-Write-Host "📁 Creating deployment directories..." -ForegroundColor Yellow
-wsl mkdir -p $DeploymentPath/backup
+# Ensure application directory exists
+if (-not (Test-Path $AppPath)) {
+    New-Item -ItemType Directory -Path $AppPath -Force | Out-Null
+    New-Item -ItemType Directory -Path "$AppPath\backups" -Force | Out-Null
+}
 
-# Generate docker-compose.prod.yml
-Write-Host "📄 Generating docker-compose.prod.yml..." -ForegroundColor Yellow
+# Environment variables for deployment
+$env:POSTGRES_USER = "menlo"
+$env:POSTGRES_PASSWORD = "menlo_password_change_in_production"
+$env:POSTGRES_DB = "menlo"
+
+# Create docker-compose.prod.yml
+Write-Host "📄 Creating docker-compose.prod.yml..." -ForegroundColor Yellow
 $composeContent = @"
 version: '3.8'
 
@@ -41,10 +49,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=`${DATABASE_CONNECTION_STRING}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=$env:POSTGRES_DB;Username=$env:POSTGRES_USER;Password=$env:POSTGRES_PASSWORD
       - Ollama__BaseUrl=http://ollama:11434
       - Logging__LogLevel__Default=Information
-      - HealthChecks__Enabled=true
     ports:
       - "8080:8080"
     networks:
@@ -64,9 +71,9 @@ services:
     container_name: menlo-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=menlo
-      - POSTGRES_USER=`${POSTGRES_USER}
-      - POSTGRES_PASSWORD=`${POSTGRES_PASSWORD}
+      - POSTGRES_DB=$env:POSTGRES_DB
+      - POSTGRES_USER=$env:POSTGRES_USER
+      - POSTGRES_PASSWORD=$env:POSTGRES_PASSWORD
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -74,7 +81,7 @@ services:
     networks:
       - menlo-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U `${POSTGRES_USER} -d menlo"]
+      test: ["CMD-SHELL", "pg_isready -U $env:POSTGRES_USER -d $env:POSTGRES_DB"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -89,6 +96,9 @@ services:
       - "11434:11434"
     networks:
       - menlo-network
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_PARALLEL=2
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
       interval: 60s
@@ -108,98 +118,128 @@ networks:
     driver: bridge
 "@
 
-$composeContent | wsl tee "$DeploymentPath/docker-compose.prod.yml" > $null
+$composeFile = "$AppPath\docker-compose.prod.yml"
+$composeContent | Out-File -FilePath $composeFile -Encoding UTF8
 
-# Backup current deployment (if not skipped)
-if (-not $SkipBackup) {
+# Backup existing deployment
+if (-not $SkipBackup -and (Test-Path $composeFile)) {
     Write-Host "💾 Creating backup..." -ForegroundColor Yellow
     $backupName = "backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-    
-    # Check if current compose file exists
-    $composeExists = wsl test -f "$DeploymentPath/docker-compose.prod.yml" -and echo "true" -or echo "false"
-    if ($composeExists -eq "true") {
-        wsl cp "$DeploymentPath/docker-compose.prod.yml" "$DeploymentPath/backup/$backupName-docker-compose.yml"
-        Write-Host "✅ Backup created: $backupName" -ForegroundColor Green
-    } else {
-        Write-Host "ℹ️ No existing deployment to backup" -ForegroundColor Blue
-    }
+    Copy-Item $composeFile "$AppPath\backups\$backupName-docker-compose.yml"
+    Write-Host "✅ Backup created: $backupName" -ForegroundColor Green
 }
 
-# Pull the new image
-Write-Host "📥 Pulling new image..." -ForegroundColor Yellow
-wsl podman pull "$Registry/$ImageName`:$ImageTag"
+# Change to app directory
+Set-Location $AppPath
 
-# Deploy with zero-downtime strategy
-Write-Host "🔄 Deploying with zero-downtime strategy..." -ForegroundColor Yellow
+# Pull new image
+Write-Host "📥 Pulling image: $Registry/$ImageName`:$ImageTag" -ForegroundColor Yellow
+podman pull "$Registry/$ImageName`:$ImageTag"
 
-# Check if services are already running
-$runningContainers = wsl podman ps --filter "name=menlo-" --format "`"{{.Names}}`""
-if ($runningContainers) {
-    Write-Host "⏸️ Stopping existing services..." -ForegroundColor Yellow
-    wsl podman-compose -f "$DeploymentPath/docker-compose.prod.yml" down --remove-orphans
-    Start-Sleep -Seconds 5
-}
+# Stop existing services
+Write-Host "⏸️ Stopping existing services..." -ForegroundColor Yellow
+podman-compose -f docker-compose.prod.yml down --remove-orphans 2>$null
 
-# Start new services
-Write-Host "▶️ Starting new services..." -ForegroundColor Yellow
-wsl podman-compose -f "$DeploymentPath/docker-compose.prod.yml" up -d
+# Start services
+Write-Host "▶️ Starting services..." -ForegroundColor Yellow
+podman-compose -f docker-compose.prod.yml up -d
 
 # Wait for services to be healthy
 Write-Host "🏥 Waiting for services to be healthy..." -ForegroundColor Yellow
-$maxAttempts = 30
+$maxAttempts = 20
 $attempt = 0
-$allHealthy = $false
 
-while ($attempt -lt $maxAttempts -and -not $allHealthy) {
+while ($attempt -lt $maxAttempts) {
     $attempt++
     Write-Host "Health check attempt $attempt/$maxAttempts..." -ForegroundColor Cyan
-    
-    # Check API health
-    $apiHealth = wsl podman exec menlo-api curl -sf http://localhost:8080/health 2>/dev/null
-    $postgresHealth = wsl podman exec menlo-postgres pg_isready -U "`${POSTGRES_USER}" -d menlo 2>/dev/null
-    $ollamaHealth = wsl podman exec menlo-ollama curl -sf http://localhost:11434/api/tags 2>/dev/null
-    
-    if ($apiHealth -and $postgresHealth -and $ollamaHealth) {
-        $allHealthy = $true
-        Write-Host "✅ All services are healthy!" -ForegroundColor Green
-    } else {
-        Start-Sleep -Seconds 10
+
+    Start-Sleep -Seconds 15
+
+    # Check if containers are running
+    $containers = podman-compose -f docker-compose.prod.yml ps --format json | ConvertFrom-Json
+    $healthyCount = 0
+
+    foreach ($container in $containers) {
+        if ($container.State -eq "running") {
+            $healthyCount++
+        }
+    }
+
+    if ($healthyCount -eq 3) {
+        Write-Host "✅ All services are running!" -ForegroundColor Green
+        break
+    }
+
+    if ($attempt -eq $maxAttempts) {
+        Write-Host "❌ Services failed to start properly" -ForegroundColor Red
+        Write-Host "Container status:" -ForegroundColor Yellow
+        podman-compose -f docker-compose.prod.yml ps
+        exit 1
     }
 }
 
-if (-not $allHealthy) {
-    Write-Host "❌ Services failed to become healthy within timeout" -ForegroundColor Red
-    Write-Host "Checking container logs..." -ForegroundColor Yellow
-    wsl podman-compose -f "$DeploymentPath/docker-compose.prod.yml" logs --tail=50
-    exit 1
-}
+# Test API health
+Write-Host "🔍 Testing API health..." -ForegroundColor Yellow
+Start-Sleep -Seconds 10
 
-# Cleanup old images (keep last 3 versions)
-Write-Host "🧹 Cleaning up old images..." -ForegroundColor Yellow
-$oldImages = wsl podman images "$Registry/$ImageName" --format "`"{{.Tag}}`"" | Select-Object -Skip 3
-if ($oldImages) {
-    foreach ($tag in $oldImages) {
-        if ($tag -ne "latest" -and $tag -ne "<none>") {
-            Write-Host "Removing old image: $Registry/$ImageName`:$tag" -ForegroundColor Gray
-            wsl podman rmi "$Registry/$ImageName`:$tag" 2>/dev/null
+for ($i = 1; $i -le 10; $i++) {
+    try {
+        $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -TimeoutSec 5 -UseBasicParsing
+        if ($response.StatusCode -eq 200) {
+            Write-Host "✅ API health check passed!" -ForegroundColor Green
+            break
+        }
+    } catch {
+        if ($i -eq 10) {
+            Write-Host "⚠️ API health check failed, but containers are running" -ForegroundColor Yellow
+        } else {
+            Write-Host "⏳ API not ready yet... ($i/10)" -ForegroundColor Cyan
+            Start-Sleep -Seconds 10
         }
     }
 }
 
-# Show deployment status
+# Setup Ollama models (background task)
+Write-Host "🤖 Setting up Ollama models..." -ForegroundColor Yellow
+Write-Host "📝 Note: Model download will continue in background. First run may take 10-30 minutes." -ForegroundColor Blue
+
+Start-Job -ScriptBlock {
+    Start-Sleep -Seconds 30  # Wait for Ollama to be ready
+
+    # Pull required models
+    podman exec menlo-ollama ollama pull phi4-mini 2>/dev/null
+    podman exec menlo-ollama ollama pull phi4-vision 2>/dev/null
+
+    # Fallback to smaller models if phi4 not available
+    podman exec menlo-ollama ollama pull phi3.5:3.8b 2>/dev/null
+    podman exec menlo-ollama ollama pull llava:latest 2>/dev/null
+} | Out-Null
+
+# Cleanup old images
+Write-Host "🧹 Cleaning up old images..." -ForegroundColor Yellow
+$oldImages = podman images "$Registry/$ImageName" --format "{{.Tag}}" | Where-Object { $_ -ne $ImageTag -and $_ -ne "latest" -and $_ -ne "<none>" }
+foreach ($tag in $oldImages | Select-Object -Skip 2) {
+    Write-Host "Removing old image: $Registry/$ImageName`:$tag" -ForegroundColor Gray
+    podman rmi "$Registry/$ImageName`:$tag" 2>/dev/null
+}
+
+# Show final status
 Write-Host ""
-Write-Host "🎉 Deployment completed successfully!" -ForegroundColor Green
+Write-Host "🎉 Deployment completed!" -ForegroundColor Green
+Write-Host ""
 Write-Host "📊 Service Status:" -ForegroundColor Cyan
-wsl podman-compose -f "$DeploymentPath/docker-compose.prod.yml" ps
+podman-compose -f docker-compose.prod.yml ps
 
 Write-Host ""
 Write-Host "🌐 Application URLs:" -ForegroundColor Cyan
-Write-Host "  API: http://localhost:8080" -ForegroundColor White
-Write-Host "  Health: http://localhost:8080/health" -ForegroundColor White
-Write-Host "  Swagger: http://localhost:8080/swagger" -ForegroundColor White
-Write-Host "  Ollama: http://localhost:11434" -ForegroundColor White
+Write-Host "  API Health: http://localhost:8080/health" -ForegroundColor White
+Write-Host "  API Docs: http://localhost:8080/swagger" -ForegroundColor White
+Write-Host "  Ollama API: http://localhost:11434" -ForegroundColor White
+Write-Host "  PostgreSQL: localhost:5432 (user: $env:POSTGRES_USER)" -ForegroundColor White
+
 Write-Host ""
-Write-Host "📚 Useful commands:" -ForegroundColor Cyan
-Write-Host "  View logs: wsl podman-compose -f `"$DeploymentPath/docker-compose.prod.yml`" logs -f" -ForegroundColor White
-Write-Host "  Stop services: wsl podman-compose -f `"$DeploymentPath/docker-compose.prod.yml`" down" -ForegroundColor White
-Write-Host "  Restart services: wsl podman-compose -f `"$DeploymentPath/docker-compose.prod.yml`" restart" -ForegroundColor White
+Write-Host "� Useful Commands:" -ForegroundColor Cyan
+Write-Host "  View logs: podman-compose -f docker-compose.prod.yml logs -f" -ForegroundColor White
+Write-Host "  Stop services: podman-compose -f docker-compose.prod.yml down" -ForegroundColor White
+Write-Host "  Restart: podman-compose -f docker-compose.prod.yml restart" -ForegroundColor White
+Write-Host "  Check models: podman exec menlo-ollama ollama list" -ForegroundColor White

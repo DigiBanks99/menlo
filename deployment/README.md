@@ -1,327 +1,307 @@
-# Menlo Deployment Guide
+# Menlo Deployment - Windows 10 + Podman + Ollama
 
-This directory contains deployment scripts and configuration for the Menlo Home Management application, implementing the hybrid cloud-local architecture.
+Streamlined deployment guide for the Menlo Home Management application on **Windows 10 Home** using **Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
 
-## 📁 Contents
+## 🎯 Quick Start
 
-| File | Purpose | Platform |
-|------|---------|----------|
-| `setup-home-server.sh` | Linux server setup script (Docker) | Linux/Ubuntu |
-| `podman-setup.md` | Enhanced Podman setup guide (recommended) | Linux/Ubuntu |
-| `docker-compose.prod.yml` | Production Compose configuration | Linux/WSL2/Podman |
-| `deploy-windows.ps1` | Windows/WSL2 deployment script (Podman) | Windows 10 Home |
-| `discover-host.ps1` | Find your HOME_SERVER_HOST IP address | Windows |
-| `windows-setup.md` | Complete Windows 10 Home setup guide (Podman) | Windows |
+This setup is designed specifically for:
 
-## 🖥️ Windows 10 Home Support
+- **Windows 10 Home** (primary development/server environment)
+- **Podman containers** (rootless, secure container runtime)
+- **Local Ollama AI** (phi4-mini, phi4-vision models)
+- **Cloudflare Tunnels** (secure remote access without exposing IPs)
 
-For Windows 10 Home users, we provide specialized scripts and documentation:
+## 📁 Files Overview
 
-### Quick Start (Windows)
+| File | Purpose |
+|------|---------|
+| `setup-windows-podman.ps1` | Complete Windows 10 + Podman setup automation |
+| `deploy-windows.ps1` | Deployment script for local/remote deployment |
+| `discover-host.ps1` | Network discovery for GitHub Actions setup |
+| `README.md` | This guide |
 
-1. **Discover your server IP:**
-   ```powershell
-   .\discover-host.ps1
-   ```
-
-2. **Test deployment locally:**
-   ```powershell
-   .\deploy-windows.ps1 -ImageTag "latest" -ImageName "your-username/menlo-api"
-   ```
-
-3. **Complete Windows setup:**
-   Follow the [Windows Setup Guide](windows-setup.md) for full WSL2 + Docker configuration
-
-### Podman Benefits (Recommended)
-
-- **Enhanced Security**: Rootless containers by default
-- **No Daemon**: No privileged background service
-- **Systemd Integration**: Native Linux service management
-- **Docker Compatible**: Drop-in replacement for Docker commands
-
-### Windows-Specific Features
-
-- **WSL2 Integration**: Seamless Podman operation on Windows 10 Home
-- **PowerShell Scripts**: Native Windows deployment automation
-- **IP Discovery**: Automatic network configuration detection
-- **GitHub Actions**: Windows-compatible CI/CD deployment
-
-## 🏠 Home Server Setup
+## 🚀 Initial Setup
 
 ### Prerequisites
 
-- Ubuntu 20.04+ or Debian 11+ server
-- Minimum 8GB RAM, 4-core CPU, 100GB storage
-- Stable internet connection
-- Sudo privileges
+- Windows 10 Home (build 19041 or later)
+- PowerShell 5.1 or later
+- Administrator access
+- Stable internet connection (for model downloads)
 
-### Initial Setup
+### Step 1: Run Setup Script
 
-Run the automated setup script:
+**Open PowerShell as Administrator** and run:
 
-```bash
-# Download and run the setup script
-wget https://raw.githubusercontent.com/DigiBanks99/menlo/main/deployment/setup-home-server.sh
-chmod +x setup-home-server.sh
-./setup-home-server.sh
+```powershell
+cd deployment
+
+# Basic setup with default domain (yourdomain.com)
+.\setup-windows-podman.ps1
+
+# Or specify your actual domain
+.\setup-windows-podman.ps1 -Domain "example.com" -Subdomain "api.menlo"
+
+# Example with your own domain
+.\setup-windows-podman.ps1 -Domain "mydomain.co.za" -Subdomain "menlo-api"
 ```
 
 This script will:
-- Install Docker and Docker Compose
-- Create the `menlo` user and application directory
-- Install and configure Cloudflare Tunnel
-- Set up firewall rules and security
-- Create backup and health check scripts
-- Configure systemd services
 
-### Manual Configuration
+- ✅ Install/configure WSL2
+- ✅ Install Podman Desktop
+- ✅ Install podman-compose
+- ✅ Install Cloudflare tunnel client
+- ✅ Configure SSH server for GitHub Actions
+- ✅ Create application directories
+- ✅ Validate the complete setup
 
-After running the setup script:
+> **Note:** If WSL2 is not installed, the script will require a restart. Run the script again after restart with `-SkipWSL2Install`.
 
-1. **Configure Environment Variables**:
-   ```bash
-   sudo -u menlo cp /opt/menlo/.env.template /opt/menlo/.env
-   sudo -u menlo nano /opt/menlo/.env
-   ```
+### Step 2: Configure Cloudflare Tunnel
 
-2. **Set up Cloudflare Tunnel**:
-   ```bash
-   # Login to Cloudflare
-   cloudflared tunnel login
-   
-   # Create tunnel
-   cloudflared tunnel create menlo-api
-   
-   # Configure tunnel (example)
-   cloudflared tunnel route dns menlo-api api.menlo.yourdomain.com
-   
-   # Install as service
-   sudo cloudflared service install
-   ```
+Replace `YOUR_DOMAIN` and `YOUR_SUBDOMAIN` with your actual values:
 
-3. **Configure SSH Access for GitHub Actions**:
-   ```bash
-   # Add GitHub Actions public key to authorized_keys
-   sudo -u menlo mkdir -p /home/menlo/.ssh
-   echo "YOUR_GITHUB_ACTIONS_PUBLIC_KEY" | sudo -u menlo tee -a /home/menlo/.ssh/authorized_keys
-   sudo -u menlo chmod 600 /home/menlo/.ssh/authorized_keys
-   ```
+```powershell
+# Set your domain variables
+$Domain = "example.com"  # Replace with your domain
+$Subdomain = "api.menlo"  # Or your preferred subdomain
 
-## 🔐 Security Configuration
+# Login to Cloudflare (opens browser)
+cloudflared tunnel login
 
-### Firewall Rules
+# Create tunnel for your API
+cloudflared tunnel create menlo-api
 
-The setup script configures UFW with:
-- SSH access (port 22)
-- API access (port 8080) - internal only
-- All other ports blocked
-- Cloudflare Tunnel eliminates need for external port exposure
+# Configure DNS (use your actual domain)
+cloudflared tunnel route dns menlo-api "$Subdomain.$Domain"
 
-### Fail2Ban
-
-Configured to protect against:
-- SSH brute force attacks
-- HTTP authentication failures
-- Persistent scanning attempts
-
-### SSL/TLS
-
-SSL termination handled by Cloudflare:
-- Automatic certificate management
-- Edge-to-edge encryption
-- Protection against common attacks
-
-## 📦 Application Deployment
-
-### Deployment Process
-
-The GitHub Actions workflow handles deployment automatically:
-
-1. **Build Container**: Creates Docker image from source
-2. **Push to Registry**: Uploads to GitHub Container Registry
-3. **Deploy to Server**: SSH deployment with zero-downtime strategy
-4. **Health Verification**: Automated health checks
-5. **Rollback on Failure**: Automatic rollback if deployment fails
-
-### Manual Deployment
-
-For manual deployment or troubleshooting:
-
-```bash
-# Switch to menlo user
-sudo -u menlo -i
-
-# Navigate to application directory
-cd /opt/menlo
-
-# Pull latest images
-docker compose -f docker-compose.prod.yml pull
-
-# Deploy with zero downtime
-docker compose -f docker-compose.prod.yml up -d
-
-# Check status
-docker compose -f docker-compose.prod.yml ps
-
-# View logs
-docker compose -f docker-compose.prod.yml logs -f menlo-api
-```
-
-## 📊 Monitoring and Maintenance
-
-### Health Checks
-
-Run health checks:
-```bash
-/opt/menlo/healthcheck.sh
-```
-
-### Backup Management
-
-Manual backup:
-```bash
-/opt/menlo/backup.sh
-```
-
-View backups:
-```bash
-ls -la /opt/menlo/backups/
-```
-
-Restore from backup:
-```bash
-# Restore database
-gunzip -c /opt/menlo/backups/menlo_db_TIMESTAMP.sql.gz | \
-  docker compose -f /opt/menlo/docker-compose.prod.yml exec -T postgres \
-  psql -U $POSTGRES_USER -d $POSTGRES_DB
-```
-
-### Log Management
-
-View application logs:
-```bash
-# Real-time logs
-docker compose -f /opt/menlo/docker-compose.prod.yml logs -f
-
-# Specific service logs
-docker compose -f /opt/menlo/docker-compose.prod.yml logs -f menlo-api
-docker compose -f /opt/menlo/docker-compose.prod.yml logs -f postgres
-docker compose -f /opt/menlo/docker-compose.prod.yml logs -f ollama
-```
-
-### System Maintenance
-
-Update system packages:
-```bash
-sudo apt update && sudo apt upgrade -y
-```
-
-Update Docker images:
-```bash
-cd /opt/menlo
-sudo -u menlo docker compose -f docker-compose.prod.yml pull
-sudo -u menlo docker compose -f docker-compose.prod.yml up -d
-sudo -u menlo docker system prune -f
-```
-
-## 🌐 Cloudflare Tunnel Configuration
-
-### Tunnel Setup
-
-Create tunnel configuration file:
-```yaml
-# ~/.cloudflared/config.yml
+# Create config file
+mkdir $env:USERPROFILE\.cloudflared
+@"
 tunnel: menlo-api
-credentials-file: ~/.cloudflared/menlo-api.json
+credentials-file: $env:USERPROFILE\.cloudflared\menlo-api.json
 
 ingress:
-  - hostname: api.menlo.yourdomain.com
+  - hostname: $Subdomain.$Domain
     service: http://localhost:8080
   - service: http_status:404
+"@ | Out-File -FilePath "$env:USERPROFILE\.cloudflared\config.yml" -Encoding UTF8
+
+# Install as Windows service
+cloudflared service install
 ```
 
-### DNS Configuration
+### Step 3: Configure GitHub Actions
 
-Configure DNS records in Cloudflare dashboard:
-- `api.menlo.yourdomain.com` → CNAME to tunnel
-- Enable proxy mode for security and caching
+```powershell
+# Find your server IP
+.\discover-host.ps1
 
-### Tunnel Monitoring
+# Generate SSH key for GitHub Actions
+ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\menlo_deploy -N ""
 
-Check tunnel status:
-```bash
-sudo systemctl status cloudflared
+# Add public key to authorized_keys
+Add-Content -Path "$env:USERPROFILE\.ssh\authorized_keys" -Value (Get-Content "$env:USERPROFILE\.ssh\menlo_deploy.pub")
+```
+
+**Add these secrets to your GitHub repository:**
+
+| Secret Name | Value | Description |
+|-------------|-------|-------------|
+| `HOME_SERVER_HOST` | Your IP from discover-host.ps1 | Server IP address |
+| `HOME_SERVER_USER` | Your Windows username | SSH user |
+| `HOME_SERVER_SSH_KEY` | Private key content | Content of menlo_deploy file |
+| `POSTGRES_USER` | `menlo` | Database user |
+| `POSTGRES_PASSWORD` | `secure_password_here` | Database password |
+| `API_DOMAIN` | `example.com` | Your domain name |
+| `API_SUBDOMAIN` | `api.menlo` | Your API subdomain |
+
+## � Deployment
+
+### Local Deployment (Testing)
+
+```powershell
+# Test with a sample image
+.\deploy-windows.ps1 -ImageTag "latest" -ImageName "hello-world"
+
+# Deploy from GitHub Container Registry
+.\deploy-windows.ps1 -ImageTag "main-abc123" -ImageName "digibanks99/menlo/menlo-api"
+```
+
+### Production Deployment (via GitHub Actions)
+
+Push to the `main` branch or manually trigger the deployment workflow. The GitHub Actions will:
+
+1. Build and push container image
+2. Deploy to your Home via SSH
+3. Verify health checks
+4. Update Cloudflare tunnel (if configured)
+
+## 🏥 Health Monitoring
+
+### Check Service Status
+
+```powershell
+cd $env:USERPROFILE\menlo
+podman-compose -f docker-compose.prod.yml ps
+```
+
+### View Logs
+
+```powershell
+# All services
+podman-compose -f docker-compose.prod.yml logs -f
+
+# Specific service
+podman-compose -f docker-compose.prod.yml logs -f menlo-api
+podman-compose -f docker-compose.prod.yml logs -f menlo-ollama
+```
+
+### Health Check URLs
+
+- **API Health**: <http://localhost:8080/health>
+- **API Documentation**: <http://localhost:8080/swagger>
+- **Ollama API**: <http://localhost:11434/api/tags>
+- **External (via Cloudflare)**: `https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health`
+
+> Replace `YOUR_SUBDOMAIN.YOUR_DOMAIN` with your actual configured domain (e.g., `https://api.menlo.example.com/health`)
+
+## 🤖 AI Models Management
+
+### Check Downloaded Models
+
+```powershell
+podman exec menlo-ollama ollama list
+```
+
+### Download Additional Models
+
+```powershell
+# Text processing models
+podman exec menlo-ollama ollama pull phi4-mini
+podman exec menlo-ollama ollama pull phi3.5:3.8b
+
+# Vision models (image analysis)
+podman exec menlo-ollama ollama pull phi4-vision
+podman exec menlo-ollama ollama pull llava:latest
+```
+
+### Model Storage
+
+Models are stored in the `ollama_data` volume and persist across container restarts.
+
+## 🛠️ Troubleshooting
+
+### Podman Issues
+
+```powershell
+# Restart Podman machine
+podman machine stop
+podman machine start
+
+# Check Podman status
+podman machine list
+podman --version
+```
+
+### Database Issues
+
+```powershell
+# Reset database (WARNING: destroys data)
+podman volume rm menlo_postgres_data
+.\deploy-windows.ps1 -ImageTag "latest" -ImageName "your-image"
+
+# Check database connection
+podman exec menlo-postgres pg_isready -U menlo -d menlo
+```
+
+### Ollama Model Issues
+
+```powershell
+# Check Ollama status
+curl http://localhost:11434/api/tags
+
+# Restart Ollama container
+podman restart menlo-ollama
+
+# Clear models and re-download
+podman volume rm menlo_ollama_data
+podman restart menlo-ollama
+```
+
+### Network/Cloudflare Issues
+
+```powershell
+# Check tunnel status
 cloudflared tunnel info menlo-api
+
+# Restart tunnel service
+Restart-Service cloudflared
+
+# Test local connectivity
+curl http://localhost:8080/health
+
+# Test external connectivity (replace with your domain)
+curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 ```
 
-## 🚨 Troubleshooting
+## 📊 Resource Requirements
 
-### Common Issues
+### Minimum System Requirements
 
-**Docker Permission Issues**:
-```bash
-sudo usermod -aG docker menlo
-# Logout and login again
-```
+- **CPU**: 4 cores (Intel i5 or AMD equivalent)
+- **RAM**: 16GB (8GB for models + 8GB for OS/apps)
+- **Storage**: 100GB free space (models require 20-30GB)
+- **Network**: Stable broadband for model downloads
 
-**Database Connection Issues**:
-```bash
-# Check PostgreSQL container
-docker compose -f /opt/menlo/docker-compose.prod.yml exec postgres pg_isready
+### Expected Resource Usage
 
-# Check connection string in .env file
-grep DATABASE_CONNECTION_STRING /opt/menlo/.env
-```
+| Component | CPU | Memory | Storage |
+|-----------|-----|--------|---------|
+| Menlo API | 1-2 cores | 512MB | 1GB |
+| PostgreSQL | 1 core | 256MB | 5-10GB |
+| Ollama + Models | 2-4 cores | 8-12GB | 20-30GB |
+| **Total** | **4-7 cores** | **9-13GB** | **26-41GB** |
 
-**Ollama Model Issues**:
-```bash
-# Pull required models
-docker compose -f /opt/menlo/docker-compose.prod.yml exec ollama ollama pull microsoft/phi-4:latest
-```
+### Performance Notes
 
-**Cloudflare Tunnel Issues**:
-```bash
-# Check tunnel logs
-sudo journalctl -u cloudflared -f
+- **First startup**: Model download takes 10-30 minutes
+- **Subsequent startups**: ~30 seconds to full readiness
+- **AI inference**: 2-10 seconds per request (depending on model and query)
 
-# Restart tunnel
-sudo systemctl restart cloudflared
-```
+## 🔐 Security Considerations
 
-### Log Locations
+### Network Security
 
-- Application logs: `/opt/menlo/logs/`
-- Docker logs: `docker compose logs`
-- System logs: `/var/log/syslog`
-- Tunnel logs: `journalctl -u cloudflared`
+- Ollama and PostgreSQL are not exposed externally
+- Only Menlo API exposed via Cloudflare Tunnel
+- SSH access protected by key-based authentication
+- Windows Firewall configured for SSH only
 
-### Emergency Procedures
+### Data Security
 
-**Complete System Restart**:
-```bash
-sudo systemctl stop menlo
-sudo systemctl stop cloudflared
-sudo reboot
-```
+- All data remains local (no cloud databases)
+- AI processing happens locally (no external AI APIs)
+- Database backups stored locally in `$env:USERPROFILE\menlo\backups`
 
-**Emergency Rollback**:
-```bash
-cd /opt/menlo
-# Find latest backup
-ls -la backups/docker-compose.*.yml | tail -1
-# Restore configuration
-sudo -u menlo cp backups/docker-compose.TIMESTAMP.yml docker-compose.prod.yml
-sudo systemctl restart menlo
-```
+### Access Control
+
+- Cloudflare Access can be configured for additional authentication
+- MFA recommended for Cloudflare account
+- Regular SSH key rotation recommended
 
 ## 📞 Support
 
-For deployment issues:
-1. Check the troubleshooting section above
-2. Review logs using the commands provided
-3. Consult the [Architecture Document](../docs/explanations/architecture-document.md)
-4. Create an issue in the GitHub repository
+For issues specific to this deployment:
+
+1. **Check logs** using the commands above
+2. **Verify setup** by running `setup-windows-podman.ps1 -WhatIf`
+3. **Test connectivity** using health check URLs
+4. **Review GitHub Actions** logs for deployment issues
+
+For general Menlo application issues, see the main [documentation](../docs/README.md).
 
 ---
 
-*This deployment configuration implements the cost-conscious, privacy-first architecture defined in [ADR-001](../docs/decisions/adr-001-hosting-strategy.md).*
+*This deployment implements the cost-conscious, privacy-first architecture defined in [ADR-001](../docs/decisions/adr-001-hosting-strategy.md) specifically for Windows 10 Home environments.*
