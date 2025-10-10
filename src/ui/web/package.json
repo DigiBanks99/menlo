@@ -8,7 +8,7 @@
     "build": "nx build menlo-app",
     "build:prod": "nx build menlo-app --configuration=production",
     "build:all": "nx run-many --target=build --all",
-    "build:all:prod": "nx run-many --target=build --all --configuration=production --verbose",
+    "build:all:prod": "nx run-many --target=build --all --configuration=production",
     "test": "nx test menlo-app",
     "test:all": "nx run-many --target=test --all",
     "test:affected": "nx affected --target=test",
