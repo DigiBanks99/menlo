@@ -22,8 +22,8 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Install dotnet outdated tool
-        run: dotnet tool install
+      - name: Restore dotnet tools
+        run: dotnet tool restore
 
       - name: Check for outdated packages
         id: outdated
