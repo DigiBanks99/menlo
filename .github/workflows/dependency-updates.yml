@@ -25,28 +25,87 @@ jobs:
       - name: Restore dotnet tools
         run: dotnet tool restore
 
+      - name: Verify dotnet outdated tool
+        run: |
+          echo "Verifying dotnet outdated tool installation..."
+          dotnet tool list
+          echo "Testing dotnet outdated help..."
+          dotnet outdated --help | head -10
+
       - name: Check for outdated packages
         id: outdated
         run: |
-          outdated_output=$(dotnet outdated --output json)
-          echo "outdated_packages=$outdated_output" >> $GITHUB_OUTPUT
-
-          # Check if there are any outdated packages
-          if echo "$outdated_output" | jq -e '.Projects | length > 0' > /dev/null; then
-            echo "has_updates=true" >> $GITHUB_OUTPUT
+          # Run dotnet outdated with JSON output and capture both stdout and stderr
+          set +e  # Don't fail immediately on error
+          outdated_output=$(dotnet outdated --allow-roll-forward --output json 2>&1)
+          outdated_exit_code=$?
+          set -e  # Re-enable fail on error
+          
+          echo "Dotnet outdated output:"
+          echo "$outdated_output"
+          echo "Exit code: $outdated_exit_code"
+          
+          # Check if the output is valid JSON and contains outdated packages
+          has_updates=false
+          
+          # First, check if we have valid JSON output
+          if echo "$outdated_output" | jq empty > /dev/null 2>&1; then
+            echo "Valid JSON output detected"
+            # Check if there are any projects with outdated packages
+            project_count=$(echo "$outdated_output" | jq '.Projects | length' 2>/dev/null || echo "0")
+            if [ "$project_count" -gt 0 ]; then
+              # Check if any project has outdated packages
+              outdated_count=$(echo "$outdated_output" | jq '[.Projects[].PackageUpdates | length] | add' 2>/dev/null || echo "0")
+              if [ "$outdated_count" -gt 0 ]; then
+                has_updates=true
+                echo "Found $outdated_count outdated packages across $project_count projects"
+              fi
+            fi
           else
-            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "Output is not valid JSON, checking for text-based indicators"
+            # Fallback: check for text indicators of outdated packages
+            if echo "$outdated_output" | grep -i "upgrade" > /dev/null 2>&1; then
+              has_updates=true
+              echo "Found text indicators of outdated packages"
+            fi
           fi
+          
+          echo "has_updates=$has_updates" >> $GITHUB_OUTPUT
+          
+          # Store the output for debugging (escape newlines and quotes)
+          escaped_output=$(echo "$outdated_output" | jq -R -s . || echo "\"$outdated_output\"" | sed 's/"/\\"/g')
+          echo "outdated_packages=$escaped_output" >> $GITHUB_OUTPUT
 
       - name: Update packages
         if: steps.outdated.outputs.has_updates == 'true'
         run: |
+          echo "Updating outdated packages..."
+          
           # Update packages (excluding major version changes for stability)
-          dotnet outdated --upgrade --version-lock Major --exclude-prerelease
-
+          # Use text output for better visibility during updates
+          dotnet outdated --upgrade --version-lock Major --exclude-prerelease --output Default
+          
           # Restore and build to ensure updates are compatible
+          echo "Restoring packages..."
           dotnet restore
+          
+          echo "Building solution..."
           dotnet build --no-restore
+
+      - name: Check what was updated
+        if: steps.outdated.outputs.has_updates == 'true'
+        id: updates_summary
+        run: |
+          # Check git status to see what files were changed
+          echo "Files changed during update:"
+          git status --porcelain
+          
+          echo "Package file changes:"
+          git diff --name-only | grep -E '\.(csproj|props)$' || echo "No package files changed"
+          
+          # Get a summary of the changes for the PR
+          changes_summary=$(git diff --name-only | grep -E '\.(csproj|props)$' | head -10 | paste -sd, -)
+          echo "changes_summary=$changes_summary" >> $GITHUB_OUTPUT
 
       - name: Run tests after updates
         if: steps.outdated.outputs.has_updates == 'true'
@@ -64,6 +123,18 @@ jobs:
             ## 📦 Dependency Updates
 
             This PR contains automated updates to .NET dependencies.
+
+            ### Files Modified
+            ${{ steps.updates_summary.outputs.changes_summary }}
+
+            ### Outdated Packages Analysis
+            <details>
+            <summary>Click to view outdated packages report</summary>
+            
+            ```
+            ${{ steps.outdated.outputs.outdated_packages }}
+            ```
+            </details>
 
             ### Changes
             - Updated NuGet packages to latest minor/patch versions
@@ -106,30 +177,98 @@ jobs:
         working-directory: src/ui/web
         run: pnpm install --frozen-lockfile
 
+      - name: Verify pnpm outdated functionality
+        working-directory: src/ui/web
+        run: |
+          echo "Verifying pnpm outdated functionality..."
+          pnpm --version
+          echo "Testing pnpm outdated help..."
+          pnpm outdated --help | head -10
+
       - name: Check for outdated packages
         id: outdated-frontend
         working-directory: src/ui/web
         run: |
-          # Check for outdated packages
-          outdated_output=$(pnpm outdated --format json || echo '{}')
-          echo "outdated_packages=$outdated_output" >> $GITHUB_OUTPUT
-
-          # Check if there are updates available
-          if [ "$outdated_output" != "{}" ] && [ "$outdated_output" != "" ]; then
-            echo "has_updates=true" >> $GITHUB_OUTPUT
+          # Check for outdated packages with robust error handling
+          set +e  # Don't fail immediately on error
+          outdated_output=$(pnpm outdated --format json 2>&1)
+          outdated_exit_code=$?
+          set -e  # Re-enable fail on error
+          
+          echo "PNPM outdated output:"
+          echo "$outdated_output"
+          echo "Exit code: $outdated_exit_code"
+          
+          # Check if we have updates available
+          has_updates=false
+          
+          # First, check if we have valid JSON output
+          if echo "$outdated_output" | jq empty > /dev/null 2>&1; then
+            echo "Valid JSON output detected"
+            # Check if there are any outdated packages (JSON object with package keys)
+            package_count=$(echo "$outdated_output" | jq 'keys | length' 2>/dev/null || echo "0")
+            if [ "$package_count" -gt 0 ]; then
+              has_updates=true
+              echo "Found $package_count outdated packages"
+            fi
           else
-            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "Output is not valid JSON, checking for text-based indicators"
+            # Fallback: check for text indicators of outdated packages
+            if echo "$outdated_output" | grep -E "(Current|Wanted|Latest)" > /dev/null 2>&1; then
+              has_updates=true
+              echo "Found text indicators of outdated packages"
+            fi
           fi
+          
+          echo "has_updates=$has_updates" >> $GITHUB_OUTPUT
+          
+          # Store the output for debugging (escape properly for GitHub Actions)
+          if [ ${#outdated_output} -lt 1000 ]; then
+            # For smaller outputs, try to store as JSON string
+            escaped_output=$(echo "$outdated_output" | jq -R -s . 2>/dev/null || echo "\"Error: Could not parse output\"")
+          else
+            # For larger outputs, truncate and store as plain string
+            truncated_output=$(echo "$outdated_output" | head -20 | tail -10)
+            escaped_output=$(echo "\"Output too large, showing sample: $truncated_output\"")
+          fi
+          echo "outdated_packages=$escaped_output" >> $GITHUB_OUTPUT
 
       - name: Update dependencies
         if: steps.outdated-frontend.outputs.has_updates == 'true'
         working-directory: src/ui/web
         run: |
+          echo "Updating frontend dependencies..."
+          
           # Update dependencies (excluding major versions)
+          echo "Running pnpm update..."
           pnpm update --latest --save-exact
 
           # Install updated dependencies
+          echo "Installing updated dependencies..."
           pnpm install
+
+      - name: Check what was updated
+        if: steps.outdated-frontend.outputs.has_updates == 'true'
+        id: frontend-updates-summary
+        working-directory: src/ui/web
+        run: |
+          # Check git status to see what files were changed
+          echo "Files changed during update:"
+          git status --porcelain
+          
+          echo "Package file changes:"
+          git diff --name-only | grep -E 'package\.json$' || echo "No package.json files changed"
+          
+          # Get a summary of the changes for the PR
+          changes_summary=$(git diff --name-only | grep -E 'package\.json$' | head -10 | paste -sd, -)
+          echo "frontend_changes_summary=$changes_summary" >> $GITHUB_OUTPUT
+          
+          # Get diff summary of package.json changes
+          if git diff --name-only | grep -q 'package\.json'; then
+            package_diff=$(git diff package.json | grep '^[+-]' | head -10 | paste -sd$'\n' -)
+            echo "Package.json changes preview:"
+            echo "$package_diff"
+          fi
 
       - name: Build and test after updates
         if: steps.outdated-frontend.outputs.has_updates == 'true'
@@ -155,6 +294,18 @@ jobs:
             ## 📦 Frontend Dependency Updates
 
             This PR contains automated updates to frontend dependencies.
+
+            ### Files Modified
+            ${{ steps.frontend-updates-summary.outputs.frontend_changes_summary }}
+
+            ### Outdated Packages Analysis
+            <details>
+            <summary>Click to view outdated packages report</summary>
+            
+            ```
+            ${{ steps.outdated-frontend.outputs.outdated_packages }}
+            ```
+            </details>
 
             ### Changes
             - Updated npm packages to latest compatible versions
