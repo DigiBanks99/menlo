@@ -5,6 +5,38 @@
 This document defines the key concepts, terminology, and design philosophy that guide the Menlo Home Management Application.
 These concepts emerged from our analysis of family workflows and AI integration patterns.
 
+- [Menlo Home Management - Concepts \& Terminology Guide](#menlo-home-management---concepts--terminology-guide)
+  - [Overview](#overview)
+  - [Core Design Philosophy](#core-design-philosophy)
+    - [The "Blueberry Muffin" Approach to AI Integration](#the-blueberry-muffin-approach-to-ai-integration)
+  - [User-Centric Concepts](#user-centric-concepts)
+    - [The "CFO-COO Family Dynamic"](#the-cfo-coo-family-dynamic)
+    - ["Natural Workflow Preservation"](#natural-workflow-preservation)
+  - [Technical Philosophy](#technical-philosophy)
+    - ["Privacy-First Local AI"](#privacy-first-local-ai)
+    - ["Hybrid Cloud-Local Architecture"](#hybrid-cloud-local-architecture)
+    - ["Cost-Conscious Experimentation"](#cost-conscious-experimentation)
+  - [AI Integration Patterns](#ai-integration-patterns)
+    - ["Contextual Intelligence"](#contextual-intelligence)
+    - ["Correction-Based Learning"](#correction-based-learning)
+  - [South African Context](#south-african-context)
+    - ["Local Financial Ecosystem Integration"](#local-financial-ecosystem-integration)
+    - ["Infrastructure Reality"](#infrastructure-reality)
+  - [Development Principles](#development-principles)
+    - ["Vertical Slice Architecture"](#vertical-slice-architecture)
+    - ["Progressive Enhancement"](#progressive-enhancement)
+    - ["Rich Domain Model with Agentic AI"](#rich-domain-model-with-agentic-ai)
+    - ["Purpose-Driven Naming"](#purpose-driven-naming)
+  - [Success Metrics Philosophy](#success-metrics-philosophy)
+    - ["Family Adoption Over Technical Metrics"](#family-adoption-over-technical-metrics)
+    - ["Sustainable Complexity"](#sustainable-complexity)
+  - [How to Use This Guide](#how-to-use-this-guide)
+    - [For Developers](#for-developers)
+    - [For Stakeholders](#for-stakeholders)
+    - [For System Architecture](#for-system-architecture)
+    - [Quick Lookups](#quick-lookups)
+  - [Terminology Quick Reference](#terminology-quick-reference)
+
 ## Core Design Philosophy
 
 ### The "Blueberry Muffin" Approach to AI Integration
@@ -326,18 +358,18 @@ This guide serves multiple audiences and use cases:
 
 ## Terminology Quick Reference
 
-| Term | Definition |
-|------|------------|
-| **Blueberry Muffin AI** | AI embedded throughout workflows, not as separate features |
-| **CFO-COO Dynamic** | Strategic (husband) vs operational (wife) role differentiation |
-| **Natural Workflow Preservation** | Enhancing existing workflows rather than replacing them |
-| **Privacy-First Local AI** | All AI processing on home server, no external AI services |
-| **Hybrid Cloud-Local** | Frontend in cloud, backend/data on home server |
-| **Cost-Conscious Experimentation** | Low-cost validation before scaling investment |
-| **Contextual Intelligence** | AI that understands cross-domain relationships |
-| **Correction-Based Learning** | AI improvement through user feedback loops |
-| **Vertical Slice Architecture** | Feature-complete slices from UI to database |
-| **Family Adoption Metrics** | Success measured by actual family usage, not technical KPIs |
+| Term                               | Definition                                                     |
+| ---------------------------------- | -------------------------------------------------------------- |
+| **Blueberry Muffin AI**            | AI embedded throughout workflows, not as separate features     |
+| **CFO-COO Dynamic**                | Strategic (husband) vs operational (wife) role differentiation |
+| **Natural Workflow Preservation**  | Enhancing existing workflows rather than replacing them        |
+| **Privacy-First Local AI**         | All AI processing on home server, no external AI services      |
+| **Hybrid Cloud-Local**             | Frontend in cloud, backend/data on home server                 |
+| **Cost-Conscious Experimentation** | Low-cost validation before scaling investment                  |
+| **Contextual Intelligence**        | AI that understands cross-domain relationships                 |
+| **Correction-Based Learning**      | AI improvement through user feedback loops                     |
+| **Vertical Slice Architecture**    | Feature-complete slices from UI to database                    |
+| **Family Adoption Metrics**        | Success measured by actual family usage, not technical KPIs    |
 
 ---
 

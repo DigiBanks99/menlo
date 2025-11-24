@@ -1,0 +1,55 @@
+version: 2
+updates:
+  # .NET Dependencies
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    # Group minor and patch updates to reduce PR noise
+    groups:
+      dotnet-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    # Allow up to 10 open PRs (default is 5)
+    open-pull-requests-limit: 10
+    # Ignore major version updates for stability
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Frontend Dependencies (npm/pnpm)
+  - package-ecosystem: "npm"
+    directory: "/src/ui/web"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    # Group framework updates separately from other dependencies
+    groups:
+      angular-ecosystem:
+        patterns: ["@angular/*", "@nx/*"]
+        update-types: ["minor", "patch"]
+      dev-dependencies:
+        patterns: ["*"]
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+      production-dependencies:
+        patterns: ["*"]
+        dependency-type: "production"
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 10
+    ignore:
+      # Ignore major version updates for stability
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions Dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns: ["*"]
