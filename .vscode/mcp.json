@@ -1,5 +1,12 @@
 {
-  "inputs": [],
+  "inputs": [
+    {
+      "id": "github-token",
+      "type": "promptString",
+      "description": "GitHub token with repo access",
+      "password": true
+    }
+  ],
   "servers": {
     "MicrosoftDocs": {
       "type": "http",
@@ -12,15 +19,16 @@
         "mcp"
       ]
     },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
       ]
-    },
-    "github": {
-      "url": "https://api.githubcopilot.com/mcp/"
     },
     "nuget": {
       "type": "stdio",
