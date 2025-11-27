@@ -19,8 +19,8 @@ var ollama = builder.AddOllama("ollama")
     .WithOpenWebUI(); // Optional: Add Open WebUI for model testing
 
 // Add models for different AI capabilities
-var phi4Mini = ollama.AddModel("phi4-mini", "microsoft/phi-4:latest"); // Text processing
-var phi4Vision = ollama.AddModel("phi4-vision", "microsoft/phi-4-vision:latest"); // Vision processing
+var phi4Mini = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
+var phi4Vision = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
 
 // Alternative lightweight models for development
 // var phi35 = ollama.AddModel("phi35-mini", "phi3.5:3.8b"); // Smaller text model
@@ -28,7 +28,7 @@ var phi4Vision = ollama.AddModel("phi4-vision", "microsoft/phi-4-vision:latest")
 
 // Add Menlo.Api project with AI dependencies
 IResourceBuilder<ProjectResource> api = builder
-    .AddProject<Projects.Menlo_Api>("menlo-api")
+    .AddProject<Projects.Menlo_Api>("api")
     .WithReference(db)
     .WithReference(phi4Mini)      // Reference text model
     .WithReference(phi4Vision)    // Reference vision model

@@ -52,8 +52,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IVisionService, VisionService>();
 
         // Register Semantic Kernel with Ollama connection from Aspire configuration
-        services.AddKernel()
-            .AddOllamaChatCompletion("phi4-mini", new Uri("http://ollama:11434"));
+        services.AddKernel();
+        services.AddOllamaChatClient("text");
+        services.AddOllamaEmbeddingGenerator("text");
 
         return services;
     }
