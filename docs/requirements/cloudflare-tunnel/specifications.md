@@ -17,12 +17,15 @@ Cloudflare Tunnel will be used to securely expose Menlo's local backend services
 
 - **High Availability:**
   - The tunnel must automatically reconnect and recover from local network interruptions or power outages.
+  - Support for automated restart through CI/CD pipeline when deployments occur.
 
 - **Auditability:**
   - All remote access events must be logged for security and troubleshooting purposes.
+  - CI/CD deployment activities related to tunnel management must be logged and traceable.
 
 - **Ease of Use:**
   - The setup and maintenance of the tunnel should require minimal technical expertise from the end user.
+  - Integration with CI/CD pipeline should provide automated tunnel management without manual intervention.
 
 ## Technical Requirements
 
@@ -49,7 +52,13 @@ Cloudflare Tunnel will be used to securely expose Menlo's local backend services
 - **Configuration Management:**
   - Tunnel configuration must be manageable in a version-controlled, human-readable format (e.g., YAML), or via C#-native configuration if supported.
   - If possible, support direct configuration through C# code or .NET configuration providers, in addition to YAML.
-  - Support for automated deployment and updates (e.g., via scripts or configuration management tools).
+  - Support for automated deployment and updates via CI/CD pipeline using self-hosted GitHub Actions runner.
+
+- **CI/CD Integration:**
+  - Tunnel service management (start, stop, restart, configuration updates) must be integrated into the CI/CD pipeline.
+  - Use self-hosted GitHub Actions runner with direct line-of-sight to local services, eliminating the need for SSH-based deployments.
+  - Support automated tunnel service restart as part of the application deployment process.
+  - Ensure tunnel configuration updates can be deployed through the standard CI/CD workflow.
 
 - **Firewall Compatibility:**
   - The solution must work behind NAT and firewalls, requiring only outbound HTTPS (port 443) connectivity.

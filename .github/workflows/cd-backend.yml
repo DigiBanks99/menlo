@@ -67,7 +67,7 @@ jobs:
 
   deploy-to-home-server:
     name: Deploy to Home Server
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build-and-push
     environment:
       name: 'Production'
@@ -79,17 +79,9 @@ jobs:
           sparse-checkout: |
             deployment/
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.HOME_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.HOME_SERVER_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy application
+        shell: pwsh
         run: |
-          # Create deployment script
-          cat > deploy-remote.ps1 << 'EOF'
           $ErrorActionPreference = "Stop"
 
           Write-Host "🚀 Starting Menlo deployment..." -ForegroundColor Green
@@ -208,50 +200,44 @@ jobs:
           podman-compose -f docker-compose.prod.yml ps
 
           Write-Host "✅ Deployment completed!" -ForegroundColor Green
-          EOF
-
-          # Execute deployment
-          scp -i ~/.ssh/id_rsa deploy-remote.ps1 ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }}:~/deploy-remote.ps1
-          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} "powershell -ExecutionPolicy Bypass -File ~/deploy-remote.ps1"
 
       - name: Verify deployment
+        shell: pwsh
         run: |
-          echo "🔍 Verifying deployment..."
-          sleep 30
+          Write-Host "🔍 Verifying deployment..." -ForegroundColor Yellow
+          Start-Sleep -Seconds 30
 
-          # Check if API is responding
-          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
-            # Test API health
-            for i in {1..5}; do
-              if powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:8080/health' -TimeoutSec 5 -UseBasicParsing | Select-Object -ExpandProperty StatusCode } catch { 0 }" | grep -q "200"; then
-                echo "✅ API health check passed"
+          # Test API health
+          for ($i = 1; $i -le 5; $i++) {
+            try {
+              $response = Invoke-WebRequest -Uri 'http://localhost:8080/health' -TimeoutSec 5 -UseBasicParsing
+              if ($response.StatusCode -eq 200) {
+                Write-Host "✅ API health check passed" -ForegroundColor Green
                 break
-              else
-                echo "⏳ API not ready yet... ($i/5)"
-                sleep 10
-              fi
-            done
-          EOF
+              }
+            } catch {
+              Write-Host "⏳ API not ready yet... ($i/5)" -ForegroundColor Yellow
+              Start-Sleep -Seconds 10
+            }
+          }
 
       - name: Update Cloudflare Tunnel
         if: vars.CLOUDFLARE_TUNNEL_ENABLED == 'true'
+        shell: pwsh
         run: |
-          echo "🌐 Restarting Cloudflare Tunnel..."
-          ssh -i ~/.ssh/id_rsa ${{ secrets.HOME_SERVER_USER }}@${{ secrets.HOME_SERVER_HOST }} << 'EOF'
-            # Restart cloudflared service if running
-            if (Get-Service cloudflared -ErrorAction SilentlyContinue) {
-              Restart-Service cloudflared
-              Write-Host "Cloudflare Tunnel restarted"
+          Write-Host "🌐 Restarting Cloudflare Tunnel..." -ForegroundColor Yellow
+          # Restart cloudflared service if running
+          try {
+            $service = Get-Service cloudflared -ErrorAction SilentlyContinue
+            if ($service) {
+              Restart-Service cloudflared -Force
+              Write-Host "✅ Cloudflare Tunnel restarted" -ForegroundColor Green
             } else {
-              Write-Host "Cloudflare Tunnel service not found"
+              Write-Host "⚠️ Cloudflare Tunnel service not found" -ForegroundColor Yellow
             }
-          EOF
-
-      - name: Cleanup
-        if: always()
-        run: |
-          rm -f ~/.ssh/id_rsa
-          ssh-keygen -R ${{ secrets.HOME_SERVER_HOST }} 2>/dev/null || true
+          } catch {
+            Write-Host "❌ Failed to restart Cloudflare Tunnel: $_" -ForegroundColor Red
+          }
 
   post-deployment:
     name: Post-Deployment Checks
