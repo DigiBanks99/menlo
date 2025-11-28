@@ -81,10 +81,16 @@ jobs:
 
       - name: Deploy application
         shell: pwsh
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
         run: |
           $ErrorActionPreference = "Stop"
 
           Write-Host "🚀 Starting Menlo deployment..." -ForegroundColor Green
+
+          # Extract the first tag (main image tag) from the multi-line output
+          $imageTag = ($env:IMAGE_TAG -split "`n")[0].Trim()
+          Write-Host "📦 Using image: $imageTag" -ForegroundColor Cyan
 
           # Set environment variables
           $env:POSTGRES_USER = "${{ secrets.POSTGRES_USER }}"
@@ -102,7 +108,7 @@ jobs:
 
           services:
             menlo-api:
-              image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+              image: $imageTag
               container_name: menlo-api
               restart: unless-stopped
               environment:
@@ -181,7 +187,7 @@ jobs:
 
           # Pull new image
           Write-Host "📥 Pulling new image..." -ForegroundColor Yellow
-          podman pull "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          podman pull "$imageTag"
 
           # Stop existing services
           Write-Host "⏸️ Stopping existing services..." -ForegroundColor Yellow
@@ -242,7 +248,7 @@ jobs:
   post-deployment:
     name: Post-Deployment Checks
     runs-on: ubuntu-latest
-    needs: deploy-to-home-server
+    needs: [build-and-push, deploy-to-home-server]
     if: success()
 
     steps:
@@ -285,12 +291,17 @@ jobs:
           fi
 
       - name: Deployment summary
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
         run: |
+          # Extract the first tag (main image tag) from the multi-line output
+          IMAGE_TAG_CLEAN=$(echo "$IMAGE_TAG" | head -n1 | xargs)
+
           echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: Home" >> $GITHUB_STEP_SUMMARY
           echo "- **Server**: ${{ secrets.HOME_SERVER_HOST }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: $IMAGE_TAG_CLEAN" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployed By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
 
