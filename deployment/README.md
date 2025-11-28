@@ -16,8 +16,7 @@ This setup is designed specifically for:
 | File | Purpose |
 |------|---------|
 | `setup-windows-podman.ps1` | Complete Windows 10 + Podman setup automation |
-| `deploy-windows.ps1` | Deployment script for local/remote deployment |
-| `discover-host.ps1` | Network discovery for GitHub Actions setup |
+| `deploy-windows.ps1` | Deployment script for local testing |
 | `README.md` | This guide |
 
 ## 🚀 Initial Setup
@@ -52,7 +51,6 @@ This script will:
 - ✅ Install Podman Desktop
 - ✅ Install podman-compose
 - ✅ Install Cloudflare tunnel client
-- ✅ Configure SSH server for GitHub Actions
 - ✅ Create application directories
 - ✅ Validate the complete setup
 
@@ -92,30 +90,34 @@ ingress:
 cloudflared service install
 ```
 
-### Step 3: Configure GitHub Actions
+### Step 3: Configure GitHub Actions Self-Hosted Runner
 
-```powershell
-# Find your server IP
-.\discover-host.ps1
+> **Current Deployment Strategy**: Menlo uses a self-hosted GitHub Actions runner for deployments,  
+> providing direct line-of-sight to local services without SSH requirements.
 
-# Generate SSH key for GitHub Actions
-ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\menlo_deploy -N ""
+**Set up the self-hosted runner:**
 
-# Add public key to authorized_keys
-Add-Content -Path "$env:USERPROFILE\.ssh\authorized_keys" -Value (Get-Content "$env:USERPROFILE\.ssh\menlo_deploy.pub")
-```
+1. **Install GitHub Actions Runner**: Follow [GitHub's guide](https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners) to install the runner on your Windows machine
+2. **Configure the runner**: Register the runner with your repository
+3. **Configure GitHub repository secrets** (see table below)
 
 **Add these secrets to your GitHub repository:**
 
-| Secret Name | Value | Description |
-|-------------|-------|-------------|
-| `HOME_SERVER_HOST` | Your IP from discover-host.ps1 | Server IP address |
-| `HOME_SERVER_USER` | Your Windows username | SSH user |
-| `HOME_SERVER_SSH_KEY` | Private key content | Content of menlo_deploy file |
-| `POSTGRES_USER` | `menlo` | Database user |
-| `POSTGRES_PASSWORD` | `secure_password_here` | Database password |
-| `API_DOMAIN` | `example.com` | Your domain name |
-| `API_SUBDOMAIN` | `api.menlo` | Your API subdomain |
+| Secret Name | Value | Description | Required |
+|-------------|-------|-------------|----------|
+| `POSTGRES_USER` | `menlo` | Database user | ✅ |
+| `POSTGRES_PASSWORD` | `secure_password_here` | Database password | ✅ |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Token from Azure | Azure Static Web Apps deployment | ✅ |
+
+**Add these variables to your GitHub repository (optional):**
+
+| Variable Name | Value | Description |
+|---------------|-------|-------------|
+| `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart |
+| `API_BASE_URL` | `https://your-domain.com` | External API URL |
+| `FRONTEND_URL` | `https://app-url.azurestaticapps.net` | Frontend URL |
+| `DOMAIN` | `your-domain.com` | Your domain name |
+| `SUBDOMAIN` | `api` | API subdomain |
 
 ## � Deployment
 
@@ -133,8 +135,8 @@ Add-Content -Path "$env:USERPROFILE\.ssh\authorized_keys" -Value (Get-Content "$
 
 Push to the `main` branch or manually trigger the deployment workflow. The GitHub Actions will:
 
-1. Build and push container image
-2. Deploy to your Home via SSH
+1. Build and push container image to GitHub Container Registry
+2. Deploy directly to local services via self-hosted runner
 3. Verify health checks
 4. Update Cloudflare tunnel (if configured)
 
@@ -275,9 +277,9 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 ### Network Security
 
 - Ollama and PostgreSQL are not exposed externally
-- Only Menlo API exposed via Cloudflare Tunnel
-- SSH access protected by key-based authentication
-- Windows Firewall configured for SSH only
+- Only Menlo API exposed via Cloudflare Tunnel  
+- Self-hosted GitHub Actions runner provides secure deployment access
+- Windows Firewall configured appropriately
 
 ### Data Security
 
@@ -289,7 +291,7 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 
 - Cloudflare Access can be configured for additional authentication
 - MFA recommended for Cloudflare account
-- Regular SSH key rotation recommended
+- GitHub Actions runner access should be properly secured
 
 ## 📞 Support
 

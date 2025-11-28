@@ -20,11 +20,13 @@ Comprehensive CI pipeline that runs on every push and pull request:
 ### Continuous Deployment (CD)
 
 **Frontend Deployment**: `cd-frontend.yml`
+
 - Deploys Angular PWA to Azure Static Web Apps (free tier)
 - Includes Storybook documentation deployment
 - Configures routing for API proxy to home server
 
 **Backend Deployment**: `cd-backend.yml`
+
 - Builds and pushes Docker containers to GitHub Container Registry
 - Deploys to home server via SSH with zero-downtime strategy
 - Manages PostgreSQL and Ollama containers
@@ -79,21 +81,24 @@ graph LR
 - **No Exposed Ports**: Cloudflare Tunnel eliminates need for static IP
 - **Container Security**: Trivy scanning and minimal attack surface
 - **Dependency Auditing**: Automated vulnerability detection
-- **Secret Management**: Secure handling of deployment credentials
+- **Self-Hosted Runner**: Direct deployment without SSH keys or remote access
+- **Branch Protection**: GitHub's branch protection provides deployment security
+- **Secure Secret Management**: Deployment credentials managed through GitHub Actions
 
 ## 🔧 Required Secrets
 
 Configure these secrets in GitHub repository settings:
 
 ### Backend Deployment
-- `HOME_SERVER_HOST`: IP address or hostname of home server
-- `HOME_SERVER_USER`: SSH username for deployment
-- `HOME_SERVER_SSH_KEY`: Private SSH key for server access
-- `DATABASE_CONNECTION_STRING`: PostgreSQL connection string
-- `POSTGRES_USER`: PostgreSQL username
+
+- `POSTGRES_USER`: PostgreSQL username  
 - `POSTGRES_PASSWORD`: PostgreSQL password
 
+> **Note**: The backend deployment now uses a self-hosted GitHub Actions runner with direct line-of-sight to local services.  
+> SSH-based deployment has been replaced with direct local execution for improved security and simplicity.
+
 ### Frontend Deployment
+
 - `AZURE_STATIC_WEB_APPS_API_TOKEN`: Azure Static Web Apps deployment token
 
 ## 📊 Required Variables
@@ -101,12 +106,14 @@ Configure these secrets in GitHub repository settings:
 Configure these variables in GitHub repository settings:
 
 ### Application Configuration
-- `API_BASE_URL`: Base URL for the API (e.g., `https://api.menlo.boshoff.dev`)
+
+- `API_BASE_URL`: Base URL for the API (e.g., `https://menlo.wilcob.co.za`)
 - `FRONTEND_URL`: Frontend application URL
-- `POSTGRES_DB`: PostgreSQL database name (default: `menlo`)
-- `OLLAMA_BASE_URL`: Ollama service URL (default: `http://ollama:11434`)
+- `DOMAIN`: Your domain name (e.g., `wilcob.co.za`)
+- `SUBDOMAIN`: API subdomain (e.g., `menlo`)
 
 ### Optional Features
+
 - `DEPLOY_STORYBOOK`: Set to `true` to enable Storybook deployment
 - `STORYBOOK_URL`: Storybook documentation URL
 - `CLOUDFLARE_TUNNEL_ENABLED`: Set to `true` if using Cloudflare Tunnel

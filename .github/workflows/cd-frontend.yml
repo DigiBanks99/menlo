@@ -76,7 +76,7 @@ jobs:
         env:
           NODE_ENV: production
           # Add environment-specific variables here
-          MENLO_API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.menlo.boshoff.dev' }}
+          MENLO_API_BASE_URL: ${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}
           MENLO_APP_VERSION: ${{ github.sha }}
           MENLO_BUILD_TIMESTAMP: ${{ github.run_number }}
 
@@ -121,11 +121,11 @@ jobs:
             "routes": [
               {
                 "route": "/api/*",
-                "rewrite": "${{ vars.API_BASE_URL || 'https://api.menlo.boshoff.dev' }}/api/{*}"
+                "rewrite": "${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}/api/{*}"
               },
               {
                 "route": "/health",
-                "rewrite": "${{ vars.API_BASE_URL || 'https://api.menlo.boshoff.dev' }}/health"
+                "rewrite": "${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}/health"
               }
             ],
             "responseOverrides": {
