@@ -138,7 +138,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 **Architecture Components**:
 
-- **Global Frontend**: Azure Static Web Apps for fast, distributed UI delivery
+- **Global Frontend**: Cloudflare Pages (Angular PWA) for fast, distributed UI delivery
 - **Secure Tunnel**: Cloudflare Tunnel eliminates static IP requirement
 - **Local Backend**: Home server provides full data control and AI processing
 - **Cost Optimization**: ~80% cost reduction vs. full cloud hosting

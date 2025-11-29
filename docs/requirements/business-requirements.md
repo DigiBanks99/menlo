@@ -240,10 +240,10 @@ The application acts as an AI interpreter that transforms handwritten planning l
 
 ### Platform and Technology
 
-- **Frontend**: Angular-based Progressive Web App deployed on Azure Static Web Apps (Free tier)
-- **Backend**: .NET Core Web API running on home server
+- **Frontend**: Angular-based Progressive Web App deployed on Cloudflare Pages (Free tier)
+- **Backend**: .NET Core Web API running on home server accessed via Cloudflare Tunnel
 - **Database**: PostgreSQL with Entity Framework Core
-- **Hosting**: Hybrid architecture - Azure Static Web Apps + Cloudflare Tunnel to home server
+- **Hosting**: Hybrid architecture - Cloudflare Pages + Cloudflare Tunnel to home server
 - **AI Framework**: Microsoft Semantic Kernel for AI orchestration
 - **Local AI Models**: Ollama with Microsoft Phi models for cost-conscious local inference
 
@@ -260,12 +260,12 @@ The application acts as an AI interpreter that transforms handwritten planning l
 **Hybrid Cloud-Local Architecture:**
 
 ```text
-[Family Devices] → [Azure Static Web Apps CDN] → [Cloudflare Tunnel] → [Home Server API] → [Local AI + Database]
+[Family Devices] → [Cloudflare Pages Edge] → [Cloudflare Tunnel] → [Home Server API] → [Local AI + Database]
 ```
 
 **Components:**
 
-- **Frontend Hosting**: Azure Static Web Apps (globally distributed, free tier)
+- **Frontend Hosting**: Cloudflare Pages (globally distributed edge delivery, free tier)
 - **API Hosting**: Home server accessed via Cloudflare Tunnel (eliminates static IP requirement)
 - **Database**: PostgreSQL on home server for full data control
 - **AI Processing**: Local Ollama instance for privacy and cost savings
@@ -275,7 +275,7 @@ The application acts as an AI interpreter that transforms handwritten planning l
 
 - Very low ongoing costs (~R165-365/month vs R1700-3200/month for full cloud)
 - Complete AI privacy - no external AI service calls
-- Fast UI delivery via Azure CDN
+- Fast UI delivery via Cloudflare global edge network
 - Secure backend access without static IP
 - Full control over family data
 

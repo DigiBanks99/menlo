@@ -47,7 +47,7 @@ graph TB
 
 ### Hybrid Architecture
 
-- **Frontend**: Azure Static Web Apps
+- **Frontend**: Cloudflare Pages
 - **Backend**: Home server via Cloudflare Tunnel  
 - **Database**: PostgreSQL
 - **AI**: Local Ollama with Phi models

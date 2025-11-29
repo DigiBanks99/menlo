@@ -126,7 +126,7 @@ The system is organized into **5 primary bounded contexts**:
 
 **Frontend Stack** (Fixed Architecture Decisions):
 
-- **Framework**: Angular 20+ with TypeScript
+- **Framework**: Angular 21+ with TypeScript
 - **UI Library**: Bootstrap 5 with Angular Material components
 - **State Management**: Angular Signals (RxJS for complex flows)
 - **Build**: Angular CLI with Vite
@@ -143,8 +143,8 @@ The system is organized into **5 primary bounded contexts**:
 **ARCHITECTURAL DECISION**: **Hybrid Cloud-Local Architecture** (per [ADR-001](../decisions/adr-001-hosting-strategy.md))
 
 ```md
-[Azure Static Web Apps] → [Cloudflare Tunnel] → [Home Server]
-     (Frontend)              (Secure Proxy)      (Backend + AI)
+[Cloudflare Pages] → [Cloudflare Tunnel] → [Home Server]
+  (Angular PWA)       (Secure Proxy)     (Backend + AI)
 ```
 
 **Benefits**:
@@ -318,13 +318,14 @@ The application is explicitly designed for family-scale usage:
 
 **Primary Authentication**: **Azure AD with Microsoft Identity Platform**
 
-```md
-User → [Azure AD Login] → [JWT Token] → [Home Server Validation] → [Authorized Access]
+```mermaid
+flowchart TD
+    A[User] --> B[Azure AD Login] --> C[JWT Token] --> D[Home Server Validation] --> E[Authorized Access]
 ```
 
 **Authentication Flow**:
 
-1. User accesses application via Azure Static Web Apps
+1. User accesses application via Cloudflare Pages
 2. Azure AD authentication redirect for unauthenticated users
 3. JWT token issued by Azure AD upon successful authentication
 4. Home server validates JWT token signature and claims
