@@ -98,7 +98,7 @@ graph TD
 | **CFO-COO Dynamic**                | Strategic vs operational family roles                   | [Concepts Guide](concepts-and-terminology.md#the-cfo-coo-family-dynamic)                      |
 | **Natural Workflow Preservation**  | Enhance existing habits, don't replace them             | [Concepts Guide](concepts-and-terminology.md#natural-workflow-preservation)                   |
 | **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](concepts-and-terminology.md#privacy-first-local-ai)                          |
-| **Hybrid Cloud-Local**             | Frontend in cloud, backend/data local                   | [ADR-001](adr-001-hosting-strategy.md)                                                        |
+| **Hybrid Cloud-Local**             | Frontend (Cloudflare Pages) + local backend/data         | [ADR-001](adr-001-hosting-strategy.md)                                                        |
 | **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](concepts-and-terminology.md#cost-conscious-experimentation)                  |
 
 ## 🛤️ Reading Paths
@@ -157,7 +157,7 @@ graph TD
 - **Microsoft Semantic Kernel**: AI orchestration framework
 - **Ollama**: Local AI model hosting
 - **Cloudflare Tunnel**: Secure home server connectivity
-- **Azure Static Web Apps**: Frontend hosting (free tier)
+- **Cloudflare Pages**: Frontend hosting (free tier)
 
 ---
 

@@ -278,7 +278,7 @@ Feature Implementation
 ### Frontend Development
 
 - [ ] **Angular Application**
-  - Create responsive Angular 20+ application with TypeScript
+  - Create responsive Angular 21+ application with TypeScript
   - Implement role-based dashboards and navigation
   - Add PWA capabilities with offline functionality for core features
   - Optimize mobile photo capture interface and user experience
@@ -298,7 +298,7 @@ Feature Implementation
   - Configure connection pooling and resource management
 
 - [ ] **Deployment Infrastructure**
-  - Set up Azure Static Web Apps deployment pipeline
+  - Set up Cloudflare Pages deployment pipeline
   - Configure Cloudflare Tunnel for secure home server access
   - Deploy containerized backend services on home server
   - Implement automated backup and recovery procedures

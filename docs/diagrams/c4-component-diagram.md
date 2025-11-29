@@ -5,8 +5,8 @@ This diagram shows the internal architecture of the Menlo Home Management Applic
 ```mermaid
 graph TB
     %% Azure Cloud
-    subgraph Azure["☁️ Azure Cloud"]
-        SWA[📱 Azure Static Web Apps<br/>Angular PWA<br/>Globally distributed frontend<br/>hosting with CDN]
+    subgraph CloudflarePages["🌐 Cloudflare Pages"]
+        Pages[📱 Cloudflare Pages<br/>Angular 21 PWA<br/>Globally distributed edge<br/>static asset hosting]
     end
     
     %% Cloudflare Edge
@@ -98,8 +98,8 @@ graph TB
     BankSystem[🏦 Banking System<br/>External<br/>Source of transaction data]
     
     %% Main Flow
-    FamilyDevices -->|Accesses PWA<br/>HTTPS| SWA
-    SWA -->|API calls via tunnel<br/>HTTPS| CFTunnel
+    FamilyDevices -->|Accesses PWA<br/>HTTPS| Pages
+    Pages -->|API calls via tunnel<br/>HTTPS| CFTunnel
     CFTunnel -->|Forwards to home server<br/>Encrypted tunnel| APIHost
     
     %% API Host to Features
@@ -177,7 +177,7 @@ graph TB
     
     %% External Integrations
     ImportProcessor --> BankSystem
-    NotificationService --> SWA
+    NotificationService --> Pages
     
     %% Cross-feature Dependencies
     BudgetImpactAnalyser --> BudgetRepository
@@ -200,7 +200,7 @@ graph TB
     classDef dbClass fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
     classDef externalClass fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000
     
-    class SWA azureClass
+    class Pages azureClass
     class CFTunnel cloudflareClass
     class APIHost apiClass
     class BudgetEndpoints,BudgetHandlers,BudgetModels,BudgetRepository,BudgetAnalyser,TransactionCategorizer,RentalCostAnalyser budgetClass
@@ -218,7 +218,7 @@ graph TB
 
 ### Hybrid Cloud-Local Architecture
 
-- **Frontend**: Azure Static Web Apps (global CDN)
+- **Frontend**: Cloudflare Pages (global edge)
 - **Backend**: Home server via Cloudflare Tunnel (no static IP needed)
 - **Database**: PostgreSQL with EF Core
 - **AI**: Local Ollama with Phi models
