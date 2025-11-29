@@ -1,16 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, Signal } from '@angular/core';
+import { MenloApiClient, WeatherForecast } from 'data-access-menlo-api';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'lib-menlo-lib',
   standalone: true,
-  imports: [],
+  imports: [JsonPipe],
   template: `
-    <p>
-      menlo-lib works!
-    </p>
+    <pre>
+      {{ forecasts() | json }}
+    </pre>
   `,
   styles: ``
 })
 export class MenloLib {
+  constructor(private menloApiClient: MenloApiClient) {
+    this.forecasts = this.menloApiClient.forecasts;
+    this.menloApiClient.loadWeather();
+  }
 
+  public forecasts: Signal<WeatherForecast[] | null>
 }
