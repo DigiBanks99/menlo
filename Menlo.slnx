@@ -6,6 +6,7 @@
     <File Path=".gitignore" />
     <File Path=".editorconfig" />
     <File Path="README.md" />
+    <File Path="global.json" />
   </Folder>
   <Folder Name="/api/">
     <Project Path="src/api/Menlo.Api.Tests/Menlo.Api.Tests.csproj" />
