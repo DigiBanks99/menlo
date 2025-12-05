@@ -1,61 +1,61 @@
+using Aspire.Hosting.JavaScript;
 using Microsoft.Extensions.Hosting;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-// Add PostgreSQL
 IResourceBuilder<PostgresServerResource> postgres = builder
     .AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume("postgres-menlo")
-    .WithPgAdmin(); // Add PgAdmin for database management
+    .WithPgAdmin();
 
 IResourceBuilder<PostgresDatabaseResource> db = postgres
     .AddDatabase("menlo");
 
-// Add Ollama with automatic model bootstrapping and persistent storage
-var ollama = builder.AddOllama("ollama")
+IResourceBuilder<OllamaResource> ollama = builder.AddOllama("ollama")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume("ollama-models") // Persist models across container restarts
-    .WithOpenWebUI(); // Optional: Add Open WebUI for model testing
+    .WithDataVolume("ollama-models")
+    .WithOpenWebUI();
 
-// Add models for different AI capabilities
-var phi4Mini = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
-var phi4Vision = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
-
-// Alternative lightweight models for development
-// var phi35 = ollama.AddModel("phi35-mini", "phi3.5:3.8b"); // Smaller text model
-// var llava = ollama.AddModel("llava-vision", "llava:latest"); // Alternative vision model
+IResourceBuilder<OllamaModelResource> textModel = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
+IResourceBuilder<OllamaModelResource> visionModel = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
 
 // Add Menlo.Api project with AI dependencies
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Projects.Menlo_Api>("api")
+    .WithHttpHealthCheck("health")
     .WithReference(db)
-    .WithReference(phi4Mini)      // Reference text model
-    .WithReference(phi4Vision)    // Reference vision model
     .WaitFor(db)
-    .WaitFor(phi4Mini)           // Wait for models to be ready
-    .WaitFor(phi4Vision)
-    .WithOtlpExporter(); // Enable telemetry
+    .WithReference(textModel)
+    .WaitFor(textModel)
+    .WithReference(visionModel)
+    .WaitFor(visionModel);
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
-IResourceBuilder<NodeAppResource> ui = builder
-    .AddPnpmApp("web-ui", uiPath)
-    .WithPnpmPackageInstallation()
+
+IResourceBuilder<JavaScriptAppResource> ui = builder
+    .AddJavaScriptApp("web-ui", uiPath)
+    .WithPnpm()
+    .WithRunScript("start")
     .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
     .WithHttpEndpoint(name: "https", isProxied: false, port: 4200, env: "PORT")
     .WithHttpHealthCheck()
     .WithReference(api)
     .WaitFor(api);
 
-IResourceBuilder<NodeAppResource> uiStorybook = builder
-    .AddPnpmApp("web-ui-storybook", uiPath, "storybook")
+IResourceBuilder<JavaScriptAppResource> uiStorybook = builder
+    .AddJavaScriptApp("web-ui-storybook", uiPath)
+    .WithPnpm(false)
+    .WithRunScript("storybook")
     .WithExternalHttpEndpoints()
     .WithHttpEndpoint(name: "https", isProxied: false, port: 6006)
     .WithHttpHealthCheck()
     .WithExplicitStart();
 
-IResourceBuilder<NodeAppResource> libStorybook = builder
-    .AddPnpmApp("lib-ui-storybook", uiPath, "storybook:lib")
+IResourceBuilder<JavaScriptAppResource> libStorybook = builder
+    .AddJavaScriptApp("lib-ui-storybook", uiPath)
+    .WithPnpm(false)
+    .WithRunScript("storybook:lib")
     .WithExternalHttpEndpoints()
     .WithHttpEndpoint(name: "https", isProxied: false, port: 6007)
     .WithHttpHealthCheck()

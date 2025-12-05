@@ -1,24 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.1" />
-
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.0.1" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UserSecretsId>cdedd48b-33b2-4c03-a13b-3c73c7337e6b</UserSecretsId>
+    <UserSecretsId>menlo-app-host</UserSecretsId>
   </PropertyGroup>
-
   <ItemGroup>
-  <PackageReference Include="Aspire.Hosting.AppHost" />
-  <PackageReference Include="Aspire.Hosting.PostgreSQL" />
-  <PackageReference Include="CommunityToolkit.Aspire.Hosting.NodeJS.Extensions" />
-  <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Menlo.Api\Menlo.Api.csproj" />
   </ItemGroup>
-
 </Project>
