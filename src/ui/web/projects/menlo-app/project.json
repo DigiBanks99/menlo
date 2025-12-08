@@ -78,7 +78,7 @@
       "executor": "@angular/build:extract-i18n"
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@analogjs/vitest-angular:test",
       "outputs": [
         "{options.reportsDirectory}"
       ],

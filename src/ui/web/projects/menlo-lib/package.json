@@ -2,6 +2,7 @@
   "name": "menlo-lib",
   "version": "0.0.1",
   "main": "./bundles/menlo-lib.umd.js",
+  "type": "module",
   "types": "index.d.ts",
   "peerDependencies": {
     "@angular/common": "^20.1.0",

@@ -9,26 +9,26 @@ importers:
   .:
     devDependencies:
       corepack:
-        specifier: ^0.34.0
-        version: 0.34.0
+        specifier: ^0.34.5
+        version: 0.34.5
       pnpm:
-        specifier: ^10.17.0
-        version: 10.17.0
+        specifier: 10.25.0
+        version: 10.25.0
 
 packages:
 
-  corepack@0.34.0:
-    resolution: {integrity: sha512-8D9N/k9hDjoISCDGUzH2wBF0fJD49p3G7ifoEZcc0vhB7Py6r+Mc1SpJ8dvnWY/HMP95K60WkQbN7vgbUgXgpA==}
+  corepack@0.34.5:
+    resolution: {integrity: sha512-G+ui7ZUxTzgwRc45pi7OhOybKFnGpxVDp0khf+eFdw/gcQmZfme4nUh4Z4URY9YPoaZYP86zNZmqV/T2Bf5/rA==}
     engines: {node: ^20.10.0 || ^22.11.0 || >=24.0.0}
     hasBin: true
 
-  pnpm@10.17.0:
-    resolution: {integrity: sha512-/Oij3Smk7S7FZvtT77sE2MRKDwW8bySnMEaRD7nDznr6NaCYBQBmj6NXM0W9ZEZE+pgzj6FoI1yA9KoXqhf77w==}
+  pnpm@10.25.0:
+    resolution: {integrity: sha512-XoJjkCevN8+DIGG8xtY5whljRIjg8rrr54UCink957Ul/80/f/V09emGBlTgmP6FK6isXdXO/hdn0joCCpL1AQ==}
     engines: {node: '>=18.12'}
     hasBin: true
 
 snapshots:
 
-  corepack@0.34.0: {}
+  corepack@0.34.5: {}
 
-  pnpm@10.17.0: {}
+  pnpm@10.25.0: {}

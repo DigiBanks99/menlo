@@ -21,4 +21,9 @@ describe('SharedUtil', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should render default message', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('shared-util works!');
+  });
 });
