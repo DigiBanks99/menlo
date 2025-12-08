@@ -22,7 +22,7 @@
       }
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@analogjs/vitest-angular:test",
       "outputs": [
         "{options.reportsDirectory}"
       ],

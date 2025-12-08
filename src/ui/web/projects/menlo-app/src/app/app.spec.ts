@@ -14,7 +14,7 @@ class MockMenloLib {}
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, MockMenloLib],
       providers: [
         provideZonelessChangeDetection()
       ]

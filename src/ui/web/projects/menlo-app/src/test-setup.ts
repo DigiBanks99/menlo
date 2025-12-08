@@ -1,12 +1,7 @@
-// Test setup for Angular with Vitest
-import { getTestBed } from '@angular/core/testing';
-import {
-    BrowserTestingModule,
-    platformBrowserTesting,
-} from '@angular/platform-browser/testing';
+// Using zoneless change detection, so we don't need Zone.js
+// import '@analogjs/vitest-angular/setup-zone';
 
-// Configure the Angular testing environment
-getTestBed().initTestEnvironment(
-  BrowserTestingModule,
-  platformBrowserTesting()
-);
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+
+getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());

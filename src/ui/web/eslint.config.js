@@ -1,40 +1,39 @@
-const nx = require('@nx/eslint-plugin');
-const typescriptEslint = require('@typescript-eslint/eslint-plugin');
-const typescriptParser = require('@typescript-eslint/parser');
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
 
-module.exports = [
-  {
-    plugins: {
-      '@nx': nx,
-      '@typescript-eslint': typescriptEslint,
-    },
-    languageOptions: {
-      parser: typescriptParser,
-    },
+import nx from '@nx/eslint-plugin';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+
+export default [{
+  plugins: {
+    '@nx': nx,
+    '@typescript-eslint': typescriptEslint,
   },
-  {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {
-      '@nx/enforce-module-boundaries': [
-        'error',
-        {
-          enforceBuildableLibDependency: true,
-          allow: [],
-          depConstraints: [
-            {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
-            },
-          ],
-        },
-      ],
-    },
+  languageOptions: {
+    parser: typescriptParser,
   },
-  {
-    files: ['**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-    },
+}, {
+  files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+  rules: {
+    '@nx/enforce-module-boundaries': [
+      'error',
+      {
+        enforceBuildableLibDependency: true,
+        allow: [],
+        depConstraints: [
+          {
+            sourceTag: '*',
+            onlyDependOnLibsWithTags: ['*'],
+          },
+        ],
+      },
+    ],
   },
-];
+}, {
+  files: ['**/*.ts'],
+  rules: {
+    '@typescript-eslint/no-unused-vars': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+  },
+}, ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"]];

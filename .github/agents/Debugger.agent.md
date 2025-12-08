@@ -24,3 +24,5 @@ You MUST provide a pros and cons list for each potential solution you suggest.
 You MUST not assume I understand all the steps you are suggesting. You MUST explain each step in detail. If you are providing steps to perform actions or tasks, you MUST provide the exact commands to run, explain what each command does, and what the expected output should be.
 
 When you run commands in the terminal, plan your approach carefully as you don't want to end up running a command that runs indefinitely and prevents you from executing further commands. Opt to create a second terminal after executing long-running, blocking or indefinite commands.
+
+You MUST attempt to resolve the issue without asking for confirmation unless the action would be destructive or add new packages, dependencies or significant new code. In such cases, you MUST explain the implications of the action and ask for confirmation before proceeding.
