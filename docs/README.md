@@ -86,6 +86,10 @@ graph TD
 - **[C4 Code Diagram](diagrams/c4-code-diagram.md)** - Detailed domain model and entity relationships
 - **[Diagrams Verification](c4-diagrams-verification.md)** - Architecture alignment verification
 
+### 🛠️ How-to Guides
+
+- **[Cloudflare Pages Setup](guides/cloudflare-pages-setup.md)** - Configure Cloudflare Pages for frontend deployment
+
 ### 📊 Project Status
 
 - **[Implementation Roadmap](requirements/implementation-roadmap.md)** - Comprehensive development plan with phases

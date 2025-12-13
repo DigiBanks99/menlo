@@ -17,7 +17,7 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  NODE_VERSION: '22.18.0'
+  NODE_VERSION: '24.11.1'
 
 jobs:
   validate-release:

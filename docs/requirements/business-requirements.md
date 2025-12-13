@@ -240,7 +240,7 @@ The application acts as an AI interpreter that transforms handwritten planning l
 
 ### Platform and Technology
 
-- **Frontend**: Angular-based Progressive Web App deployed on Cloudflare Pages (Free tier)
+- **Frontend**: Angular 21 Progressive Web App deployed on Cloudflare Pages (Free tier)
 - **Backend**: .NET Core Web API running on home server accessed via Cloudflare Tunnel
 - **Database**: PostgreSQL with Entity Framework Core
 - **Hosting**: Hybrid architecture - Cloudflare Pages + Cloudflare Tunnel to home server

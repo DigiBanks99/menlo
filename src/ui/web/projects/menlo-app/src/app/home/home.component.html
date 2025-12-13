@@ -1,0 +1,68 @@
+<div class="home-container">
+  <section class="hero">
+    <h1>Welcome to Menlo</h1>
+    <p class="hero-subtitle">Your intelligent home management companion</p>
+    <div class="hero-actions">
+      <a routerLink="/budgets" class="btn btn-primary">Manage Budgets</a>
+      <a routerLink="/analytics" class="btn btn-secondary">View Analytics</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2>Family Finance Made Simple</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Smart Budgeting</h3>
+        <p>AI-powered budget tracking that learns from your family's spending patterns</p>
+      </div>
+      <div class="feature-card">
+        <h3>Handwritten Lists</h3>
+        <p>Capture and digitize handwritten shopping lists with intelligent recognition</p>
+      </div>
+      <div class="feature-card">
+        <h3>Privacy First</h3>
+        <p>All AI processing happens locally on your home server - your data stays private</p>
+      </div>
+    </div>
+  </section>
+
+  @defer (on viewport) {
+    <!-- Analytics preview loads when scrolled into view -->
+    <section class="analytics-preview">
+      <h2>Your Budget Insights</h2>
+      <div class="preview-card">
+        <h3>This Month's Overview</h3>
+        <div class="preview-stats">
+          <div class="stat">
+            <span class="stat-value">R 4,250</span>
+            <span class="stat-label">Remaining Budget</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">73%</span>
+            <span class="stat-label">On Track</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Days Left</span>
+          </div>
+        </div>
+        <p>Your family is staying within budget this month. Great work!</p>
+      </div>
+    </section>
+  } @placeholder {
+    <!-- Shown while deferred content loads -->
+    <section class="analytics-placeholder">
+      <div class="placeholder-card">
+        <h3>📊 Budget Analytics Loading...</h3>
+        <p>Scroll down to see your personalized insights</p>
+      </div>
+    </section>
+  } @error {
+    <section class="analytics-error">
+      <div class="error-card">
+        <h3>⚠️ Analytics Unavailable</h3>
+        <p>Unable to load your budget insights right now. Please try again later.</p>
+      </div>
+    </section>
+  }
+</div>

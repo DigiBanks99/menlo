@@ -10,6 +10,7 @@ This setup is designed specifically for:
 - **Podman containers** (rootless, secure container runtime)
 - **Local Ollama AI** (phi4-mini, phi4-vision models)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
+- **Cloudflare Pages** (frontend hosting with Angular 21)
 
 ## 📁 Files Overview
 
@@ -107,17 +108,19 @@ cloudflared service install
 |-------------|-------|-------------|----------|
 | `POSTGRES_USER` | `menlo` | Database user | ✅ |
 | `POSTGRES_PASSWORD` | `secure_password_here` | Database password | ✅ |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Token from Azure | Azure Static Web Apps deployment | ✅ |
+| `CLOUDFLARE_API_TOKEN` | Token from Cloudflare | Cloudflare Pages deployment | ✅ |
+| `CLOUDFLARE_ACCOUNT_ID` | Account ID from Cloudflare | Cloudflare Pages deployment | ✅ |
 
-**Add these variables to your GitHub repository (optional):**
+**Add these variables to your GitHub repository:**
 
-| Variable Name | Value | Description |
-|---------------|-------|-------------|
-| `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart |
-| `API_BASE_URL` | `https://your-domain.com` | External API URL |
-| `FRONTEND_URL` | `https://app-url.azurestaticapps.net` | Frontend URL |
-| `DOMAIN` | `your-domain.com` | Your domain name |
-| `SUBDOMAIN` | `api` | API subdomain |
+| Variable Name | Value | Description | Required |
+|---------------|-------|-------------|----------|
+| `CLOUDFLARE_PAGES_PROJECT_NAME` | `menlo-ui-web` | Cloudflare Pages project name | ✅ |
+| `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
+| `API_BASE_URL` | `https://menlo.yourdomain.com` | External API URL | - |
+| `FRONTEND_URL` | `https://menlo.yourdomain.com` | Cloudflare Pages frontend URL | - |
+| `DOMAIN` | `yourdomain.com` | Your domain name | - |
+| `SUBDOMAIN` | `api` | API subdomain | - |
 
 ## � Deployment
 
@@ -271,6 +274,35 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 - **First startup**: Model download takes 10-30 minutes
 - **Subsequent startups**: ~30 seconds to full readiness
 - **AI inference**: 2-10 seconds per request (depending on model and query)
+
+## 🔄 Frontend Hosting Revision
+
+**Migration to Cloudflare Pages** (December 2025)
+
+As per [ADR-001](../docs/decisions/adr-001-hosting-strategy.md), the frontend hosting has been migrated from Azure Static Web Apps to Cloudflare Pages for improved performance and cost optimization.
+
+### Key Changes:
+
+- **Frontend Hosting**: Now deployed to Cloudflare Pages using Direct Upload deployment
+- **Angular Version**: Upgraded to Angular 21 with modern control flow syntax (`@if`, `@for`, `@defer`)
+- **Build Process**: NX workspace with pnpm for package management
+- **CI/CD**: GitHub Actions workflow updated to use `cloudflare/wrangler-action@v3`
+- **Domain**: Frontend accessible via `https://menlo.yourdomain.com`
+
+### Deployment Commands:
+
+For manual deployment using wrangler CLI:
+
+```bash
+# Build the frontend
+cd src/ui/web
+pnpm nx build menlo-app
+
+# Deploy to Cloudflare Pages
+wrangler pages deploy dist/menlo-app --project-name menlo-ui-web --branch main
+```
+
+For automatic deployment, push changes to the `main` branch which triggers the CD workflow.
 
 ## 🔐 Security Considerations
 

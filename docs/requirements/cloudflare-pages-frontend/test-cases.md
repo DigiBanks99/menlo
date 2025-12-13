@@ -5,7 +5,7 @@ Each test maps to Acceptance Criteria (AC) and Functional Requirements (FR) in `
 ## Deployment & Hosting
 
 - [ ] **TC-CP-01 (AC-CP-01, FR-CP-01/02)**: Cloudflare Pages build completes; site loads root HTML with status 200.
-- [ ] **TC-CP-02 (AC-CP-02, FR-CP-07)**: API call from UI includes Origin header `https://menlo.wilcob.co.za` and passes CORS; mismatched origin denied.
+- [ ] **TC-CP-02 (AC-CP-02, FR-CP-07)**: API call from UI includes Origin header `https://menlo.yourdomain.com` and passes CORS; mismatched origin denied.
 - [ ] **TC-CP-03 (FR-CP-04)**: Direct navigation to deep route resolves via SPA fallback.
 - [ ] **TC-CP-04 (FR-CP-06)**: Domain binding verified (DNS & SSL valid) – no certificate warnings.
 
