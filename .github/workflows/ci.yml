@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  NODE_VERSION: '22.18.0'
+  NODE_VERSION: '24.11.1'
 
 jobs:
   detect-changes:
@@ -177,6 +177,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup Angular cache
+        uses: actions/cache@v4
+        with:
+          path: src/ui/web/.angular/cache
+          key: ${{ runner.os }}-angular-cache-${{ hashFiles('src/ui/web/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-cache-
+
       - name: Install dependencies (root)
         run: pnpm install --frozen-lockfile
 
@@ -191,6 +199,32 @@ jobs:
       - name: Build applications
         working-directory: src/ui/web
         run: pnpm run build:all:prod
+
+      - name: Create version metadata
+        working-directory: src/ui/web
+        run: |
+          mkdir -p dist/menlo-app
+          cat > dist/menlo-app/version.json << EOF
+          {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "buildNumber": "${{ github.run_number }}",
+            "buildId": "${{ github.run_id }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")",
+            "actor": "${{ github.actor }}",
+            "repository": "${{ github.repository }}"
+          }
+          EOF
+
+      - name: Verify version metadata
+        working-directory: src/ui/web
+        run: |
+          if [ ! -f "dist/menlo-app/version.json" ]; then
+            echo "❌ version.json not found"
+            exit 1
+          fi
+          echo "✅ version.json created successfully"
+          cat dist/menlo-app/version.json
 
       - name: Run tests
         working-directory: src/ui/web
@@ -232,6 +266,12 @@ jobs:
           path: |
             src/ui/web/dist/**/*
             src/ui/web/storybook-static/**/*
+
+      - name: Upload Pages deployment artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: frontend-pages-dist
+          path: src/ui/web/dist/menlo-app/**/*
 
   frontend-security:
     name: Frontend - Security Scan

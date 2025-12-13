@@ -9,10 +9,10 @@
 The original decision selected Azure Static Web Apps for frontend hosting. This has been **revised** to use **Cloudflare Pages** for the following reasons:
 
 - Consolidation: We already rely on Cloudflare Tunnel for secure backend access; using Pages unifies edge delivery and simplifies DNS/domain management.
-- Domain Alignment: Single apex/root domain `menlo.wilcob.co.za` now serves both UI and API (`/api` via tunnel) eliminating cross-origin deployment complexity.
+- Domain Alignment: Single apex/root domain `menlo.yourdomain.com` now serves both UI and API (`/api` via tunnel) eliminating cross-origin deployment complexity.
 - Modern Frontend Needs: Angular upgraded to **v21**; Cloudflare Pages supports flexible build commands and edge asset caching without Azure-specific integration.
 - Simplicity & Cost: Removes Azure Static Web Apps configuration surface; Cloudflare Pages free tier suffices for single-family usage.
-- Tighter CORS Control: API now restricts production origin to `https://menlo.wilcob.co.za` (requirement tracked separately).
+- Tighter CORS Control: API now restricts production origin to `https://menlo.yourdomain.com` (requirement tracked separately).
 
 ### New Decision
 
@@ -227,8 +227,8 @@ The Home Management Application requires a hosting strategy that balances cost-c
 1. **Angular Upgrade**: Upgrade UI to Angular 21 (signals, deferred views, latest CLI) – see requirement `cloudflare-pages-frontend`.
 2. **Cloudflare Pages Project**: Connect GitHub repo; configure build command `pnpm install && pnpm exec ng build --configuration=production`.
 3. **Routing / SPA**: Enable single-page application fallback (`_redirects` or Pages config) to `index.html`.
-4. **Domain Integration**: Point `menlo.wilcob.co.za` to Pages; ensure `/api/*` requests route through existing tunnel without origin mismatch.
-5. **CORS Hardening**: Update API to allow origin only `https://menlo.wilcob.co.za` in production; keep localhost origins for development.
+4. **Domain Integration**: Point `menlo.yourdomain.com` to Pages; ensure `/api/*` requests route through existing tunnel without origin mismatch.
+5. **CORS Hardening**: Update API to allow origin only `https://menlo.yourdomain.com` in production; keep localhost origins for development.
 6. **Cache Strategy**: Use Pages edge caching for static assets with immutable hashes; confirm PWA offline for core budget/list features.
 7. **Monitoring**: Add Pages deployment status checks to CI and document rollback (redeploy previous build / pin commit).
 8. **Docs Update**: Replace Azure Static Web Apps references across README, architecture, diagrams and requirements.

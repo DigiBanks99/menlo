@@ -1,0 +1,89 @@
+<div class="analytics-container">
+  <header class="page-header">
+    <h1>Budget Analytics</h1>
+    <p>AI-powered insights into your family's spending patterns</p>
+    <div class="period-selector">
+      <select class="period-select">
+        <option value="current">Current Month</option>
+        <option value="last">Last Month</option>
+        <option value="quarter">This Quarter</option>
+        <option value="year">This Year</option>
+      </select>
+    </div>
+  </header>
+
+  <section class="analytics-grid">
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      @for (metric of summaryMetrics(); track metric.id) {
+        <div class="summary-card" [class]="'card-' + metric.type">
+          <div class="card-icon">{{ metric.icon }}</div>
+          <div class="card-content">
+            <h3>{{ metric.title }}</h3>
+            <div class="card-value">{{ metric.value }}</div>
+            <div class="card-change" [class]="'change-' + metric.changeType">
+              {{ metric.change }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Spending Trends Chart -->
+    <div class="chart-section">
+      <div class="chart-card">
+        <h3>Spending Trends</h3>
+        <div class="chart-placeholder">
+          <div class="chart-icon">📈</div>
+          <p>Interactive spending chart would appear here</p>
+          <small>Chart visualization coming soon with Chart.js integration</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="categories-section">
+      <div class="categories-card">
+        <h3>Spending by Category</h3>
+        <div class="categories-list">
+          @for (category of categories(); track category.id) {
+            <div class="category-item">
+              <div class="category-info">
+                <span class="category-icon">{{ category.icon }}</span>
+                <span class="category-name">{{ category.name }}</span>
+              </div>
+              <div class="category-amount">
+                <span class="amount">R{{ category.amount | number:'1.0-0' }}</span>
+                <div class="category-bar">
+                  <div class="bar-fill" [style.width.%]="category.percentage"></div>
+                </div>
+                <span class="percentage">{{ category.percentage }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="insights-section">
+      <div class="insights-card">
+        <h3>🤖 AI Insights</h3>
+        <div class="insights-list">
+          @for (insight of aiInsights(); track insight.id) {
+            <div class="insight-item" [class]="'insight-' + insight.type">
+              <div class="insight-icon">{{ insight.icon }}</div>
+              <div class="insight-content">
+                <h4>{{ insight.title }}</h4>
+                <p>{{ insight.description }}</p>
+                @if (insight.action) {
+                  <button class="btn btn-small">{{ insight.action }}</button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

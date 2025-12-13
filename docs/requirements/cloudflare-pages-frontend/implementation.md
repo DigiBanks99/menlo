@@ -76,7 +76,7 @@ Tasks:
 1. Create Cloudflare Pages project (Direct Upload) – do not auto-connect repo for native builds.
 2. Generate scoped API token (Pages Write) + retrieve Account ID; store as GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 3. Determine `CLOUDFLARE_PAGES_PROJECT_NAME` (e.g., `menlo-ui`).
-4. Configure custom domain `menlo.wilcob.co.za` mapping (Pages dashboard) and verify DNS propagation.
+4. Configure custom domain `menlo.yourdomain.com` mapping (Pages dashboard) and verify DNS propagation.
 5. Add SPA fallback configuration: create `_redirects` file with `/* /index.html 200` or use Pages UI setting.
 6. Document manual deploy command (wrangler): `wrangler pages deploy dist/menlo-app --project-name $PROJECT --branch main`.
 Acceptance: Domain resolves; 404 fallback rewrites to index.html; manual test build successful.

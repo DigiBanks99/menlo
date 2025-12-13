@@ -21,18 +21,7 @@ describe('App', () => {
     })
     .overrideComponent(App, {
       set: {
-        imports: [MockMenloLib],
-        template: `
-          <main class="main">
-            <div class="content">
-              <div class="left-side">
-                <h1>Hello, {{ title() }}</h1>
-                <p>Congratulations! Your app is running. 🎉</p>
-                <lib-menlo-lib></lib-menlo-lib>
-              </div>
-            </div>
-          </main>
-        `
+        imports: [MockMenloLib]
       }
     })
     .compileComponents();
@@ -48,6 +37,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, menlo-app');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Menlo');
   });
 });

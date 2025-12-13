@@ -21,7 +21,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 
 **Frontend Deployment**: `cd-frontend.yml`
 
-- Deploys Angular PWA to Azure Static Web Apps (free tier)
+- Deploys Angular PWA to Cloudflare pages
 - Includes Storybook documentation deployment
 - Configures routing for API proxy to home server
 
@@ -61,7 +61,7 @@ These workflows implement the **Hybrid Cloud-Local Architecture**:
 
 ```mermaid
 graph LR
-    A[GitHub Actions] --> B[Azure Static Web Apps]
+    A[GitHub Actions] --> B[Cloudflare Pages]
     A --> C[Home Server]
     B --> D[Cloudflare Tunnel]
     D --> C
@@ -71,7 +71,7 @@ graph LR
 
 ### Cost Optimization
 
-- **Frontend**: Free Azure Static Web Apps tier
+- **Frontend**: Cloudflare Pages
 - **Backend**: Home server deployment with minimal cloud costs
 - **Container Registry**: Free GitHub Container Registry
 - **CI/CD**: GitHub Actions free tier (generous limits)
@@ -99,7 +99,8 @@ Configure these secrets in GitHub repository settings:
 
 ### Frontend Deployment
 
-- `AZURE_STATIC_WEB_APPS_API_TOKEN`: Azure Static Web Apps deployment token
+- `CLOUDFLARE_API_TOKEN`: Cloudflare Pages deployment token
+- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account identifier
 
 ## 📊 Required Variables
 
@@ -107,9 +108,10 @@ Configure these variables in GitHub repository settings:
 
 ### Application Configuration
 
-- `API_BASE_URL`: Base URL for the API (e.g., `https://menlo.wilcob.co.za`)
+- `API_BASE_URL`: Base URL for the API (e.g., `https://menlo.yourdomain.com`)
 - `FRONTEND_URL`: Frontend application URL
-- `DOMAIN`: Your domain name (e.g., `wilcob.co.za`)
+- `CLOUDFLARE_PAGES_PROJECT_NAME`: Frontend Cloudflare project name (e.g., `menlo-ui-web`)
+- `DOMAIN`: Your domain name (e.g., `yourdomain.com`)
 - `SUBDOMAIN`: API subdomain (e.g., `menlo`)
 
 ### Optional Features
@@ -129,7 +131,7 @@ Configure these variables in GitHub repository settings:
 
 ### Production Deployment
 
-1. **Frontend**: Automatically deployed to Azure Static Web Apps
+1. **Frontend**: Automatically deployed to Cloudflare Pages
 2. **Backend**: Blue-green deployment to home server
 3. **Health Checks**: Automated verification of deployment
 4. **Rollback**: Automatic rollback on deployment failure

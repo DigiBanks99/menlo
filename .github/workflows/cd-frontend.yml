@@ -1,39 +1,48 @@
-name: CD - Deploy Frontend to Azure Static Web Apps
+name: CD - Deploy Frontend to Cloudflare Pages
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'src/ui/**'
+      - 'src/ui/web/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.github/workflows/cd-frontend.yml'
-  workflow_dispatch:
 
 env:
-  NODE_VERSION: '22.18.0'
-  AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+  NODE_VERSION: '24.11.1'
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'menlo-ui-web' }}
 
 jobs:
   validate-secrets:
     name: Validate Deployment Secrets
     runs-on: ubuntu-latest
     steps:
-      - name: Check required secrets
+      - name: Check required secrets and variables
         run: |
-          if [[ -z "${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}" ]]; then
-            echo "❌ AZURE_STATIC_WEB_APPS_API_TOKEN secret is not set"
+          if [[ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]]; then
+            echo "❌ CLOUDFLARE_API_TOKEN secret is not set"
             exit 1
           fi
-          echo "✅ All required secrets are configured"
+          if [[ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]]; then
+            echo "❌ CLOUDFLARE_ACCOUNT_ID secret is not set"
+            exit 1
+          fi
+          if [[ -z "${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }}" ]]; then
+            echo "❌ CLOUDFLARE_PAGES_PROJECT_NAME variable is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets and variables are configured"
 
   build-and-deploy:
     name: Build and Deploy Angular PWA
     runs-on: ubuntu-latest
     needs: validate-secrets
     environment:
-      name: 'Production'
-      url: ${{ vars.FRONTEND_URL }}
+      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}
+      url: ${{ github.ref == 'refs/heads/main' && vars.FRONTEND_URL || steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout code
@@ -63,6 +72,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup Angular cache
+        uses: actions/cache@v4
+        with:
+          path: src/ui/web/.angular/cache
+          key: ${{ runner.os }}-angular-cache-${{ hashFiles('src/ui/web/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-cache-
+
       - name: Install dependencies (root)
         run: pnpm install --frozen-lockfile
 
@@ -75,10 +92,34 @@ jobs:
         run: pnpm run build:all:prod
         env:
           NODE_ENV: production
-          # Add environment-specific variables here
-          MENLO_API_BASE_URL: ${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}
+          MENLO_API_BASE_URL: ${{ vars.API_BASE_URL }}
           MENLO_APP_VERSION: ${{ github.sha }}
           MENLO_BUILD_TIMESTAMP: ${{ github.run_number }}
+
+      - name: Create version metadata
+        working-directory: src/ui/web
+        run: |
+          mkdir -p dist/menlo-app
+          cat > dist/menlo-app/version.json << EOF
+          {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "buildNumber": "${{ github.run_number }}",
+            "buildId": "${{ github.run_id }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")",
+            "actor": "${{ github.actor }}",
+            "repository": "${{ github.repository }}",
+            "environment": "${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}"
+          }
+          EOF
+
+      - name: Create SPA redirect configuration
+        working-directory: src/ui/web/dist/menlo-app
+        run: |
+          cat > _redirects << EOF
+          # SPA fallback for client-side routing
+          /* /index.html 200
+          EOF
 
       - name: Test production build
         working-directory: src/ui/web
@@ -95,84 +136,111 @@ jobs:
             exit 1
           fi
 
+          if [ ! -f "dist/menlo-app/version.json" ]; then
+            echo "❌ version.json not found in build output"
+            exit 1
+          fi
+
+          if [ ! -f "dist/menlo-app/_redirects" ]; then
+            echo "❌ _redirects not found in build output"
+            exit 1
+          fi
+
           echo "✅ Production build verification passed"
+          echo "Version metadata:"
+          cat dist/menlo-app/version.json
 
           # Display build output structure
           echo "Build output structure:"
-          find dist -type f -name "*.html" -o -name "*.js" -o -name "*.css" | head -20
+          find dist -type f -name "*.html" -o -name "*.js" -o -name "*.css" -o -name "version.json" -o -name "_redirects" | head -20
 
-      - name: Generate Static Web App configuration
-        run: |
-          mkdir -p src/ui/web/dist/menlo-app
-          cat > src/ui/web/dist/menlo-app/staticwebapp.config.json << 'EOF'
-          {
-            "navigationFallback": {
-              "rewrite": "/index.html",
-              "exclude": ["/assets/*", "/*.{css,scss,sass,js,ts,json,png,jpg,jpeg,gif,ico,svg,woff,woff2,ttf,eot}"]
-            },
-            "mimeTypes": {
-              ".json": "application/json",
-              ".woff": "application/font-woff",
-              ".woff2": "application/font-woff2"
-            },
-            "globalHeaders": {
-              "Cache-Control": "no-cache"
-            },
-            "routes": [
-              {
-                "route": "/api/*",
-                "rewrite": "${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}/api/{*}"
-              },
-              {
-                "route": "/health",
-                "rewrite": "${{ vars.API_BASE_URL || 'https://menlo.wilcob.co.za' }}/health"
-              }
-            ],
-            "responseOverrides": {
-              "404": {
-                "rewrite": "/index.html",
-                "statusCode": 200
-              }
-            }
-          }
-          EOF
-
-      - name: Deploy to Azure Static Web Apps
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
         with:
-          azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: 'upload'
-          app_location: 'src/ui/web/dist/menlo-app'
-          api_location: ''
-          output_location: ''
-          skip_app_build: true
-          skip_api_build: true
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy src/ui/web/dist/menlo-app --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ github.ref_name }}
+
+      - name: Extract deployment URL
+        id: deployment-url
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            DEPLOY_URL="${{ vars.FRONTEND_URL }}"
+          else
+            # Extract preview URL from wrangler output if available
+            DEPLOY_URL="${{ steps.deploy.outputs.url || format('{0}-{1}.{2}.pages.dev', env.CLOUDFLARE_PAGES_PROJECT_NAME, github.ref_name, github.sha) }}"
+          fi
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "Deployment URL: $DEPLOY_URL"
 
       - name: Verify deployment
         run: |
+          DEPLOY_URL="${{ steps.deployment-url.outputs.url }}"
           echo "Deployment completed successfully"
-          echo "🚀 Frontend deployed to: ${{ vars.FRONTEND_URL }}"
+          echo "🚀 Frontend deployed to: $DEPLOY_URL"
 
           # Wait a moment for deployment to be ready
           sleep 30
 
-          # Basic health check (if health endpoint exists)
-          if [[ -n "${{ vars.FRONTEND_URL }}" ]]; then
-            curl -f "${{ vars.FRONTEND_URL }}" -o /dev/null -s || echo "⚠️ Health check failed - this may be normal for a new deployment"
+          # Basic health check
+          if curl -f "$DEPLOY_URL" -o /dev/null -s; then
+            echo "✅ Basic health check passed"
+          else
+            echo "⚠️ Health check failed - this may be normal for a new deployment"
           fi
 
-      - name: Post-deployment tasks
+          # Check version endpoint
+          if curl -f "$DEPLOY_URL/version.json" -s | jq . > /dev/null 2>&1; then
+            echo "✅ Version metadata accessible"
+            echo "Version info:"
+            curl -s "$DEPLOY_URL/version.json" | jq .
+          else
+            echo "⚠️ Version metadata check failed"
+          fi
+
+          # Test API health through proxy if on production
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            if curl -f "$DEPLOY_URL/api/ai/health" -H "Origin: $DEPLOY_URL" -s | jq . > /dev/null 2>&1; then
+              echo "✅ API health check passed"
+            else
+              echo "⚠️ API health check failed"
+            fi
+          fi
+
+      - name: Test CORS policy
+        if: github.ref == 'refs/heads/main'
         run: |
+          DEPLOY_URL="${{ steps.deployment-url.outputs.url }}"
+
+          # Test valid origin (should pass)
+          echo "Testing valid origin..."
+          if curl -f "$DEPLOY_URL/api/ai/health" -H "Origin: $DEPLOY_URL" -s > /dev/null; then
+            echo "✅ Valid origin accepted"
+          else
+            echo "⚠️ Valid origin test inconclusive"
+          fi
+
+          # Test invalid origin (should be rejected)
+          echo "Testing invalid origin..."
+          if curl -f "$DEPLOY_URL/api/ai/health" -H "Origin: https://evil.example.com" -s > /dev/null; then
+            echo "⚠️ Invalid origin unexpectedly accepted"
+          else
+            echo "✅ Invalid origin properly rejected"
+          fi
+
+      - name: Post-deployment summary
+        run: |
+          DEPLOY_URL="${{ steps.deployment-url.outputs.url }}"
           echo "### 🚀 Frontend Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: ${{ vars.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: $DEPLOY_URL" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Version**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployed By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
 
   cleanup-on-failure:
     name: Cleanup on Failure
@@ -186,12 +254,18 @@ jobs:
           echo "❌ Frontend deployment failed"
           echo "Check the logs above for details"
           echo "Manual rollback may be required if this was a production deployment"
+          echo ""
+          echo "Rollback procedure:"
+          echo "1. Go to Cloudflare Pages dashboard"
+          echo "2. Select the ${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} project"
+          echo "3. Navigate to the deployments section"
+          echo "4. Promote a previous successful deployment"
 
   storybook-deploy:
     name: Deploy Storybook Documentation
     runs-on: ubuntu-latest
     needs: build-and-deploy
-    if: success()
+    if: success() && github.ref == 'refs/heads/main'
     environment:
       name: 'Storybook'
       url: ${{ vars.STORYBOOK_URL }}

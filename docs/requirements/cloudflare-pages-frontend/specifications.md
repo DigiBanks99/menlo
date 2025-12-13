@@ -3,7 +3,7 @@
 ## Context
 
 This requirement revises the original frontend hosting strategy (Azure Static Web Apps) to adopt **Cloudflare Pages** while upgrading the UI codebase to **Angular 21**.
-It unifies delivery under the apex domain `menlo.wilcob.co.za` with the existing Cloudflare Tunnel–exposed API (`/api`).
+It unifies delivery under the apex domain `menlo.yourdomain.com` with the existing Cloudflare Tunnel–exposed API (`/api`).
 It removes cross-origin complexity and enables stricter production CORS.
 Angular 21 improvements (signals refinements, deferrable views, faster builds, hydration enhancements) are leveraged.
 Documentation updates are centralised here.
@@ -24,8 +24,8 @@ Documentation updates are centralised here.
 - **FR-CP-03 Environment Separation**: Provide preview builds for feature branches using Cloudflare Pages previews.
 - **FR-CP-04 SPA Fallback**: Configure single-page application routing (fallback to `index.html`).
 - **FR-CP-05 Asset Caching**: Enable immutable caching for hashed Angular build assets; HTML not cached aggressively.
-- **FR-CP-06 Domain Binding**: Bind `menlo.wilcob.co.za` to Pages; ensure `/api/*` continues through tunnel.
-- **FR-CP-07 CORS Policy Update**: Production API restricts `Origin` to `https://menlo.wilcob.co.za`; development allows localhost origins.
+- **FR-CP-06 Domain Binding**: Bind `menlo.yourdomain.com` to Pages; ensure `/api/*` continues through tunnel.
+- **FR-CP-07 CORS Policy Update**: Production API restricts `Origin` to `https://menlo.yourdomain.com`; development allows localhost origins.
 - **FR-CP-08 Angular 21 Upgrade**: Migrate dependencies, adjust builder configs, validate strict mode remains enabled.
 - **FR-CP-09 PWA Integrity**: Service worker updated / regenerated; offline core features (list viewing, cached budgets) remain functional.
 - **FR-CP-10 Observability**: Record deployment metadata (commit, timestamp) surfaced in an about/version endpoint or static JSON.
@@ -46,7 +46,7 @@ Documentation updates are centralised here.
 
 ## Acceptance Criteria (AC)
 
-- **AC-CP-01**: Cloudflare Pages deployment succeeds and serves Angular 21 build at `https://menlo.wilcob.co.za`.
+- **AC-CP-01**: Cloudflare Pages deployment succeeds and serves Angular 21 build at `https://menlo.yourdomain.com`.
 - **AC-CP-02**: API requests from UI occur without CORS preflight failures; production CORS only allows the apex domain.
 - **AC-CP-03**: All Azure Static Web Apps references removed or marked historic; replaced with Cloudflare Pages.
 - **AC-CP-04**: Service worker functions post-upgrade (verified offline loading of at least one cached budget list and UI shell).
