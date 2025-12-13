@@ -99,8 +99,8 @@ jobs:
       - name: Create version metadata
         working-directory: src/ui/web
         run: |
-          mkdir -p dist/menlo-app
-          cat > dist/menlo-app/version.json << EOF
+          mkdir -p dist/menlo-app/browser
+          cat > dist/menlo-app/browser/version.json << EOF
           {
             "commit": "${{ github.sha }}",
             "branch": "${{ github.ref_name }}",
@@ -114,7 +114,7 @@ jobs:
           EOF
 
       - name: Create SPA redirect configuration
-        working-directory: src/ui/web/dist/menlo-app
+        working-directory: src/ui/web/dist/menlo-app/browser
         run: |
           cat > _redirects << EOF
           # SPA fallback for client-side routing
@@ -131,24 +131,24 @@ jobs:
           fi
 
           # Verify key files exist
-          if [ ! -f "dist/menlo-app/index.html" ]; then
+          if [ ! -f "dist/menlo-app/browser/index.html" ]; then
             echo "❌ index.html not found in build output"
             exit 1
           fi
 
-          if [ ! -f "dist/menlo-app/version.json" ]; then
+          if [ ! -f "dist/menlo-app/browser/version.json" ]; then
             echo "❌ version.json not found in build output"
             exit 1
           fi
 
-          if [ ! -f "dist/menlo-app/_redirects" ]; then
+          if [ ! -f "dist/menlo-app/browser/_redirects" ]; then
             echo "❌ _redirects not found in build output"
             exit 1
           fi
 
           echo "✅ Production build verification passed"
           echo "Version metadata:"
-          cat dist/menlo-app/version.json
+          cat dist/menlo-app/browser/version.json
 
           # Display build output structure
           echo "Build output structure:"
