@@ -9,17 +9,19 @@
     "rmdir": false,
     "del": false,
     "kill": false,
-    "curl": false,
-    "wget": false,
+    "curl": true,
+    "wget": true,
     "eval": false,
     "chmod": false,
     "chown": false,
-    "/^Remove-Item\\b/i": false
+    "/^Remove-Item\\b/i": false,
+    "pwsh ./scripts/act-ci.ps1": true
   },
   "chat.agent.maxRequests": 500,
   "[mermaid]": {
     "editor.colorDecorators": true
   },
   "nxConsole.nxWorkspacePath": "src\\ui\\web",
-  "nxConsole.generateAiAgentRules": true
+  "nxConsole.generateAiAgentRules": true,
+  "terminal.integrated.shellIntegration.enabled": true
 }
