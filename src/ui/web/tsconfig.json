@@ -12,9 +12,9 @@
     "experimentalDecorators": true,
     "inlineSourceMap": true,
     "paths": {
-      "data-access-menlo-api": ["./dist/data-access-menlo-api"],
-      "menlo-lib": ["./dist/menlo-lib"],
-      "shared-util": ["./dist/projects/shared-util"]
+      "data-access-menlo-api": ["projects/data-access-menlo-api/src/public-api.ts"],
+      "menlo-lib": ["projects/menlo-lib/src/public-api.ts"],
+      "shared-util": ["projects/shared-util/src/public-api.ts"]
     },
     "importHelpers": true,
     "target": "ES2022",
