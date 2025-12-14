@@ -1,6 +1,52 @@
 {
     "pipes": [],
-    "interfaces": [],
+    "interfaces": [
+        {
+            "name": "WeatherForecast",
+            "id": "interface-WeatherForecast-fc25643977b89b686e3e3af28e91d77e53aa7a339ffb55032392962e78ea3ab65a5c89bff0b4baebedfe543a7d3427872d96dfdc48ba4cc6a23b37a3fbb8a8d3",
+            "file": "projects/menlo-lib/src/lib/menlo-lib.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { Component, signal } from '@angular/core';\r\nimport { JsonPipe } from '@angular/common';\r\n\r\nexport interface WeatherForecast {\r\n  date: string;\r\n  temperatureC: number;\r\n  summary: string;\r\n}\r\n\r\n@Component({\r\n  selector: 'lib-menlo-lib',\r\n  standalone: true,\r\n  imports: [JsonPipe],\r\n  template: `\r\n    <pre>\r\n      {{ forecasts() | json }}\r\n    </pre>\r\n  `,\r\n  styles: ``\r\n})\r\nexport class MenloLib {\r\n  public forecasts = signal<WeatherForecast[] | null>([]);\r\n}\r\n",
+            "properties": [
+                {
+                    "name": "date",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 5
+                },
+                {
+                    "name": "summary",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 7
+                },
+                {
+                    "name": "temperatureC",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 6
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        }
+    ],
     "injectables": [],
     "guards": [],
     "interceptors": [],
@@ -9,7 +55,7 @@
     "components": [
         {
             "name": "MenloLib",
-            "id": "component-MenloLib-15a0e9a14dfb8f4464effdf1cd51b3840935746afdfa6b0a106655c40f0f6995786678d93d700819f43518076ff861761c33389b114a38819538c1497ee95169",
+            "id": "component-MenloLib-fc25643977b89b686e3e3af28e91d77e53aa7a339ffb55032392962e78ea3ab65a5c89bff0b4baebedfe543a7d3427872d96dfdc48ba4cc6a23b37a3fbb8a8d3",
             "file": "projects/menlo-lib/src/lib/menlo-lib.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -21,24 +67,44 @@
             "styles": [
                 ""
             ],
-            "template": "<p>\n  menlo-lib works!\n</p>\n",
+            "template": "<pre>\n  {{ forecasts() | json }}\n</pre>\n",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
             "inputsClass": [],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "forecasts",
+                    "defaultValue": "signal<WeatherForecast[] | null>([])",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
             "methodsClass": [],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
             "hostListeners": [],
             "standalone": true,
-            "imports": [],
+            "imports": [
+                {
+                    "name": "JsonPipe",
+                    "type": "pipe"
+                }
+            ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'lib-menlo-lib',\r\n  standalone: true,\r\n  imports: [],\r\n  template: `\r\n    <p>\r\n      menlo-lib works!\r\n    </p>\r\n  `,\r\n  styles: ``\r\n})\r\nexport class MenloLib {\r\n\r\n}\r\n",
+            "sourceCode": "import { Component, signal } from '@angular/core';\r\nimport { JsonPipe } from '@angular/common';\r\n\r\nexport interface WeatherForecast {\r\n  date: string;\r\n  temperatureC: number;\r\n  summary: string;\r\n}\r\n\r\n@Component({\r\n  selector: 'lib-menlo-lib',\r\n  standalone: true,\r\n  imports: [JsonPipe],\r\n  template: `\r\n    <pre>\r\n      {{ forecasts() | json }}\r\n    </pre>\r\n  `,\r\n  styles: ``\r\n})\r\nexport class MenloLib {\r\n  public forecasts = signal<WeatherForecast[] | null>([]);\r\n}\r\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "\n",
@@ -171,7 +237,16 @@
                 "linktype": "component",
                 "name": "MenloLib",
                 "coveragePercent": 0,
-                "coverageCount": "0/1",
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/menlo-lib.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "WeatherForecast",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
                 "status": "low"
             }
         ]
