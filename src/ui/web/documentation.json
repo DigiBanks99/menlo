@@ -1,138 +1,134 @@
 {
     "pipes": [],
-    "interfaces": [
-        {
-            "name": "WeatherForecast",
-            "id": "interface-WeatherForecast-fc25643977b89b686e3e3af28e91d77e53aa7a339ffb55032392962e78ea3ab65a5c89bff0b4baebedfe543a7d3427872d96dfdc48ba4cc6a23b37a3fbb8a8d3",
-            "file": "projects/menlo-lib/src/lib/menlo-lib.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "import { Component, signal } from '@angular/core';\r\nimport { JsonPipe } from '@angular/common';\r\n\r\nexport interface WeatherForecast {\r\n  date: string;\r\n  temperatureC: number;\r\n  summary: string;\r\n}\r\n\r\n@Component({\r\n  selector: 'lib-menlo-lib',\r\n  standalone: true,\r\n  imports: [JsonPipe],\r\n  template: `\r\n    <pre>\r\n      {{ forecasts() | json }}\r\n    </pre>\r\n  `,\r\n  styles: ``\r\n})\r\nexport class MenloLib {\r\n  public forecasts = signal<WeatherForecast[] | null>([]);\r\n}\r\n",
-            "properties": [
-                {
-                    "name": "date",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "indexKey": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 5
-                },
-                {
-                    "name": "summary",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "indexKey": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 7
-                },
-                {
-                    "name": "temperatureC",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "number",
-                    "indexKey": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 6
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 172,
-            "methods": [],
-            "extends": []
-        }
-    ],
+    "interfaces": [],
     "injectables": [],
     "guards": [],
     "interceptors": [],
     "classes": [],
     "directives": [],
-    "components": [
-        {
-            "name": "MenloLib",
-            "id": "component-MenloLib-fc25643977b89b686e3e3af28e91d77e53aa7a339ffb55032392962e78ea3ab65a5c89bff0b4baebedfe543a7d3427872d96dfdc48ba4cc6a23b37a3fbb8a8d3",
-            "file": "projects/menlo-lib/src/lib/menlo-lib.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "lib-menlo-lib",
-            "styleUrls": [],
-            "styles": [
-                ""
-            ],
-            "template": "<pre>\n  {{ forecasts() | json }}\n</pre>\n",
-            "templateUrl": [],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "forecasts",
-                    "defaultValue": "signal<WeatherForecast[] | null>([])",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "unknown",
-                    "indexKey": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 22,
-                    "modifierKind": [
-                        125
-                    ]
-                }
-            ],
-            "methodsClass": [],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "JsonPipe",
-                    "type": "pipe"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, signal } from '@angular/core';\r\nimport { JsonPipe } from '@angular/common';\r\n\r\nexport interface WeatherForecast {\r\n  date: string;\r\n  temperatureC: number;\r\n  summary: string;\r\n}\r\n\r\n@Component({\r\n  selector: 'lib-menlo-lib',\r\n  standalone: true,\r\n  imports: [JsonPipe],\r\n  template: `\r\n    <pre>\r\n      {{ forecasts() | json }}\r\n    </pre>\r\n  `,\r\n  styles: ``\r\n})\r\nexport class MenloLib {\r\n  public forecasts = signal<WeatherForecast[] | null>([]);\r\n}\r\n",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "\n",
-            "extends": []
-        }
-    ],
+    "components": [],
     "modules": [],
     "miscellaneous": {
         "variables": [
             {
-                "name": "Default",
+                "name": "Large",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {},\r\n}"
+                "defaultValue": "{\n  args: {\n    size: 'large',\n    label: 'Button',\n  },\n}"
+            },
+            {
+                "name": "LoggedIn",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    user: {\n      name: 'Jane Doe',\n    },\n  },\n}"
+            },
+            {
+                "name": "LoggedIn",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const loginButton = canvas.getByRole('button', { name: /Log in/i });\n    await expect(loginButton).toBeInTheDocument();\n    await userEvent.click(loginButton);\n    await expect(loginButton).not.toBeInTheDocument();\n\n    const logoutButton = canvas.getByRole('button', { name: /Log out/i });\n    await expect(logoutButton).toBeInTheDocument();\n  },\n}"
+            },
+            {
+                "name": "LoggedOut",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "LoggedOut",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
             },
             {
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<MenloLib>",
-                "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
+                "type": "Meta<ButtonComponent>",
+                "defaultValue": "{\n  title: 'Example/Button',\n  component: ButtonComponent,\n  tags: ['autodocs'],\n  argTypes: {\n    backgroundColor: {\n      control: 'color',\n    },\n  },\n  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args\n  args: { onClick: fn() },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<HeaderComponent>",
+                "defaultValue": "{\n  title: 'Example/Header',\n  component: HeaderComponent,\n  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs\n  tags: ['autodocs'],\n  parameters: {\n    // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout\n    layout: 'fullscreen',\n  },\n  args: {\n    onLogin: fn(),\n    onLogout: fn(),\n    onCreateAccount: fn(),\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<PageComponent>",
+                "defaultValue": "{\n  title: 'Example/Page',\n  component: PageComponent,\n  parameters: {\n    // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "preview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/.storybook/preview.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Preview",
+                "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n       color: /(background|color)$/i,\n       date: /Date$/i,\n      },\n    },\n  },\n}"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    primary: true,\n    label: 'Button',\n  },\n}"
+            },
+            {
+                "name": "Secondary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    label: 'Button',\n  },\n}"
+            },
+            {
+                "name": "Small",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    size: 'small',\n    label: 'Button',\n  },\n}"
             }
         ],
         "functions": [],
@@ -141,8 +137,30 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<MenloLib>",
-                "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "rawtype": "StoryObj<ButtonComponent>",
+                "file": "projects/menlo-app/src/stories/button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<HeaderComponent>",
+                "file": "projects/menlo-app/src/stories/header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<PageComponent>",
+                "file": "projects/menlo-app/src/stories/page.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -151,39 +169,171 @@
         ],
         "enumerations": [],
         "groupedVariables": {
-            "projects/menlo-lib/src/lib/menlo-lib.stories.ts": [
+            "projects/menlo-app/src/stories/button.stories.ts": [
                 {
-                    "name": "Default",
+                    "name": "Large",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {},\r\n}"
+                    "defaultValue": "{\n  args: {\n    size: 'large',\n    label: 'Button',\n  },\n}"
                 },
                 {
                     "name": "meta",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "Meta<MenloLib>",
-                    "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
+                    "type": "Meta<ButtonComponent>",
+                    "defaultValue": "{\n  title: 'Example/Button',\n  component: ButtonComponent,\n  tags: ['autodocs'],\n  argTypes: {\n    backgroundColor: {\n      control: 'color',\n    },\n  },\n  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args\n  args: { onClick: fn() },\n}"
+                },
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    primary: true,\n    label: 'Button',\n  },\n}"
+                },
+                {
+                    "name": "Secondary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    label: 'Button',\n  },\n}"
+                },
+                {
+                    "name": "Small",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    size: 'small',\n    label: 'Button',\n  },\n}"
+                }
+            ],
+            "projects/menlo-app/src/stories/header.stories.ts": [
+                {
+                    "name": "LoggedIn",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    user: {\n      name: 'Jane Doe',\n    },\n  },\n}"
+                },
+                {
+                    "name": "LoggedOut",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<HeaderComponent>",
+                    "defaultValue": "{\n  title: 'Example/Header',\n  component: HeaderComponent,\n  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs\n  tags: ['autodocs'],\n  parameters: {\n    // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout\n    layout: 'fullscreen',\n  },\n  args: {\n    onLogin: fn(),\n    onLogout: fn(),\n    onCreateAccount: fn(),\n  },\n}"
+                }
+            ],
+            "projects/menlo-app/src/stories/page.stories.ts": [
+                {
+                    "name": "LoggedIn",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  play: async ({ canvasElement }) => {\n    const canvas = within(canvasElement);\n    const loginButton = canvas.getByRole('button', { name: /Log in/i });\n    await expect(loginButton).toBeInTheDocument();\n    await userEvent.click(loginButton);\n    await expect(loginButton).not.toBeInTheDocument();\n\n    const logoutButton = canvas.getByRole('button', { name: /Log out/i });\n    await expect(logoutButton).toBeInTheDocument();\n  },\n}"
+                },
+                {
+                    "name": "LoggedOut",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/src/stories/page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<PageComponent>",
+                    "defaultValue": "{\n  title: 'Example/Page',\n  component: PageComponent,\n  parameters: {\n    // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout\n    layout: 'fullscreen',\n  },\n}"
+                }
+            ],
+            "projects/menlo-app/.storybook/preview.ts": [
+                {
+                    "name": "preview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-app/.storybook/preview.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Preview",
+                    "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n       color: /(background|color)$/i,\n       date: /Date$/i,\n      },\n    },\n  },\n}"
                 }
             ]
         },
         "groupedFunctions": {},
         "groupedEnumerations": {},
         "groupedTypeAliases": {
-            "projects/menlo-lib/src/lib/menlo-lib.stories.ts": [
+            "projects/menlo-app/src/stories/button.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<MenloLib>",
-                    "file": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                    "rawtype": "StoryObj<ButtonComponent>",
+                    "file": "projects/menlo-app/src/stories/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-app/src/stories/header.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<HeaderComponent>",
+                    "file": "projects/menlo-app/src/stories/header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-app/src/stories/page.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<PageComponent>",
+                    "file": "projects/menlo-app/src/stories/page.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -202,17 +352,27 @@
         "status": "low",
         "files": [
             {
-                "filePath": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "filePath": "projects/menlo-app/.storybook/preview.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
-                "name": "Default",
+                "name": "preview",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
             },
             {
-                "filePath": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Large",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
@@ -222,7 +382,37 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/menlo-lib/src/lib/menlo-lib.stories.ts",
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Secondary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Small",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/button.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
@@ -232,21 +422,83 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/menlo-lib/src/lib/menlo-lib.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "MenloLib",
+                "filePath": "projects/menlo-app/src/stories/header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedIn",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
-                "filePath": "projects/menlo-lib/src/lib/menlo-lib.ts",
-                "type": "interface",
-                "linktype": "interface",
-                "name": "WeatherForecast",
+                "filePath": "projects/menlo-app/src/stories/header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedOut",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/header.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedIn",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedOut",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-app/src/stories/page.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             }
         ]
