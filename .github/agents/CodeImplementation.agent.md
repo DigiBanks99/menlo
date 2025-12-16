@@ -3,6 +3,11 @@ description: 'This chat mode is designed for implementing code based on technica
 name: CodeImplementation
 tools: ['vscode/openSimpleBrowser', 'vscode/runCommand', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'azure-mcp/search', 'copilot-container-tools/*', 'nx-mcp-server/*', 'github/issue_read', 'github/issue_write', 'github/list_issues', 'github/search_issues', 'github/sub_issue_write', 'angularcli/*', 'microsoftdocs/*', 'nuget/get-latest-package-version', 'nuget/get-nuget-solver', 'nuget/get-nuget-solver-latest-versions', 'nuget/get-package-readme', 'podman/*', 'sequential-thinking/*', 'agent', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag', 'todo']
 model: Claude Opus 4.5 (Preview) (copilot)
+handoffs:
+  - label: Add Documentation
+    agent: Documenter
+    prompt: Create documentation that explains the new programming APIs introduced, new reference documentation, diagrams that assist understanding, and if the code introduced is a new programming API or concept add a tutorial and how-to guide.
+    send: true
 ---
 
 # Code Implementation v1.0
