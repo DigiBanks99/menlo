@@ -13,7 +13,22 @@ Standardise a lightweight Result pattern for Angular to ensure consistent error 
 ## Functional requirements
 
 1. Result core
-   - Define a generic `Result<T, E>` union with constructors (`ok`, `err`) and helpers (`isOk`, `isErr`, `map`, `mapErr`, `unwrapOr`).
+   - Define a generic `Result<T, E>` union with
+     - constructors:
+       - `success`
+       - `failure`
+     - and properties:
+       - `isSuccess`
+       - `isFailure`
+       - `value`
+       - `error`
+     - and monadic functions:
+       - `map`
+       - `mapErr`
+       - `bind`
+       - `tap`
+       - `tapErr`
+       - `compensate`
 2. API error normalisation
    - Represent API failures as a typed `ApiError` discriminated union with at least:
      - `problem` for RFC7807 ProblemDetails (including `errors` for validation),

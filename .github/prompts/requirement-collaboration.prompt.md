@@ -1,8 +1,6 @@
 ---
 description: Collaborative requirements gathering
-mode: BA
-model: GPT-5 (Preview)
-tools: ['codebase', 'usages', 'think', 'problems', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'searchResults', 'githubRepo', 'runCommands', 'editFiles', 'search', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking', 'get_syntax_docs', 'mermaid-diagram-validator', 'mermaid-diagram-preview']
+agent: BA
 ---
 
 You must collaboratively build out the business requirements scoped to the feedback after the "Requirement: " section. We need to document the requirements as specified in the #file:../../docs/README.md and we need to be clear on what the requirements are.

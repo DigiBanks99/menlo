@@ -2,7 +2,8 @@
 
 ## Overview
 
-Define the static application shell that is always present across pages. This describes the core sections, how they are used, and key usability/accessibility expectations. It does not define individual page layouts.
+Define the static application shell that is always present across pages. This describes the core sections, how they are used, and key usability/accessibility expectations.
+It does not define individual page layouts.
 
 - Goal: Consistent, accessible, and responsive app shell for all features
 - Inputs: Navigation model, user/session context, feature flags

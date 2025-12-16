@@ -1,6 +1,12 @@
 ---
 description: 'This chat mode is intended for taking business requirements and turning them into technical implementation plans.'
-tools: ['editFiles', 'search', 'runCommands', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'runTests', 'search', 'Nx Mcp Server', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking', 'get-latest-package-version', 'get-package-readme', 'azure_generate_azure_cli_command', 'azure_get_current_tenant', 'azure_get_available_tenants', 'azure_get_selected_subscriptions', 'azure_get_dotnet_template_tags', 'azure_get_dotnet_templates_for_tag']
+tools: ['vscode/openSimpleBrowser', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'azure-mcp/search', 'nx-mcp-server/nx_available_plugins', 'nx-mcp-server/nx_current_running_task_output', 'nx-mcp-server/nx_current_running_tasks_details', 'nx-mcp-server/nx_docs', 'nx-mcp-server/nx_generator_schema', 'nx-mcp-server/nx_generators', 'nx-mcp-server/nx_project_details', 'nx-mcp-server/nx_visualize_graph', 'nx-mcp-server/nx_workspace', 'nx-mcp-server/nx_workspace_path', 'github/add_issue_comment', 'github/issue_read', 'github/issue_write', 'github/list_issue_types', 'github/list_issues', 'github/search_code', 'github/search_issues', 'github/sub_issue_write', 'angularcli/*', 'microsoftdocs/*', 'nuget/*', 'sequential-thinking/*', 'agent', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_template_tags', 'ms-azuretools.vscode-azure-github-copilot/azure_get_dotnet_templates_for_tag']
+model: Claude Sonnet 4.5 (copilot)
+handoffs:
+  - label: Start Implementation
+    agent: CodeImplementation
+    prompt: Implement the plan
+    send: true
 ---
 
 # Code Planner v1.0

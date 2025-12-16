@@ -1,8 +1,6 @@
 ---
 description: Semantic Commit Prompt for Menlo
-mode: agent
-model: GPT-4.1
-tools: ['codebase', 'think', 'problems', 'changes', 'terminalSelection', 'terminalLastCommand', 'searchResults', 'githubRepo', 'runTests', 'runCommands', 'runTasks', 'search', 'sequential-thinking']
+tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'search', 'web/githubRepo', 'azure-mcp/search', 'sequential-thinking/*']
 ---
 
 You are an expert developer working on the Menlo Home Management project. All commits must follow semantic commit conventions to ensure clarity, traceability, and automation compatibility.
