@@ -22,14 +22,17 @@
       "defaultConfiguration": "production"
     },
     "test": {
+      "builder": "@angular/build:unit-test",
       "executor": "@analogjs/vitest-angular:test",
       "outputs": [
         "{options.reportsDirectory}"
       ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/projects/shared-util"
-      }
+        "reportsDirectory": "../../coverage/projects/shared-util",
+        "runnerConfig": "vitest.config.mts"
+      },
+      "defaultConfiguration": "development"
     },
     "lint": {
       "executor": "@nx/eslint:lint",
