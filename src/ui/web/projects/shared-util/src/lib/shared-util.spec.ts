@@ -7,12 +7,13 @@ describe('SharedUtil', () => {
   let component: SharedUtil;
   let fixture: ComponentFixture<SharedUtil>;
 
-  beforeEach(async () => {
+  beforeEach(async() => {
     await TestBed.configureTestingModule({
       imports: [SharedUtil]
-    })
-    .compileComponents();
+    });
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(SharedUtil);
     component = fixture.componentInstance;
     fixture.detectChanges();

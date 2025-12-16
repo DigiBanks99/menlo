@@ -1,12 +1,28 @@
 // Test setup for Angular with Vitest
-import { getTestBed } from '@angular/core/testing';
+import { NgModule } from '@angular/core';
+import {
+  ɵgetCleanupHook as getCleanupHook,
+  getTestBed
+} from '@angular/core/testing';
 import {
   BrowserTestingModule,
   platformBrowserTesting,
 } from '@angular/platform-browser/testing';
+import { afterEach, beforeEach } from 'vitest';
 
-// Configure the Angular testing environment
+const providers: NgModule['providers'] = [];
+
+beforeEach(getCleanupHook(false));
+afterEach(getCleanupHook(true));
+
+@NgModule({ providers })
+export class TestModule {}
+
 getTestBed().initTestEnvironment(
-  BrowserTestingModule,
-  platformBrowserTesting()
+  [BrowserTestingModule, TestModule],
+  platformBrowserTesting(),
+  {
+    errorOnUnknownElements: true,
+    errorOnUnknownProperties: true
+  }
 );
