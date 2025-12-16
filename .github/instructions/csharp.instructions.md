@@ -1,6 +1,6 @@
 ---
 description: Instructions for using Copilot with C# projects
-applyTo: **/*.cs, **/*.cshtml, **/*.razor, **/*.csx, **/*.csproj, **/*.sln, **/*.slnx
+applyTo: "src/api/**,src/lib/**,Menlo.slnx,Directory.Build.props,Directory.Packages.props,global.json,Dockerfile"
 ---
 
 # C# Copilot Instructions

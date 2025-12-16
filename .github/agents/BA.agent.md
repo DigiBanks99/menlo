@@ -1,6 +1,12 @@
 ---
 description: 'This chat mode is designed for requirements analysis and business analysis tasks.'
-tools: ['extensions', 'codebase', 'usages', 'think', 'problems', 'changes', 'openSimpleBrowser', 'fetch', 'searchResults', 'githubRepo', 'runCommands', 'editFiles', 'search', 'MicrosoftDocs', 'AngularCLI', 'sequential-thinking']
+tools: ['vscode/openSimpleBrowser', 'vscode/runCommand', 'execute/getTerminalOutput', 'execute/runInTerminal', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'web', 'azure-mcp/search', 'github/add_issue_comment', 'github/issue_read', 'github/issue_write', 'github/list_issue_types', 'github/list_issues', 'github/search_code', 'github/search_issues', 'github/sub_issue_write', 'microsoftdocs/*', 'sequential-thinking/*', 'agent', 'todo']
+handoffs:
+  - label: Plan Implementation
+    agent: CodePlanner
+    prompt: Create an implementation plan based on the requirements.
+    send: true
+model: Gemini 3 Pro (Preview) (copilot)
 ---
 
 # Business Analysis v1.0

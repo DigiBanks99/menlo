@@ -4,8 +4,23 @@ A minimal, framework-native approach that is easy to adopt and test.
 
 ## Contracts (TypeScript)
 
-- `Result<T, E>` utilities: `ok`, `err`, `isOk`, `isErr`, `map`, `mapErr`, `unwrapOr`
-- `ProblemDetails` and `ApiError` discriminated union
+- `Result<T, E>`:
+  - constructors:
+    - `success`
+    - `failure`
+  - and properties:
+    - `isSuccess`
+    - `isFailure`
+    - `value`
+    - `error`
+  - and monadic functions:
+    - `map`
+    - `mapErr`
+    - `bind`
+    - `tap`
+    - `tapErr`
+    - `compensate`
+- `ProblemDetails` and `ApiError` discriminated union like ASP.NET core ProblemDetails and RFC7807 mapping
 - `toApiError(e: unknown): ApiError`
 - `toResult<T>(): OperatorFunction<T, Result<T, ApiError>>`
 
@@ -18,11 +33,9 @@ A minimal, framework-native approach that is easy to adopt and test.
 
 ## Step-by-step tasks
 
-1. Add shared utilities under `shared/utils/result.ts`
-1. Add API error types and converter under `shared/api/problem-details.ts`
-1. Add RxJS operator `shared/api/to-result.ts`
-1. Update BudgetService to use `toResult` and return `Observable<Result<...>>`
-1. Implement CreateBudget component using signals and map validation errors to controls
+1. Add shared utilities under `src/ui/web/projects/shared-utils/src/lib/types/result.ts`
+1. Add API error types and converter under `src/ui/web/projects/shared-utils/src/lib/types/problem-details.ts`
+1. Add RxJS operator `src/ui/web/projects/shared-utils/src/lib/operators/to-result.ts`
 1. Write unit tests for utilities, service, and component
 
 ## Acceptance
