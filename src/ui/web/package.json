@@ -11,6 +11,7 @@
     "build:all": "nx run-many --target=build --all",
     "build:prod": "nx build menlo-app --configuration=production",
     "build": "nx build menlo-app",
+    "format": "nx format:write",
     "graph": "nx graph",
     "health-check": "curl -f http://localhost:4200/ || exit 1",
     "lint:affected": "nx affected --target=lint",

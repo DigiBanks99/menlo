@@ -24,7 +24,7 @@ import {
   networkError,
   problemError,
   toApiError,
-  unknownError
+  unknownError,
 } from './problem-details';
 
 // ============================================================================
@@ -43,12 +43,7 @@ class MockHttpErrorResponse extends Error {
   readonly ok = false;
   readonly name = 'HttpErrorResponse';
 
-  constructor(init: {
-    status?: number;
-    statusText?: string;
-    error?: unknown;
-    url?: string;
-  }) {
+  constructor(init: { status?: number; statusText?: string; error?: unknown; url?: string }) {
     const status = init.status ?? 0;
     const statusText = init.statusText ?? 'Unknown Error';
     super(`Http failure response for ${init.url ?? '(unknown url)'}: ${status} ${statusText}`);
@@ -72,7 +67,7 @@ const createProblemDetails = (overrides?: Partial<ProblemDetails>): ProblemDetai
 const createHttpErrorResponse = (
   status: number,
   body: unknown,
-  statusText = 'Error'
+  statusText = 'Error',
 ): MockHttpErrorResponse =>
   new MockHttpErrorResponse({
     status,
@@ -448,7 +443,7 @@ describe('Helper Functions', () => {
       const error = problemError(
         createProblemDetails({
           errors: { Name: ['Required'] },
-        })
+        }),
       );
 
       expect(hasValidationErrors(error)).toBe(true);
@@ -485,7 +480,7 @@ describe('Helper Functions', () => {
         createProblemDetails({
           detail: 'Detailed error message',
           title: 'Title',
-        })
+        }),
       );
 
       expect(getErrorMessage(error)).toBe('Detailed error message');
@@ -496,7 +491,7 @@ describe('Helper Functions', () => {
         createProblemDetails({
           detail: '',
           title: 'Error Title',
-        })
+        }),
       );
 
       expect(getErrorMessage(error)).toBe('Error Title');
@@ -508,7 +503,7 @@ describe('Helper Functions', () => {
           detail: '',
           title: '',
           type: 'https://example.com/error',
-        })
+        }),
       );
 
       expect(getErrorMessage(error)).toBe('https://example.com/error');
@@ -586,7 +581,7 @@ describe('Helper Functions', () => {
             UserName: ['Required'],
             EmailAddress: ['Invalid'],
           },
-        })
+        }),
       );
 
       const errors = getValidationErrors(error);
@@ -619,7 +614,7 @@ describe('Helper Functions', () => {
           errors: {
             Password: ['Too short', 'Must contain number'],
           },
-        })
+        }),
       );
 
       const errors = getValidationErrors(error);
@@ -642,7 +637,7 @@ describe('Helper Functions', () => {
       const error = problemError(
         createProblemDetails({
           errors: { UserName: ['Required', 'Too short'] },
-        })
+        }),
       );
 
       mapValidationErrorsToForm(error, mockForm);
@@ -660,7 +655,7 @@ describe('Helper Functions', () => {
       const error = problemError(
         createProblemDetails({
           errors: { NonExistent: ['Error'] },
-        })
+        }),
       );
 
       mapValidationErrorsToForm(error, mockForm);
@@ -678,7 +673,7 @@ describe('Helper Functions', () => {
       const error = problemError(
         createProblemDetails({
           errors: { Field: ['Error'] },
-        })
+        }),
       );
 
       mapValidationErrorsToForm(error, mockForm, { markAsTouched: false });

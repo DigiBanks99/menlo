@@ -7,9 +7,9 @@ describe('SharedUtil', () => {
   let component: SharedUtil;
   let fixture: ComponentFixture<SharedUtil>;
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SharedUtil]
+      imports: [SharedUtil],
     });
   });
 

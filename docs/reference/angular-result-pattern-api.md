@@ -5,9 +5,7 @@ This document lists the public types and functions implemented in `shared-util/s
 See the developer how-to for examples and rationale: [How-to guide](../guides/angular-result-pattern-howto.md)
 and the implementation plan: [Implementation plan](../requirements/angular-result-pattern/implementation.md)
 
-## Result utilities (types/result.ts)
-
-### Core types
+## Result utilities
 
 - `Success<T>` — discriminant `{ isSuccess: true; value: T }`
 - `Failure<E>` — discriminant `{ isFailure: true; error: E }`
@@ -45,9 +43,7 @@ and the implementation plan: [Implementation plan](../requirements/angular-resul
 - `tryCatch<T, E = unknown>(fn: () => T, errorMapper?: (e: unknown) => E): Result<T, E>`
 - `fromPromise<T, E = unknown>(promise: Promise<T>, errorMapper?: (e: unknown) => E): Promise<Result<T, E>>`
 
-## ApiError & ProblemDetails (types/problem-details.ts)
-
-### Core types
+## ApiError & ProblemDetails
 
 - `ProblemDetails` — RFC 7807 shape with optional `errors?: Record<string, string[]>` and `traceId`.
 - `ProblemApiError` — `{ kind: 'problem'; problem: ProblemDetails; status?: number }`
