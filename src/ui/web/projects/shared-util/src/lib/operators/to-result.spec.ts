@@ -20,13 +20,7 @@ import {
   ProblemDetails,
 } from '../types/problem-details';
 import { failure, isFailure, isSuccess, Result, success } from '../types/result';
-import {
-  filterFailure,
-  filterSuccess,
-  toResult,
-  toResultWith,
-  unwrapResult,
-} from './to-result';
+import { filterFailure, filterSuccess, toResult, toResultWith, unwrapResult } from './to-result';
 
 // ============================================================================
 // Test Data
@@ -49,12 +43,7 @@ class MockHttpErrorResponse extends Error {
   readonly ok = false;
   readonly name = 'HttpErrorResponse';
 
-  constructor(init: {
-    status?: number;
-    statusText?: string;
-    error?: unknown;
-    url?: string;
-  }) {
+  constructor(init: { status?: number; statusText?: string; error?: unknown; url?: string }) {
     const status = init.status ?? 0;
     const statusText = init.statusText ?? 'Unknown Error';
     super(`Http failure response for ${init.url ?? '(unknown url)'}: ${status} ${statusText}`);
@@ -76,7 +65,7 @@ const createProblemDetails = (overrides?: Partial<ProblemDetails>): ProblemDetai
 const createHttpErrorResponse = (
   status: number,
   body: unknown,
-  statusText = 'Error'
+  statusText = 'Error',
 ): MockHttpErrorResponse =>
   new MockHttpErrorResponse({
     status,
@@ -370,7 +359,7 @@ describe('unwrapResult() operator', () => {
     const source$ = of(
       success(1) as Result<number, string>,
       success(2) as Result<number, string>,
-      success(3) as Result<number, string>
+      success(3) as Result<number, string>,
     );
 
     const results = await firstValueFrom(source$.pipe(unwrapResult(), toArray()));
@@ -382,7 +371,7 @@ describe('unwrapResult() operator', () => {
     const source$ = of(
       success(1) as Result<number, string>,
       failure('error') as Result<number, string>,
-      success(3) as Result<number, string>
+      success(3) as Result<number, string>,
     );
     const values: number[] = [];
 
@@ -393,7 +382,7 @@ describe('unwrapResult() operator', () => {
           error: reject,
           complete: () => resolve(),
         });
-      })
+      }),
     ).rejects.toBe('error');
 
     expect(values).toEqual([1]);
@@ -448,7 +437,7 @@ describe('filterSuccess() operator', () => {
       failure('error') as Result<number, string>,
       success(2) as Result<number, string>,
       failure('another error') as Result<number, string>,
-      success(3) as Result<number, string>
+      success(3) as Result<number, string>,
     );
 
     const results = await firstValueFrom(source$.pipe(filterSuccess(), toArray()));
@@ -460,7 +449,7 @@ describe('filterSuccess() operator', () => {
     const completeSpy = vi.fn();
     const source$ = of(
       failure('error1') as Result<number, string>,
-      failure('error2') as Result<number, string>
+      failure('error2') as Result<number, string>,
     );
 
     source$.pipe(filterSuccess()).subscribe({
@@ -512,7 +501,7 @@ describe('filterFailure() operator', () => {
       failure('error1') as Result<number, string>,
       success(2) as Result<number, string>,
       failure('error2') as Result<number, string>,
-      success(3) as Result<number, string>
+      success(3) as Result<number, string>,
     );
 
     const results = await firstValueFrom(source$.pipe(filterFailure(), toArray()));
@@ -522,10 +511,7 @@ describe('filterFailure() operator', () => {
 
   it('TC-233: should complete even if all are Successes', async () => {
     const completeSpy = vi.fn();
-    const source$ = of(
-      success(1) as Result<number, string>,
-      success(2) as Result<number, string>
-    );
+    const source$ = of(success(1) as Result<number, string>, success(2) as Result<number, string>);
 
     source$.pipe(filterFailure()).subscribe({
       complete: completeSpy,
@@ -682,7 +668,7 @@ describe('Edge Cases', () => {
             subscriber.complete();
           },
         });
-      })
+      }),
     );
 
     expect(results).toHaveLength(0);
@@ -717,7 +703,7 @@ describe('Edge Cases', () => {
         title: 'Unauthorized',
         status: 401,
         detail: 'Invalid token',
-      })
+      }),
     );
     const source$ = throwError(() => httpError);
 

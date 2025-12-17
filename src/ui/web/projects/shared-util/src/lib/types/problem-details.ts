@@ -180,10 +180,7 @@ export type ApiError = ProblemApiError | NetworkApiError | UnknownApiError;
  * @param status - Optional HTTP status code (defaults to problem.status)
  * @returns A ProblemApiError
  */
-export function problemError(
-  problem: ProblemDetails,
-  status?: number
-): ProblemApiError {
+export function problemError(problem: ProblemDetails, status?: number): ProblemApiError {
   return {
     kind: 'problem',
     problem,
@@ -202,7 +199,7 @@ export function problemError(
 export function networkError(
   status?: number,
   message?: string,
-  originalError?: unknown
+  originalError?: unknown,
 ): NetworkApiError {
   return {
     kind: 'network',
@@ -219,10 +216,7 @@ export function networkError(
  * @param originalError - The original error object
  * @returns An UnknownApiError
  */
-export function unknownError(
-  message?: string,
-  originalError?: unknown
-): UnknownApiError {
+export function unknownError(message?: string, originalError?: unknown): UnknownApiError {
   return {
     kind: 'unknown',
     message: message ?? 'An unexpected error occurred',
@@ -331,7 +325,7 @@ export function toApiError(error: unknown): ApiError {
       return networkError(
         0,
         'Unable to connect to the server. Please check your internet connection.',
-        error
+        error,
       );
     }
 
@@ -354,11 +348,7 @@ export function toApiError(error: unknown): ApiError {
     }
 
     // Fallback to network error for non-ProblemDetails HTTP errors
-    return networkError(
-      error.status,
-      error.message || `HTTP Error ${error.status}`,
-      error
-    );
+    return networkError(error.status, error.message || `HTTP Error ${error.status}`, error);
   }
 
   // Handle standard Error objects
@@ -431,7 +421,7 @@ export function hasValidationErrors(error: ApiError): boolean {
  */
 export function getErrorMessage(
   error: ApiError,
-  defaultMessage = 'An unexpected error occurred'
+  defaultMessage = 'An unexpected error occurred',
 ): string {
   switch (error.kind) {
     case 'problem': {
@@ -490,9 +480,7 @@ export function getErrorStatus(error: ApiError): number | undefined {
  * // { userName: ['Name is required'], email: ['Invalid email format'] }
  * ```
  */
-export function getValidationErrors(
-  error: ApiError
-): Record<string, string[]> {
+export function getValidationErrors(error: ApiError): Record<string, string[]> {
   if (error.kind !== 'problem' || !error.problem.errors) {
     return {};
   }
@@ -527,7 +515,7 @@ export function getValidationErrors(
 export function mapValidationErrorsToForm(
   error: ApiError,
   form: { get(path: string): { setErrors(errors: object): void; markAsTouched(): void } | null },
-  options: { markAsTouched?: boolean } = { markAsTouched: true }
+  options: { markAsTouched?: boolean } = { markAsTouched: true },
 ): void {
   const errors = getValidationErrors(error);
 

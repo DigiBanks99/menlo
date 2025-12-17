@@ -330,9 +330,9 @@ describe('Result Monadic Operations', () => {
       const chained = bind(
         bind(
           bind(result, (n) => success(n + 3) as Result<number, string>),
-          (n) => success(n * 2) as Result<number, string>
+          (n) => success(n * 2) as Result<number, string>,
         ),
-        (n) => success(n - 5) as Result<number, string>
+        (n) => success(n - 5) as Result<number, string>,
       );
 
       expect(isSuccess(chained)).toBe(true);
@@ -424,7 +424,7 @@ describe('Result Monadic Operations', () => {
       const result: Result<number, string> = failure('error') as Result<number, string>;
       const recovered = compensate(
         result,
-        () => failure('still failing') as Result<number, string>
+        () => failure('still failing') as Result<number, string>,
       );
 
       expect(isFailure(recovered)).toBe(true);
@@ -660,7 +660,7 @@ describe('Result Combinators', () => {
         () => {
           throw new Error('boom');
         },
-        (e) => (e as Error).message
+        (e) => (e as Error).message,
       );
 
       expect(isFailure(result)).toBe(true);
@@ -674,7 +674,7 @@ describe('Result Combinators', () => {
         () => {
           throw 'string error';
         },
-        (e) => String(e)
+        (e) => String(e),
       );
 
       expect(isFailure(result)).toBe(true);
@@ -802,9 +802,10 @@ describe('Edge Cases', () => {
 
   it('TC-073: should handle union type values', () => {
     type UnionValue = string | number | boolean;
-    const result: Result<UnionValue, string> = success<UnionValue>(
-      'text'
-    ) as Result<UnionValue, string>;
+    const result: Result<UnionValue, string> = success<UnionValue>('text') as Result<
+      UnionValue,
+      string
+    >;
 
     expect(isSuccess(result)).toBe(true);
     if (isSuccess(result)) {

@@ -98,7 +98,7 @@ export function toResult<T>(): OperatorFunction<T, Result<T, ApiError>> {
   return (source: Observable<T>): Observable<Result<T, ApiError>> =>
     source.pipe(
       map((value: T) => success(value) as Result<T, ApiError>),
-      catchError((error: unknown) => of(failure(toApiError(error)) as Result<T, ApiError>))
+      catchError((error: unknown) => of(failure(toApiError(error)) as Result<T, ApiError>)),
     );
 }
 
@@ -134,12 +134,12 @@ export function toResult<T>(): OperatorFunction<T, Result<T, ApiError>> {
  * ```
  */
 export function toResultWith<T, E>(
-  errorMapper: (error: unknown) => E
+  errorMapper: (error: unknown) => E,
 ): OperatorFunction<T, Result<T, E>> {
   return (source: Observable<T>): Observable<Result<T, E>> =>
     source.pipe(
       map((value: T) => success(value) as Result<T, E>),
-      catchError((error: unknown) => of(failure(errorMapper(error)) as Result<T, E>))
+      catchError((error: unknown) => of(failure(errorMapper(error)) as Result<T, E>)),
     );
 }
 

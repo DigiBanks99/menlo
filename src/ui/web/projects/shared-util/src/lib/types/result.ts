@@ -174,10 +174,7 @@ export function isFailure<T, E>(result: Result<T, E>): result is Failure<E> {
  * // doubled.value === 10
  * ```
  */
-export function map<T, U, E>(
-  result: Result<T, E>,
-  fn: (value: T) => U
-): Result<U, E> {
+export function map<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> {
   if (isSuccess(result)) {
     try {
       return success(fn(result.value));
@@ -206,10 +203,7 @@ export function map<T, U, E>(
  * // mapped.error instanceof Error
  * ```
  */
-export function mapErr<T, E, F>(
-  result: Result<T, E>,
-  fn: (error: E) => F
-): Result<T, F> {
+export function mapErr<T, E, F>(result: Result<T, E>, fn: (error: E) => F): Result<T, F> {
   if (isFailure(result)) {
     try {
       return failure(fn(result.error));
@@ -242,10 +236,7 @@ export function mapErr<T, E, F>(
  * // parsed.value === 42
  * ```
  */
-export function bind<T, U, E>(
-  result: Result<T, E>,
-  fn: (value: T) => Result<U, E>
-): Result<U, E> {
+export function bind<T, U, E>(result: Result<T, E>, fn: (value: T) => Result<U, E>): Result<U, E> {
   if (isSuccess(result)) {
     try {
       return fn(result.value);
@@ -274,10 +265,7 @@ export function bind<T, U, E>(
  * // tapped === result
  * ```
  */
-export function tap<T, E>(
-  result: Result<T, E>,
-  fn: (value: T) => void
-): Result<T, E> {
+export function tap<T, E>(result: Result<T, E>, fn: (value: T) => void): Result<T, E> {
   if (isSuccess(result)) {
     try {
       fn(result.value);
@@ -306,10 +294,7 @@ export function tap<T, E>(
  * // tapped === result
  * ```
  */
-export function tapErr<T, E>(
-  result: Result<T, E>,
-  fn: (error: E) => void
-): Result<T, E> {
+export function tapErr<T, E>(result: Result<T, E>, fn: (error: E) => void): Result<T, E> {
   if (isFailure(result)) {
     try {
       fn(result.error);
@@ -342,7 +327,7 @@ export function tapErr<T, E>(
  */
 export function compensate<T, E>(
   result: Result<T, E>,
-  fn: (error: E) => Result<T, E>
+  fn: (error: E) => Result<T, E>,
 ): Result<T, E> {
   if (isFailure(result)) {
     try {
@@ -427,10 +412,7 @@ export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
  * // value === 'Default for: missing'
  * ```
  */
-export function unwrapOrElse<T, E>(
-  result: Result<T, E>,
-  fn: (error: E) => T
-): T {
+export function unwrapOrElse<T, E>(result: Result<T, E>, fn: (error: E) => T): T {
   if (isSuccess(result)) {
     return result.value;
   }
@@ -535,7 +517,7 @@ export function combineAll<T, E>(results: Result<T, E>[]): Result<T[], E[]> {
  */
 export function tryCatch<T, E = unknown>(
   fn: () => T,
-  errorMapper?: (error: unknown) => E
+  errorMapper?: (error: unknown) => E,
 ): Result<T, E> {
   try {
     return success(fn());
@@ -570,7 +552,7 @@ export function tryCatch<T, E = unknown>(
  */
 export async function fromPromise<T, E = unknown>(
   promise: Promise<T>,
-  errorMapper?: (error: unknown) => E
+  errorMapper?: (error: unknown) => E,
 ): Promise<Result<T, E>> {
   try {
     const value = await promise;
