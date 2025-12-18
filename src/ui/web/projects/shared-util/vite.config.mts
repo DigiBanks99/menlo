@@ -22,10 +22,6 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ['src/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
-    coverage: {
-      reportsDirectory: '../../coverage/projects/shared-util',
-      provider: 'v8' as const,
-    },
     server: {
       deps: {
         inline: [
