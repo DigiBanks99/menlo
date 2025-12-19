@@ -11,4 +11,8 @@ This project has no budget, time, handover or redundancy constraints so we will 
 
 Research best-practices and ensure you are considering the #file:entity-design.md  and other #file:requirements when you need to clarify, need to find patterns and be consistent.
 
-Specification: 
+## Required output
+
+You must update the corresponding implementation.md file in the correct requirement subfolder with the implementation plan you create before attempting any hand-offs.
+
+## Specification or requirements folder
