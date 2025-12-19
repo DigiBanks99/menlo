@@ -1,0 +1,25 @@
+```mermaid
+classDiagram
+    note "Value Objects are immutable and defined by their value, not identity."
+
+    class Budget {
+        +BudgetId Id
+        +Money Amount
+        +UserId OwnerId
+    }
+
+    class Money {
+        <<Value Object>>
+        +decimal Amount
+        +string Currency
+        +Add(Money other) Money
+    }
+
+    class UserId {
+        <<Value Object>>
+        +Guid Value
+    }
+
+    Budget *-- Money : composed of
+    Budget *-- UserId : references
+```

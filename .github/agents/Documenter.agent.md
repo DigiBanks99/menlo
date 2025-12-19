@@ -86,6 +86,7 @@ Required for PRs that change or add docs
 - Accuracy: code samples are correct and versioned
 - Cross-references: links to related docs, code, and issues
 - Accessibility: short sentences, clear headings, no unexplained jargon
+- Accuracy: ensure documentation does not cite code that does not exist and follows patterns the code allows and the implementation.md recommended and the implementation follows
 
 ## Process notes
 
