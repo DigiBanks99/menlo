@@ -775,35 +775,35 @@ Add CSharpFunctionalExtensions version:
 
 ### Testing
 
-- [ ] Directory structure created in Menlo.Lib.Tests/Common
-- [ ] EntityContractsTests.cs created with TC-02 and TC-03
-- [ ] DomainEventsTests.cs created with TC-04
-- [ ] AuditingContractsTests.cs created with TC-05 and TC-06
-- [ ] ErrorResultTests.cs created with TC-08
-- [ ] StronglyTypedIdTests.cs created with TC-01
-- [ ] ConstraintVerificationTests.cs created with TC-07
-- [ ] All tests map to test-cases.md requirements
-- [ ] UnitTest1.cs placeholder removed
+- [X] Directory structure created in Menlo.Lib.Tests/Common
+- [X] EntityContractsTests.cs created with TC-02 and TC-03
+- [X] DomainEventsTests.cs created with TC-04
+- [X] AuditingContractsTests.cs created with TC-05 and TC-06
+- [X] ErrorResultTests.cs created with TC-08
+- [X] StronglyTypedIdTests.cs created with TC-01
+- [X] ConstraintVerificationTests.cs created with TC-07
+- [X] All tests map to test-cases.md requirements
+- [X] UnitTest1.cs placeholder removed
 
 ### Quality Checks
 
-- [ ] All files follow C# coding standards from csharp.instructions.md
-- [ ] XML documentation comments on all public APIs
-- [ ] No dependencies on ASP.NET Core
-- [ ] No references to System.Security.Claims
-- [ ] Proper namespacing: Menlo.Lib.Common.*
-- [ ] Readonly record structs for value objects
-- [ ] File-scoped namespaces used
-- [ ] Strongly-typed variables (no unnecessary var)
+- [X] All files follow C# coding standards from csharp.instructions.md
+- [X] XML documentation comments on all public APIs
+- [X] No dependencies on ASP.NET Core
+- [X] No references to System.Security.Claims
+- [X] Proper namespacing: Menlo.Lib.Common.*
+- [X] Readonly record structs for value objects
+- [X] File-scoped namespaces used
+- [X] Strongly-typed variables (no unnecessary var)
 
 ### Verification
 
-- [ ] Solution builds without errors: `dotnet build`
-- [ ] All tests pass: `dotnet test`
-- [ ] No ClaimsPrincipal references: verified by ConstraintVerificationTests
-- [ ] No ASP.NET dependencies: verified by ConstraintVerificationTests
-- [ ] Abstractions are usable from domain slices (compile check)
-- [ ] Example code in documentation compiles
+- [X] Solution builds without errors: `dotnet build`
+- [X] All tests pass: `dotnet test`
+- [X] No ClaimsPrincipal references: verified by ConstraintVerificationTests
+- [X] No ASP.NET dependencies: verified by ConstraintVerificationTests
+- [X] Abstractions are usable from domain slices (compile check)
+- [X] Example code in documentation compiles
 
 ### Stakeholder Approval
 
