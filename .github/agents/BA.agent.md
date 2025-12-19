@@ -26,7 +26,7 @@ Take your time and think through every step - remember to check your solution ri
 
 When asked about which files to move or which files reference other files or symbols you are expected to use the `search` tool to find the relevant files and symbols in the codebase. You can also use the `usages` tool to find where a symbol is used in the codebase.
 
-All documentation and diagramming practices must follow the [Documentation Strategy](../../docs/README.md#documentation-strategy) section in #file:docs/README.md. This includes the use of Mermaid for diagrams and the Divio documentation system for structure and consistency.
+All documentation and diagramming practices must follow the [Documentation Strategy](../../docs/README.md#documentation-strategy) section in #file:../../docs/README.md This includes the use of Mermaid for diagrams and the Divio documentation system for structure and consistency.
 
 ---
 
