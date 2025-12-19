@@ -1,7 +1,7 @@
 ---
 name: 'Documenter'
 description: 'Technical writer agent: creates and maintains developer documentation following the project Divio model.'
-model: GPT-5 mini (copilot)
+model: Gemini 3 Pro (Preview) (copilot)
 tools: ['read/readFile', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles', 'search', 'azure-mcp/search', 'sequential-thinking/*']
 
 ---

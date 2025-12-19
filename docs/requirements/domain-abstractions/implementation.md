@@ -94,7 +94,7 @@ Add package reference:
 
 Create the following structure in `src/lib/Menlo.Lib`:
 
-```
+```sh
 Menlo.Lib/
 ├── Common/
 │   ├── Abstractions/
@@ -581,7 +581,7 @@ Since this requirement provides abstractions only (no concrete implementations),
 
 Create test files in `src/lib/Menlo.Lib.Tests`:
 
-```
+```sh
 Menlo.Lib.Tests/
 ├── Common/
 │   ├── Abstractions/
@@ -749,20 +749,20 @@ Add CSharpFunctionalExtensions version:
 
 ### Code Artifacts
 
-- [ ] CSharpFunctionalExtensions added to Directory.Packages.props
-- [ ] Menlo.Lib.csproj updated with package reference
-- [ ] Directory structure created: Common/Abstractions, Common/ValueObjects, Common/Enums
-- [ ] IDomainEvent marker interface implemented with XML docs
-- [ ] IEntity<TId> interface implemented with XML docs
-- [ ] IAggregateRoot<TId> interface implemented with XML docs
-- [ ] IHasDomainEvents interface implemented with XML docs
-- [ ] IAuditable interface implemented with XML docs
-- [ ] IAuditStampFactory interface implemented with XML docs
-- [ ] Error base class implemented with validation
-- [ ] UserId readonly record struct implemented
-- [ ] AuditStamp readonly record struct implemented
-- [ ] AuditOperation enum implemented
-- [ ] Class1.cs placeholder removed
+- [X] CSharpFunctionalExtensions added to Directory.Packages.props
+- [X] Menlo.Lib.csproj updated with package reference
+- [X] Directory structure created: Common/Abstractions, Common/ValueObjects, Common/Enums
+- [X] IDomainEvent marker interface implemented with XML docs
+- [X] IEntity<TId> interface implemented with XML docs
+- [X] IAggregateRoot<TId> interface implemented with XML docs
+- [X] IHasDomainEvents interface implemented with XML docs
+- [X] IAuditable interface implemented with XML docs
+- [X] IAuditStampFactory interface implemented with XML docs
+- [X] Error base class implemented with validation
+- [X] UserId readonly record struct implemented
+- [X] AuditStamp readonly record struct implemented
+- [X] AuditOperation enum implemented
+- [X] Class1.cs placeholder removed
 
 ### Documentation
 
