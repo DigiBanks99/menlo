@@ -1,4 +1,3 @@
-```mermaid
 classDiagram
     class IEntity~TId~ {
         <<interface>>
@@ -58,8 +57,7 @@ classDiagram
 
     IAggregateRoot --|> IEntity
     IAggregateRoot --|> IHasDomainEvents
-    
+
     IAuditable ..> AuditStamp
     AuditStamp ..> UserId
     AuditStamp ..> AuditOperation
-```

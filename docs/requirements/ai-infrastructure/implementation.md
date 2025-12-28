@@ -62,7 +62,7 @@ Start-Service -Name "Ollama"
 Set-Service -Name "Ollama" -StartupType Automatic
 ```
 
-By default the Ollama API listens on http://localhost:11434.
+By default the Ollama API listens on <http://localhost:11434>.
 
 ### C. Open firewall (if needed)
 
@@ -1703,8 +1703,8 @@ dotnet sln list
 
 # Build entire solution to verify dependencies
 dotnet build
-```
 
+```csharp
 // src/lib/Menlo.AI.Tests/Services/ChatServiceTests.cs
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
@@ -1723,7 +1723,7 @@ public sealed class ChatServiceTests
         var kernel = Substitute.For<Kernel>();
         var chatClient = Substitute.For<IChatClient>();
         var expectedResponse = "Hello, this is a test response";
-        
+
         chatClient.GetResponseAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                   .Returns(new ChatResponse(expectedResponse));
         
@@ -1736,6 +1736,7 @@ public sealed class ChatServiceTests
         result.ShouldBe(expectedResponse);
     }
 }
+
 ```
 
 #### 4.2 Validation Steps
@@ -1751,19 +1752,22 @@ public sealed class ChatServiceTests
 
 ## Implementation Checklist
 
-### Prerequisites
+### Prerequisites CL
+
 - [ ] .NET 9 SDK installed and verified
 - [ ] Docker Desktop running and accessible
 - [ ] Sufficient disk space for model downloads (minimum 20GB free)
 
-### Phase 1: Package Installation and Setup
+### Phase 1: Package Installation and Setup CL
+
 - [ ] Add required AI packages to Menlo.AI using dotnet CLI
 - [ ] Add Ollama hosting package to Menlo.AppHost using dotnet CLI
 - [ ] Add Ollama client package to Menlo.Api using dotnet CLI
 - [ ] Remove placeholder Class1.cs from Menlo.AI project
 - [ ] Verify all projects compile without errors after package installations
 
-### Phase 2: Menlo.AI Library Implementation
+### Phase 2: Menlo.AI Library Implementation CL
+
 - [ ] Create AI service interfaces (IChatService, IEmbeddingService, IVisionService)
 - [ ] Create service implementations (ChatService, EmbeddingService, VisionService)
 - [ ] Create configuration models (AiSettings)
@@ -1771,14 +1775,16 @@ public sealed class ChatServiceTests
 - [ ] Add necessary using statements and namespace declarations
 - [ ] Verify Menlo.AI project compiles without errors
 
-### Phase 3: Aspire Configuration
+### Phase 3: Aspire Configuration CL
+
 - [ ] Update AppHost.cs with Ollama integration and model definitions
 - [ ] Update Menlo.Api Program.cs with AI service registration
 - [ ] Add AI configuration to appsettings.json and appsettings.Development.json
 - [ ] Add AI health check endpoint to API
 - [ ] Verify all projects compile after changes
 
-### Phase 4: Testing and Validation
+### Phase 4: Testing and Validation CL
+
 - [ ] Create test project for AI services using dotnet CLI
 - [ ] Add required test packages using dotnet CLI
 - [ ] Add test project to solution using dotnet CLI
@@ -1790,6 +1796,7 @@ public sealed class ChatServiceTests
 - [ ] Verify no critical errors in application logs
 
 ### Completion Criteria
+
 - [ ] All projects compile without errors or warnings
 - [ ] Aspire AppHost starts successfully and shows healthy services
 - [ ] Ollama models download and become healthy in dashboard
@@ -1806,13 +1813,13 @@ public sealed class ChatServiceTests
 
 ## Troubleshooting
 
-| Issue | Symptoms | Solution |
-|-------|----------|----------|
-| **Compilation Errors** | Build failures, missing references | Verify all package versions match, check project references |
-| **Ollama Won't Start** | Container failures in dashboard | Check Docker is running, verify port 11434 is available |
-| **Models Not Downloading** | Stuck in downloading state | Ensure internet connectivity, check available disk space |
-| **Health Check Fails** | AI endpoint returns errors | Verify models are downloaded and healthy, check logs for details |
-| **High Memory Usage** | System slowdown during startup | Consider using smaller models for development |
+| Issue                      | Symptoms                           | Solution                                                         |
+| -------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
+| **Compilation Errors**     | Build failures, missing references | Verify all package versions match, check project references      |
+| **Ollama Won't Start**     | Container failures in dashboard    | Check Docker is running, verify port 11434 is available          |
+| **Models Not Downloading** | Stuck in downloading state         | Ensure internet connectivity, check available disk space         |
+| **Health Check Fails**     | AI endpoint returns errors         | Verify models are downloaded and healthy, check logs for details |
+| **High Memory Usage**      | System slowdown during startup     | Consider using smaller models for development                    |
 
 ## Next Steps
 

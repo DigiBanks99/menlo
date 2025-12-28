@@ -359,6 +359,7 @@ src/ui/web/projects/shared-util/src/
    - Verify signal reactivity
 
 ### Phase 4: Documentation & Examples
+
 1. **Update Public API**
    - Export all types and functions from `public-api.ts`
    - Add comprehensive JSDoc for IDE support
@@ -377,6 +378,7 @@ src/ui/web/projects/shared-util/src/
    - Show i18n error message integration
 
 ### Phase 5: Testing & Validation
+
 1. **Comprehensive Unit Testing**
    - All utility functions tested
    - All edge cases covered
@@ -488,40 +490,40 @@ Create example component and service:
 
 ## Gotchas and Best Practices
 
-> **⚠️ Gotcha: Avoid Throwing from Services**
-> Services should NEVER throw for expected API failures. Always return `Result`.
-> Reserve exceptions for truly exceptional circumstances (programming errors).
+**⚠️ Gotcha: Avoid Throwing from Services**
+Services should NEVER throw for expected API failures. Always return `Result`.
+Reserve exceptions for truly exceptional circumstances (programming errors).
 
-> **⚠️ Gotcha: Form Field Name Mapping**
-> Backend validation errors typically use PascalCase (`UserName`).
-> Frontend forms typically use camelCase (`userName`).
-> Ensure mapping logic accounts for this difference.
+**⚠️ Gotcha: Form Field Name Mapping**
+Backend validation errors typically use PascalCase (`UserName`).
+Frontend forms typically use camelCase (`userName`).
+Ensure mapping logic accounts for this difference.
 
-> **⚠️ Gotcha: Always Use toResult Operator**
-> When calling HttpClient in services, ALWAYS use `.pipe(toResult())`.
-> This ensures errors are caught and converted to Result.
+**⚠️ Gotcha: Always Use toResult Operator**
+When calling HttpClient in services, ALWAYS use `.pipe(toResult())`.
+This ensures errors are caught and converted to Result.
 
-> **⚠️ Gotcha: Don't Overuse unwrap()**
-> The `unwrap()` function throws if the Result is an error.
-> Use `unwrapOr()` or `unwrapOrElse()` for safe extraction.
-> Only use `unwrap()` when you KNOW the result is success (e.g., after type guard).
+**⚠️ Gotcha: Don't Overuse unwrap()**
+The `unwrap()` function throws if the Result is an error.
+Use `unwrapOr()` or `unwrapOrElse()` for safe extraction.
+Only use `unwrap()` when you KNOW the result is success (e.g., after type guard).
 
-> **💡 Best Practice: Signal Composition**
-> Use `computed()` to derive error messages and display state from result signals.
-> This keeps templates clean and reactive.
+**💡 Best Practice: Signal Composition**
+Use `computed()` to derive error messages and display state from result signals.
+This keeps templates clean and reactive.
 
-> **💡 Best Practice: Consistent Error UX**
-> Validation errors → inline with form controls
-> Non-validation errors → toast/snackbar notification
-> This pattern should be consistent across all features.
+**💡 Best Practice: Consistent Error UX**
+Validation errors → inline with form controls
+Non-validation errors → toast/snackbar notification
+This pattern should be consistent across all features.
 
-> **💡 Best Practice: Typed Form Controls**
-> Use Angular's typed reactive forms (`FormGroup<T>`, `FormControl<T>`).
-> This ensures type safety when mapping validation errors.
+**💡 Best Practice: Typed Form Controls**
+Use Angular's typed reactive forms (`FormGroup<T>`, `FormControl<T>`).
+This ensures type safety when mapping validation errors.
 
-> **💡 Best Practice: Test Error Paths**
-> Test the failure scenarios as thoroughly as success scenarios.
-> Use mock services to simulate different error types.
+**💡 Best Practice: Test Error Paths**
+Test the failure scenarios as thoroughly as success scenarios.
+Use mock services to simulate different error types.
 
 ## Dependencies
 
@@ -567,9 +569,9 @@ pnpm exec vitest run --config projects/shared-util/vitest.pure.config.mts
 
 ### Test Results Summary
 
-| Test File | Tests Passed | Skipped | Notes |
-|-----------|-------------|---------|-------|
-| result.spec.ts | 72 | 3 | Curried form not implemented |
-| problem-details.spec.ts | 70 | 0 | Full coverage |
-| to-result.spec.ts | 45 | 0 | Full coverage |
-| **Total** | **187** | **3** | |
+| Test File               | Tests Passed | Skipped | Notes                        |
+| ----------------------- | ------------ | ------- | ---------------------------- |
+| result.spec.ts          | 72           | 3       | Curried form not implemented |
+| problem-details.spec.ts | 70           | 0       | Full coverage                |
+| to-result.spec.ts       | 45           | 0       | Full coverage                |
+| **Total**               | **187**      | **3**   |                              |

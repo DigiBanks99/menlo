@@ -5,6 +5,7 @@
 Objective: Provide explainable, non-intrusive suggestions to reallocate budget across categories to keep the plan realistic and balanced while respecting locks, minimums, attribution, and tax flags.
 
 Out of scope (for this requirement):
+
 - Automatic application of changes without explicit user approval
 - Real-time co-authoring with AI (separate requirement)
 

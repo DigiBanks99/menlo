@@ -2,7 +2,8 @@
 
 ## 1. Overview
 
-The `Money` domain object is a fundamental building block for the Menlo Home Management application. It encapsulates the concept of a monetary value, ensuring precision, currency safety, and correct arithmetic operations. It replaces the use of raw `decimal` or `double` types for financial calculations to prevent precision errors and "primitive obsession".
+The `Money` domain object is a fundamental building block for the Menlo Home Management application. It encapsulates the concept of a monetary value, ensuring precision, currency safety, and correct
+arithmetic operations. It replaces the use of raw `decimal` or `double` types for financial calculations to prevent precision errors and "primitive obsession".
 
 ## 2. Business Requirements
 
@@ -37,6 +38,7 @@ When splitting money (e.g., dividing a R100.00 bill among 3 people), simple divi
 R33.33 * 3 = R99.99. We lose 1 cent.
 The Allocation pattern distributes the remainder to ensure the sum of parts equals the original total.
 This is critical for:
+
 - **Attribution**: Splitting utility bills (e.g., 30% rental / 70% personal).
 - **Budgeting**: Dividing annual budgets into months.
 

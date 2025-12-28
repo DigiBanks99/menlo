@@ -2,7 +2,8 @@
 
 ## Technical Summary
 
-This requirement establishes the `Money` Value Object as a fundamental building block for all financial calculations in the Menlo application. It replaces raw `decimal` types to prevent precision errors, ensure currency safety, and provide correct arithmetic operations. The implementation follows the Result pattern for error handling and integrates with EF Core and JSON serialization.
+This requirement establishes the `Money` Value Object as a fundamental building block for all financial calculations in the Menlo application. It replaces raw `decimal` types to prevent precision
+errors, ensure currency safety, and provide correct arithmetic operations. The implementation follows the Result pattern for error handling and integrates with EF Core and JSON serialization.
 
 **Key Principles:**
 
@@ -160,6 +161,7 @@ public readonly record struct Money
 ```
 
 **Tests** (TC-MON-001 to TC-MON-005):
+
 - Create with valid amount and currency
 - Verify equality based on amount and currency
 - Verify inequality with different amounts or currencies
@@ -255,6 +257,7 @@ public Result<Money, Error> Add(Money other)
 ```
 
 **Tests** (TC-MON-006, TC-MON-007):
+
 ```csharp
 [Fact]
 public void GivenMoneyWithSameCurrency_WhenAdding()
@@ -323,6 +326,7 @@ public Result<Money, Error> Subtract(Money other)
 ```
 
 **Tests** (TC-MON-008, TC-MON-009):
+
 - Same currency returns success
 - Different currencies returns CurrencyMismatchError
 
@@ -341,6 +345,7 @@ public Result<Money, Error> Subtract(Money other)
 ```
 
 **Tests** (TC-MON-010, TC-MON-011):
+
 - Integer and decimal multipliers
 
 #### 2.4 Implement Division
@@ -363,6 +368,7 @@ public Result<Money, Error> Divide(decimal divisor)
 ```
 
 **Tests** (TC-MON-012, TC-MON-013, TC-MON-013b):
+
 - Even division returns success
 - Division with rounding
 - Division by zero returns DivisionByZeroError
@@ -402,6 +408,7 @@ public Result<IReadOnlyList<Money>, Error> Allocate(int parts)
 ```
 
 **Tests** (TC-MON-014, TC-MON-015):
+
 - R1.00 into 3 parts returns Success with [0.34, 0.33, 0.33], sum = 1.00
 - R0.05 into 2 parts returns Success with [0.03, 0.02]
 - Allocate with 0 or negative parts returns InvalidAllocationError
@@ -446,6 +453,7 @@ public Result<IReadOnlyList<Money>, Error> Allocate(params int[] ratios)
 ```
 
 **Tests** (TC-MON-016, TC-MON-017):
+
 - R100 by ratio [1, 3] returns Success with [25, 75]
 - R0.04 by ratio [30, 70] returns Success with [0.01, 0.03]
 - Allocate with null, empty, negative, or all-zero ratios returns InvalidAllocationError
@@ -489,6 +497,7 @@ public static bool operator <=(Money left, Money right) => left.CompareTo(right)
 ```
 
 **Tests** (TC-MON-018 to TC-MON-021):
+
 - Comparison with same currency
 - Comparison with different currencies throws
 
@@ -545,6 +554,7 @@ public class BudgetCategoryConfiguration : IEntityTypeConfiguration<CategoryNode
 ```
 
 **Tests** (TC-MON-INT-001 to TC-MON-INT-003):
+
 - Save entity with Money property
 - Retrieve and verify values
 - Query based on Money.Amount
@@ -624,6 +634,7 @@ public class MoneyJsonConverter : JsonConverter<Money>
 ```
 
 **Tests** (TC-MON-INT-004, TC-MON-INT-005):
+
 - Serialize Money to JSON
 - Deserialize JSON to Money
 
@@ -646,6 +657,7 @@ Get-ChildItem -Path "src/lib" -Recurse -Filter "*.cs" |
 Example refactoring:
 
 **Before**:
+
 ```csharp
 public class CategoryNode
 {
@@ -654,6 +666,7 @@ public class CategoryNode
 ```
 
 **After**:
+
 ```csharp
 public class CategoryNode
 {
@@ -666,12 +679,14 @@ public class CategoryNode
 Update test data and assertions to use Money:
 
 **Before**:
+
 ```csharp
 budget.SetPlanned(categoryId, 100.00m);
 category.Planned.ShouldBe(100.00m);
 ```
 
 **After**:
+
 ```csharp
 Money expected = Money.Create(100.00m, "ZAR");
 budget.SetPlanned(categoryId, expected);
@@ -685,6 +700,7 @@ category.Planned.ShouldBe(expected);
 **Location**: `src/lib/Menlo.Lib.Tests/Common/ValueObjects/MoneyTests.cs`
 
 **Test Organization**:
+
 ```csharp
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
@@ -743,6 +759,7 @@ public sealed class MoneyTests
 **Location**: `src/lib/Menlo.Lib.Tests/Common/ValueObjects/MoneyIntegrationTests.cs`
 
 **Test Coverage**:
+
 - EF Core persistence (TC-MON-INT-001 to TC-MON-INT-003)
 - JSON serialization (TC-MON-INT-004, TC-MON-INT-005)
 
@@ -777,6 +794,7 @@ Document all public methods, operators, and errors.
 Create or update: `docs/guides/money-howto.md`
 
 Show practical examples:
+
 - Creating Money values
 - Performing arithmetic
 - Handling allocation
@@ -792,23 +810,23 @@ Add Money to the list of core domain abstractions.
 
 ### Potential Issues
 
-1. **Floating Point Precision**: 
+1. **Floating Point Precision**:
    - **Risk**: Incorrect use of double instead of decimal
    - **Mitigation**: Use decimal throughout; unit tests verify precision
 
-2. **Currency Code Validation**: 
+2. **Currency Code Validation**:
    - **Risk**: Invalid currency codes accepted
    - **Mitigation**: Validate against ISO 4217 (future enhancement)
 
-3. **Allocation Edge Cases**: 
+3. **Allocation Edge Cases**:
    - **Risk**: Remainder distribution creates unexpected results
    - **Mitigation**: Comprehensive unit tests with edge cases
 
-4. **Performance**: 
+4. **Performance**:
    - **Risk**: Allocation algorithms slow with large parts
    - **Mitigation**: Use efficient cent-based arithmetic; benchmark if needed
 
-5. **Migration Complexity**: 
+5. **Migration Complexity**:
    - **Risk**: Refactoring existing decimal usages is error-prone
    - **Mitigation**: Incremental migration; thorough testing at each step
 
@@ -827,6 +845,7 @@ Add Money to the list of core domain abstractions.
 ## Definition of Done
 
 ### Backend (C#/.NET)
+
 - [x] Money value object implemented in Menlo.Lib
 - [x] MoneyError hierarchy created
 - [x] All arithmetic operations use Result pattern
@@ -842,6 +861,7 @@ Add Money to the list of core domain abstractions.
 - [ ] Solution builds without warnings
 
 ### Frontend (Angular/TypeScript)
+
 - [x] Money interface created in shared/util library
 - [x] Type guards (isMoney, isMoneyOrNull) implemented
 - [x] MoneyUtils utility class implemented
@@ -1442,12 +1462,14 @@ export class BudgetService {
 ## Future Enhancements
 
 ### Backend
+
 1. **Format Providers**: Culture-specific formatting for display
 2. **Money Math Extensions**: Percentage calculations, tax calculations
 3. **Currency Validation**: ISO 4217 validation for currency codes
 4. **Exchange Rate Service**: Multi-currency support with conversion
 
 ### Frontend
+
 1. **Money Input Component**: Custom form control for entering Money values with validation
 2. **Currency Selector**: Dropdown component for selecting currencies
 3. **Money Comparison Utilities**: Visual indicators for comparing Money values (e.g., budget vs actual)

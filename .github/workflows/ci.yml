@@ -411,10 +411,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install markdownlint
-        run: npm install -g markdownlint-cli
+        run: npm install -g markdownlint-cli2
 
       - name: Lint documentation
-        run: markdownlint --config .markdownlint.json docs/**/*.md README.md
+        run: markdownlint-cli2 --config .config/.markdownlint-cli2.jsonc docs/**/*.md README.md
 
       - name: Check for broken links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
