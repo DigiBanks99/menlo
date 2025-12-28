@@ -1,13 +1,16 @@
 {
-  "files.associations": {
-    "**/.github/workflows/*.yml": "github-actions-workflow"
-  },
-  "chat.tools.autoApprove": true,
+  "chat.agent.maxRequests": 500,
+  "chat.customAgentInSubagent.enabled": true,
   "chat.mcp.autostart": "onlyNew",
+  "chat.tools.autoApprove": true,
   "chat.tools.terminal.autoApprove": {
     "rm": false,
     "rmdir": false,
     "del": false,
+    "dotnet build": true,
+    "dotnet restore": true,
+    "dotnet outdated": true,
+    "dotnet test": true,
     "kill": false,
     "curl": true,
     "wget": true,
@@ -17,7 +20,31 @@
     "/^Remove-Item\\b/i": false,
     "pwsh ./scripts/act-ci.ps1": true
   },
-  "chat.agent.maxRequests": 500,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.markdownlint": "always"
+  },
+  "files.associations": {
+    "**/.github/workflows/*.yml": "github-actions-workflow"
+  },
+  "[markdown]": {
+    "cSpell.fixSpellingWithRenameProvider": true,
+    "cSpell.advanced.feature.useReferenceProviderWithRename": true,
+    "cSpell.advanced.feature.useReferenceProviderRemove": "/^#+\\s/",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.formatOnSave": true,
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    },
+    "editor.unicodeHighlight.ambiguousCharacters": true,
+    "editor.unicodeHighlight.invisibleCharacters": true,
+    "editor.wordWrap": "on",
+  },
+  "markdown.extension.toc.levels": "2..6",
+  "markdown.extension.toc.slugifyMode": "github",
+  "markdown.extension.toc.updateOnSave": true,
+  "markdownlint.configFile": "../.config/.markdownlint-cli2.jsonc",
   "[mermaid]": {
     "editor.colorDecorators": true
   },
