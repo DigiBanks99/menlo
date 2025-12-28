@@ -1,0 +1,7 @@
+{
+    "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/v0.20.0/schema/markdownlint-cli2-config-schema.json",
+    "config": {
+        "table-column-style": false,
+        "table-pipe-style": false
+    }
+}

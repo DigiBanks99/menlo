@@ -108,6 +108,15 @@ The application acts as an AI interpreter that transforms handwritten planning l
 - Tax deductible expense categorization
 - Individual attribution for family members
 
+### Financial Integrity
+
+#### Money Handling
+
+- **Precision**: All financial calculations must maintain high precision to avoid rounding errors.
+- **Currency Safety**: The system must prevent accidental operations between different currencies (though ZAR is primary).
+- **Allocation Accuracy**: Splitting amounts (e.g., monthly budgets) must preserve the total amount without losing cents (Penny Allocation).
+- **Immutability**: Financial values must be immutable to ensure data integrity.
+
 ### Income Tracking
 
 #### Employment Income
