@@ -59,7 +59,6 @@ Contract notes:
 
 - If AI offline, show banner and allow manual reallocations; queue trigger events for later processing with idempotency.
 
-
 ## Dependencies
 
 - Ollama (local models, e.g., Phi-4-mini) and Microsoft Semantic Kernel for ranking/explanations.

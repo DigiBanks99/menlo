@@ -10,7 +10,6 @@ Define and enforce the directory layout, naming conventions, and architectural r
 - The structure must support rapid onboarding and clear separation of business domains.
 - Documentation and code must be co-located for traceability.
 
-
 ## Technical Requirements
 
 - All source code must reside under a top-level `src` folder.

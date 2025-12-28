@@ -85,6 +85,7 @@ dotnet add api/Menlo.AppHost/Menlo.AppHost.csproj reference ../lib/Menlo.Service
   app.MapDefaultEndpoints();
   app.Run();
   ```
+
 - In `Menlo.AppHost/Program.cs`:
 
   ```csharp
@@ -111,6 +112,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
   ```sh
   npm install -g pnpm
   ```
+
 - Use `pnpm install` for all dependency management and `pnpm link` for local package linking between workspace libraries and apps.
 
 ### 5.2. Scaffold Angular Workspace and Libraries
@@ -120,6 +122,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
   ```sh
   pnpm add -g @angular/cli
   ```
+
 - Scaffold a multi-project Angular workspace under `src/ui/web`:
 
   ```sh
@@ -158,6 +161,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
     }
   }
   ```
+
 - Run tests with:
 
   ```sh
@@ -173,6 +177,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
   ```sh
   pnpm dlx storybook@latest init --builder @storybook/builder-vite
   ```
+
 - Place stories in your UI libraries (e.g., `shared-ui`).
 - Run Storybook:
 
@@ -197,6 +202,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
     },
   });
   ```
+
 - Update `angular.json` serve options for `menlo-app` to use the proxy:
 
   ```json
@@ -217,6 +223,7 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
     }
   }
   ```
+
 - Ensure Aspire and Menlo.Api are also configured for HTTPS with the same certificate if possible.
 
 ### 5.7. App Bootstrap Example
@@ -256,15 +263,17 @@ dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.
 
 - Add Ollama integration:
   - In AppHost:
-    
+
     ```sh
     dotnet add api/Menlo.AppHost/Menlo.AppHost.csproj package CommunityToolkit.Aspire.Hosting.Ollama
     ```
+
   - In Menlo.Api:
-    
+
     ```sh
     dotnet add api/Menlo.Api/Menlo.Api.csproj package CommunityToolkit.Aspire.OllamaSharp
     ```
+
 - Add Semantic Kernel:
   
   ```sh

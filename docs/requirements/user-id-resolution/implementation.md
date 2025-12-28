@@ -15,8 +15,8 @@ Implement an application-layer abstraction for current user context that resolve
 1. Options (Configuration)
 
 - Add `UserIdResolutionOptions` with:
-    - `ClaimPrecedence` (default: `["sub", "oid", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "appid", "azp"]`)
-    - `StrictGuidOnly` (default: `true`)
+  - `ClaimPrecedence` (default: `["sub", "oid", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "appid", "azp"]`)
+  - `StrictGuidOnly` (default: `true`)
 - Support override via DI configuration or appsettings.
 
 1. ASP.NET Adapter
@@ -42,14 +42,14 @@ Implement an application-layer abstraction for current user context that resolve
 1. Tests (TDD)
 
 - Unit tests for precedence and errors:
-    - `sub` success
-    - `oid` success fallback
-    - `nameidentifier` success fallback
-    - `appid` success (daemon/service principal)
-    - `azp` success (optional fallback)
-    - invalid GUID in first matching claim → `user.invalid-id-format`
-    - missing all supported claims → `user.missing-id-claim`
-    - null `HttpContext` or missing `User` → `user.context-unavailable`
+  - `sub` success
+  - `oid` success fallback
+  - `nameidentifier` success fallback
+  - `appid` success (daemon/service principal)
+  - `azp` success (optional fallback)
+  - invalid GUID in first matching claim → `user.invalid-id-format`
+  - missing all supported claims → `user.missing-id-claim`
+  - null `HttpContext` or missing `User` → `user.context-unavailable`
 - Integration test using a fake `ClaimsPrincipal` and `IHttpContextAccessor` within a minimal host.
 
 ## Diagram

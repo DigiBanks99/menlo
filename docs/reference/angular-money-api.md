@@ -58,12 +58,14 @@ Utility class providing helper methods for working with Money values.
 Creates a Money instance from primitive values.
 
 **Parameters:**
+
 - `amount` - The numeric amount
 - `currency` - The currency code
 
 **Returns:** A Money object
 
 **Example:**
+
 ```typescript
 const budget = MoneyUtils.create(2000, 'ZAR');
 // { amount: 2000, currency: 'ZAR' }
@@ -76,11 +78,13 @@ const budget = MoneyUtils.create(2000, 'ZAR');
 Creates a Money instance with zero amount.
 
 **Parameters:**
+
 - `currency` - The currency code
 
 **Returns:** A Money object with amount 0
 
 **Example:**
+
 ```typescript
 const zero = MoneyUtils.zero('ZAR');
 // { amount: 0, currency: 'ZAR' }
@@ -93,12 +97,14 @@ const zero = MoneyUtils.zero('ZAR');
 Formats a Money value for display using `Intl.NumberFormat`.
 
 **Parameters:**
+
 - `money` - The Money value to format
 - `locale` - Optional locale string (defaults to 'en-ZA')
 
 **Returns:** Formatted string with currency symbol
 
 **Example:**
+
 ```typescript
 const amount: Money = { amount: 1234.56, currency: 'ZAR' };
 
@@ -107,6 +113,7 @@ MoneyUtils.format(amount, 'en-US');     // "ZAR 1,234.56"
 ```
 
 **Notes:**
+
 - Uses `Intl.NumberFormat` with `style: 'currency'`
 - Always formats with 2 decimal places
 - Browser-dependent formatting
@@ -118,12 +125,14 @@ MoneyUtils.format(amount, 'en-US');     // "ZAR 1,234.56"
 Compares two Money values for equality.
 
 **Parameters:**
+
 - `a` - First Money value
 - `b` - Second Money value
 
 **Returns:** `true` if both amount and currency match
 
 **Example:**
+
 ```typescript
 const a: Money = { amount: 100, currency: 'ZAR' };
 const b: Money = { amount: 100, currency: 'ZAR' };
@@ -140,11 +149,13 @@ MoneyUtils.equals(a, c);  // false
 Checks if a Money value is zero.
 
 **Parameters:**
+
 - `money` - The Money value to check
 
 **Returns:** `true` if amount is 0
 
 **Example:**
+
 ```typescript
 const zero = MoneyUtils.zero('ZAR');
 const nonZero = MoneyUtils.create(100, 'ZAR');
@@ -160,11 +171,13 @@ MoneyUtils.isZero(nonZero);  // false
 Checks if a Money value is positive.
 
 **Parameters:**
+
 - `money` - The Money value to check
 
 **Returns:** `true` if amount is greater than 0
 
 **Example:**
+
 ```typescript
 const positive = MoneyUtils.create(100, 'ZAR');
 const zero = MoneyUtils.zero('ZAR');
@@ -182,11 +195,13 @@ MoneyUtils.isPositive(negative);  // false
 Checks if a Money value is negative.
 
 **Parameters:**
+
 - `money` - The Money value to check
 
 **Returns:** `true` if amount is less than 0
 
 **Example:**
+
 ```typescript
 const negative = MoneyUtils.create(-100, 'ZAR');
 const zero = MoneyUtils.zero('ZAR');
@@ -204,12 +219,14 @@ MoneyUtils.isNegative(positive);  // false
 Checks if two Money values have the same currency.
 
 **Parameters:**
+
 - `a` - First Money value
 - `b` - Second Money value
 
 **Returns:** `true` if currencies match
 
 **Example:**
+
 ```typescript
 const zar1 = MoneyUtils.create(100, 'ZAR');
 const zar2 = MoneyUtils.create(200, 'ZAR');
@@ -226,16 +243,19 @@ MoneyUtils.sameCurrency(zar1, usd);   // false
 Type guard to check if a value is a valid Money object.
 
 **Parameters:**
+
 - `value` - The value to check
 
 **Returns:** Type predicate - `true` if value matches Money interface
 
 **Validation:**
+
 - Checks if value is an object
 - Verifies `amount` property exists and is a number
 - Verifies `currency` property exists and is a non-empty string
 
 **Example:**
+
 ```typescript
 function processAmount(value: unknown) {
   if (isMoney(value)) {
@@ -258,11 +278,13 @@ isMoney(null);                               // false
 Type guard to check if a value is Money or null.
 
 **Parameters:**
+
 - `value` - The value to check
 
 **Returns:** Type predicate - `true` if value is Money or null
 
 **Example:**
+
 ```typescript
 function processOptional(value: unknown) {
   if (isMoneyOrNull(value)) {
@@ -302,12 +324,14 @@ transform(value: Money | null | undefined, locale?: string): string
 ```
 
 **Parameters:**
+
 - `value` - The Money value to format (or null/undefined)
 - `locale` - Optional locale string for formatting
 
 **Returns:** Formatted string, or empty string if value is null/undefined
 
 **Template Syntax:**
+
 ```html
 <!-- Default locale (en-ZA) -->
 {{ amount | money }}
@@ -320,6 +344,7 @@ transform(value: Money | null | undefined, locale?: string): string
 ```
 
 **Example:**
+
 ```typescript
 @Component({
   template: `

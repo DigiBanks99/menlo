@@ -614,7 +614,7 @@ dotnet test --filter "FullyQualifiedName~AuditingContractsTests"
 
 Create the following diagrams in `docs/requirements/domain-abstractions/diagrams/`:
 
-#### 1.1 Class Diagram (class-diagram.md)
+#### 1.1 Class Diagram (class-diagram.mmd)
 
 Shows relationships between all interfaces and value objects
 
@@ -767,7 +767,7 @@ Add CSharpFunctionalExtensions version:
 ### Documentation
 
 - [X] implementation.md updated with comprehensive plan (this file)
-- [ ] class-diagram.md created with Mermaid class diagram
+- [ ] class-diagram.mmd created with Mermaid class diagram
 - [ ] audit-flow-diagram.md created with sequence diagram
 - [ ] value-object-pattern.md created with pattern diagram
 - [ ] domain-abstractions-howto.md created in docs/guides
