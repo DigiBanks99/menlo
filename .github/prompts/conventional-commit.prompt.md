@@ -1,5 +1,5 @@
 ---
-description: Semantic Commit Prompt for Menlo
+description: Conventional Commit Prompt for Menlo
 tools: ['execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'search', 'web/githubRepo', 'azure-mcp/search', 'sequential-thinking/*']
 ---
 
@@ -45,7 +45,7 @@ First line is the title in lowercase. It is a quick reference description of wha
 
 ### Rules
 
-1. **Type**: Use `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, or `chore`.
+1. **Type**: Use `feat`, `fix`, `docs`, `style`, `refactor`, `req`, `perf`, `test`, `build`, `ci`, or `chore`.
 2. **Scope**: Specify the area affected (e.g., `budget`, `ui`, `api`).
 3. **Subject**: Start with a verb in the imperative mood (e.g., "add", "fix", "update").
 4. **Body**: Explain the why and how of the change if necessary.
