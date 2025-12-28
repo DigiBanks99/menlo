@@ -1,530 +1,1366 @@
-# Microsoft Entra ID Authentication Setup Implementation Guide
+# Authentication - Implementation Plan
 
-This document outlines the step-by-step process for integrating Microsoft Entra ID (Azure AD) authentication with JWT Bearer tokens and policy-based authorisation in the Menlo Home Management solution.
+- [1. Overview](#1-overview)
+- [2. Folder Structure](#2-folder-structure)
+  - [2.1. Backend Structure (`Menlo.Api`)](#21-backend-structure-menloapi)
+  - [2.2. Library Structure (`Menlo.Lib`)](#22-library-structure-menlolib)
+  - [2.3. Frontend Structure (`menlo-app`)](#23-frontend-structure-menlo-app)
+  - [2.4. Test Structure](#24-test-structure)
+- [3. Backend Implementation](#3-backend-implementation)
+  - [3.1. Dependencies](#31-dependencies)
+  - [3.2. Security Headers](#32-security-headers)
+  - [3.3. Configuration Options](#33-configuration-options)
+  - [3.4. Policy Definitions](#34-policy-definitions)
+  - [3.5. Minimal API Endpoints](#35-minimal-api-endpoints)
+  - [3.6. Authentication Schemes](#36-authentication-schemes)
+  - [3.7. Service Registration](#37-service-registration)
+- [4. Domain Layer (Menlo.Lib)](#4-domain-layer-menlolib)
+  - [4.1. User Entity](#41-user-entity)
+  - [4.2. Auth Errors](#42-auth-errors)
+  - [4.3. Value Objects](#43-value-objects)
+- [5. Frontend Implementation (Angular)](#5-frontend-implementation-angular)
+  - [5.1. Auth Service](#51-auth-service)
+  - [5.2. HTTP Interceptor](#52-http-interceptor)
+  - [5.3. Auth Guards](#53-auth-guards)
+  - [5.4. User Context Component](#54-user-context-component)
+- [6. Testing Strategy](#6-testing-strategy)
+  - [6.1. Backend Test Authentication Handler](#61-backend-test-authentication-handler)
+  - [6.2. Backend Integration Tests](#62-backend-integration-tests)
+  - [6.3. Angular Unit Tests](#63-angular-unit-tests)
+- [7. Security Considerations](#7-security-considerations)
+- [8. Implementation Checklist](#8-implementation-checklist)
+  - [Backend Tasks](#backend-tasks)
+  - [Library Tasks](#library-tasks)
+  - [Frontend Tasks](#frontend-tasks)
+  - [Testing Tasks](#testing-tasks)
+  - [Configuration Tasks](#configuration-tasks)
 
-## Prerequisites
+---
 
-- Review the [Architecture Document](../../explanations/architecture-document.md) for security requirements.
-- Review the [Business Requirements](../../requirements/business-requirements.md) for user roles and workflows.
-- Azure subscription with Microsoft Entra ID tenant.
-- .NET 9 SDK or later installed.
+## 1. Overview
 
-## Steps
+This document provides a detailed implementation plan for the Authentication & Identity module. The implementation follows the **Vertical Slice Architecture** pattern, treating Authentication as its own slice with clearly separated API concerns (`Menlo.Api`) and domain/application concerns (`Menlo.Lib`).
 
-### 1. Add Authentication NuGet Packages ✅
+**Key Architectural Decisions:**
 
-Add the required authentication packages to `Menlo.Api` project only (not AppHost):
+- **BFF Pattern:** Backend handles OIDC; browser uses `HttpOnly` cookies.
+- **Minimal APIs:** All endpoints use `MapGroup`/`MapGet`/`MapPost`.
+- **Policy-Based Authorization:** Policies defined centrally; endpoints require policies.
+- **Zero Information Leakage:** Frontend does not know tenant/client IDs.
+- **C# 14 Features:** Use `field` keyword for auto-property backing fields.
+- **Immutable Domain Models:** No setters; use factory methods and domain methods.
+- **EF Core Hydration:** Private constructors with init-only properties for persistence.
 
-```sh
-dotnet add src/api/Menlo.Api/Menlo.Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer
-dotnet add src/api/Menlo.Api/Menlo.Api.csproj package Microsoft.Identity.Web
+---
+
+## 2. Folder Structure
+
+### 2.1. Backend Structure (`Menlo.Api`)
+
+```text
+src/api/Menlo.Api/
+├── Auth/
+│   ├── Endpoints/
+│   │   ├── AuthEndpoints.cs           # Static class to map all auth endpoints
+│   │   ├── LoginEndpoint.cs           # GET /auth/login
+│   │   ├── LogoutEndpoint.cs          # POST /auth/logout
+│   │   └── UserEndpoint.cs            # GET /auth/user
+│   ├── Options/
+│   │   ├── MenloAuthOptions.cs        # Auth configuration POCO
+│   │   └── MenloAuthOptionsValidator.cs
+│   ├── Policies/
+│   │   ├── MenloPolicies.cs           # Static class with policy name constants
+│   │   └── AuthPoliciesExtensions.cs  # Extension to register policies
+│   └── AuthServiceCollectionExtensions.cs  # Wires up all auth services
+├── Program.cs                         # Minimal startup; calls extensions
+└── ...
 ```
 
-### 2. Configure Azure AD App Registration ✅
+### 2.2. Library Structure (`Menlo.Lib`)
 
-Create app registrations in Azure Portal for the API:
+```text
+src/lib/Menlo.Lib/
+├── Auth/
+│   ├── Entities/
+│   │   └── User.cs                    # Domain User entity
+│   ├── Errors/
+│   │   └── AuthErrors.cs              # Auth-specific errors
+│   ├── ValueObjects/
+│   │   ├── UserId.cs                  # Strongly typed ID
+│   │   └── ExternalUserId.cs          # Entra OID wrapper
+│   └── Models/
+│       └── UserProfile.cs             # DTO for /auth/user response
+├── Common/
+│   └── ...                            # Existing abstractions
+└── ...
+```
 
-**API App Registration (Menlo.Api):**
+### 2.3. Frontend Structure (`menlo-app`)
 
-- Navigate to Azure Portal → Microsoft Entra ID → App registrations
-- Create new registration: "Menlo Home Management API"
-- Supported account types: "Accounts in this organisational directory only"
-- No redirect URI needed for API
-- Note the **Application (client) ID** and **Directory (tenant) ID**
-- Under "Expose an API":
-  - Set Application ID URI (e.g., `api://menlo-api` or use default format)
-  - Add scopes:
-    - `Data.Read` - For reading data across all domains
-    - `Planning.Write` - For writing planning lists and coordination data
-    - `Budget.Write` - For writing budget and financial data
-    - `Events.Write` - For creating and managing events
+```text
+src/ui/web/projects/menlo-app/src/app/
+├── core/
+│   └── auth/
+│       ├── auth.service.ts            # Handles login/logout/user state
+│       ├── auth.guard.ts              # CanActivate guard for authenticated routes
+│       ├── role.guard.ts              # CanActivate guard for role-based routes
+│       ├── auth.interceptor.ts        # Adds withCredentials to requests
+│       ├── auth.models.ts             # UserProfile interface
+│       └── index.ts                   # Barrel export
+└── ...
+```
 
-**Roles Configuration:**
+### 2.4. Test Structure
 
-- Under "App roles", create roles:
-  - `Planning` - COO role: planning lists, coordination (read all, write planning)
-  - `Budget` - CFO role: budget management, financial analysis, event creation (read all, write budget/events)
-  - `Operations` - General operations access (read-only across domains)
+```text
+src/api/Menlo.Api.Tests/
+├── Auth/
+│   ├── AuthEndpointTests.cs           # Integration tests for auth endpoints
+│   └── PolicyAuthorizationTests.cs    # Tests for policy enforcement
+├── Fixtures/
+│   ├── TestAuthHandler.cs             # Mock AuthenticationHandler
+│   └── AuthenticatedWebApplicationFactory.cs
+└── ...
 
-### 3. Configure Authentication in Menlo.Api ✅
+src/ui/web/projects/menlo-app/
+├── src/app/core/auth/
+│   ├── auth.service.spec.ts
+│   ├── auth.guard.spec.ts
+│   └── ...
+└── ...
+```
 
-Create `AuthenticationServiceCollectionExtensions.cs` in `Menlo.Api/src/Security/`:
+---
+
+## 3. Backend Implementation
+
+### 3.1. Dependencies
+
+Add the following NuGet packages to `Menlo.Api.csproj`:
+
+```xml
+<PackageReference Include="Microsoft.Identity.Web" Version="3.*" />
+<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.*" />
+<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="1.3.1" />
+```
+
+### 3.2. Security Headers
+
+Use `NetEscapades.AspNetCore.SecurityHeaders` for comprehensive security header configuration.
+
+**File:** `Auth/SecurityHeadersExtensions.cs`
 
 ```csharp
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+namespace Menlo.Api.Auth;
+
+using NetEscapades.AspNetCore.SecurityHeaders;
+
+public static class SecurityHeadersExtensions
+{
+    public static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies)
+    {
+        policies.AddDefaultApiSecurityHeaders();
+        
+        // Strengthen HSTS for production
+        policies.AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: 63072000);
+        
+        // Configure CSP for API
+        policies.AddContentSecurityPolicy(builder =>
+        {
+            builder.AddDefaultSrc().None();
+            builder.AddFrameAncestors().None();
+            builder.AddFormAction().Self();
+        });
+        
+        return policies;
+    }
+}
+```
+
+### 3.3. Configuration Options
+
+**File:** `Auth/Options/MenloAuthOptions.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Options;
+
+public sealed class MenloAuthOptions
+{
+    public const string SectionName = "AzureAd";
+
+    public required string Instance { get; init; }
+    public required string TenantId { get; init; }
+    public required string ClientId { get; init; }
+    public required string ClientSecret { get; init; }
+    public required string CookieDomain { get; init; }
+    public string CallbackPath { get; init; } = "/signin-oidc";
+    public string SignedOutCallbackPath { get; init; } = "/signout-oidc";
+}
+```
+
+**File:** `Auth/Options/MenloAuthOptionsValidator.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Options;
+
+using Microsoft.Extensions.Options;
+
+public sealed class MenloAuthOptionsValidator : IValidateOptions<MenloAuthOptions>
+{
+    public ValidateOptionsResult Validate(string? name, MenloAuthOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(options.Instance))
+            return ValidateOptionsResult.Fail("Instance is required.");
+        if (string.IsNullOrWhiteSpace(options.TenantId))
+            return ValidateOptionsResult.Fail("TenantId is required.");
+        if (string.IsNullOrWhiteSpace(options.ClientId))
+            return ValidateOptionsResult.Fail("ClientId is required.");
+        if (string.IsNullOrWhiteSpace(options.CookieDomain))
+            return ValidateOptionsResult.Fail("CookieDomain is required.");
+
+        return ValidateOptionsResult.Success;
+    }
+}
+```
+
+### 3.4. Policy Definitions
+
+**File:** `Auth/Policies/MenloPolicies.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Policies;
+
+public static class MenloPolicies
+{
+    // Policy names
+    public const string RequireAuthenticated = nameof(RequireAuthenticated);
+    public const string RequireAdmin = nameof(RequireAdmin);
+    public const string CanEditBudget = nameof(CanEditBudget);
+    public const string CanViewBudget = nameof(CanViewBudget);
+
+    // Role values (must match Entra App Roles)
+    public static class Roles
+    {
+        public const string Admin = "Menlo.Admin";
+        public const string User = "Menlo.User";
+        public const string Reader = "Menlo.Reader";
+    }
+}
+```
+
+**File:** `Auth/Policies/AuthPoliciesExtensions.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Policies;
+
 using Microsoft.AspNetCore.Authorization;
+
+public static class AuthPoliciesExtensions
+{
+    public static AuthorizationBuilder AddMenloPolicies(this AuthorizationBuilder builder)
+    {
+        builder.AddPolicy(MenloPolicies.RequireAuthenticated, policy =>
+            policy.RequireAuthenticatedUser());
+
+        builder.AddPolicy(MenloPolicies.RequireAdmin, policy =>
+            policy.RequireRole(MenloPolicies.Roles.Admin));
+
+        builder.AddPolicy(MenloPolicies.CanEditBudget, policy =>
+            policy.RequireRole(MenloPolicies.Roles.Admin, MenloPolicies.Roles.User));
+
+        builder.AddPolicy(MenloPolicies.CanViewBudget, policy =>
+            policy.RequireRole(
+                MenloPolicies.Roles.Admin,
+                MenloPolicies.Roles.User,
+                MenloPolicies.Roles.Reader));
+
+        return builder;
+    }
+}
+```
+
+### 3.5. Minimal API Endpoints
+
+**File:** `Auth/Endpoints/AuthEndpoints.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Endpoints;
+
+public static class AuthEndpoints
+{
+    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
+    {
+        RouteGroupBuilder group = app.MapGroup("/auth")
+            .WithTags("Authentication");
+
+        LoginEndpoint.Map(group);
+        LogoutEndpoint.Map(group);
+        UserEndpoint.Map(group);
+
+        return app;
+    }
+}
+```
+
+**File:** `Auth/Endpoints/LoginEndpoint.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Endpoints;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
+public static class LoginEndpoint
+{
+    public static void Map(RouteGroupBuilder group)
+    {
+        group.MapGet("/login", HandleAsync)
+            .WithName("Login")
+            .WithSummary("Initiates OIDC login flow")
+            .AllowAnonymous();
+    }
+
+    private static IResult HandleAsync(HttpContext context, string? returnUrl = "/")
+    {
+        // Prevent open redirect attacks
+        if (string.IsNullOrEmpty(returnUrl) || !Uri.IsWellFormedUriString(returnUrl, UriKind.Relative))
+        {
+            returnUrl = "/";
+        }
+
+        AuthenticationProperties properties = new()
+        {
+            RedirectUri = returnUrl
+        };
+
+        return Results.Challenge(properties, [OpenIdConnectDefaults.AuthenticationScheme]);
+    }
+}
+```
+
+**File:** `Auth/Endpoints/LogoutEndpoint.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Endpoints;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
+public static class LogoutEndpoint
+{
+    public static void Map(RouteGroupBuilder group)
+    {
+        group.MapPost("/logout", HandleAsync)
+            .WithName("Logout")
+            .WithSummary("Signs out the user")
+            .RequireAuthorization();
+    }
+
+    private static IResult HandleAsync(HttpContext context, string? returnUrl = "/")
+    {
+        AuthenticationProperties properties = new()
+        {
+            RedirectUri = returnUrl
+        };
+
+        return Results.SignOut(
+            properties,
+            [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]);
+    }
+}
+```
+
+**File:** `Auth/Endpoints/UserEndpoint.cs`
+
+```csharp
+namespace Menlo.Api.Auth.Endpoints;
+
+using Menlo.Api.Auth.Policies;
+using Menlo.Lib.Auth.Models;
+using System.Security.Claims;
+
+public static class UserEndpoint
+{
+    public static void Map(RouteGroupBuilder group)
+    {
+        group.MapGet("/user", Handle)
+            .WithName("GetCurrentUser")
+            .WithSummary("Returns the current user's profile and roles")
+            .RequireAuthorization(MenloPolicies.RequireAuthenticated)
+            .Produces<UserProfile>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+    }
+
+    private static IResult Handle(ClaimsPrincipal user)
+    {
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return Results.Unauthorized();
+        }
+
+        UserProfile profile = new(
+            Id: user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
+            Email: user.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            DisplayName: user.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
+            Roles: user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList()
+        );
+
+        return Results.Ok(profile);
+    }
+}
+```
+
+### 3.6. Authentication Schemes
+
+**File:** `Auth/AuthServiceCollectionExtensions.cs`
+
+```csharp
+namespace Menlo.Api.Auth;
+
+using Menlo.Api.Auth.Options;
+using Menlo.Api.Auth.Policies;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 
-namespace Menlo.Api.Security;
-
-public static class AuthenticationServiceCollectionExtensions
+public static class AuthServiceCollectionExtensions
 {
-    public static IServiceCollection AddMenloAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMenloAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        // Add JWT Bearer authentication with Microsoft Identity Web
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAd"));
+        // Bind and validate options
+        services.AddOptions<MenloAuthOptions>()
+            .BindConfiguration(MenloAuthOptions.SectionName)
+            .ValidateOnStart();
 
-        // Add authorization with policies
+        services.AddSingleton<IValidateOptions<MenloAuthOptions>, MenloAuthOptionsValidator>();
+
+        MenloAuthOptions authOptions = configuration
+            .GetSection(MenloAuthOptions.SectionName)
+            .Get<MenloAuthOptions>()!;
+
+        // Configure authentication with dual schemes
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.Cookie.Name = ".Menlo.Session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.Domain = authOptions.CookieDomain;
+                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                options.SlidingExpiration = true;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    // Return 401 for API calls instead of redirect
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+                    }
+                    context.Response.Redirect(context.RedirectUri);
+                    return Task.CompletedTask;
+                };
+            })
+            .AddOpenIdConnect(options =>
+            {
+                options.Authority = $"{authOptions.Instance}{authOptions.TenantId}/v2.0";
+                options.ClientId = authOptions.ClientId;
+                options.ClientSecret = authOptions.ClientSecret;
+                options.ResponseType = "code";
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+                options.CallbackPath = authOptions.CallbackPath;
+                options.SignedOutCallbackPath = authOptions.SignedOutCallbackPath;
+                options.TokenValidationParameters.RoleClaimType = "roles";
+            })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = $"{authOptions.Instance}{authOptions.TenantId}/v2.0";
+                options.Audience = authOptions.ClientId;
+                options.TokenValidationParameters.RoleClaimType = "roles";
+            });
+
+        // Configure authorization policies
         services.AddAuthorizationBuilder()
-            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build())
-            .AddPolicy("ReadAllPolicy", policy =>
-                policy.RequireAssertion(context =>
-                    context.User.IsInRole("Planning") || 
-                    context.User.IsInRole("Budget") || 
-                    context.User.IsInRole("Operations"))
-                      .RequireClaim("scope", "Data.Read"))
-            .AddPolicy("PlanningWritePolicy", policy =>
-                policy.RequireRole("Planning")
-                      .RequireClaim("scope", "Planning.Write"))
-            .AddPolicy("BudgetWritePolicy", policy =>
-                policy.RequireRole("Budget")
-                      .RequireClaim("scope", "Budget.Write"))
-            .AddPolicy("EventsWritePolicy", policy =>
-                policy.RequireAssertion(context =>
-                    context.User.IsInRole("Planning") || 
-                    context.User.IsInRole("Budget"))
-                      .RequireClaim("scope", "Events.Write"));
+            .AddMenloPolicies();
 
         return services;
     }
 }
 ```
 
-Update `appsettings.json` and `appsettings.Development.json`:
+### 3.7. Service Registration
 
-```json
+**File:** `Program.cs` (additions)
+
+```csharp
+// Add after builder.AddServiceDefaults();
+builder.Services.AddMenloAuthentication(builder.Configuration);
+
+// Add after var app = builder.Build();
+
+// Security headers middleware - should be early in the pipeline
+app.UseSecurityHeaders(policies => policies.AddMenloSecurityHeaders());
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Add endpoint mapping
+app.MapAuthEndpoints();
+
+// Apply default authorization to API endpoints
+app.MapGroup("/api")
+    .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+```
+
+---
+
+## 4. Domain Layer (Menlo.Lib)
+
+### 4.1. User Entity
+
+**File:** `Auth/Entities/User.cs`
+
+Uses C# 14 `field` keyword to eliminate explicit backing fields. No default constructor - EF Core can hydrate via the private constructor with all required parameters.
+
+```csharp
+namespace Menlo.Lib.Auth.Entities;
+
+using Menlo.Lib.Auth.ValueObjects;
+using Menlo.Lib.Common.Abstractions;
+
+/// <summary>
+/// Aggregate root representing a system user linked to an external identity provider.
+/// </summary>
+public sealed class User : IAggregateRoot<UserId>, IAuditable
 {
-  "AzureAd": {
-    "Instance": "https://login.microsoftonline.com/",
-    "TenantId": "{TENANT_ID}",
-    "ClientId": "{API_CLIENT_ID}",
-    "Audience": "api://menlo-api"
+    /// <summary>
+    /// Private constructor for EF Core hydration.
+    /// EF Core can use this constructor to set all properties via constructor binding.
+    /// </summary>
+    private User(
+        UserId id,
+        ExternalUserId externalId,
+        string email,
+        string displayName,
+        DateTimeOffset? lastLoginAt,
+        UserId? createdBy,
+        DateTimeOffset? createdAt,
+        UserId? modifiedBy,
+        DateTimeOffset? modifiedAt)
+    {
+        Id = id;
+        ExternalId = externalId;
+        Email = email;
+        DisplayName = displayName;
+        LastLoginAt = lastLoginAt;
+        CreatedBy = createdBy;
+        CreatedAt = createdAt;
+        ModifiedBy = modifiedBy;
+        ModifiedAt = modifiedAt;
+    }
+
+    public UserId Id { get; }
+    public ExternalUserId ExternalId { get; }
+    public string Email { get; }
+    public string DisplayName { get; }
+    public DateTimeOffset? LastLoginAt { get; private init; }
+
+    // IAuditable
+    public UserId? CreatedBy { get; private init; }
+    public DateTimeOffset? CreatedAt { get; private init; }
+    public UserId? ModifiedBy { get; private init; }
+    public DateTimeOffset? ModifiedAt { get; private init; }
+
+    // IHasDomainEvents
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => field ??= new List<IDomainEvent>;
+
+    public void AddDomainEvent<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent
+    {
+        ((List<IDomainEvent>)DomainEvents).Add(domainEvent);
+    }
+
+    public void ClearDomainEvents()
+    {
+        ((List<IDomainEvent>)DomainEvents).Clear();
+    }
+
+    public void Audit(IAuditStampFactory factory, AuditOperation operation)
+    {
+        AuditStamp stamp = factory.CreateStamp();
+        if (operation == AuditOperation.Create)
+        {
+            CreatedBy = stamp.ActorId;
+            CreatedAt = stamp.Timestamp;
+        }
+        ModifiedBy = stamp.ActorId;
+        ModifiedAt = stamp.Timestamp;
+    }
+
+    /// <summary>
+    /// Factory method to create a new User.
+    /// </summary>
+    public static Result<User, Error> Create(ExternalUserId externalId, string email, string displayName)
+    {
+        return email
+            .Validate() // Will require creating a string extension that returns a Result<string, ValidationError>
+            .Bind(_ => displayName.Validate())
+            .Map(_ => new User(
+                id: UserId.Create(),
+                externalId: externalId,
+                email: email,
+                displayName: displayName,
+                lastLoginAt: DateTimeOffset.UtcNow,
+                createdBy: null,
+                createdAt: null,
+                modifiedBy: null,
+                modifiedAt: null));
+    }
+
+    /// <summary>
+    /// Records a login event for this user.
+    /// </summary>
+    public void RecordLogin(DateTimeOffset time)
+    {
+        LastLoginAt = time;
+        AddDomainEvent(new UserLoggedInEvent(Id));
+    }
+}
+
+/// <summary>
+/// Domain event raised when a user logs in.
+/// </summary>
+public readonly record struct UserLoggedInEvent(UserId UserId) : IDomainEvent;
+```
+
+### 4.2. Auth Errors
+
+**File:** `Auth/Errors/AuthErrors.cs`
+
+```csharp
+namespace Menlo.Lib.Auth.Errors;
+
+using Menlo.Lib.Common.Abstractions;
+
+public sealed class AuthError(string code, string message) : Error(code, message);
+
+public static class AuthErrors
+{
+    public static AuthError UserNotFound(string externalId) =>
+        new("Auth.UserNotFound", $"No user found with external ID: {externalId}");
+
+    public static AuthError Unauthorized() =>
+        new("Auth.Unauthorized", "You are not authorized to perform this action.");
+
+    public static AuthError Forbidden(string policy) =>
+        new("Auth.Forbidden", $"Access denied. Required policy: {policy}");
+}
+```
+
+### 4.3. Value Objects
+
+**File:** `Auth/ValueObjects/UserId.cs`
+
+```csharp
+namespace Menlo.Lib.Auth.ValueObjects;
+
+public readonly record struct UserId(Guid Value);
+```
+
+**File:** `Auth/ValueObjects/ExternalUserId.cs`
+
+```csharp
+namespace Menlo.Lib.Auth.ValueObjects;
+
+/// <summary>
+/// Represents the Entra ID Object ID (oid claim).
+/// </summary>
+public readonly record struct ExternalUserId(string Value);
+```
+
+**File:** `Auth/Models/UserProfile.cs`
+
+```csharp
+namespace Menlo.Lib.Auth.Models;
+
+/// <summary>
+/// DTO returned by the /auth/user endpoint.
+/// Does not expose any IdP-specific information.
+/// </summary>
+public sealed record UserProfile(
+    string Id,
+    string Email,
+    string DisplayName,
+    IReadOnlyList<string> Roles
+);
+```
+
+---
+
+## 5. Frontend Implementation (Angular)
+
+### 5.1. Auth Service
+
+**File:** `core/auth/auth.service.ts`
+
+```typescript
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { UserProfile } from './auth.models';
+import { catchError, tap, of, firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
+  // State signals
+  private readonly userSignal = signal<UserProfile | null>(null);
+  private readonly loadingSignal = signal<boolean>(true);
+  private readonly errorSignal = signal<string | null>(null);
+
+  // Public computed signals
+  readonly user = this.userSignal.asReadonly();
+  readonly isAuthenticated = computed(() => this.userSignal() !== null);
+  readonly isLoading = this.loadingSignal.asReadonly();
+  readonly roles = computed(() => this.userSignal()?.roles ?? []);
+
+  /**
+   * Fetches the current user from the backend.
+   * Should be called on app initialization.
+   */
+  async loadUser(): Promise<void> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    try {
+      const user = await firstValueFrom(
+        this.http.get<UserProfile>(`${environment.apiUrl}/auth/user`).pipe(
+          catchError(() => of(null))
+        )
+      );
+      this.userSignal.set(user);
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  /**
+   * Redirects to backend login endpoint.
+   * The backend handles OIDC flow.
+   */
+  login(returnUrl?: string): void {
+    const encodedReturnUrl = encodeURIComponent(returnUrl ?? this.router.url);
+    // Redirect to backend login - backend handles OIDC
+    window.location.href = `${environment.apiUrl}/auth/login?returnUrl=${encodedReturnUrl}`;
+  }
+
+  /**
+   * Posts to backend logout endpoint.
+   */
+  async logout(): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/auth/logout`, {})
+    );
+    this.userSignal.set(null);
+    // Redirect will be handled by backend OIDC signout
+  }
+
+  /**
+   * Checks if the user has at least one of the specified roles.
+   */
+  hasRole(...requiredRoles: string[]): boolean {
+    const userRoles = this.roles();
+    return requiredRoles.some(role => userRoles.includes(role));
   }
 }
 ```
 
-Update `Program.cs` in `Menlo.Api`:
+### 5.2. HTTP Interceptor
 
-```csharp
-// Add authentication and authorization
-builder.Services.AddMenloAuthentication(builder.Configuration);
+**File:** `core/auth/auth.interceptor.ts`
 
-// ... existing code ...
+```typescript
+import { HttpInterceptorFn } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
-// Configure middleware pipeline
-app.UseAuthentication();
-app.UseAuthorization();
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only add credentials for requests to our API
+  if (req.url.startsWith(environment.apiUrl)) {
+    const clonedRequest = req.clone({
+      withCredentials: true
+    });
+    return next(clonedRequest);
+  }
+
+  return next(req);
+};
 ```
 
-### 4. Update OpenAPI/Swagger Configuration ✅
+### 5.3. Auth Guards
 
-Enhance Swagger to support JWT Bearer authentication. Update the OpenAPI configuration in `Program.cs`:
+**File:** `core/auth/auth.guard.ts`
 
-```csharp
-builder.Services.AddOpenApi("menlo-api", options =>
-{
-    options.AddDocumentTransformer<AuthenticationDocumentTransformer>();
-});
+```typescript
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = async () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  // Wait for user to load if still loading
+  if (authService.isLoading()) {
+    await authService.loadUser();
+  }
+
+  if (authService.isAuthenticated()) {
+    return true;
+  }
+
+  // Redirect to login
+  authService.login(router.url);
+  return false;
+};
 ```
 
-Create `AuthenticationDocumentTransformer.cs` in `Menlo.Api/src/Security/`:
+**File:** `core/auth/role.guard.ts`
 
-```csharp
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+```typescript
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
+import { AuthService } from './auth.service';
 
-namespace Menlo.Api.Security;
+export const roleGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-internal sealed class AuthenticationDocumentTransformer : IOpenApiDocumentTransformer
-{
-    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
-    {
-        document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            Description = "Enter your JWT Bearer token"
-        };
+  // Wait for user to load if still loading
+  if (authService.isLoading()) {
+    await authService.loadUser();
+  }
 
-        document.SecurityRequirements.Add(new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecurityReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }] = Array.Empty<string>()
-        });
+  if (!authService.isAuthenticated()) {
+    authService.login(router.url);
+    return false;
+  }
 
-        return Task.CompletedTask;
-    }
+  const requiredRoles = route.data['roles'] as string[] | undefined;
+  if (!requiredRoles || requiredRoles.length === 0) {
+    return true;
+  }
+
+  if (authService.hasRole(...requiredRoles)) {
+    return true;
+  }
+
+  // Redirect to unauthorized page
+  return router.createUrlTree(['/unauthorized']);
+};
+```
+
+### 5.4. User Context Component
+
+**File:** `core/auth/auth.models.ts`
+
+```typescript
+export interface UserProfile {
+  id: string;
+  email: string;
+  displayName: string;
+  roles: string[];
 }
+
+export const MenloRoles = {
+  Admin: 'Menlo.Admin',
+  User: 'Menlo.User',
+  Reader: 'Menlo.Reader'
+} as const;
 ```
 
-### 5. Create Integration Test Authentication Infrastructure ✅
+**App Initialization (in `app.config.ts`):**
 
-Create `TestAuthenticationExtensions.cs` in `Menlo.Api.IntegrationTests/`:
+```typescript
+import { APP_INITIALIZER } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { AuthService } from './core/auth/auth.service';
+import { authInterceptor } from './core/auth/auth.interceptor';
+
+export const appConfig = {
+  providers: [
+    provideHttpClient(withInterceptors([authInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService) => () => authService.loadUser(),
+      deps: [AuthService],
+      multi: true
+    }
+  ]
+};
+```
+
+---
+
+## 6. Testing Strategy
+
+### 6.1. Backend Test Authentication Handler
+
+**File:** `Fixtures/TestAuthHandler.cs`
 
 ```csharp
+namespace Menlo.Api.Tests.Fixtures;
+
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace Menlo.Api.IntegrationTests;
-
-public static class TestAuthenticationExtensions
+public sealed class TestAuthHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    IOptionsMonitor<TestAuthHandlerOptions> testOptions,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public static WebApplicationFactory<T> WithTestAuthentication<T>(
-        this WebApplicationFactory<T> factory,
-        params Claim[] claims) where T : class
-    {
-        return factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove existing authentication
-                var authDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(IAuthenticationSchemeProvider));
-                if (authDescriptor != null)
-                {
-                    services.Remove(authDescriptor);
-                }
+    public const string SchemeName = "TestScheme";
+    public const string DefaultUserId = "test-user-id";
+    public const string DefaultEmail = "test@example.com";
+    public const string DefaultName = "Test User";
 
-                // Add test authentication
-                services.AddAuthentication("Test")
-                    .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
-                        "Test", options => { });
-
-                services.AddAuthorization(options =>
-                {
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder("Test")
-                        .RequireAuthenticatedUser()
-                        .Build();
-                });
-
-                // Add test claims
-                services.AddSingleton(new TestClaimsProvider(claims));
-            });
-        });
-    }
-
-    public static WebApplicationFactory<T> WithPlanningRole<T>(this WebApplicationFactory<T> factory) where T : class
-        => factory.WithTestAuthentication(
-            new Claim(ClaimTypes.NameIdentifier, "test-user-planning"),
-            new Claim(ClaimTypes.Name, "Test Planning User"),
-            new Claim(ClaimTypes.Email, "planning@menlo.test"),
-            new Claim(ClaimTypes.Role, "Planning"),
-            new Claim("scope", "Data.Read"),
-            new Claim("scope", "Planning.Write"),
-            new Claim("scope", "Events.Write"));
-
-    public static WebApplicationFactory<T> WithBudgetRole<T>(this WebApplicationFactory<T> factory) where T : class
-        => factory.WithTestAuthentication(
-            new Claim(ClaimTypes.NameIdentifier, "test-user-budget"),
-            new Claim(ClaimTypes.Name, "Test Budget User"),
-            new Claim(ClaimTypes.Email, "budget@menlo.test"),
-            new Claim(ClaimTypes.Role, "Budget"),
-            new Claim("scope", "Data.Read"),
-            new Claim("scope", "Budget.Write"),
-            new Claim("scope", "Events.Write"));
-
-    public static WebApplicationFactory<T> WithOperationsRole<T>(this WebApplicationFactory<T> factory) where T : class
-        => factory.WithTestAuthentication(
-            new Claim(ClaimTypes.NameIdentifier, "test-user-operations"),
-            new Claim(ClaimTypes.Name, "Test Operations User"),
-            new Claim(ClaimTypes.Email, "operations@menlo.test"),
-            new Claim(ClaimTypes.Role, "Operations"),
-            new Claim("scope", "Data.Read"));
-
-    public static WebApplicationFactory<T> WithNoRole<T>(this WebApplicationFactory<T> factory) where T : class
-        => factory.WithTestAuthentication(
-            new Claim(ClaimTypes.NameIdentifier, "test-user-norole"),
-            new Claim(ClaimTypes.Name, "Test No Role User"),
-            new Claim(ClaimTypes.Email, "norole@menlo.test"));
-
-    public static WebApplicationFactory<T> WithUnauthenticated<T>(this WebApplicationFactory<T> factory) where T : class
-        => factory.WithTestAuthentication(); // No claims = unauthenticated
-}
-
-public class TestClaimsProvider
-{
-    public TestClaimsProvider(params Claim[] claims)
-    {
-        Claims = claims;
-    }
-
-    public Claim[] Claims { get; }
-}
-
-public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-{
-    private readonly TestClaimsProvider _claimsProvider;
-
-    public TestAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger, UrlEncoder encoder, TestClaimsProvider claimsProvider)
-        : base(options, logger, encoder)
-    {
-        _claimsProvider = claimsProvider;
-    }
+    private readonly TestAuthHandlerOptions _testOptions = testOptions.CurrentValue;
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (_claimsProvider.Claims.Length == 0)
+        if (_testOptions.SimulateUnauthenticated)
         {
-            return Task.FromResult(AuthenticateResult.Fail("No test claims provided"));
+            return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        var identity = new ClaimsIdentity(_claimsProvider.Claims, "Test");
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, "Test");
-        
+        List<Claim> claims =
+        [
+            new(ClaimTypes.NameIdentifier, DefaultUserId),
+            new(ClaimTypes.Email, DefaultEmail),
+            new(ClaimTypes.Name, DefaultName),
+        ];
+
+        claims.AddRange(_testOptions.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        ClaimsIdentity identity = new(claims, SchemeName);
+        ClaimsPrincipal principal = new(identity);
+        AuthenticationTicket ticket = new(principal, SchemeName);
+
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }
 ```
 
-### 6. Create Authentication Integration Tests ✅
-
-Create `AuthenticationTests.cs` in `Menlo.Api.IntegrationTests/`:
+**File:** `Fixtures/AuthenticatedWebApplicationFactory.cs`
 
 ```csharp
-using Shouldly;
-using System.Net;
+namespace Menlo.Api.Tests.Fixtures;
 
-namespace Menlo.Api.IntegrationTests;
-
-public class AuthenticationTests : IClassFixture<MenloWebApplicationFactory>
-{
-    private readonly MenloWebApplicationFactory _webApplicationFactory;
-
-    public AuthenticationTests(MenloWebApplicationFactory webApplicationFactory)
-    {
-        _webApplicationFactory = webApplicationFactory;
-    }
-
-    [Fact]
-    public async Task GivenUnauthenticatedRequest_WhenAccessingProtectedEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithUnauthenticated().CreateClient();
-
-        // Act
-        var response = await client.GetAsync("/openapi/menlo-api.json");
-
-        // Assert - OpenAPI should be accessible without auth
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-
-        // TODO: Test actual protected endpoint when available
-        // var protectedResponse = await client.GetAsync("/api/protected");
-        // protectedResponse.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenPlanningRole_WhenAccessingPlanningEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithPlanningRole().CreateClient();
-
-        // Act & Assert
-        // TODO: Implement when planning endpoints are available
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task GivenBudgetRole_WhenAccessingBudgetEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithBudgetRole().CreateClient();
-
-        // Act & Assert
-        // TODO: Implement when budget endpoints are available
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task GivenBudgetRole_WhenAccessingEventEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithBudgetRole().CreateClient();
-
-        // Act & Assert
-        // TODO: Test CFO can create events when event endpoints are available
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task GivenOperationsRole_WhenAccessingWriteEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithOperationsRole().CreateClient();
-
-        // Act & Assert
-        // TODO: Test operations role cannot write when write endpoints are available
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task GivenNoRole_WhenAccessingRoleProtectedEndpoint()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.WithNoRole().CreateClient();
-
-        // Act & Assert
-        // TODO: Test access to role-protected endpoints when available
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task GivenValidRequest_WhenAccessingSwaggerUi()
-    {
-        // Arrange
-        using var client = _webApplicationFactory.CreateClient();
-
-        // Act
-        var response = await client.GetAsync("/openapi/menlo-api.json");
-
-        // Assert
-        ItShouldIncludeBearerAuthenticationInSwagger(response);
-    }
-
-    private static async void ItShouldIncludeBearerAuthenticationInSwagger(HttpResponseMessage response)
-    {
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
-        content.ShouldContain("Bearer");
-        content.ShouldContain("securitySchemes");
-    }
-}
-```
-
-Update `MenloWebApplicationFactory.cs` to support authentication overrides:
-
-```csharp
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Testcontainers.PostgreSql;
 
-namespace Menlo.Api.IntegrationTests;
-
-public class MenloWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class AuthenticatedWebApplicationFactory : WebApplicationFactory<Program>
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
-        .WithImage("docker.io/library/postgres:17.4")
-        .Build();
+    public string[] UserRoles { get; init; } = ["Menlo.User"];
+    public bool SimulateUnauthenticated { get; init; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(services =>
+        builder.ConfigureTestServices(services =>
         {
-            // Override connection string for tests
-            services.Configure<ConnectionStrings>(options =>
+            // Override authentication with test handler
+            services.AddAuthentication(TestAuthHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                    TestAuthHandler.SchemeName, options => { });
+
+            // Configure the test handler's behaviour for this factory instance
+            services.Configure<TestAuthHandlerOptions>(options =>
             {
-                options.DefaultConnection = _postgreSqlContainer.GetConnectionString();
+                options.Roles = UserRoles;
+                options.SimulateUnauthenticated = SimulateUnauthenticated;
             });
         });
-
-        builder.UseEnvironment("Production");
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgreSqlContainer.StartAsync();
-    }
-
-    public new async Task DisposeAsync()
-    {
-        await _postgreSqlContainer.StopAsync();
-        await base.DisposeAsync();
     }
 }
 ```
 
-### 7. Frontend Authentication Preparation (Future) ✅
+**File:** `Fixtures/TestAuthHandlerOptions.cs`
 
-While not implemented now, the API is configured to support frontend authentication. For future Angular integration:
+```csharp
+namespace Menlo.Api.Tests.Fixtures;
 
-**Frontend App Registration (Future):**
-
-- Create separate app registration: "Menlo Home Management Frontend"
-- Platform configuration: Single-page application (SPA)
-- Redirect URIs: `http://localhost:4200`, `https://yourdomain.azurestaticapps.net`
-- API permissions: Add permissions to access Menlo.Api scopes
-- Enable implicit flow and authorization code flow
-
-**Frontend Configuration (Future):**
-
-```typescript
-// @azure/msal-angular configuration
-export const msalConfig: Configuration = {
-  auth: {
-    clientId: 'FRONTEND_CLIENT_ID',
-    authority: 'https://login.microsoftonline.com/TENANT_ID',
-    redirectUri: window.location.origin,
-  },
-  cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false,
-  }
-};
+public sealed class TestAuthHandlerOptions
+{
+    public string[] Roles { get; set; } = ["Menlo.User"];
+    public bool SimulateUnauthenticated { get; set; }
+}
 ```
 
-### 8. Documentation & Validation ✅
+### 6.2. Backend Integration Tests
 
-**Environment Configuration:**
+Test naming follows the pattern: `GivenSomething_WhenSomeCondition_AndOrSomeOptionalCondition`.
+All assertions are wrapped in well-named expectation helper methods.
 
-- Development: Uses Azure AD test tenant
-- Production: Uses production Azure AD tenant
-- Testing: Uses test authentication handler with configurable claims
+**File:** `Auth/UserEndpointTests.cs`
 
-**Claims and Roles Mapping:**
+```csharp
+namespace Menlo.Api.Tests.Auth;
 
-| Business Role | Azure AD Role | Required Scopes | Read Access | Write Access |
-|---------------|---------------|-----------------|-------------|--------------|
-| Wife (COO) | Planning | Data.Read, Planning.Write, Events.Write | All domains | Planning, Events |
-| Husband (CFO) | Budget | Data.Read, Budget.Write, Events.Write | All domains | Budget, Events |
-| Shared | Operations | Data.Read | All domains | None |
+using Menlo.Api.Tests.Fixtures;
+using Menlo.Lib.Auth.Models;
+using System.Net;
+using System.Net.Http.Json;
 
-**Policy Breakdown:**
+public sealed class UserEndpointTests : IClassFixture<AuthenticatedWebApplicationFactory>
+{
+    private readonly AuthenticatedWebApplicationFactory _factory;
+    private readonly HttpClient _httpClient;
 
-- **ReadAllPolicy**: Planning, Budget, and Operations roles can read across all domains
-- **PlanningWritePolicy**: Planning role can write planning lists and coordination data
-- **BudgetWritePolicy**: Budget role can write budget and financial data  
-- **EventsWritePolicy**: Both Planning and Budget roles can create and manage events (CFO creates events for budget planning)
+    public UserEndpointTests(AuthenticatedWebApplicationFactory factory)
+    {
+        _factory = factory;
+        _factory.UserRoles = ["Menlo.User"];
+        _httpClient = _factory.CreateClient();
+    }
 
-**Testing Strategy:**
+    [Fact]
+    public async Task GivenAuthenticatedUser_WhenGettingUserProfile()
+    {
+        HttpResponseMessage response = await _httpClient.GetAsync("/auth/user");
+        UserProfile? profile = await response.Content.ReadFromJsonAsync<UserProfile>();
 
-- Positive authentication tests with valid roles
-- Negative authentication tests (401 Unauthorized)
-- Negative authorization tests (403 Forbidden)
-- Dynamic role assignment per test case
-- Mock claims provider for different scenarios
+        ItShouldReturnOk(response);
+        ItShouldReturnValidUserProfile(profile);
+        ItShouldContainExpectedEmail(profile);
+        ItShouldContainUserRole(profile);
+    }
 
-**Security Considerations:**
+    [Fact]
+    public async Task GivenUnauthenticatedUser_WhenGettingUserProfile()
+    {
+        AuthenticatedWebApplicationFactory unauthFactory = new() { SimulateUnauthenticated = true };
+        HttpClient client = unauthFactory.CreateClient();
 
-- All environments use real Azure AD authentication
-- JWT tokens validated using Azure AD public keys
-- Role-based access control with policies
-- Scopes validated for fine-grained permissions
-- No development authentication bypass
+        HttpResponseMessage response = await client.GetAsync("/auth/user");
 
-ℹ️ **Gotcha: Azure AD Configuration**
-> Ensure the API's Application ID URI matches the `Audience` configuration exactly. Mismatches will result in token validation failures. Use either the default format `api://{CLIENT_ID}` or configure a custom URI consistently across registrations.
+        ItShouldReturnUnauthorized(response);
+    }
 
-ℹ️ **Gotcha: Integration Test Authentication**
-> The test authentication handler completely replaces the real authentication for tests. Ensure you're testing the actual policies and claims validation, not just the test infrastructure.
+    private static void ItShouldReturnOk(HttpResponseMessage response)
+    {
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    private static void ItShouldReturnUnauthorized(HttpResponseMessage response)
+    {
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    private static void ItShouldReturnValidUserProfile(UserProfile? profile)
+    {
+        profile.ShouldNotBeNull();
+        profile.Id.ShouldNotBeNullOrWhiteSpace();
+        profile.DisplayName.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    private static void ItShouldContainExpectedEmail(UserProfile? profile)
+    {
+        profile.ShouldNotBeNull();
+        profile.Email.ShouldBe(TestAuthHandler.DefaultEmail);
+    }
+
+    private static void ItShouldContainUserRole(UserProfile? profile)
+    {
+        profile.ShouldNotBeNull();
+        profile.Roles.ShouldContain("Menlo.User");
+    }
+}
+
+public sealed class PolicyAuthorizationTests
+{
+    [Fact]
+    public async Task GivenUserWithReaderRole_WhenAccessingAdminEndpoint()
+    {
+        AuthenticatedWebApplicationFactory factory = new() { UserRoles = ["Menlo.Reader"] };
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/api/admin/settings");
+
+        ItShouldReturnForbidden(response);
+    }
+
+    [Fact]
+    public async Task GivenUserWithAdminRole_WhenAccessingAdminEndpoint()
+    {
+        AuthenticatedWebApplicationFactory factory = new() { UserRoles = ["Menlo.Admin"] };
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/api/admin/settings");
+
+        ItShouldReturnOk(response);
+    }
+
+    [Fact]
+    public async Task GivenUserWithUserRole_WhenAccessingBudgetEditEndpoint()
+    {
+        AuthenticatedWebApplicationFactory factory = new() { UserRoles = ["Menlo.User"] };
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PostAsync("/api/budgets", null);
+
+        ItShouldReturnOk(response);
+    }
+
+    [Fact]
+    public async Task GivenUserWithReaderRole_WhenAccessingBudgetEditEndpoint()
+    {
+        AuthenticatedWebApplicationFactory factory = new() { UserRoles = ["Menlo.Reader"] };
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PostAsync("/api/budgets", null);
+
+        ItShouldReturnForbidden(response);
+    }
+
+    private static void ItShouldReturnOk(HttpResponseMessage response)
+    {
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    private static void ItShouldReturnForbidden(HttpResponseMessage response)
+    {
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+}
+```
+
+### 6.3. Angular Unit Tests
+
+Angular tests use Jasmine's `describe/it` pattern. Organise tests using nested `describe` blocks
+for the Given/When structure and use helper functions for assertions.
+
+**File:** `core/auth/auth.service.spec.ts`
+
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
+import { UserProfile } from './auth.models';
+
+describe('AuthService', () => {
+  let authService: AuthService;
+  let httpMock: HttpTestingController;
+
+  const mockUser: UserProfile = {
+    id: '123',
+    email: 'test@example.com',
+    displayName: 'Test User',
+    roles: ['Menlo.User']
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        AuthService
+      ]
+    });
+    authService = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  // Helper assertion functions
+  const itShouldBeAuthenticated = (): void => {
+    expect(authService.isAuthenticated()).toBeTrue();
+  };
+
+  const itShouldNotBeAuthenticated = (): void => {
+    expect(authService.isAuthenticated()).toBeFalse();
+  };
+
+  const itShouldHaveUser = (expected: UserProfile): void => {
+    expect(authService.user()).toEqual(expected);
+  };
+
+  const itShouldHaveNoUser = (): void => {
+    expect(authService.user()).toBeNull();
+  };
+
+  const itShouldContainRole = (role: string): void => {
+    expect(authService.roles()).toContain(role);
+  };
+
+  const itShouldNotBeLoading = (): void => {
+    expect(authService.isLoading()).toBeFalse();
+  };
+
+  describe('given a successful user response', () => {
+    describe('when loading user', () => {
+      it('should set user and authentication state', async () => {
+        const loadPromise = authService.loadUser();
+
+        const req = httpMock.expectOne(`${environment.apiUrl}/auth/user`);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockUser);
+
+        await loadPromise;
+
+        itShouldHaveUser(mockUser);
+        itShouldBeAuthenticated();
+        itShouldContainRole('Menlo.User');
+        itShouldNotBeLoading();
+      });
+    });
+  });
+
+  describe('given an unauthenticated response', () => {
+    describe('when loading user', () => {
+      it('should clear user and authentication state', async () => {
+        const loadPromise = authService.loadUser();
+
+        const req = httpMock.expectOne(`${environment.apiUrl}/auth/user`);
+        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+        await loadPromise;
+
+        itShouldHaveNoUser();
+        itShouldNotBeAuthenticated();
+        itShouldNotBeLoading();
+      });
+    });
+  });
+
+  describe('given a user with multiple roles', () => {
+    const adminUser: UserProfile = {
+      ...mockUser,
+      roles: ['Menlo.Admin', 'Menlo.User']
+    };
+
+    describe('when checking roles', () => {
+      beforeEach(async () => {
+        const loadPromise = authService.loadUser();
+        httpMock.expectOne(`${environment.apiUrl}/auth/user`).flush(adminUser);
+        await loadPromise;
+      });
+
+      it('should return true for assigned roles', () => {
+        expect(authService.hasRole('Menlo.Admin')).toBeTrue();
+        expect(authService.hasRole('Menlo.User')).toBeTrue();
+      });
+
+      it('should return false for unassigned roles', () => {
+        expect(authService.hasRole('Menlo.Reader')).toBeFalse();
+      });
+
+      it('should return true when any role matches', () => {
+        expect(authService.hasRole('Menlo.Admin', 'Menlo.Reader')).toBeTrue();
+      });
+    });
+  });
+});
+```
 
 ---
 
-For more details, see the [Implementation Roadmap](../../requirements/implementation-roadmap.md) and [Architecture Document](../../explanations/architecture-document.md).
+## 7. Security Considerations
+
+1. **No Tenant/Client ID Exposure:** The Angular frontend never receives the Entra Tenant ID or Client ID. All OIDC configuration is server-side.
+
+2. **Cookie Security:**
+   - `HttpOnly`: Prevents JavaScript access to session cookie.
+   - `Secure`: Cookie only sent over HTTPS.
+   - `SameSite=Strict`: Prevents CSRF attacks.
+   - `Domain`: Scoped to shared root domain.
+
+3. **CSRF Protection:** `SameSite=Strict` combined with `POST` for logout provides CSRF protection.
+
+4. **Token Storage:** Access/Refresh tokens are stored server-side only; never exposed to browser.
+
+5. **Input Validation:** `returnUrl` parameter validated to prevent open redirect attacks.
+
+6. **API Security:** All `/api/*` endpoints require authentication by default.
+
+---
+
+## 8. Implementation Checklist
+
+### Backend Tasks
+
+- [ ] Add NuGet packages to `Menlo.Api.csproj`
+- [ ] Create `Auth/Options/MenloAuthOptions.cs`
+- [ ] Create `Auth/Options/MenloAuthOptionsValidator.cs`
+- [ ] Create `Auth/Policies/MenloPolicies.cs`
+- [ ] Create `Auth/Policies/AuthPoliciesExtensions.cs`
+- [ ] Create `Auth/Endpoints/AuthEndpoints.cs`
+- [ ] Create `Auth/Endpoints/LoginEndpoint.cs`
+- [ ] Create `Auth/Endpoints/LogoutEndpoint.cs`
+- [ ] Create `Auth/Endpoints/UserEndpoint.cs`
+- [ ] Create `Auth/Security/SecurityHeadersExtensions.cs`
+- [ ] Create `Auth/AuthServiceCollectionExtensions.cs`
+- [ ] Update `Program.cs` to wire up authentication and security headers
+- [ ] Create `appsettings.json` AzureAd section (with placeholders)
+- [ ] Configure User Secrets for development
+
+### Library Tasks
+
+- [ ] Create `Auth/Entities/User.cs`
+- [ ] Create `Auth/Events/UserLoggedInEvent.cs`
+- [ ] Create `Auth/Errors/AuthErrors.cs`
+- [ ] Create `Auth/ValueObjects/UserId.cs`
+- [ ] Create `Auth/ValueObjects/ExternalUserId.cs`
+- [ ] Create `Auth/Models/UserProfile.cs`
+
+### Frontend Tasks
+
+- [ ] Create `core/auth/auth.models.ts`
+- [ ] Create `core/auth/auth.service.ts`
+- [ ] Create `core/auth/auth.interceptor.ts`
+- [ ] Create `core/auth/auth.guard.ts`
+- [ ] Create `core/auth/role.guard.ts`
+- [ ] Create `core/auth/index.ts` barrel export
+- [ ] Update `app.config.ts` to register interceptor and initializer
+- [ ] Add `apiUrl` to environment files
+
+### Testing Tasks
+
+- [ ] Create `Fixtures/TestAuthHandler.cs`
+- [ ] Create `Fixtures/TestAuthHandlerOptions.cs`
+- [ ] Create `Fixtures/AuthenticatedWebApplicationFactory.cs`
+- [ ] Create `Auth/UserEndpointTests.cs`
+- [ ] Create `Auth/PolicyAuthorizationTests.cs`
+- [ ] Create Angular `auth.service.spec.ts`
+- [ ] Create Angular `auth.guard.spec.ts`
+
+### Configuration Tasks
+
+- [ ] Configure Entra ID App Registration (manual)
+- [ ] Set up User Secrets for local development
+- [ ] Configure production environment variables
+- [ ] Update Cloudflare DNS records (manual)
