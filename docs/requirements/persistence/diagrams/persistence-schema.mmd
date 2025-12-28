@@ -1,0 +1,49 @@
+---
+config:
+    layout: elk
+---
+
+graph TD
+    subgraph "Home Server Host"
+        subgraph "PostgreSQL Container"
+            direction TB
+
+            subgraph "Database: menlo_db"
+                S_Plan[("Schema: planning<br/>(Lists, Inventory)")]
+                S_Bud[("Schema: budget<br/>(Categories, Allocations)")]
+                S_Fin[("Schema: financial<br/>(Transactions, Accounts)")]
+                S_Evt[("Schema: events<br/>(Calendar, Schedules)")]
+                S_House[("Schema: household<br/>(Utilities, Appliances)")]
+                S_Shared[("Schema: shared<br/>(Audit Logs, Config)")]
+            end
+        end
+
+        subgraph "Backend API (.NET Aspire)"
+            direction TB
+
+            VS_Plan["Planning Slice<br/>(DbContext)"]
+            VS_Bud["Budget Slice<br/>(DbContext)"]
+            VS_Fin["Financial Slice<br/>(DbContext)"]
+            VS_Evt["Events Slice<br/>(DbContext)"]
+            VS_House["Household Slice<br/>(DbContext)"]
+        end
+    end
+
+    %% Relationships
+    VS_Plan -->|"Reads/Writes"| S_Plan
+    VS_Bud -->|"Reads/Writes"| S_Bud
+    VS_Fin -->|"Reads/Writes"| S_Fin
+    VS_Evt -->|"Reads/Writes"| S_Evt
+    VS_House -->|"Reads/Writes"| S_House
+
+    %% Shared Access (if applicable, usually limited)
+    VS_Plan -.->|"Ref"| S_Shared
+    VS_Bud -.->|"Ref"| S_Shared
+    VS_Fin -.->|"Ref"| S_Shared
+
+    style S_Plan fill:#e1f5fe,stroke:#01579b
+    style S_Bud fill:#e1f5fe,stroke:#01579b
+    style S_Fin fill:#e1f5fe,stroke:#01579b
+    style S_Evt fill:#e1f5fe,stroke:#01579b
+    style S_House fill:#e1f5fe,stroke:#01579b
+    style S_Shared fill:#fff9c4,stroke:#fbc02d
