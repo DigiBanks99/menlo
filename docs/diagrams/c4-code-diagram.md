@@ -4,6 +4,11 @@ This diagram shows the detailed domain model of the Menlo Home Management Applic
 
 ```mermaid
 graph TB
+    %% Shared Kernel
+    subgraph SharedKernel["🔧 Shared Kernel"]
+        Money["💵 Money<br/>Value Object<br/>Currency-safe amount<br/>with allocation logic"]
+    end
+
     %% Planning & Inventory Bounded Context
     subgraph PlanningContext["📝 Planning & Inventory Bounded Context"]
         %% Planning Entities
@@ -321,6 +326,7 @@ graph TB
     
     %% Apply styles to shared and integration
     class AttributionCalculator sharedClass
+    class Money sharedClass
     class PlanningListCreated,PlanningListRealized,ApplianceMaintenanceRequired,TransactionImported,BudgetRealizationCreated integrationClass
 ```
 

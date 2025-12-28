@@ -47,7 +47,7 @@ public class Product : IEntity<ProductId>, IAuditable
             CreatedBy = stamp.ActorId;
             CreatedAt = stamp.Timestamp;
         }
-        
+
         ModifiedBy = stamp.ActorId;
         ModifiedAt = stamp.Timestamp;
     }
@@ -61,8 +61,10 @@ Typically, the `Audit` method is called by the repository or a domain service us
 Create a class that derives from `Error` with the code and message you desire. Add the additional properties you require.
 
 ```csharp
+public class ProductError(string code, string message) : Error(code, message);
+
 public class ProductNotFoundError(ProductId productId)
-   : Error("Product.NotFound", $"The product {productId} was not found")
+   : ProductError("Product.NotFound", $"The product {productId} was not found")
 {
   public ProductId ProductId { get; } = productId;
 }
@@ -71,12 +73,19 @@ public class ProductNotFoundError(ProductId productId)
 Use these errors with the Result pattern:
 
 ```csharp
-public Result<Product, Error> GetProduct(ProductId id)
+public Result<Product, ProductError> GetProduct(ProductId id)
 {
     // ... logic
     if (product == null)
-        return ProductErrors.NotFound;
-        
+    {
+        return new ProductNotFoundError(id);
+    }
+
     return product;
 }
 ```
+
+## Further Reading
+
+- [Tutorial: Add a Domain vertical slice](../tutorials/domain-abstractions-tutorial.md)
+- [Reference: Domain Abstractions](../reference/domain-abstractions-api.md)
