@@ -2,11 +2,10 @@
 
 ## Table of Contents
 
-- [Menlo Home Management - Implementation Roadmap](#menlo-home-management---implementation-roadmap)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-  - [Implementation Strategy](#implementation-strategy)
-  - [Requirements Tracking](#requirements-tracking)
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Implementation Strategy](#implementation-strategy)
+- [Requirements Tracking](#requirements-tracking)
 
 ## Overview
 
@@ -61,29 +60,30 @@ Feature Implementation
 
 ## Requirements Tracking
 
-| Requirement | Folder | Refined | Plan Drafted | Implemented |
-| :--- | :--- | :---: | :---: | :---: |
-| **Phase 1: Foundation Setup** | | | | |
-| Repo Structure | [`repo-structure`](repo-structure/) | ✅ | ✅ | ✅ |
-| Persistence (PostgreSQL) | [`persistence`](persistence/) | ❌ | ✅ | ✅ |
-| Authentication Foundation | [`authentication`](authentication/) | ❌ | ✅ | ❌ |
-| AI Infrastructure Setup | [`ai-infrastructure`](ai-infrastructure/) | ✅ | ✅ | ❌ |
-| Domain Abstractions | [`domain-abstractions`](domain-abstractions/) | ✅ | ✅ | ✅ |
-| Domain Auditing | [`domain-auditing`](domain-auditing/) | ✅ | ✅ | ❌ |
-| User ID Resolution | [`user-id-resolution`](user-id-resolution/) | ✅ | ✅ | ❌ |
-| Angular Result Pattern | [`angular-result-pattern`](angular-result-pattern/) | ✅ | ✅ | ✅ |
-| Cloudflare Pages Frontend | [`cloudflare-pages-frontend`](cloudflare-pages-frontend/) | ✅ | ✅ | ✅ |
-| Cloudflare Tunnel | [`cloudflare-tunnel`](cloudflare-tunnel/) | ✅ | ✅ | ✅ |
-| UI Layout | [`ui-layout`](ui-layout/) | ✅ | ✅ | ✅ |
-| **Phase 2: Core Features** | | | | |
-| Budget Aggregate (Minimum) | [`budget-aggregate-minimum`](budget-aggregate-minimum/) | ✅ | ✅ | ❌ |
-| Budget Categories Vertical | [`budget-categories-vertical`](budget-categories-vertical/) | ✅ | ✅ | ❌ |
-| Budget Create Vertical | [`budget-create-vertical`](budget-create-vertical/) | ✅ | ✅ | ❌ |
-| Budget Item | [`budget-item`](budget-item/) | ✅ | ✅ | ❌ |
-| Planning Lists & Templates | *Pending* | ❌ | ❌ | ❌ |
-| Event & Calendar Integration | *Pending* | ❌ | ❌ | ❌ |
-| Transaction Management | *Pending* | ❌ | ❌ | ❌ |
-| Income Tracking | *Pending* | ❌ | ❌ | ❌ |
-| Utility & Appliance Management | *Pending* | ❌ | ❌ | ❌ |
-| **Phase 3: AI Enhancement** | | | | |
-| Proactive Budget Adjustment | [`proactive-budget-adjustment`](proactive-budget-adjustment/) | ✅ | ✅ | ❌ |
+| Requirement                    | Folder                                                        | Refined | Plan Drafted | Implemented |
+| :----------------------------- | :------------------------------------------------------------ | :-----: | :----------: | :---------: |
+| **Phase 1: Foundation Setup**  |                                                               |         |              |             |
+| Repo Structure                 | [`repo-structure`](repo-structure/)                           |    ✅    |      ✅       |      ✅      |
+| Persistence (PostgreSQL)       | [`persistence`](persistence/)                                 |    ❌    |      ✅       |      ✅      |
+| Authentication Foundation      | [`authentication`](authentication/)                           |    ❌    |      ✅       |      ❌      |
+| AI Infrastructure Setup        | [`ai-infrastructure`](ai-infrastructure/)                     |    ✅    |      ✅       |      ❌      |
+| Domain Abstractions            | [`domain-abstractions`](domain-abstractions/)                 |    ✅    |      ✅       |      ✅      |
+| Domain Auditing                | [`domain-auditing`](domain-auditing/)                         |    ✅    |      ✅       |      ❌      |
+| Money Domain                   | [`money-domain`](money-domain/)                               |    ✅    |      ✅       |      ✅      |
+| User ID Resolution             | [`user-id-resolution`](user-id-resolution/)                   |    ✅    |      ✅       |      ❌      |
+| Angular Result Pattern         | [`angular-result-pattern`](angular-result-pattern/)           |    ✅    |      ✅       |      ✅      |
+| Cloudflare Pages Frontend      | [`cloudflare-pages-frontend`](cloudflare-pages-frontend/)     |    ✅    |      ✅       |      ✅      |
+| Cloudflare Tunnel              | [`cloudflare-tunnel`](cloudflare-tunnel/)                     |    ✅    |      ✅       |      ✅      |
+| UI Layout                      | [`ui-layout`](ui-layout/)                                     |    ✅    |      ✅       |      ✅      |
+| **Phase 2: Core Features**     |                                                               |         |              |             |
+| Budget Aggregate (Minimum)     | [`budget-aggregate-minimum`](budget-aggregate-minimum/)       |    ✅    |      ✅       |      ❌      |
+| Budget Categories Vertical     | [`budget-categories-vertical`](budget-categories-vertical/)   |    ✅    |      ✅       |      ❌      |
+| Budget Create Vertical         | [`budget-create-vertical`](budget-create-vertical/)           |    ✅    |      ✅       |      ❌      |
+| Budget Item                    | [`budget-item`](budget-item/)                                 |    ✅    |      ✅       |      ❌      |
+| Planning Lists & Templates     | *Pending*                                                     |    ❌    |      ❌       |      ❌      |
+| Event & Calendar Integration   | *Pending*                                                     |    ❌    |      ❌       |      ❌      |
+| Transaction Management         | *Pending*                                                     |    ❌    |      ❌       |      ❌      |
+| Income Tracking                | *Pending*                                                     |    ❌    |      ❌       |      ❌      |
+| Utility & Appliance Management | *Pending*                                                     |    ❌    |      ❌       |      ❌      |
+| **Phase 3: AI Enhancement**    |                                                               |         |              |             |
+| Proactive Budget Adjustment    | [`proactive-budget-adjustment`](proactive-budget-adjustment/) |    ✅    |      ✅       |      ❌      |
