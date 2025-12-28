@@ -159,3 +159,8 @@ Enumerates the types of audit operations.
 - `Create`: Represents a creation operation.
 - `Update`: Represents an update operation.
 - `Delete`: Represents a deletion operation.
+
+## Further Reading
+
+- [Tutorial: Add a Domain vertical slice](../tutorials/domain-abstractions-tutorial.md)
+- [How to use Domain Abstractions](../guides/domain-abstractions-howto.md)

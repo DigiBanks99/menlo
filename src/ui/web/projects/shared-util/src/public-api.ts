@@ -6,69 +6,81 @@ export * from './lib/shared-util';
 
 // Result Pattern Types and Functions
 export {
-  bind,
-  // Combinators
-  combine,
-  combineAll,
-  compensate,
-  failure,
-  fromPromise,
-  isFailure,
-  // Type guards
-  isSuccess,
-  // Monadic functions
-  map,
-  mapErr,
-  // Factory functions
-  success,
-  tap,
-  tapErr,
-  tryCatch,
-  // Unwrap functions
-  unwrap,
-  unwrapOr,
-  unwrapOrElse,
+    bind,
+    // Combinators
+    combine,
+    combineAll,
+    compensate,
+    failure,
+    fromPromise,
+    isFailure,
+    // Type guards
+    isSuccess,
+    // Monadic functions
+    map,
+    mapErr,
+    // Factory functions
+    success,
+    tap,
+    tapErr,
+    tryCatch,
+    // Unwrap functions
+    unwrap,
+    unwrapOr,
+    unwrapOrElse
 } from './lib/types/result';
 export type {
-  Failure,
-  Result,
-  // Types
-  Success,
+    Failure,
+    Result,
+    // Types
+    Success
 } from './lib/types/result';
 
 // ProblemDetails and ApiError Types
 export {
-  getErrorMessage,
-  getErrorStatus,
-  getValidationErrors,
-  // Helper functions
-  hasValidationErrors,
-  isNetworkError,
-  // Type guards
-  isProblemError,
-  isUnknownError,
-  mapValidationErrorsToForm,
-  networkError,
-  // Factory functions
-  problemError,
-  // Conversion functions
-  toApiError,
-  unknownError,
+    getErrorMessage,
+    getErrorStatus,
+    getValidationErrors,
+    // Helper functions
+    hasValidationErrors,
+    isNetworkError,
+    // Type guards
+    isProblemError,
+    isUnknownError,
+    mapValidationErrorsToForm,
+    networkError,
+    // Factory functions
+    problemError,
+    // Conversion functions
+    toApiError,
+    unknownError
 } from './lib/types/problem-details';
 export type {
-  ApiError,
-  NetworkApiError,
-  ProblemApiError,
-  // Types
-  ProblemDetails,
-  UnknownApiError,
+    ApiError,
+    NetworkApiError,
+    ProblemApiError,
+    // Types
+    ProblemDetails,
+    UnknownApiError
 } from './lib/types/problem-details';
 
 // RxJS Operators
 export {
-  filterFailure,
-  filterSuccess,
-  toResult,
-  toResultWith,
-  unwrapResult,
+    filterFailure,
+    filterSuccess,
+    toResult,
+    toResultWith,
+    unwrapResult
 } from './lib/operators/to-result';
+
+// Money Types and Utilities
+export {
+    // Type guards
+    MoneyUtils, isMoney,
+    isMoneyOrNull
+} from './lib/types/money';
+export type {
+    // Types
+    Money
+} from './lib/types/money';
+
