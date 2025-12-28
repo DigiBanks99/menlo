@@ -13,12 +13,10 @@ You follow SOLID, DRY and YAGNI principles, and strive to use Domain-Driven Desi
 
 You prefer vertical slice architecture, grouping features by behaviour rather than layer. Shared components used across slices may live in horizontal abstractions, but only if truly common. The default project layout should place all code under a _src_ folder in the repo root. UI implementations (e.g., APIs, CLI, etc.) can live under a unified _ui_ folder.
 
-Use standard .NET naming conventions consistently. And view the [naming conventions](#naming-conventions) section for refinement.
-
 ## General
 
 - Use South African English or UK English as a fallback
-- Documentation is contained in the docs folder in the root and must follow the [Documentation Strategy](../../docs/README.md#documentation-strategy) section in docs/README.md, including the use of Mermaid for diagrams and the Divio documentation system for structure.
+- Documentation is contained in the docs folder in the root and must follow the #sym:documentation-strategy section in #file:../../docs/README.md including the use of Mermaid for diagrams and the Divio documentation system for structure.
 - Consult documentation before making any changes
 - Verify all changes according to documentation and these instructions
 - Do not make add or remove code without the code being covered by a test
@@ -49,17 +47,19 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 - XUnit
 - Shouldly
 - TestContainers
+- NSubstitute
+- EF Core
 
 ### Code Pattern
 
-- Use a fluent functional chain flow by using monadic functions and functors from CSharpFunctionalExtensions like Map, Bind and Tap
+- Use a fluent functional chain flow by using monadic functions and functors from **CSharpFunctionalExtensions** like `Map`, `Bind` and `Tap`
 - Separate domain models from API/data models
 - Prefer rich domain models
-- Try to avoid primitive obsession by using well-defined types like `Money` instead of `decimal` and `Name` for string names
-- Don't use MediatR for CQRS. Implement CQRS with minimal endpoint using static method calls to handlers
+- Avoid primitive obsession by using well-defined types like `Money` instead of `decimal` and `Name` for string names
+- NEVER use MediatR for CQRS. Implement CQRS with minimal endpoint using static method calls to handlers
 - Prefer composition over inheritance but ask if you feel that inheritance is more appropriate
-- Use compile-time logging source generation for log messages by means of the LoggerMessageAttribute with clear names to make logging faster and easier to understand
-- Develop for Aspire first
+- Use compile-time logging source generation for log messages by means of the `LoggerMessageAttribute` with clear names to make logging faster and easier to understand
+- Develop for Aspire (https://aspire.dev/docs) first.
 - Make use of factory methods for creation of objects
 - Use file-scoped namespaces.
 - Prefer strongly typed variables over var.
@@ -67,10 +67,9 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 
 ### Errors and Exceptions
 
-- Use the Result pattern, specifically CSharpFunctionalExtensions.Result<T>.
+- Use the Result pattern, specifically `CSharpFunctionalExtensions.Result<T>` and `CSharpFunctionalExtensions.Result<T,E>`.
 - Represent domain errors with the Result pattern and some implementation of Error.
-- Error should be an abstract class with a code and a friendly description.
-- Specific domain errors must inherit from Error and optionally add more fields they might need.
+- Define new vertical slice and behaviour specific errors as in #file:../../docs/guides/domain-abstractions-howto.md
 - For terminal domain failures, throw custom exceptions dedicated to the domain or concern.
 - Handle external dependency errors gracefully, logging them and converting them into domain-aware errors.
 - Categorize errors as either meant for support or meant for consumer information.
@@ -78,30 +77,34 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 ## Naming Conventions
 
 - Naming conventions are inline with conventional C#
-- Custom name conventions are contained in [.editorconfig](../.editorconfig)
+- Custom name conventions are contained in #file:../../.editorconfig
 - C# code should CamelCase acronyms and never keep them as upper-case
 - SQL and C# naming conventions are not necessarily the same.
 
 ### Class names
 
 - Avoid classes with plural names. Classes should represent atomic concepts with a single purpose
-- Names must be postfixed with their intent, i.e. BudgetServiceCollectionExtensions or EventValidator
-- Avoid naming objects things like SomethingService or SomethingManager that are prone to pulling unrelated logic to them. Prefer names like TemplateProvider, TemplateCompiler and FileStorageClient for example. Ask if you think the name might break this rule and you are struggling with a purposeful name
-- Methods should be named as verbs, i.e. CheckIfDirty, Validate or SendForAcknowledgement
-- Async methods should be post-fixed with Async in its name
-- Properties should not have plural names if they are not enumerable or some form of collection
-- Properties should never be named for verbs
+- Names must be postfixed with their intent, i.e. `BudgetServiceCollectionExtensions` or `EventValidator`
+- Avoid naming objects things like `SomethingService` or `SomethingManager` that are prone to pulling unrelated logic to them. Prefer names domain or role specific names like `TemplateProvider`, `TemplateCompiler` and `FileStorageClient` for example.
+
+### Member names
+
+- Methods MUST be named as verbs, i.e. `CheckIfDirty`, `Validate` or `SendForAcknowledgement`
+- Async methods MUST be post-fixed with **Async**
+- Properties MUST NEVER have plural names if they are not enumerable or some form of collection
+- Properties MUST NEVER be named for verbs
 - Properties should where possible be named as nouns
+- Log messages MUST be named for their intent and context, i.e. `FailedToRetrieveToken` or `BudgetLineAddedSuccessfully`
 
 ### Test name conventions
 
-- For tests the plural name rule MUST be ignored and the tests should be named `SomeCommandHandlerTests` for example.
+- For tests the non-plural class name rule MUST be ignored and the tests should be named `SomeCommandHandlerTests` for example.
 - Test classes MUST be named for their test subject with the postfix `Tests`.
+- Test classes MUST match the namespace and folder structure of the class they are testing.
 - Test method names MUST follow the pattern: `GivenSomething_WhenSomeCondition_AndOrSomeOptionalCondition`.
-- Test method names MUST never contain the expectation as part of the name.
+- Test method names MUST NEVER contain the expectation as part of the name, i.e. no `ThenItShouldDoSomething` or `ItShouldDoSomething` suffixes.
 - Don't name the test subject field `_sut`, `_service` or some other generic name. Give it a name representing its intent, i.e. `_authService`.
-- Multiple assertions are grouped inside and expectation using the following naming convention: `ItShouldMeetSomeCondition`.
-- Expectation methods should have meaningful names like: `ItShouldExplainWhatWentWrong` or `ItShouldPersistTheData`.
+- Expectation helper methods MUST have meaningful names like: `ItShouldExplainWhatWentWrong` or `ItShouldPersistTheData`.
 
 ### Database naming conventions
 
@@ -116,14 +119,22 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 
 ## Testing
 
-- Use XUnit 3, Shouldly and NSubstitute for unit and integration tests.
-- For database-dependent tests, use TestContainers (not in-memory) and Respawn to reset state.
+- Use **XUnit 3**, **Shouldly** and **NSubstitute** for unit and integration tests.
+- For database-dependent tests, use **TestContainers** (not in-memory) and **Respawn** to reset state.
+- All expectations MUST be wrapped in helper methods.
+- Expectation that are related or can be considered a single business rule MUST be grouped inside a single helper method.
+- Examples of expectations that can be grouped:
+  - `ItShouldHaveSucceeded`
+  - `ItShouldHaveAddedABudgetLineForCategory`
+  - `ItShouldHaveUpdatedTheTotalAmount`
 - API tests must:
-  - Use WebApplicationFactory or similar more modern means of writing real integration tests
+  - Use `WebApplicationFactory` or similar more modern means of writing real integration tests
   - Include mock authentication providers for role-based access overrides
   - Simulate various user roles and claims
-  - Assert all OpenAPI documented response paths
+  - Verify all HTTP response codes
   - Reuse and abstract common logic
+- Use the AAA (Arrange, Act, Assert) pattern for structuring tests, but NEVER add comments to the test file. Use white space and helper methods to delineate sections.
+- You MUST NEVER use raw Shouldly assertions in tests. All assertions MUST be wrapped in well-named helper methods that explain the intent of the expectation.
 
 ## Data access
 
@@ -145,27 +156,37 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 ## Configuration and wiring
 
 - Use the IOptions pattern with validation for config binding.
-- Favour .NET Aspire for dependency wiring and environment-based service binding, while keeping domain code agnostic to Aspire.
-- Keep the Aspire AppHost up to date with changes
+- Favour **Aspire** for dependency wiring and environment-based service binding, while keeping domain code agnostic to Aspire.
+- Keep the Aspire AppHost up to date with changes:
+  - update CLI: `aspire update --self`
+  - update solution: `aspire update`
+  - start mcp `aspire mcp start`
 - Use the new slnx format for solution files
 
 ## Logging and observability
 
-- Log only when necessary using LoggerMessage source generators.
+- Use structured logging with `Microsoft.Extensions.Logging`.
+- Prefer compile-time logging with `LoggerMessage` source generators.
+- Log at appropriate levels: Trace, Debug, Information, Warning, Error, Critical.
+- Log only when control flow changes or at the end of functional call chains using `LoggerMessage` source generators.
 - Use descriptive log messages and names
 - Allow users to opt-in to sensitive logging.
-- Integrate OpenTelemetry for structured traces and metrics.
-- Ensure trace context propagation and Prometheus compatibility.
+- Integrate OpenTelemetry for structured traces and metrics (Aspire has built-in support).
 - Never leak PII in telemetry.
 - Support sampling and environment-based filtering.
+
+## Governance and compliance
+
+- Use `Microsoft.Extensions.Compliance` for policy enforcement.
+- Classify data sensitivity and apply appropriate handling.
+- Sanitize logs to avoid PII exposure.
 
 ## Minimal APIs and endpoint design
 
 - Use Minimal APIs, grouped by concern into dedicated classes.
-- Use kebab-case naming convention
+- Endpoints use kebab-case naming convention
 - Follow CQRS separation between command and query endpoints.
-- Generate OpenAPI/Swagger documentation with all relevant response types.
-- Include PKCE-enabled Swagger UI for API interaction.
+- Generate OpenAPI documentation with all relevant response types using `Microsoft.OpenApi`.
 - Use message-based workflows (e.g., background queues, event dispatch) for latency-sensitive operations.
 
 ## Authentication and authorization
@@ -175,34 +196,11 @@ Use standard .NET naming conventions consistently. And view the [naming conventi
 - Policies should be testable and modular.
 - Tests must mock claims and policy evaluators.
 
-## DevOps & CI/CD
-
-- Use GitHub Actions or Azure DevOps (ask which applies) to enforce:
-- Linting
-- Test execution
-- Security scanning
-- Dependency validation
-- Keep the solution CI/CD-friendly and automatable.
-- Use tools like Dependabot, NuKeeper or Renovate to manage third-party upgrades.
-- Prefer centralized dependency versioning to avoid drift.
-
 ## Technical decision tracking
 
-- Track architectural decisions, TODOs, and technical debt inline or via doc annotations.
-- When revisiting files, prompt for follow-up on outstanding notes.
+- Architectural decisions must be consulted at #file:../../docs/decisions/
 
 ## Documentation
 
-- Written in Markdown, organized using the Divio four-tier model:
-  - Tutorials
-  - How-to Guides
-  - Technical Reference
-  - Explanations
-- Include PlantUML C4 diagrams and contextual flowcharts.
-- Maintain a consistent visual style.
-- Add gotchas or edge cases using quote blocks like:
-
-  ```text
-  ℹ️ Gotcha: Title
-  > This scenario may break if ...
-  ```
+- Document code with XML comments.
+- Reference existing development APIs and guidelines in #file:../../docs

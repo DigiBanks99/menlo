@@ -1,7 +1,7 @@
 ---
 description: 'Perform janitorial tasks on C#/.NET code including cleanup, modernization, and tech debt remediation.'
-name: DotnetUpgradeAgent
-tools: ['codebase', 'edit/editFiles', 'search', 'runCommands', 'runTasks', 'runTests', 'problems', 'changes', 'usages', 'findTestFiles', 'testFailure', 'terminalLastCommand', 'terminalSelection', 'fetch', 'microsoft.docs.mcp']
+name: 'Dotnet Upgrade'
+tools: ['execute/testFailure', 'execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/editFiles', 'search', 'web/fetch', 'microsoftdocs/*', 'sequential-thinking/*', 'azure-mcp/search', 'todo']
 ---
 
 # .NET Upgrade Collection
