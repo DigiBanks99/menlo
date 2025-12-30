@@ -54,6 +54,11 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'
 
+    # Required for OIDC authentication with Azure
+    permissions:
+      id-token: write
+      contents: read
+
     services:
       postgres:
         image: postgres:17
@@ -78,6 +83,44 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # Authenticate to Azure using OIDC (federated credentials)
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Create an ephemeral client secret for testing
+      # This secret is short-lived (1 hour) and automatically deleted after tests
+      - name: Create ephemeral Azure AD client secret
+        id: create-secret
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            # Create a new client secret with 1 hour expiry
+            SECRET_OUTPUT=$(az ad app credential reset \
+              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
+              --display-name "CI-Ephemeral-${{ github.run_id }}" \
+              --years 0 \
+              --end-date "$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" \
+              --append \
+              --query "{password: password, keyId: keyId}" \
+              --output json)
+
+            # Extract the secret value and key ID
+            CLIENT_SECRET=$(echo "$SECRET_OUTPUT" | jq -r '.password')
+            KEY_ID=$(echo "$SECRET_OUTPUT" | jq -r '.keyId')
+
+            # Mask the secret to prevent it appearing in logs
+            echo "::add-mask::$CLIENT_SECRET"
+
+            # Set outputs for use in subsequent steps
+            echo "client-secret=$CLIENT_SECRET" >> "$GITHUB_OUTPUT"
+            echo "key-id=$KEY_ID" >> "$GITHUB_OUTPUT"
+            echo "✅ Ephemeral client secret created (expires in 1 hour)"
+
       - name: Restore dependencies
         run: dotnet restore
 
@@ -85,6 +128,15 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run unit tests
+        env:
+          # Azure AD test configuration
+          # Note: Tests use mock authentication by default, but these allow
+          # running integration tests against real Azure AD if needed
+          AzureAd__Instance: "https://login.microsoftonline.com/"
+          AzureAd__TenantId: ${{ secrets.AZURE_TENANT_ID }}
+          AzureAd__ClientId: ${{ secrets.AZUREAD_APP_CLIENT_ID }}
+          AzureAd__ClientSecret: ${{ steps.create-secret.outputs.client-secret }}
+          AzureAd__CookieDomain: "localhost"
         run: |
           dotnet test \
             --no-build \
@@ -94,6 +146,18 @@ jobs:
             --results-directory ./coverage \
             --logger trx \
             --logger "console;verbosity=detailed"
+
+      # Always delete the ephemeral secret, even if tests fail
+      - name: Delete ephemeral Azure AD client secret
+        if: always() && steps.create-secret.outputs.key-id
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az ad app credential delete \
+              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
+              --key-id ${{ steps.create-secret.outputs.key-id }}
+            echo "✅ Ephemeral client secret deleted successfully"
 
       - name: Upload test results
         uses: actions/upload-artifact@v5

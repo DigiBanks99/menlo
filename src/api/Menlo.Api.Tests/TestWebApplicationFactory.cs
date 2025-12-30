@@ -51,10 +51,18 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             // Add mock AI services
             AddMockAiServices(services);
 
-            // Override authentication with test handler (authenticated by default)
+            // Add the test authentication scheme
             services
-                .AddAuthentication(TestAuthHandler.SchemeName)
+                .AddAuthentication()
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
+
+            // Override the default authentication scheme to use our test handler
+            services.PostConfigure<AuthenticationOptions>(options =>
+            {
+                options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
+                options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
+                options.DefaultScheme = TestAuthHandler.SchemeName;
+            });
 
             // Configure the test handler with default authenticated user
             services.Configure<TestAuthHandlerOptions>(options =>
