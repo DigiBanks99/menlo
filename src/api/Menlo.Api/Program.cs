@@ -1,27 +1,32 @@
 using Menlo.AI.Extensions;
 using Menlo.AI.Interfaces;
+using Menlo.Api.Auth;
+using Menlo.Api.Auth.Endpoints;
+using Menlo.Api.Auth.Policies;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 
 builder.AddServiceDefaults();
 
-// Add Menlo AI services with Aspire integration
+builder.Services.AddMenloAuthentication(builder.Configuration);
+
 builder.Services.AddMenloAIWithAspire(builder);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
-var securityPolicy = new HeaderPolicyCollection()
+HeaderPolicyCollection securityPolicy = new HeaderPolicyCollection()
+    .AddMenloSecurityHeaders()
     .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
 
 app.UseSecurityHeaders(securityPolicy);
 
-// Configure the HTTP request pipeline.
+app.UseAuthentication();
+app.UseAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -29,14 +34,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
+string[] summaries =
+[
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+];
 
-app.MapGet("/api/weatherforecast", () =>
+// Map authentication endpoints (public, no auth required)
+app.MapAuthEndpoints();
+
+// Protected API endpoints
+RouteGroupBuilder apiGroup = app.MapGroup("/api")
+    .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+
+apiGroup.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    WeatherForecast[] forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -49,7 +61,7 @@ app.MapGet("/api/weatherforecast", () =>
 .WithName("GetWeatherForecast");
 
 // Add simple AI health check endpoint
-app.MapGet("/api/ai/health", async (IChatService chatService) =>
+apiGroup.MapGet("/ai/health", async (IChatService chatService) =>
 {
     try
     {
@@ -63,7 +75,6 @@ app.MapGet("/api/ai/health", async (IChatService chatService) =>
 })
 .WithName("GetAiHealth");
 
-// Menlo: Expose default health endpoints in development
 app.MapDefaultEndpoints();
 
 app.Run();
@@ -72,6 +83,3 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
-
-// Expose Program for WebApplicationFactory in tests
-public partial class Program { }

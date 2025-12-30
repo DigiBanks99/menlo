@@ -5,15 +5,16 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
+    <UserSecretsId>menlo-api</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-  <PackageReference Include="coverlet.collector" />
-  <PackageReference Include="Microsoft.NET.Test.Sdk" />
-  <PackageReference Include="Shouldly" />
-  <PackageReference Include="xunit.v3" />
-  <PackageReference Include="xunit.runner.visualstudio" />
-  <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-  <PackageReference Include="NSubstitute" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
   <ItemGroup>

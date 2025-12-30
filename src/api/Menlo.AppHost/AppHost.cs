@@ -1,4 +1,5 @@
 using Aspire.Hosting.JavaScript;
+using Menlo.AppHost;
 using Microsoft.Extensions.Hosting;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
@@ -20,7 +21,6 @@ IResourceBuilder<OllamaResource> ollama = builder.AddOllama("ollama")
 IResourceBuilder<OllamaModelResource> textModel = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
 IResourceBuilder<OllamaModelResource> visionModel = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
 
-// Add Menlo.Api project with AI dependencies
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Projects.Menlo_Api>("api")
     .WithHttpHealthCheck("health")
@@ -29,7 +29,8 @@ IResourceBuilder<ProjectResource> api = builder
     .WithReference(textModel)
     .WaitFor(textModel)
     .WithReference(visionModel)
-    .WaitFor(visionModel);
+    .WaitFor(visionModel)
+    .WithEnvironment(env => env.AddEntraIdCredentials(builder.Configuration));
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
 
