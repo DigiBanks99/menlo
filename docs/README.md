@@ -90,14 +90,18 @@ graph TD
 
 - **[Cloudflare Pages Setup](guides/cloudflare-pages-setup.md)** - Configure Cloudflare Pages for frontend deployment
 - **[Use Domain Abstractions](guides/domain-abstractions-howto.md)** - Practical examples for using core domain abstractions
+- **[Add Authorization Policy](guides/auth-policy-howto.md)** - Define new roles and policies
+- **[Add Angular Auth Guard](guides/angular-auth-guard-howto.md)** - Create route guards for role-based access
 
 ### 📚 Tutorials
 
 - **[Building a Domain Model](tutorials/domain-abstractions-tutorial.md)** - Step-by-step guide to creating a rich domain model
+- **[Secure Minimal API](tutorials/secure-api-tutorial.md)** - Create a secured API endpoint with policies
 
 ### 📖 Technical Reference
 
 - **[Domain Abstractions API](reference/domain-abstractions-api.md)** - API reference for Entity, AggregateRoot, and Value Objects
+- **[Authentication API](reference/authentication-api.md)** - API reference for AuthError, User, and Policies
 
 ### 📊 Project Status
 
