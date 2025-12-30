@@ -83,8 +83,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # Authenticate to Azure using OIDC (federated credentials)
-      - name: Azure Login (OIDC)
+      # Authenticate to Azure using federated credentials
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -99,27 +99,30 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
+            DISPLAY_NAME="CI-Ephemeral-${{ github.run_id }}"
+            
             # Create a new client secret with 1 hour expiry
             SECRET_OUTPUT=$(az ad app credential reset \
               --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
-              --display-name "CI-Ephemeral-${{ github.run_id }}" \
-              --years 0 \
-              --end-date "$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%SZ')" \
+              --display-name "$DISPLAY_NAME" \
+              --end-date "$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%S+00:00')" \
               --append \
-              --query "{password: password, keyId: keyId}" \
-              --output json)
-
-            # Extract the secret value and key ID
-            CLIENT_SECRET=$(echo "$SECRET_OUTPUT" | jq -r '.password')
-            KEY_ID=$(echo "$SECRET_OUTPUT" | jq -r '.keyId')
+              --query "password" \
+              --output tsv)
 
             # Mask the secret to prevent it appearing in logs
-            echo "::add-mask::$CLIENT_SECRET"
+            echo "::add-mask::$SECRET_OUTPUT"
+
+            # List credentials to find the keyId by display name
+            KEY_ID=$(az ad app credential list \
+              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
+              --query "[?displayName=='$DISPLAY_NAME'].keyId | [0]" \
+              --output tsv)
 
             # Set outputs for use in subsequent steps
-            echo "client-secret=$CLIENT_SECRET" >> "$GITHUB_OUTPUT"
+            echo "client-secret=$SECRET_OUTPUT" >> "$GITHUB_OUTPUT"
             echo "key-id=$KEY_ID" >> "$GITHUB_OUTPUT"
-            echo "✅ Ephemeral client secret created (expires in 1 hour)"
+            echo "✅ Created ephemeral client secret with Key ID: $KEY_ID (expires in 1 hour)"
 
       - name: Restore dependencies
         run: dotnet restore
@@ -149,7 +152,7 @@ jobs:
 
       # Always delete the ephemeral secret, even if tests fail
       - name: Delete ephemeral Azure AD client secret
-        if: always() && steps.create-secret.outputs.key-id
+        if: always() && steps.create-secret.outcome == 'success' && steps.create-secret.outputs.key-id != ''
         uses: azure/cli@v2
         with:
           azcliversion: latest
