@@ -3,11 +3,14 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>menlo-api</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
   </ItemGroup>
 

@@ -6,12 +6,12 @@ Testing will focus on verifying the security of the authentication flow, the cor
 
 ## TC-AUTH-001: BFF Login Flow (Web)
 
-| Step | Action                                                     | Expected Result                                                                                                       |
-| :--- | :--------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------- |
-| 1    | Navigate to the application root URL (unauthenticated).    | User is redirected to the backend login endpoint, then to the Microsoft Entra ID login page.                          |
-| 2    | Enter valid credentials for a user with `Menlo.User` role. | User is authenticated and redirected back to the application.                                                         |
-| 3    | Inspect browser developer tools (Application > Cookies).   | A session cookie is present. It is marked `HttpOnly`, `Secure`, and **`SameSite=Strict`**. Domain is `.wilcob.co.za`. |
-| 4    | Inspect browser local storage / session storage.           | **No** access tokens or refresh tokens are visible in client-side storage.                                            |
+| Step | Action                                                     | Expected Result                                                                                                      |
+| :--- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| 1    | Navigate to the application root URL (unauthenticated).    | User is redirected to the backend login endpoint, then to the Microsoft Entra ID login page.                         |
+| 2    | Enter valid credentials for a user with `Menlo.User` role. | User is authenticated and redirected back to the application.                                                        |
+| 3    | Inspect browser developer tools (Application > Cookies).   | A session cookie is present. It is marked `HttpOnly`, `Secure`, and **`SameSite=Strict`**. Domain is `.example.com`. |
+| 4    | Inspect browser local storage / session storage.           | **No** access tokens or refresh tokens are visible in client-side storage.                                           |
 
 ## TC-AUTH-002: Role-Based Access Control (RBAC)
 
