@@ -24,7 +24,7 @@ env:
   DOTNET_VERSION: '10.0.x'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/menlo-api
-  KEY_VAULT_NAME: kv-menlo
+  KEY_VAULT_NAME: kv-menlo-prod
   CERTIFICATE_NAME: menlo-cd-cert
 
 jobs:
