@@ -43,6 +43,10 @@ jobs:
       environment: prod
     secrets: inherit
 
+    permissions:
+      id-token: write
+      contents: read
+
   # ============================================================================
   # Build and Push Container
   # ============================================================================
