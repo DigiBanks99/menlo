@@ -44,6 +44,23 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         ItShouldHaveBeenUnauthorised(response);
     }
 
+    [Fact]
+    public async Task GivenAuthenticatedUser_WhenRequestingUserProfile_AndUserHasNoRoles()
+    {
+        using TestWebApplicationFactory noRolesFactory = new()
+        {
+            UserRoles = []
+        };
+        using HttpClient noRolesClient = noRolesFactory.CreateClient();
+
+        HttpResponseMessage response = await noRolesClient.GetAsync("/auth/user", TestContext.Current.CancellationToken);
+        UserProfile? userProfile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current.CancellationToken);
+
+        ItShouldHaveSucceeded(response);
+        ItShouldHaveTheUserProfile(userProfile);
+        ItShouldHaveEmptyRolesList(userProfile);
+    }
+
     private static void ItShouldHaveTheUserProfile(UserProfile? userProfile)
     {
         userProfile.ShouldNotBeNull();
@@ -57,6 +74,12 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         userProfile.ShouldNotBeNull();
         userProfile.Roles.ShouldContain("Menlo.User");
         userProfile.Roles.ShouldContain("Menlo.Admin");
+    }
+
+    private static void ItShouldHaveEmptyRolesList(UserProfile? userProfile)
+    {
+        userProfile.ShouldNotBeNull();
+        userProfile.Roles.ShouldBeEmpty();
     }
 
     public void Dispose()

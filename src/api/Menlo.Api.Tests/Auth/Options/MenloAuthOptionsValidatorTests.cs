@@ -1,0 +1,346 @@
+using Menlo.Api.Auth.Options;
+using Microsoft.Extensions.Options;
+using Shouldly;
+
+namespace Menlo.Api.Tests.Auth.Options;
+
+/// <summary>
+/// Tests for MenloAuthOptionsValidator.
+/// </summary>
+public sealed class MenloAuthOptionsValidatorTests
+{
+    private readonly MenloAuthOptionsValidator _validator;
+
+    public MenloAuthOptionsValidatorTests()
+    {
+        _validator = new MenloAuthOptionsValidator();
+    }
+
+    [Fact]
+    public void GivenValidOptions_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldSucceed(result);
+    }
+
+    [Fact]
+    public void GivenEmptyInstance_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "Instance");
+    }
+
+    [Fact]
+    public void GivenWhitespaceInstance_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "   ",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "Instance");
+    }
+
+    [Fact]
+    public void GivenNullInstance_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = null!,
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "Instance");
+    }
+
+    [Fact]
+    public void GivenEmptyTenantId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "TenantId");
+    }
+
+    [Fact]
+    public void GivenWhitespaceTenantId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "   ",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "TenantId");
+    }
+
+    [Fact]
+    public void GivenNullTenantId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = null!,
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "TenantId");
+    }
+
+    [Fact]
+    public void GivenEmptyClientId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientId");
+    }
+
+    [Fact]
+    public void GivenWhitespaceClientId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "   ",
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientId");
+    }
+
+    [Fact]
+    public void GivenNullClientId_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = null!,
+            ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientId");
+    }
+
+    [Fact]
+    public void GivenEmptyClientSecret_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientSecret");
+    }
+
+    [Fact]
+    public void GivenWhitespaceClientSecret_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "   ",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientSecret");
+    }
+
+    [Fact]
+    public void GivenNullClientSecret_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = null!,
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientSecret");
+    }
+
+    [Fact]
+    public void GivenEmptyCookieDomain_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = ""
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "CookieDomain");
+    }
+
+    [Fact]
+    public void GivenWhitespaceCookieDomain_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = "   "
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "CookieDomain");
+    }
+
+    [Fact]
+    public void GivenNullCookieDomain_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            CookieDomain = null!
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "CookieDomain");
+    }
+
+    [Fact]
+    public void GivenMultipleInvalidFields_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "",
+            TenantId = "",
+            ClientId = "",
+            ClientSecret = "",
+            CookieDomain = ""
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldHaveMultipleFailures(result, 5);
+    }
+
+    // Assertion Helpers
+    private static void ItShouldSucceed(ValidateOptionsResult result)
+    {
+        result.Succeeded.ShouldBeTrue();
+    }
+
+    private static void ItShouldFail(ValidateOptionsResult result)
+    {
+        result.Failed.ShouldBeTrue();
+    }
+
+    private static void ItShouldContainFailure(ValidateOptionsResult result, string expectedFieldName)
+    {
+        result.Failures.ShouldNotBeNull();
+        result.Failures.ShouldContain(failure => failure.Contains(expectedFieldName));
+    }
+
+    private static void ItShouldHaveMultipleFailures(ValidateOptionsResult result, int expectedCount)
+    {
+        result.Failures.ShouldNotBeNull();
+        result.Failures.Count().ShouldBe(expectedCount);
+    }
+}
