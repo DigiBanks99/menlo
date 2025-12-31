@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Abstractions;
 
 namespace Menlo.Api.Auth.Options;
 
@@ -28,9 +27,12 @@ public sealed class MenloAuthOptionsValidator : IValidateOptions<MenloAuthOption
             failures.Add("ClientId is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(options.ClientSecret))
+        bool hasClientSecret = !string.IsNullOrWhiteSpace(options.ClientSecret);
+        bool hasCertificates = options.ClientCertificates?.Any() == true;
+
+        if (!hasClientSecret && !hasCertificates)
         {
-            failures.Add("ClientSecret is required.");
+            failures.Add("Either ClientSecret or ClientCertificates is required.");
         }
 
         if (string.IsNullOrWhiteSpace(options.CookieDomain))
