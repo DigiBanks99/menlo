@@ -211,17 +211,12 @@ jobs:
 
           # Application paths
           $AppPath = "$env:USERPROFILE\menlo"
-          $CertPath = "$AppPath\certs"
           New-Item -ItemType Directory -Path $AppPath -Force | Out-Null
-          New-Item -ItemType Directory -Path $CertPath -Force | Out-Null
           Set-Location $AppPath
 
-          # Copy certificate to application directory
-          Write-Host "📜 Copying certificate..." -ForegroundColor Yellow
-          Copy-Item -Path "$env:CERTIFICATE_PATH" -Destination "$CertPath\cert.pfx" -Force
-
-          # Convert Windows path to docker-compatible format for volume mount
-          $CertPathDocker = $CertPath -replace '\\', '/'
+          # Encode certificate as Base64 for passing to container
+          Write-Host "📜 Encoding certificate..." -ForegroundColor Yellow
+          $CertBase64 = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes("$env:CERTIFICATE_PATH"))
 
           # Create docker-compose.prod.yml
           $composeContent = @"
@@ -242,10 +237,8 @@ jobs:
                 - AzureAd__TenantId=$env:AZURE_AD_TENANT_ID
                 - AzureAd__ClientId=$env:AZURE_AD_CLIENT_ID
                 - AzureAd__CookieDomain=$env:AZURE_AD_COOKIE_DOMAIN
-                - AzureAd__ClientCertificates__0__SourceType=Path
-                - AzureAd__ClientCertificates__0__CertificateDiskPath=/app/certs/cert.pfx
-              volumes:
-                - ${CertPathDocker}:/app/certs:ro
+                - AzureAd__ClientCertificates__0__SourceType=Base64
+                - AzureAd__ClientCertificates__0__Base64EncodedValue=${CertBase64}
               ports:
                 - "8080:8080"
               networks:
