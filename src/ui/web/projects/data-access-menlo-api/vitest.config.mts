@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../coverage/projects/shared-util',
+      reportsDirectory: '../../coverage/projects/data-access-menlo-api',
       provider: 'v8' as const,
       reporter: [
         ['cobertura', { file: 'coverage.cobertura.xml' }],

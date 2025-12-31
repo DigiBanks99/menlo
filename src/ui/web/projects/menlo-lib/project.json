@@ -29,7 +29,8 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/projects/menlo-lib"
+        "reportsDirectory": "../../coverage/projects/menlo-lib",
+        "runnerConfig": "vitest.config.mts"
       }
     },
     "lint": {
