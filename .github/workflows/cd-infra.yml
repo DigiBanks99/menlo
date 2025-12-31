@@ -1,0 +1,137 @@
+name: CD - Infra
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - dev
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'prod'
+        type: string
+    outputs:
+      key-vault-name:
+        description: 'The name of the deployed Key Vault'
+        value: ${{ jobs.deploy-infrastructure.outputs.key-vault-name }}
+      certificate-name:
+        description: 'The name of the certificate'
+        value: ${{ jobs.deploy-infrastructure.outputs.certificate-name }}
+
+env:
+  AZURE_LOCATION: 'southafricanorth'
+  BICEP_VERSION: 'latest'
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy Azure Infrastructure
+    runs-on: ubuntu-latest
+    environment: prod
+
+    permissions:
+      id-token: write
+      contents: read
+
+    outputs:
+      key-vault-name: ${{ steps.deploy.outputs.keyVaultName }}
+      certificate-name: ${{ steps.deploy.outputs.certificateName }}
+      certificate-thumbprint: ${{ steps.deploy.outputs.certificateThumbprint }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get GitHub Actions Service Principal Object ID
+        id: sp-object-id
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            # Get the object ID of the service principal used for OIDC
+            OBJECT_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+            echo "object-id=$OBJECT_ID" >> "$GITHUB_OUTPUT"
+            echo "✅ Service Principal Object ID: $OBJECT_ID"
+
+      - name: Get Admin User Object ID
+        id: admin-object-id
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            # Get the object ID from secrets or use the current user
+            if [[ -n "${{ secrets.ADMIN_USER_OBJECT_ID }}" ]]; then
+              echo "object-id=${{ secrets.ADMIN_USER_OBJECT_ID }}" >> "$GITHUB_OUTPUT"
+            else
+              # Fallback: use the service principal as admin
+              OBJECT_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+              echo "object-id=$OBJECT_ID" >> "$GITHUB_OUTPUT"
+            fi
+
+      - name: Deploy Infrastructure
+        id: deploy
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "🏗️ Deploying Menlo infrastructure..."
+
+            # Deploy using Bicep
+            DEPLOYMENT_OUTPUT=$(az deployment sub create \
+              --location "${{ env.AZURE_LOCATION }}" \
+              --template-file infra/main.bicep \
+              --parameters \
+                location="${{ env.AZURE_LOCATION }}" \
+                environment="prod" \
+                baseName="menlo" \
+                githubActionsObjectId="${{ steps.sp-object-id.outputs.object-id }}" \
+                adminObjectId="${{ steps.admin-object-id.outputs.object-id }}" \
+              --query "properties.outputs" \
+              --output json)
+
+            echo "📦 Deployment output:"
+            echo "$DEPLOYMENT_OUTPUT" | jq .
+
+            # Extract outputs
+            KEY_VAULT_NAME=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.keyVaultName.value')
+            CERTIFICATE_NAME=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.certificateName.value')
+            CERTIFICATE_THUMBPRINT=$(echo "$DEPLOYMENT_OUTPUT" | jq -r '.certificateThumbprint.value')
+
+            echo "keyVaultName=$KEY_VAULT_NAME" >> "$GITHUB_OUTPUT"
+            echo "certificateName=$CERTIFICATE_NAME" >> "$GITHUB_OUTPUT"
+            echo "certificateThumbprint=$CERTIFICATE_THUMBPRINT" >> "$GITHUB_OUTPUT"
+
+            echo "✅ Infrastructure deployed successfully!"
+            echo "   Key Vault: $KEY_VAULT_NAME"
+            echo "   Certificate: $CERTIFICATE_NAME"
+            echo "   Thumbprint: $CERTIFICATE_THUMBPRINT"
+
+      - name: Deployment Summary
+        run: |
+          echo "### 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | prod |" >> $GITHUB_STEP_SUMMARY
+          echo "| Key Vault | ${{ steps.deploy.outputs.keyVaultName }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Certificate | ${{ steps.deploy.outputs.certificateName }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Thumbprint | \`${{ steps.deploy.outputs.certificateThumbprint }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the certificate public key (.cer) from Key Vault" >> $GITHUB_STEP_SUMMARY
+          echo "2. Upload it to your Entra app registration under Certificates & secrets" >> $GITHUB_STEP_SUMMARY
+          echo "3. Run the CD Backend workflow to deploy the application" >> $GITHUB_STEP_SUMMARY

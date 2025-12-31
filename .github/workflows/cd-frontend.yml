@@ -1,4 +1,4 @@
-name: CD - Deploy Frontend to Cloudflare Pages
+name: CD - Deploy Frontend
 
 on:
   push:
