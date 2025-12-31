@@ -1,5 +1,6 @@
 using Menlo.Api.Auth.Options;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 using Shouldly;
 
 namespace Menlo.Api.Tests.Auth.Options;
@@ -17,7 +18,7 @@ public sealed class MenloAuthOptionsValidatorTests
     }
 
     [Fact]
-    public void GivenValidOptions_WhenValidating()
+    public void GivenValidOptionsWithClientSecret_WhenValidating()
     {
         MenloAuthOptions options = new()
         {
@@ -25,6 +26,55 @@ public sealed class MenloAuthOptionsValidatorTests
             TenantId = "tenant-guid",
             ClientId = "client-guid",
             ClientSecret = "secret-value",
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldSucceed(result);
+    }
+
+    [Fact]
+    public void GivenValidOptionsWithCertificate_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientCertificates =
+            [
+                new CertificateDescription
+                {
+                    SourceType = CertificateSource.Path,
+                    CertificateDiskPath = "/path/to/cert.pfx"
+                }
+            ],
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldSucceed(result);
+    }
+
+    [Fact]
+    public void GivenValidOptionsWithBothSecretAndCertificate_WhenValidating()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "secret-value",
+            ClientCertificates =
+            [
+                new CertificateDescription
+                {
+                    SourceType = CertificateSource.Path,
+                    CertificateDiskPath = "/path/to/cert.pfx"
+                }
+            ],
             CookieDomain = "menlo.example.com"
         };
 
@@ -196,7 +246,7 @@ public sealed class MenloAuthOptionsValidatorTests
     }
 
     [Fact]
-    public void GivenEmptyClientSecret_WhenValidating()
+    public void GivenEmptyClientSecret_WhenValidating_AndNoCertificates()
     {
         MenloAuthOptions options = new()
         {
@@ -210,11 +260,11 @@ public sealed class MenloAuthOptionsValidatorTests
         ValidateOptionsResult result = _validator.Validate(null, options);
 
         ItShouldFail(result);
-        ItShouldContainFailure(result, "ClientSecret");
+        ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
     [Fact]
-    public void GivenWhitespaceClientSecret_WhenValidating()
+    public void GivenWhitespaceClientSecret_WhenValidating_AndNoCertificates()
     {
         MenloAuthOptions options = new()
         {
@@ -228,11 +278,11 @@ public sealed class MenloAuthOptionsValidatorTests
         ValidateOptionsResult result = _validator.Validate(null, options);
 
         ItShouldFail(result);
-        ItShouldContainFailure(result, "ClientSecret");
+        ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
     [Fact]
-    public void GivenNullClientSecret_WhenValidating()
+    public void GivenNullClientSecret_WhenValidating_AndNoCertificates()
     {
         MenloAuthOptions options = new()
         {
@@ -246,7 +296,68 @@ public sealed class MenloAuthOptionsValidatorTests
         ValidateOptionsResult result = _validator.Validate(null, options);
 
         ItShouldFail(result);
-        ItShouldContainFailure(result, "ClientSecret");
+        ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
+    }
+
+    [Fact]
+    public void GivenEmptyClientSecret_WhenValidating_AndHasCertificates()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientSecret = "",
+            ClientCertificates =
+            [
+                new CertificateDescription
+                {
+                    SourceType = CertificateSource.Path,
+                    CertificateDiskPath = "/path/to/cert.pfx"
+                }
+            ],
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldSucceed(result);
+    }
+
+    [Fact]
+    public void GivenEmptyCertificates_WhenValidating_AndNoClientSecret()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientCertificates = [],
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
+    }
+
+    [Fact]
+    public void GivenNullCertificates_WhenValidating_AndNoClientSecret()
+    {
+        MenloAuthOptions options = new()
+        {
+            Instance = "https://login.microsoftonline.com",
+            TenantId = "tenant-guid",
+            ClientId = "client-guid",
+            ClientCertificates = null,
+            CookieDomain = "menlo.example.com"
+        };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldFail(result);
+        ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
     [Fact]

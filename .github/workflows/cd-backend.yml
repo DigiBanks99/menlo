@@ -191,6 +191,10 @@ jobs:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
           CERTIFICATE_THUMBPRINT: ${{ needs.download-certificate.outputs.certificate-thumbprint }}
           CERTIFICATE_PATH: ${{ runner.temp }}/cert/cert.pfx
+          AZURE_AD_INSTANCE: ${{ vars.AZURE_AD_INSTANCE }}
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_AD_COOKIE_DOMAIN: ${{ vars.AZURE_AD_COOKIE_DOMAIN }}
         run: |
           $ErrorActionPreference = "Stop"
 
@@ -207,8 +211,14 @@ jobs:
 
           # Application paths
           $AppPath = "$env:USERPROFILE\menlo"
+          $CertPath = "$AppPath/certs"
           New-Item -ItemType Directory -Path $AppPath -Force | Out-Null
+          New-Item -ItemType Directory -Path $CertPath -Force | Out-Null
           Set-Location $AppPath
+
+          # Copy certificate to application directory
+          Write-Host "📜 Copying certificate..." -ForegroundColor Yellow
+          Copy-Item -Path "$env:CERTIFICATE_PATH" -Destination "$CertPath/cert.pfx" -Force
 
           # Create docker-compose.prod.yml
           $composeContent = @"
@@ -225,6 +235,14 @@ jobs:
                 - ConnectionStrings__DefaultConnection=Host=postgres;Database=menlo;Username=$env:POSTGRES_USER;Password=$env:POSTGRES_PASSWORD
                 - Ollama__BaseUrl=http://ollama:11434
                 - Logging__LogLevel__Default=Information
+                - AzureAd__Instance=$env:AZURE_AD_INSTANCE
+                - AzureAd__TenantId=$env:AZURE_AD_TENANT_ID
+                - AzureAd__ClientId=$env:AZURE_AD_CLIENT_ID
+                - AzureAd__CookieDomain=$env:AZURE_AD_COOKIE_DOMAIN
+                - AzureAd__ClientCertificates__0__SourceType=Path
+                - AzureAd__ClientCertificates__0__CertificateDiskPath=/app/certs/cert.pfx
+              volumes:
+                - $CertPath`:/app/certs:ro
               ports:
                 - "8080:8080"
               networks:
