@@ -211,14 +211,17 @@ jobs:
 
           # Application paths
           $AppPath = "$env:USERPROFILE\menlo"
-          $CertPath = "$AppPath/certs"
+          $CertPath = "$AppPath\certs"
           New-Item -ItemType Directory -Path $AppPath -Force | Out-Null
           New-Item -ItemType Directory -Path $CertPath -Force | Out-Null
           Set-Location $AppPath
 
           # Copy certificate to application directory
           Write-Host "📜 Copying certificate..." -ForegroundColor Yellow
-          Copy-Item -Path "$env:CERTIFICATE_PATH" -Destination "$CertPath/cert.pfx" -Force
+          Copy-Item -Path "$env:CERTIFICATE_PATH" -Destination "$CertPath\cert.pfx" -Force
+
+          # Convert Windows path to docker-compatible format for volume mount
+          $CertPathDocker = $CertPath -replace '\\', '/'
 
           # Create docker-compose.prod.yml
           $composeContent = @"
@@ -242,7 +245,7 @@ jobs:
                 - AzureAd__ClientCertificates__0__SourceType=Path
                 - AzureAd__ClientCertificates__0__CertificateDiskPath=/app/certs/cert.pfx
               volumes:
-                - $CertPath`:/app/certs:ro
+                - ${CertPathDocker}:/app/certs:ro
               ports:
                 - "8080:8080"
               networks:
