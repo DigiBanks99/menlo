@@ -28,7 +28,8 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/projects/data-access-menlo-api"
+        "reportsDirectory": "../../coverage/projects/data-access-menlo-api",
+        "runnerConfig": "vitest.config.mts"
       }
     },
     "lint": {

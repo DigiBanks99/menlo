@@ -23,7 +23,7 @@
     "storybook:lib": "nx storybook menlo-lib",
     "storybook": "nx storybook menlo-app",
     "test:affected": "nx affected --target=test",
-    "test:all": "nx run-many --target=test --all",
+    "test:all": "nx run-many --target=test --all -- --coverage",
     "test": "nx test menlo-app",
     "watch": "nx build menlo-app --watch"
   },
