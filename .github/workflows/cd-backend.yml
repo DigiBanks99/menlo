@@ -193,7 +193,7 @@ jobs:
           CERTIFICATE_PATH: ${{ runner.temp }}/cert/cert.pfx
           AZURE_AD_INSTANCE: ${{ vars.AZURE_AD_INSTANCE }}
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
           AZURE_AD_COOKIE_DOMAIN: ${{ vars.AZURE_AD_COOKIE_DOMAIN }}
         run: |
           $ErrorActionPreference = "Stop"
