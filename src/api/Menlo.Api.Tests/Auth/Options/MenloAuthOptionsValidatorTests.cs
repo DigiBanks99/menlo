@@ -1,7 +1,11 @@
 using Menlo.Api.Auth.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Shouldly;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Menlo.Api.Tests.Auth.Options;
 
@@ -46,12 +50,32 @@ public sealed class MenloAuthOptionsValidatorTests
             [
                 new CertificateDescription
                 {
-                    SourceType = CertificateSource.Path,
-                    CertificateDiskPath = "/path/to/cert.pfx"
+                    SourceType = CertificateSource.Path, CertificateDiskPath = "/path/to/cert.pfx"
                 }
             ],
             CookieDomain = "menlo.example.com"
         };
+
+        ValidateOptionsResult result = _validator.Validate(null, options);
+
+        ItShouldSucceed(result);
+    }
+
+    [Fact]
+    public void GivenValidOptionsWithABase64Certificate_WhenValidating()
+    {
+        ConfigurationBuilder configBuilder = new();
+        configBuilder.AddInMemoryCollection(new Dictionary<string, string>()
+        {
+            [$"{MenloAuthOptions.SectionName}:ClientId"] = "client-guid",
+            [$"{MenloAuthOptions.SectionName}:ClientCertificates:0:SourceType"] = "Base64Encoded",
+            [$"{MenloAuthOptions.SectionName}:ClientCertificates:0:CertificateBase64Value"] = "base64-encoded-cert",
+            [$"{MenloAuthOptions.SectionName}:CookieDomain"] = "menlo.example.com",
+            [$"{MenloAuthOptions.SectionName}:Instance"] = "https://login.microsoftonline.com",
+            [$"{MenloAuthOptions.SectionName}:TenantId"] = "tenant-guid"
+        }!);
+        MenloAuthOptions? options = configBuilder.Build().GetSection(MenloAuthOptions.SectionName).Get<MenloAuthOptions>();
+        ItShouldDeserializeCorrectly(options);
 
         ValidateOptionsResult result = _validator.Validate(null, options);
 
@@ -71,8 +95,7 @@ public sealed class MenloAuthOptionsValidatorTests
             [
                 new CertificateDescription
                 {
-                    SourceType = CertificateSource.Path,
-                    CertificateDiskPath = "/path/to/cert.pfx"
+                    SourceType = CertificateSource.Path, CertificateDiskPath = "/path/to/cert.pfx"
                 }
             ],
             CookieDomain = "menlo.example.com"
@@ -312,8 +335,7 @@ public sealed class MenloAuthOptionsValidatorTests
             [
                 new CertificateDescription
                 {
-                    SourceType = CertificateSource.Path,
-                    CertificateDiskPath = "/path/to/cert.pfx"
+                    SourceType = CertificateSource.Path, CertificateDiskPath = "/path/to/cert.pfx"
                 }
             ],
             CookieDomain = "menlo.example.com"
@@ -453,5 +475,11 @@ public sealed class MenloAuthOptionsValidatorTests
     {
         result.Failures.ShouldNotBeNull();
         result.Failures.Count().ShouldBe(expectedCount);
+    }
+
+    private static void ItShouldDeserializeCorrectly([NotNull] MenloAuthOptions? options)
+    {
+        options.ShouldNotBeNull();
+        options.ClientCertificates.ShouldNotBeEmpty();
     }
 }

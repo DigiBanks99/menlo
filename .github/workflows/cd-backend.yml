@@ -237,8 +237,8 @@ jobs:
                 - AzureAd__TenantId=$env:AZURE_AD_TENANT_ID
                 - AzureAd__ClientId=$env:AZURE_AD_CLIENT_ID
                 - AzureAd__CookieDomain=$env:AZURE_AD_COOKIE_DOMAIN
-                - AzureAd__ClientCertificates__0__SourceType=Base64
-                - AzureAd__ClientCertificates__0__Base64EncodedValue=${CertBase64}
+                - AzureAd__ClientCertificates__0__SourceType=Base64Encoded
+                - AzureAd__ClientCertificates__0__CertificateBase64Value=${CertBase64}
               ports:
                 - "8080:8080"
               networks:

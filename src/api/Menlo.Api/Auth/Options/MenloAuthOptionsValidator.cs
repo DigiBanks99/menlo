@@ -29,7 +29,6 @@ public sealed class MenloAuthOptionsValidator : IValidateOptions<MenloAuthOption
 
         bool hasClientSecret = !string.IsNullOrWhiteSpace(options.ClientSecret);
         bool hasCertificates = options.ClientCertificates?.Any() == true;
-
         if (!hasClientSecret && !hasCertificates)
         {
             failures.Add("Either ClientSecret or ClientCertificates is required.");
