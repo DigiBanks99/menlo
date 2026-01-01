@@ -163,7 +163,7 @@ jobs:
             echo "✅ Ephemeral client secret deleted successfully"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: backend-test-results
@@ -241,7 +241,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -249,7 +249,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Setup Angular cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: src/ui/web/.angular/cache
           key: ${{ runner.os }}-angular-cache-${{ hashFiles('src/ui/web/pnpm-lock.yaml') }}
@@ -304,7 +304,7 @@ jobs:
           NODE_ENV: test
 
       - name: Upload test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: frontend-test-results
@@ -331,7 +331,7 @@ jobs:
         run: pnpm run build-storybook:lib
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-dist
           path: |
@@ -339,7 +339,7 @@ jobs:
             src/ui/web/storybook-static/**/*
 
       - name: Upload Pages deployment artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-pages-dist
           path: src/ui/web/dist/menlo-app/**/*
@@ -456,7 +456,7 @@ jobs:
           ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=menlo_test;Username=postgres;Password=postgres"
 
       - name: Upload integration test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: integration-test-results
