@@ -154,7 +154,7 @@ jobs:
             echo "certificate-path=cert.pfx" >> "$GITHUB_OUTPUT"
 
       - name: Upload Certificate Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: certificate
           path: cert.pfx
@@ -180,7 +180,7 @@ jobs:
             deployment/
 
       - name: Download Certificate Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: certificate
           path: ${{ runner.temp }}/cert
