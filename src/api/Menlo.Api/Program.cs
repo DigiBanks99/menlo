@@ -3,6 +3,8 @@ using Menlo.AI.Interfaces;
 using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
+using Menlo.Api.OpenApi;
+using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -10,26 +12,21 @@ builder.Services.AddProblemDetails();
 
 builder.AddServiceDefaults();
 
-builder.Services.AddMenloAuthentication(builder.Configuration);
-
-builder.Services.AddMenloAIWithAspire(builder);
-
-builder.Services.AddOpenApi();
+builder
+    .AddMenloAuthentication()
+    .AddMenloAiWithAspire()
+    .AddMenloOpenApi();
 
 WebApplication app = builder.Build();
 
-HeaderPolicyCollection securityPolicy = new HeaderPolicyCollection()
-    .AddMenloSecurityHeaders()
-    .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
-
-app.UseSecurityHeaders(securityPolicy);
-
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseMenloSecurityHeaders()
+    .UseAuthentication()
+    .UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
@@ -43,37 +40,43 @@ string[] summaries =
 app.MapAuthEndpoints();
 
 // Protected API endpoints
-RouteGroupBuilder apiGroup = app.MapGroup("/api")
+RouteGroupBuilder apiGroup = app
+    .MapGroup("/api")
+    .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
 
-apiGroup.MapGet("/weatherforecast", () =>
-{
-    WeatherForecast[] forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+apiGroup
+    .MapGet("/weatherforecast", () =>
+    {
+        WeatherForecast[] forecast = Enumerable.Range(1, 5).Select(index =>
+                new WeatherForecast
+                (
+                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                    Random.Shared.Next(-20, 55),
+                    summaries[Random.Shared.Next(summaries.Length)]
+                ))
+            .ToArray();
+        return forecast;
+    })
+    .WithName("GetWeatherForecast")
+    .WithSummary("Gets a 5-day weather forecast");
 
 // Add simple AI health check endpoint
-apiGroup.MapGet("/ai/health", async (IChatService chatService) =>
-{
-    try
+apiGroup
+    .MapGet("/ai/health", async (IChatService chatService) =>
     {
-        var response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
-        return Results.Ok(new { Status = "Healthy", Response = response });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"AI service unavailable: {ex.Message}");
-    }
-})
-.WithName("GetAiHealth");
+        try
+        {
+            var response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
+            return Results.Ok(new { Status = "Healthy", Response = response });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"AI service unavailable: {ex.Message}");
+        }
+    })
+    .WithName("GetAiHealth")
+    .WithSummary("Gets the health status of the AI service");
 
 app.MapDefaultEndpoints();
 
