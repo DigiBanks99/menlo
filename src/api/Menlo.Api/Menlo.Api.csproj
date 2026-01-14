@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>menlo-api</UserSecretsId>
+    <InternalsVisibleTo>Menlo.Api.Tests</InternalsVisibleTo>
   </PropertyGroup>
 
   <ItemGroup>
