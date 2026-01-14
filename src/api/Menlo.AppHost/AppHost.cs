@@ -30,7 +30,8 @@ IResourceBuilder<ProjectResource> api = builder
     .WaitFor(textModel)
     .WithReference(visionModel)
     .WaitFor(visionModel)
-    .WithEnvironment(env => env.AddEntraIdCredentials(builder.Configuration));
+    .WithEnvironment(env => env.AddEntraIdCredentials(builder.Configuration))
+    .WithExternalHttpEndpoints();
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
 

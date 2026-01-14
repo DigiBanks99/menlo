@@ -14,27 +14,24 @@ public static class AuthServiceCollectionExtensions
     /// <summary>
     /// Adds Menlo authentication services with Entra ID integration.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="configuration">The configuration.</param>
+    /// <param name="builder">The host application builder to extend.</param>
     /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddMenloAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IHostApplicationBuilder AddMenloAuthentication(this IHostApplicationBuilder builder)
     {
-        services
+        builder.Services
             .AddOptions<MenloAuthOptions>()
             .BindConfiguration(MenloAuthOptions.SectionName)
             .ValidateOnStart();
 
-        services.AddSingleton<IValidateOptions<MenloAuthOptions>, MenloAuthOptionsValidator>();
+        builder.Services.AddSingleton<IValidateOptions<MenloAuthOptions>, MenloAuthOptionsValidator>();
 
-        IConfigurationSection section = configuration.GetSection(MenloAuthOptions.SectionName);
+        IConfigurationSection section = builder.Configuration.GetSection(MenloAuthOptions.SectionName);
         MenloAuthOptions authOptions = section
             .Get<MenloAuthOptions>()
             ?? throw new InvalidOperationException("MenloAuthOptions configuration is missing.");
 
         // Configure authentication with dual schemes (Cookie + OIDC)
-        services
+        builder.Services
             .AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -78,10 +75,10 @@ public static class AuthServiceCollectionExtensions
                 options.TokenValidationParameters.RoleClaimType = "roles";
             });
 
-        services
+        builder.Services
             .AddAuthorizationBuilder()
             .AddMenloPolicies();
 
-        return services;
+        return builder;
     }
 }
