@@ -176,7 +176,7 @@ public sealed class CookieSecuritySchemeTransformerTests
     {
         document.Components.ShouldNotBeNull();
         document.Components.SecuritySchemes.ShouldNotBeNull();
-        
+
         IOpenApiSecurityScheme scheme =
             document.Components.SecuritySchemes[CookieAuthenticationDefaults.AuthenticationScheme];
         scheme.Type.ShouldBe(SecuritySchemeType.ApiKey);
@@ -231,10 +231,10 @@ public sealed class CookieSecuritySchemeTransformerTests
     {
         IOpenApiPathItem pathItem = document.Paths["/test"];
         OpenApiOperation operation = pathItem.Operations![HttpMethod.Get];
-        
+
         operation.Security.ShouldNotBeNull();
         operation.Security.Count.ShouldBe(2); // Existing + Cookie
-        
+
         OpenApiSecurityRequirement? cookieRequirement = operation.Security.FirstOrDefault(req =>
             req.Any(kvp => kvp.Key.Reference.Id == CookieAuthenticationDefaults.AuthenticationScheme));
         cookieRequirement.ShouldNotBeNull();
