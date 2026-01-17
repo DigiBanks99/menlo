@@ -1,4 +1,2 @@
-overrides:
-  pnpm@<10.26.0: '>=10.26.0'
-  pnpm@>=10.0.0 <10.26.0: '>=10.26.0'
-  pnpm@>=6.25.0 <10.27.0: '>=10.27.0'
+onlyBuiltDependencies:
+  - esbuild
