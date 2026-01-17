@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  pnpm@<10.26.0: '>=10.26.0'
+  pnpm@>=10.0.0 <10.26.0: '>=10.26.0'
+  pnpm@>=6.25.0 <10.27.0: '>=10.27.0'
+
 importers:
 
   .:
@@ -12,8 +17,8 @@ importers:
         specifier: ^0.34.5
         version: 0.34.5
       pnpm:
-        specifier: 10.25.0
-        version: 10.25.0
+        specifier: ^10.28.0
+        version: 10.28.0
       vite:
         specifier: ^7.3.0
         version: 7.3.0
@@ -325,8 +330,8 @@ packages:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
-  pnpm@10.25.0:
-    resolution: {integrity: sha512-XoJjkCevN8+DIGG8xtY5whljRIjg8rrr54UCink957Ul/80/f/V09emGBlTgmP6FK6isXdXO/hdn0joCCpL1AQ==}
+  pnpm@10.28.0:
+    resolution: {integrity: sha512-Bd9x0UIfITmeBT/eVnzqNNRG+gLHZXFEG/wceVbpjjYwiJgtlARl/TRIDU2QoGaLwSNi+KqIAApk6D0LDke+SA==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -579,7 +584,7 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  pnpm@10.25.0: {}
+  pnpm@10.28.0: {}
 
   postcss@8.5.6:
     dependencies:
