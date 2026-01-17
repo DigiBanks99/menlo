@@ -10,7 +10,8 @@
       "WebFetch(domain:devblogs.microsoft.com)",
       "WebFetch(domain:aspire.dev)",
       "mcp__playwright__browser_navigate",
-      "mcp__playwright__browser_snapshot"
+      "mcp__playwright__browser_snapshot",
+      "Bash(git -C /c/users/wilco.boshoff/source/personal/dotnet/menlo log --oneline -20)"
     ]
   },
   "enableAllProjectMcpServers": true,
