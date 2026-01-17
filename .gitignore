@@ -492,3 +492,5 @@ $RECYCLE.BIN/
 
 # Project Specific
 src/api/Menlo.Api/wwwroot/*
+node_modules
+_tmp*

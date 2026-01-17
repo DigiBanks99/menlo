@@ -19,7 +19,11 @@ importers:
         version: 10.28.0
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.2)(terser@5.46.0)(yaml@2.8.2)
+        version: 7.3.1(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.2)(terser@5.46.0)(yaml@2.8.2)
+    optionalDependencies:
+      '@esbuild/linux-x64':
+        specifier: ^0.27.2
+        version: 0.27.2
 
   src/ui/web:
     dependencies:
@@ -17416,7 +17420,7 @@ snapshots:
 
   vite@7.3.0(@types/node@25.0.9)(jiti@2.6.1)(less@4.4.2)(sass-embedded@1.97.2)(sass@1.97.1)(terser@5.44.1)(yaml@2.8.2):
     dependencies:
-      esbuild: 0.27.1
+      esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -17434,7 +17438,7 @@ snapshots:
 
   vite@7.3.0(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.1)(terser@5.46.0)(yaml@2.8.2):
     dependencies:
-      esbuild: 0.27.1
+      esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -17450,9 +17454,27 @@ snapshots:
       terser: 5.46.0
       yaml: 2.8.2
 
-  vite@7.3.0(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.2)(terser@5.46.0)(yaml@2.8.2):
+  vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.1)(terser@5.46.0)(yaml@2.8.2):
     dependencies:
-      esbuild: 0.27.1
+      esbuild: 0.27.2
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.53.4
+      tinyglobby: 0.2.15
+    optionalDependencies:
+      '@types/node': 25.0.9
+      fsevents: 2.3.3
+      jiti: 2.6.1
+      less: 4.5.1
+      sass: 1.97.1
+      sass-embedded: 1.97.2
+      terser: 5.46.0
+      yaml: 2.8.2
+
+  vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.2)(terser@5.46.0)(yaml@2.8.2):
+    dependencies:
+      esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -17464,24 +17486,6 @@ snapshots:
       jiti: 2.6.1
       less: 4.5.1
       sass: 1.97.2
-      sass-embedded: 1.97.2
-      terser: 5.46.0
-      yaml: 2.8.2
-
-  vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(less@4.5.1)(sass-embedded@1.97.2)(sass@1.97.1)(terser@5.46.0)(yaml@2.8.2):
-    dependencies:
-      esbuild: 0.27.1
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.53.4
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 25.0.9
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      less: 4.5.1
-      sass: 1.97.1
       sass-embedded: 1.97.2
       terser: 5.46.0
       yaml: 2.8.2
