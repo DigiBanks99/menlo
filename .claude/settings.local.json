@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:agentskills.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(test:*)",
+      "Bash(mkdir:*)",
+      "Bash(git clone:*)",
+      "WebFetch(domain:devblogs.microsoft.com)",
+      "WebFetch(domain:aspire.dev)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "aspire",
+    "playwright"
+  ]
+}
