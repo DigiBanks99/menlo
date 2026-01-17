@@ -6,14 +6,10 @@
     "lint": "cd src/ui/web && pnpm lint && cd -",
     "test": "cd src/ui/web && pnpm test && cd -"
   },
-  "volta": {
-    "node": "24.11.1",
-    "pnpm": "10.15.1"
-  },
   "devDependencies": {
     "corepack": "^0.34.5",
     "pnpm": "^10.28.0",
     "vite": "^7.3.0"
   },
-  "packageManager": "pnpm@10.26.0"
+  "packageManager": "pnpm@10.28.0"
 }
