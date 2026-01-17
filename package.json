@@ -11,5 +11,8 @@
     "pnpm": "^10.28.0",
     "vite": "^7.3.0"
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@10.28.0",
+  "optionalDependencies": {
+    "@esbuild/linux-x64": "^0.27.2"
+  }
 }
