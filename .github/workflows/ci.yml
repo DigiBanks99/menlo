@@ -84,7 +84,9 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       # Authenticate to Azure using federated credentials
+      # Skip for Dependabot PRs which don't have access to secrets
       - name: Azure Login
+        if: github.actor != 'dependabot[bot]'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -93,7 +95,9 @@ jobs:
 
       # Create an ephemeral client secret for testing
       # This secret is short-lived (1 hour) and automatically deleted after tests
+      # Skip for Dependabot PRs which don't have access to secrets
       - name: Create ephemeral Azure AD client secret
+        if: github.actor != 'dependabot[bot]'
         id: create-secret
         uses: azure/cli@v2
         with:
@@ -151,8 +155,9 @@ jobs:
             --logger "console;verbosity=detailed"
 
       # Always delete the ephemeral secret, even if tests fail
+      # Only runs if the secret was created (skipped for Dependabot PRs)
       - name: Delete ephemeral Azure AD client secret
-        if: always() && steps.create-secret.outcome == 'success' && steps.create-secret.outputs.key-id != ''
+        if: always() && github.actor != 'dependabot[bot]' && steps.create-secret.outcome == 'success' && steps.create-secret.outputs.key-id != ''
         uses: azure/cli@v2
         with:
           azcliversion: latest
