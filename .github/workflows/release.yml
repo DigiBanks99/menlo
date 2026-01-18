@@ -108,7 +108,6 @@ jobs:
         run: dotnet restore
 
       - name: Install frontend dependencies
-        working-directory: src/ui/web
         run: pnpm install --frozen-lockfile
 
       - name: Update version in project files

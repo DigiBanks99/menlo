@@ -76,15 +76,11 @@ jobs:
         uses: actions/cache@v5
         with:
           path: src/ui/web/.angular/cache
-          key: ${{ runner.os }}-angular-cache-${{ hashFiles('src/ui/web/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-angular-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-angular-cache-
 
-      - name: Install dependencies (root)
-        run: pnpm install --frozen-lockfile
-
-      - name: Install dependencies (UI)
-        working-directory: src/ui/web
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build Angular applications
@@ -283,7 +279,6 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        working-directory: src/ui/web
         run: pnpm install --frozen-lockfile
 
       - name: Build Storybook (App)

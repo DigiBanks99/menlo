@@ -104,7 +104,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             DISPLAY_NAME="CI-Ephemeral-${{ github.run_id }}"
-            
+
             # Create a new client secret with 1 hour expiry
             SECRET_OUTPUT=$(az ad app credential reset \
               --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
@@ -257,15 +257,11 @@ jobs:
         uses: actions/cache@v5
         with:
           path: src/ui/web/.angular/cache
-          key: ${{ runner.os }}-angular-cache-${{ hashFiles('src/ui/web/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-angular-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-angular-cache-
 
-      - name: Install dependencies (root)
-        run: pnpm install --frozen-lockfile
-
-      - name: Install dependencies (UI)
-        working-directory: src/ui/web
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint
@@ -371,15 +367,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Install dependencies (root)
-        run: pnpm install --frozen-lockfile
-
-      - name: Install dependencies (UI)
-        working-directory: src/ui/web
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Audit dependencies
-        working-directory: src/ui/web
         run: pnpm audit --audit-level moderate
 
       - name: Initialize CodeQL
@@ -435,10 +426,6 @@ jobs:
         run: dotnet restore
 
       - name: Install pnpm dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install UI dependencies
-        working-directory: src/ui/web
         run: pnpm install --frozen-lockfile
 
       - name: Build backend
