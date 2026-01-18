@@ -476,11 +476,10 @@ jobs:
         run: markdownlint-cli2 --config .config/.markdownlint-cli2.jsonc docs/**/*.md README.md
 
       - name: Check for broken links
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        uses: tcort/github-action-markdown-link-check@v1
         with:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'no'
-          config-file: '.github/markdown-link-check-config.json'
 
   quality-gate:
     name: Quality Gate
