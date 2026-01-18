@@ -20,6 +20,7 @@
     "/^Remove-Item\\b/i": false,
     "pwsh ./scripts/act-ci.ps1": true
   },
+  "chat.useAgentSkills": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.markdownlint": "always"
   },
