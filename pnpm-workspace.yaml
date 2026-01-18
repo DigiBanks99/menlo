@@ -1,0 +1,15 @@
+packages:
+  - src/ui/web
+
+onlyBuiltDependencies:
+  - '@compodoc/compodoc'
+  - '@parcel/watcher'
+  - '@swc/core'
+  - esbuild
+  - less
+  - lmdb
+  - msgpackr-extract
+  - nx
+
+overrides:
+  undici@>=7.0.0 <7.18.2: '>=7.18.2'
