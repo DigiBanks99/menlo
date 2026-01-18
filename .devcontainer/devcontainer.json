@@ -8,6 +8,11 @@
     "ghcr.io/devcontainers/features/dotnet:2": {
       "version": "10.0"
     },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": true,
+      "moby": true
+    },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers-extra/features/mise:1": {}
   },
@@ -16,23 +21,62 @@
       "extensions": [
         "ms-dotnettools.csdevkit",
         "ms-azuretools.vscode-dotnet-aspire",
+        "ms-azuretools.vscode-docker",
         "angular.ng-template",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "GitHub.copilot",
+        "microsoft-aspire.aspire-vscode"
       ]
     }
   },
   "mounts": [
-    "source=menlo-pnpm-store,target=/home/vscode/.pnpm-store,type=volume"
+    "source=menlo-pnpm-store,target=/home/vscode/.pnpm-store,type=volume",
+    "source=menlo-node-modules-root,target=/workspaces/menlo/node_modules,type=volume",
+    "source=menlo-node-modules-web,target=/workspaces/menlo/src/ui/web/node_modules,type=volume",
+    "source=menlo-postgres,target=/var/lib/postgresql/data,type=volume",
+    "source=menlo-ollama,target=/root/.ollama,type=volume"
   ],
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "runArgs": [
-    "--memory=16g",
-    "--cpus=8"
+  "forwardPorts": [
+    4200,
+    15000,
+    17188,
+    6006,
+    6007
   ],
+  "portsAttributes": {
+    "4200": {
+      "label": "Angular UI",
+      "onAutoForward": "notify"
+    },
+    "15000": {
+      "label": "Aspire Dashboard (HTTP)",
+      "onAutoForward": "openBrowser"
+    },
+    "17188": {
+      "label": "Aspire Dashboard (HTTPS)",
+      "onAutoForward": "openBrowser"
+    },
+    "6006": {
+      "label": "Storybook - Web UI",
+      "onAutoForward": "ignore"
+    },
+    "6007": {
+      "label": "Storybook - Lib UI",
+      "onAutoForward": "ignore"
+    }
+  },
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "32gb",
+    "storage": "64gb"
+  },
   "remoteUser": "vscode",
   "containerEnv": {
     "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
-    "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
+    "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true",
+    "MENLO_DEV_CONTAINER": "true",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
   }
 }

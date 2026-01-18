@@ -4,5 +4,14 @@
         <TargetFramework>net10.0</TargetFramework>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <LangVersion>preview</LangVersion>
+        
+        <!-- 
+        Redirect build outputs to /tmp for Windows + WSL2 + container compatibility.
+        The Windows filesystem doesn't support Unix file modes that .NET build requires.
+        Only enabled when MENLO_DEV_CONTAINER environment variable is set (by devcontainer).
+        CI/CD builds run with standard paths for proper artifact collection.
+        -->
+        <BaseIntermediateOutputPath Condition="'$(MENLO_DEV_CONTAINER)' == 'true'">/tmp/menlo-build/$(MSBuildProjectName)/obj/</BaseIntermediateOutputPath>
+        <BaseOutputPath Condition="'$(MENLO_DEV_CONTAINER)' == 'true'">/tmp/menlo-build/$(MSBuildProjectName)/bin/</BaseOutputPath>
     </PropertyGroup>
 </Project>
