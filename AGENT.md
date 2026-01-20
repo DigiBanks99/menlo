@@ -23,7 +23,7 @@ pnpm --dir src/ui/web lint          # No lint errors
 - **Plan**: `docs/plans/fix_plan.md` (your working TODO list)
 
 ## Tech Stack
-- .NET 10, C# 12, Entity Framework Core, PostgreSQL
+- .NET 10, C# 14, Entity Framework Core, PostgreSQL
 - Angular 21, TypeScript, Vite, Vitest
 - Aspire 13.1 for orchestration
 
