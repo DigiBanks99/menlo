@@ -49,6 +49,7 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 - [x] **Create UserConfiguration** - Created `IEntityTypeConfiguration<User>` for `auth.users` table with audit columns and ID converters.
 - [ ] **Create initial migration** - Run `dotnet ef migrations add InitialCreate` after Budget aggregate is implemented.
 - [x] **Register DbContext in Program.cs** - Added `AddMenloPersistence()` extension method using hybrid approach (AddDbContext + EnrichNpgsqlDbContext).
+- [ ] **Unit tests** - Add unit tests for all persistence features, including converters and interceptors
 
 #### Backend - Budget Domain (Spec: budget-aggregate-minimum)
 
@@ -142,22 +143,22 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 ## Specification-to-Implementation Gap Summary
 
-| Specification | Backend Status | Frontend Status | Priority |
-|--------------|----------------|-----------------|----------|
-| domain-abstractions | ✅ Complete | N/A | Done |
-| domain-auditing | ✅ Complete (AuditStampFactory) | N/A | Done |
-| money-domain | ✅ Complete | ✅ MoneyPipe exists | Done |
-| user-id-resolution | ✅ Complete | N/A | Done |
-| authentication | ✅ Complete (BFF pattern) | ✅ Complete (auth service) | Done |
-| persistence | ⚠️ 80% - DbContext, interceptors, User config done. Needs Budget config + migration | N/A | P1 |
-| budget-aggregate-minimum | ❌ Empty directory | N/A | P1 |
-| budget-create-vertical | ❌ No endpoint | ❌ Mock UI only | P1 |
-| budget-categories-vertical | ❌ No endpoint | ⚠️ Display only, mock data | P1 |
-| budget-item | ❌ Not started | ❌ Not started | P2 |
-| angular-result-pattern | N/A | ⚠️ No toast integration | P1 |
-| ui-layout | N/A | ✅ Shell implemented | Done |
-| ai-infrastructure | ⚠️ VisionService placeholder | N/A | P2 |
-| proactive-budget-adjustment | ❌ Not started | ❌ Not started | P2 |
+| Specification               | Backend Status                                                                     | Frontend Status           | Priority |
+| --------------------------- | ---------------------------------------------------------------------------------- | ------------------------- | -------- |
+| domain-abstractions         | ✅ Complete                                                                         | N/A                       | Done     |
+| domain-auditing             | ✅ Complete (AuditStampFactory)                                                     | N/A                       | Done     |
+| money-domain                | ✅ Complete                                                                         | ✅ MoneyPipe exists        | Done     |
+| user-id-resolution          | ✅ Complete                                                                         | N/A                       | Done     |
+| authentication              | ✅ Complete (BFF pattern)                                                           | ✅ Complete (auth service) | Done     |
+| persistence                 | ⚠️ 80% - DbContext, interceptors, User config done. Needs Budget config + migration | N/A                       | P1       |
+| budget-aggregate-minimum    | ❌ Empty directory                                                                  | N/A                       | P1       |
+| budget-create-vertical      | ❌ No endpoint                                                                      | ❌ Mock UI only            | P1       |
+| budget-categories-vertical  | ❌ No endpoint                                                                      | ⚠️ Display only, mock data | P1       |
+| budget-item                 | ❌ Not started                                                                      | ❌ Not started             | P2       |
+| angular-result-pattern      | N/A                                                                                | ⚠️ No toast integration    | P1       |
+| ui-layout                   | N/A                                                                                | ✅ Shell implemented       | Done     |
+| ai-infrastructure           | ⚠️ VisionService placeholder                                                        | N/A                       | P2       |
+| proactive-budget-adjustment | ❌ Not started                                                                      | ❌ Not started             | P2       |
 
 ---
 
@@ -179,13 +180,13 @@ graph TD
 
 ## Validation Status
 
-| Check | Status | Details |
-|-------|--------|---------|
-| Build | ✅ PASS | 0 warnings, 0 errors |
-| Backend Tests | ✅ PASS | 141 tests (Menlo.Lib.Tests: 92, Menlo.Api.Tests: 49) |
-| AI Tests | ✅ PASS | 2 tests |
-| Frontend Lint | ✅ PASS | 0 errors, 3 warnings |
-| Frontend Tests | ✅ PASS | All projects pass |
+| Check          | Status | Details                                              |
+| -------------- | ------ | ---------------------------------------------------- |
+| Build          | ✅ PASS | 0 warnings, 0 errors                                 |
+| Backend Tests  | ✅ PASS | 141 tests (Menlo.Lib.Tests: 92, Menlo.Api.Tests: 49) |
+| AI Tests       | ✅ PASS | 2 tests                                              |
+| Frontend Lint  | ✅ PASS | 0 errors, 3 warnings                                 |
+| Frontend Tests | ✅ PASS | All projects pass                                    |
 
 ---
 
