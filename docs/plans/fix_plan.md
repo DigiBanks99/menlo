@@ -35,9 +35,9 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Persistence Layer (Spec: persistence)
 
-> **Blocker**: No EF Core packages referenced. No DbContext exists. The persistence layer is 0% implemented.
+> **Status**: EF Core packages added. No DbContext exists yet. The persistence layer DbContext implementation is next.
 
-- [ ] **Add EF Core NuGet packages** - Add to `Directory.Packages.props`: `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Design`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL`. Currently missing entirely.
+- [x] **Add EF Core NuGet packages** - Added to `Directory.Packages.props` and `Menlo.Api.csproj`: `Microsoft.EntityFrameworkCore` (10.0.2), `Microsoft.EntityFrameworkCore.Design` (10.0.2), `Npgsql.EntityFrameworkCore.PostgreSQL` (10.0.0), `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` (13.1.0).
 - [ ] **Create Menlo.Persistence folder structure** - Create `src/api/Menlo.Api/Persistence/` with subfolders: `Data/`, `Configurations/`, `Interceptors/`, `Converters/`, `Migrations/`.
 - [ ] **Implement MenloDbContext** - Create `MenloDbContext : DbContext` with DbSets for Budget, BudgetCategory, User. Use schema separation per spec (Section 5).
 - [ ] **Implement ISoftDeletable interface** - Not defined anywhere. Create in domain with: `IsDeleted`, `DeletedAt`, `DeletedBy`, `SoftDelete()`, `Restore()` per spec (Section 6.2).
