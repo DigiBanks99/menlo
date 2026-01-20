@@ -53,18 +53,19 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Budget Domain (Spec: budget-aggregate-minimum)
 
-> **Blocker**: `/src/lib/Menlo.Lib/BudgetAggregateMinimum/` directory exists but is EMPTY. No Budget entity at all.
+> **Status**: ✅ Budget aggregate is fully implemented in `src/lib/Menlo.Lib/Budget/`. Next: Add entity configurations for persistence and create API endpoints.
 
-- [ ] **Create BudgetId strongly-typed ID** - `readonly record struct BudgetId(Guid Value)` in `Common/ValueObjects/`. Pattern exists for UserId.
-- [ ] **Create BudgetCategoryId strongly-typed ID** - `readonly record struct BudgetCategoryId(Guid Value)`.
-- [ ] **Create BudgetStatus enum** - `Draft`, `Active` values per spec (FR-1, FR-2).
-- [ ] **Create Budget aggregate root** - Implement `IAggregateRoot<BudgetId>`, `IHasDomainEvents`, `IAuditable` with: Name, Year, Month, Currency, Status, Categories collection per spec.
-- [ ] **Create BudgetCategory entity** - Child of Budget aggregate. Include: Name, Description, PlannedAmount (Money), ParentId (nullable for hierarchy), DisplayOrder per spec (FR-3).
-- [ ] **Implement budget creation validation** - Name required, Year/Month valid, Currency ISO 4217, max depth 2 for categories per spec.
-- [ ] **Implement category uniqueness rule** - Sibling categories must have unique names (case-insensitive) per spec (FR-6).
-- [ ] **Implement total computation** - Sum children amounts to parent, sum all top-level to budget total per spec (FR-5).
-- [ ] **Create BudgetError hierarchy** - Domain errors: `DuplicateBudgetError`, `InvalidCategoryError`, `CategoryHasChildrenError`, etc.
-- [ ] **Create budget domain events** - `BudgetCreatedEvent`, `BudgetActivatedEvent`, `CategoryAddedEvent`, `PlannedAmountSetEvent` per spec.
+- [x] **Create BudgetId strongly-typed ID** - `readonly record struct BudgetId(Guid Value)` in `Budget/ValueObjects/BudgetId.cs`.
+- [x] **Create BudgetCategoryId strongly-typed ID** - `readonly record struct BudgetCategoryId(Guid Value)` in `Budget/ValueObjects/BudgetCategoryId.cs`.
+- [x] **Create BudgetPeriod value object** - `readonly record struct BudgetPeriod(int Year, int Month)` in `Budget/ValueObjects/BudgetPeriod.cs`.
+- [x] **Create BudgetStatus enum** - `Draft`, `Active` values in `Budget/Enums/BudgetStatus.cs`.
+- [x] **Create Budget aggregate root** - Implements `IAggregateRoot<BudgetId>`, `IHasDomainEvents`, `IAuditable` in `Budget/Entities/Budget.cs` with: Name, Period, Currency, Status, Categories collection.
+- [x] **Create BudgetCategory entity** - Child of Budget aggregate in `Budget/Entities/BudgetCategory.cs`. Includes: Name, Description, PlannedAmount (Money), ParentId (nullable for hierarchy), DisplayOrder.
+- [x] **Implement budget creation validation** - Name required, Period valid (Year 1900-2100, Month 1-12), Currency ISO 4217 (3-letter code), max depth 2 for categories.
+- [x] **Implement category uniqueness rule** - Sibling categories must have unique names (case-insensitive using OrdinalIgnoreCase).
+- [x] **Implement total computation** - `CalculateTotal()` on BudgetCategory sums own + children amounts; `GetTotal()` on Budget sums all root category totals.
+- [x] **Create BudgetError hierarchy** - Domain errors in `Budget/Errors/BudgetError.cs`: `DuplicateBudgetError`, `DuplicateCategoryNameError`, `CategoryHasChildrenError`, `CategoryHasPlannedAmountError`, `MaxDepthExceededError`, `InvalidAmountError`, `ActivationValidationError`, `InvalidStatusTransitionError`.
+- [x] **Create budget domain events** - Events in `Budget/Events/BudgetEvents.cs`: `BudgetCreatedEvent`, `BudgetActivatedEvent`, `CategoryAddedEvent`, `CategoryRenamedEvent`, `CategoryRemovedEvent`, `PlannedAmountSetEvent`, `PlannedAmountClearedEvent`.
 
 #### Backend - Auditing (Spec: domain-auditing)
 
@@ -151,7 +152,7 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 | user-id-resolution          | ✅ Complete                                                                         | N/A                       | Done     |
 | authentication              | ✅ Complete (BFF pattern)                                                           | ✅ Complete (auth service) | Done     |
 | persistence                 | ⚠️ 80% - DbContext, interceptors, User config done. Needs Budget config + migration | N/A                       | P1       |
-| budget-aggregate-minimum    | ❌ Empty directory                                                                  | N/A                       | P1       |
+| budget-aggregate-minimum    | ✅ Complete - Budget, BudgetCategory, Events, Errors in `src/lib/Menlo.Lib/Budget/` | N/A                       | Done     |
 | budget-create-vertical      | ❌ No endpoint                                                                      | ❌ Mock UI only            | P1       |
 | budget-categories-vertical  | ❌ No endpoint                                                                      | ⚠️ Display only, mock data | P1       |
 | budget-item                 | ❌ Not started                                                                      | ❌ Not started             | P2       |
@@ -196,6 +197,7 @@ graph TD
 
 ## Completed
 
+- [x] **Implement Budget aggregate root** - Created complete Budget domain in `src/lib/Menlo.Lib/Budget/` with: `Budget` (aggregate root), `BudgetCategory` (entity), `BudgetId`, `BudgetCategoryId`, `BudgetPeriod` (value objects), `BudgetStatus` (enum), `BudgetError` hierarchy, and domain events (`BudgetCreatedEvent`, `BudgetActivatedEvent`, `CategoryAddedEvent`, etc.). Implements category hierarchy (max depth 2), duplicate name prevention, activation validation, and total computation.
 - [x] **Implement persistence layer foundation** - Created MenloDbContext, AuditingInterceptor, SoftDeleteInterceptor, UserConfiguration, ValueConverters (UserId, ExternalUserId), ISoftDeletable interface, and AuditStampFactory. Registered via `AddMenloPersistence()` extension method.
 - [x] **Fix 18 failing API tests** - Fixed `TestWebApplicationFactory` to provide valid AzureAd configuration values and mock OpenIdConnect metadata. Tests now pass.
 - [x] **Comprehensive codebase analysis** - Analyzed all specs vs implementation. Updated fix_plan.md with detailed gaps.
