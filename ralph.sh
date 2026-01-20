@@ -8,7 +8,10 @@ echo "================================"
 
 if [ "$MODE" = "plan" ]; then
     echo "Running planning loop (single execution)..."
-    claude --dangerously-skip-permissions < PROMPT_PLAN.md
+    cat "PROMPT_PLAN.md" | claude -p \
+        --dangerously-skip-permissions \
+        --model opus \
+        --verbose
     echo "Planning complete. Check docs/plans/fix_plan.md"
 elif [ "$MODE" = "build" ]; then
     echo "Starting build loop (continuous)..."
@@ -17,7 +20,10 @@ elif [ "$MODE" = "build" ]; then
         echo ""
         echo "=== New Loop Iteration ==="
         date
-        claude --dangerously-skip-permissions < PROMPT_BUILD.md
+        cat "PROMPT_BUILD.md" | claude -p \
+            --dangerously-skip-permissions \
+            --model opus \
+            --verbose
         echo "Loop iteration complete. Sleeping 5s..."
         sleep 5
     done
