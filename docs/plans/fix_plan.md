@@ -35,19 +35,20 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Persistence Layer (Spec: persistence)
 
-> **Status**: EF Core packages added. No DbContext exists yet. The persistence layer DbContext implementation is next.
+> **Status**: Core persistence infrastructure complete. DbContext, interceptors, converters, and entity configuration for User are implemented. Next: Add Budget entity configurations and create initial migration.
 
 - [x] **Add EF Core NuGet packages** - Added to `Directory.Packages.props` and `Menlo.Api.csproj`: `Microsoft.EntityFrameworkCore` (10.0.2), `Microsoft.EntityFrameworkCore.Design` (10.0.2), `Npgsql.EntityFrameworkCore.PostgreSQL` (10.0.0), `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` (13.1.0).
-- [ ] **Create Menlo.Persistence folder structure** - Create `src/api/Menlo.Api/Persistence/` with subfolders: `Data/`, `Configurations/`, `Interceptors/`, `Converters/`, `Migrations/`.
-- [ ] **Implement MenloDbContext** - Create `MenloDbContext : DbContext` with DbSets for Budget, BudgetCategory, User. Use schema separation per spec (Section 5).
-- [ ] **Implement ISoftDeletable interface** - Not defined anywhere. Create in domain with: `IsDeleted`, `DeletedAt`, `DeletedBy`, `SoftDelete()`, `Restore()` per spec (Section 6.2).
-- [ ] **Implement ValueConverter for UserId** - `ValueConverter<UserId, Guid>` for EF Core mapping. Pattern established in spec (Section 9.3).
+- [x] **Create Menlo.Persistence folder structure** - Created `src/api/Menlo.Api/Persistence/` with subfolders: `Data/`, `Configurations/`, `Interceptors/`, `Converters/`.
+- [x] **Implement MenloDbContext** - Created `MenloDbContext : DbContext` with DbSet for User. Schema separation configured via entity configurations.
+- [x] **Implement ISoftDeletable interface** - Created in domain at `Common/Abstractions/ISoftDeletable.cs` with: `IsDeleted`, `DeletedAt`, `DeletedBy`, `SoftDelete()`, `Restore()`.
+- [x] **Implement ValueConverter for UserId** - Created `UserIdConverter` and `NullableUserIdConverter` in `Persistence/Converters/`.
+- [x] **Implement ValueConverter for ExternalUserId** - Created `ExternalUserIdConverter` in `Persistence/Converters/`.
 - [ ] **Implement ValueConverter for Money** - Map Money value object to amount + currency columns using `OwnsOne` pattern per spec (Section 9.1).
-- [ ] **Implement AuditingInterceptor** - `SaveChangesInterceptor` that calls `entity.Audit()` before SaveChanges. Interface exists, interceptor missing per spec (Section 7.3).
-- [ ] **Implement SoftDeleteInterceptor** - Cascade soft delete to children via navigation properties per spec (Section 6.4).
-- [ ] **Create UserConfiguration** - `IEntityTypeConfiguration<User>` for `auth.users` table with audit columns and ID converter.
-- [ ] **Create initial migration** - Run `dotnet ef migrations add InitialCreate` after DbContext is configured.
-- [ ] **Register DbContext in Program.cs** - Add `AddNpgsqlDbContext<MenloDbContext>()` using Aspire connection string.
+- [x] **Implement AuditingInterceptor** - Created `SaveChangesInterceptor` that calls `entity.Audit()` before SaveChanges.
+- [x] **Implement SoftDeleteInterceptor** - Created with cascade soft delete to children via navigation properties.
+- [x] **Create UserConfiguration** - Created `IEntityTypeConfiguration<User>` for `auth.users` table with audit columns and ID converters.
+- [ ] **Create initial migration** - Run `dotnet ef migrations add InitialCreate` after Budget aggregate is implemented.
+- [x] **Register DbContext in Program.cs** - Added `AddMenloPersistence()` extension method using hybrid approach (AddDbContext + EnrichNpgsqlDbContext).
 
 #### Backend - Budget Domain (Spec: budget-aggregate-minimum)
 
@@ -66,8 +67,8 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Auditing (Spec: domain-auditing)
 
-- [ ] **Implement IAuditStampFactory** - Interface at `Common/Abstractions/IAuditStampFactory.cs` exists. Create implementation in API that resolves current user from `HttpContext.User` claims and uses `TimeProvider.System.GetUtcNow()`.
-- [ ] **Register IAuditStampFactory in DI** - Add scoped registration for `AuditStampFactory` in `Program.cs`.
+- [x] **Implement IAuditStampFactory** - Created `AuditStampFactory` in `Persistence/` that resolves current user from `HttpContext.User` claims (oid claim) and uses `TimeProvider.System.GetUtcNow()`.
+- [x] **Register IAuditStampFactory in DI** - Registered as scoped in `AddMenloPersistence()` extension method.
 
 #### Backend - Budget API Endpoints (Specs: budget-create-vertical, budget-categories-vertical)
 
@@ -144,11 +145,11 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 | Specification | Backend Status | Frontend Status | Priority |
 |--------------|----------------|-----------------|----------|
 | domain-abstractions | ✅ Complete | N/A | Done |
-| domain-auditing | ⚠️ Missing IAuditStampFactory impl | N/A | P1 |
+| domain-auditing | ✅ Complete (AuditStampFactory) | N/A | Done |
 | money-domain | ✅ Complete | ✅ MoneyPipe exists | Done |
 | user-id-resolution | ✅ Complete | N/A | Done |
 | authentication | ✅ Complete (BFF pattern) | ✅ Complete (auth service) | Done |
-| persistence | ❌ 0% - No EF Core, No DbContext | N/A | P1 |
+| persistence | ⚠️ 80% - DbContext, interceptors, User config done. Needs Budget config + migration | N/A | P1 |
 | budget-aggregate-minimum | ❌ Empty directory | N/A | P1 |
 | budget-create-vertical | ❌ No endpoint | ❌ Mock UI only | P1 |
 | budget-categories-vertical | ❌ No endpoint | ⚠️ Display only, mock data | P1 |
@@ -194,5 +195,6 @@ graph TD
 
 ## Completed
 
+- [x] **Implement persistence layer foundation** - Created MenloDbContext, AuditingInterceptor, SoftDeleteInterceptor, UserConfiguration, ValueConverters (UserId, ExternalUserId), ISoftDeletable interface, and AuditStampFactory. Registered via `AddMenloPersistence()` extension method.
 - [x] **Fix 18 failing API tests** - Fixed `TestWebApplicationFactory` to provide valid AzureAd configuration values and mock OpenIdConnect metadata. Tests now pass.
 - [x] **Comprehensive codebase analysis** - Analyzed all specs vs implementation. Updated fix_plan.md with detailed gaps.

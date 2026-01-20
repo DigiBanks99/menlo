@@ -4,6 +4,7 @@ using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.OpenApi;
+using Menlo.Api.Persistence;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.AddServiceDefaults();
 
 builder
     .AddMenloAuthentication()
+    .AddMenloPersistence()
     .AddMenloAiWithAspire()
     .AddMenloOpenApi();
 
