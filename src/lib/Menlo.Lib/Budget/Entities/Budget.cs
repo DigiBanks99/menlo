@@ -23,6 +23,15 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     private readonly List<BudgetCategory> _categories = [];
 
     /// <summary>
+    /// Parameterless constructor for EF Core (required for ComplexProperty mapping).
+    /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+    private Budget()
+    {
+    }
+#pragma warning restore CS8618
+
+    /// <summary>
     /// Private constructor for EF Core hydration.
     /// </summary>
     private Budget(

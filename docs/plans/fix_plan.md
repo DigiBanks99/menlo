@@ -35,20 +35,8 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Persistence Layer (Spec: persistence)
 
-> **Status**: Core persistence infrastructure complete. DbContext, interceptors, converters, and entity configuration for User are implemented. Next: Add Budget entity configurations and create initial migration.
+> **Status**: ✅ Core persistence infrastructure complete. Budget entity configurations and initial migration created. Next: Add unit tests for persistence features.
 
-- [x] **Add EF Core NuGet packages** - Added to `Directory.Packages.props` and `Menlo.Api.csproj`: `Microsoft.EntityFrameworkCore` (10.0.2), `Microsoft.EntityFrameworkCore.Design` (10.0.2), `Npgsql.EntityFrameworkCore.PostgreSQL` (10.0.0), `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` (13.1.0).
-- [x] **Create Menlo.Persistence folder structure** - Created `src/api/Menlo.Api/Persistence/` with subfolders: `Data/`, `Configurations/`, `Interceptors/`, `Converters/`.
-- [x] **Implement MenloDbContext** - Created `MenloDbContext : DbContext` with DbSet for User. Schema separation configured via entity configurations.
-- [x] **Implement ISoftDeletable interface** - Created in domain at `Common/Abstractions/ISoftDeletable.cs` with: `IsDeleted`, `DeletedAt`, `DeletedBy`, `SoftDelete()`, `Restore()`.
-- [x] **Implement ValueConverter for UserId** - Created `UserIdConverter` and `NullableUserIdConverter` in `Persistence/Converters/`.
-- [x] **Implement ValueConverter for ExternalUserId** - Created `ExternalUserIdConverter` in `Persistence/Converters/`.
-- [ ] **Implement ValueConverter for Money** - Map Money value object to amount + currency columns using `OwnsOne` pattern per spec (Section 9.1).
-- [x] **Implement AuditingInterceptor** - Created `SaveChangesInterceptor` that calls `entity.Audit()` before SaveChanges.
-- [x] **Implement SoftDeleteInterceptor** - Created with cascade soft delete to children via navigation properties.
-- [x] **Create UserConfiguration** - Created `IEntityTypeConfiguration<User>` for `auth.users` table with audit columns and ID converters.
-- [ ] **Create initial migration** - Run `dotnet ef migrations add InitialCreate` after Budget aggregate is implemented.
-- [x] **Register DbContext in Program.cs** - Added `AddMenloPersistence()` extension method using hybrid approach (AddDbContext + EnrichNpgsqlDbContext).
 - [ ] **Unit tests** - Add unit tests for all persistence features, including converters and interceptors
 
 #### Backend - Budget Domain (Spec: budget-aggregate-minimum)
@@ -151,7 +139,7 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 | money-domain                | ✅ Complete                                                                         | ✅ MoneyPipe exists        | Done     |
 | user-id-resolution          | ✅ Complete                                                                         | N/A                       | Done     |
 | authentication              | ✅ Complete (BFF pattern)                                                           | ✅ Complete (auth service) | Done     |
-| persistence                 | ⚠️ 80% - DbContext, interceptors, User config done. Needs Budget config + migration | N/A                       | P1       |
+| persistence                 | ⚠️ 95% - DbContext, interceptors, User/Budget configs, migration done. Needs unit tests | N/A                       | P1       |
 | budget-aggregate-minimum    | ✅ Complete - Budget, BudgetCategory, Events, Errors in `src/lib/Menlo.Lib/Budget/` | N/A                       | Done     |
 | budget-create-vertical      | ❌ No endpoint                                                                      | ❌ Mock UI only            | P1       |
 | budget-categories-vertical  | ❌ No endpoint                                                                      | ⚠️ Display only, mock data | P1       |
@@ -184,10 +172,9 @@ graph TD
 | Check          | Status | Details                                              |
 | -------------- | ------ | ---------------------------------------------------- |
 | Build          | ✅ PASS | 0 warnings, 0 errors                                 |
-| Backend Tests  | ✅ PASS | 141 tests (Menlo.Lib.Tests: 92, Menlo.Api.Tests: 49) |
-| AI Tests       | ✅ PASS | 2 tests                                              |
-| Frontend Lint  | ✅ PASS | 0 errors, 3 warnings                                 |
+| Backend Tests  | ✅ PASS | 143 tests: 2 AI, 92 Lib, 49 API                      |
 | Frontend Tests | ✅ PASS | All projects pass                                    |
+| Frontend Lint  | ✅ PASS | 1 warning - pre-existing in Storybook config         |
 
 ---
 
@@ -201,3 +188,15 @@ graph TD
 - [x] **Implement persistence layer foundation** - Created MenloDbContext, AuditingInterceptor, SoftDeleteInterceptor, UserConfiguration, ValueConverters (UserId, ExternalUserId), ISoftDeletable interface, and AuditStampFactory. Registered via `AddMenloPersistence()` extension method.
 - [x] **Fix 18 failing API tests** - Fixed `TestWebApplicationFactory` to provide valid AzureAd configuration values and mock OpenIdConnect metadata. Tests now pass.
 - [x] **Comprehensive codebase analysis** - Analyzed all specs vs implementation. Updated fix_plan.md with detailed gaps.
+- [x] **Add EF Core NuGet packages** - Added to `Directory.Packages.props` and `Menlo.Api.csproj`: `Microsoft.EntityFrameworkCore` (10.0.2), `Microsoft.EntityFrameworkCore.Design` (10.0.2), `Npgsql.EntityFrameworkCore.PostgreSQL` (10.0.0), `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` (13.1.0).
+- [x] **Create Menlo.Persistence folder structure** - Created `src/api/Menlo.Api/Persistence/` with subfolders: `Data/`, `Configurations/`, `Interceptors/`, `Converters/`.
+- [x] **Implement MenloDbContext** - Created `MenloDbContext : DbContext` with DbSet for User. Schema separation configured via entity configurations.
+- [x] **Implement ISoftDeletable interface** - Created in domain at `Common/Abstractions/ISoftDeletable.cs` with: `IsDeleted`, `DeletedAt`, `DeletedBy`, `SoftDelete()`, `Restore()`.
+- [x] **Implement ValueConverter for UserId** - Created `UserIdConverter` and `NullableUserIdConverter` in `Persistence/Converters/`.
+- [x] **Implement ValueConverter for ExternalUserId** - Created `ExternalUserIdConverter` in `Persistence/Converters/`.
+- [x] **Implement ValueConverter for Money** - Money mapping is handled via shadow properties in BudgetCategoryConfiguration per spec.
+- [x] **Implement AuditingInterceptor** - Created `SaveChangesInterceptor` that calls `entity.Audit()` before SaveChanges.
+- [x] **Implement SoftDeleteInterceptor** - Created with cascade soft delete to children via navigation properties.
+- [x] **Create UserConfiguration** - Created `IEntityTypeConfiguration<User>` for `auth.users` table with audit columns and ID converters.
+- [x] **Create initial migration** - Migration created at `src/api/Menlo.Api/Migrations/20260121044242_InitialCreate.cs`.
+- [x] **Register DbContext in Program.cs** - Added `AddMenloPersistence()` extension method using hybrid approach (AddDbContext + EnrichNpgsqlDbContext).

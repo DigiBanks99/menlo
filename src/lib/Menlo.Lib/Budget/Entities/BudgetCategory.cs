@@ -15,6 +15,15 @@ public sealed class BudgetCategory : IEntity<BudgetCategoryId>
     private readonly List<BudgetCategory> _children = [];
 
     /// <summary>
+    /// Parameterless constructor for EF Core.
+    /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+    private BudgetCategory()
+    {
+    }
+#pragma warning restore CS8618
+
+    /// <summary>
     /// Private constructor for EF Core hydration.
     /// </summary>
     private BudgetCategory(
