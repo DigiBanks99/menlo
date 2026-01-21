@@ -54,7 +54,7 @@ _Build succeeds. All 214 tests pass (119 API, 92 Lib, 2 AI, 1 skipped). Lint pas
 - [x] **Implement total computation** - `CalculateTotal()` on BudgetCategory sums own + children amounts; `GetTotal()` on Budget sums all root category totals.
 - [x] **Create BudgetError hierarchy** - Domain errors in `Budget/Errors/BudgetError.cs`: `DuplicateBudgetError`, `DuplicateCategoryNameError`, `CategoryHasChildrenError`, `CategoryHasPlannedAmountError`, `MaxDepthExceededError`, `InvalidAmountError`, `ActivationValidationError`, `InvalidStatusTransitionError`.
 - [x] **Create budget domain events** - Events in `Budget/Events/BudgetEvents.cs`: `BudgetCreatedEvent`, `BudgetActivatedEvent`, `CategoryAddedEvent`, `CategoryRenamedEvent`, `CategoryRemovedEvent`, `PlannedAmountSetEvent`, `PlannedAmountClearedEvent`.
-- [ ] **Unit Tests** - Add tests for all the above items that were added
+- [x] **Unit Tests** - Add tests for all the above items that were added
 
 #### Backend - Auditing (Spec: domain-auditing)
 
@@ -178,7 +178,7 @@ graph TD
 | Check          | Status | Details                                              |
 | -------------- | ------ | ---------------------------------------------------- |
 | Build          | ✅ PASS | 0 errors, 8 warnings                                 |
-| Backend Tests  | ✅ PASS | 213 tests: 2 AI, 92 Lib, 119 API (1 skipped)         |
+| Backend Tests  | ✅ PASS | 273 tests: 2 AI, 151 Lib, 120 API                    |
 | Frontend Tests | ✅ PASS | All projects pass                                    |
 | Frontend Lint  | ✅ PASS | 3 warnings - pre-existing in Storybook config        |
 
