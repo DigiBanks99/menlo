@@ -5,6 +5,7 @@ using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.OpenApi;
 using Menlo.Api.Persistence;
+using Menlo.Lib.Budget;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,9 @@ RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+
+// Budget endpoints
+apiGroup.MapBudgetEndpoints();
 
 apiGroup
     .MapGet("/weatherforecast", () =>

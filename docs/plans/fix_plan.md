@@ -54,24 +54,28 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 - [x] **Implement total computation** - `CalculateTotal()` on BudgetCategory sums own + children amounts; `GetTotal()` on Budget sums all root category totals.
 - [x] **Create BudgetError hierarchy** - Domain errors in `Budget/Errors/BudgetError.cs`: `DuplicateBudgetError`, `DuplicateCategoryNameError`, `CategoryHasChildrenError`, `CategoryHasPlannedAmountError`, `MaxDepthExceededError`, `InvalidAmountError`, `ActivationValidationError`, `InvalidStatusTransitionError`.
 - [x] **Create budget domain events** - Events in `Budget/Events/BudgetEvents.cs`: `BudgetCreatedEvent`, `BudgetActivatedEvent`, `CategoryAddedEvent`, `CategoryRenamedEvent`, `CategoryRemovedEvent`, `PlannedAmountSetEvent`, `PlannedAmountClearedEvent`.
+- [ ] **Unit Tests** - Add tests for all the above items that were added
 
 #### Backend - Auditing (Spec: domain-auditing)
 
 - [x] **Implement IAuditStampFactory** - Created `AuditStampFactory` in `Persistence/` that resolves current user from `HttpContext.User` claims (oid claim) and uses `TimeProvider.System.GetUtcNow()`.
 - [x] **Register IAuditStampFactory in DI** - Registered as scoped in `AddMenloPersistence()` extension method.
+- [ ] **Unit Tests** - Add tests for all the above items that were added
+
 
 #### Backend - Budget API Endpoints (Specs: budget-create-vertical, budget-categories-vertical)
 
-> **Blocker**: Zero budget endpoints exist. Only auth endpoints are implemented.
+> **Status**: ✅ Core endpoints created (POST, GET list, GET detail). All endpoints registered with proper auth policies.
 
-- [ ] **Create POST /api/budgets endpoint** - Create budget command. Return 201 Created with Location header, 400 for validation errors, 409 for duplicate (user+period+name) per spec (FR-2).
-- [ ] **Create GET /api/budgets endpoint** - List user's budgets with optional filtering by year/status.
-- [ ] **Create GET /api/budgets/{id} endpoint** - Return budget DTO with categories tree and totals snapshot per spec (FR-5).
+- [x] **Create POST /api/budgets endpoint** - Created endpoint at `src/api/Menlo.Api/Budgets/Endpoints/CreateBudgetEndpoint.cs`. Returns 201 Created with Location header, 400 for validation errors, 409 for duplicate (user+period+name). Includes budget period validation, duplicate checking, and proper error responses with ProblemDetails.
+- [x] **Create GET /api/budgets endpoint** - Created list endpoint at `src/api/Menlo.Api/Budgets/Endpoints/ListBudgetsEndpoint.cs`. Returns list of budget summaries with optional filtering by year and status. Orders by period descending (most recent first).
+- [x] **Create GET /api/budgets/{id} endpoint** - Created detail endpoint at `src/api/Menlo.Api/Budgets/Endpoints/GetBudgetEndpoint.cs`. Returns budget DTO with categories tree and totals snapshot. Returns 404 if budget not found or user doesn't have permission.
 - [ ] **Create PUT /api/budgets/{id} endpoint** - Update budget name/description.
 - [ ] **Create POST /api/budgets/{id}/activate endpoint** - Transition Draft to Active with validation per spec (FR-2).
 - [ ] **Create category CRUD endpoints** - POST/PUT/DELETE for `/api/budgets/{id}/categories` per budget-categories-vertical spec.
-- [ ] **Apply CanEditBudget policy** - Use `.RequireAuthorization(MenloPolicies.CanEditBudget)` on mutation endpoints.
-- [ ] **Apply CanViewBudget policy** - Use `.RequireAuthorization(MenloPolicies.CanViewBudget)` on read endpoints.
+- [x] **Register budget endpoints** - Created `BudgetEndpoints.MapBudgetEndpoints()` extension method in `src/api/Menlo.Api/Budgets/BudgetEndpoints.cs` and registered in Program.cs. All endpoints require authentication and apply appropriate authorization policies (CanEditBudget for POST, CanViewBudget for GET).
+- [x] **Create Budget DTOs** - Created request/response models at `src/lib/Menlo.Lib/Budget/Models/`: `CreateBudgetRequest`, `BudgetResponse`, `BudgetSummaryResponse`, `BudgetCategoryResponse`, `MoneyResponse`.
+- [ ] **Unit Tests** - Add tests for all the above items that were added
 
 #### Frontend - Budget UI (Specs: budget-create-vertical, budget-categories-vertical)
 
@@ -85,12 +89,14 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 - [ ] **Wire BudgetAnalyticsComponent to real data** - Replace mock `totalBudget`, `spentThisMonth`, `categories` signals with API data.
 - [ ] **Implement category management UI** - Add/edit/soft-delete categories with hierarchy visualization.
 - [ ] **Implement form validation error mapping** - Use existing `mapValidationErrorsToForm()` helper with actual forms. Helper at `shared-util/src/lib/types/problem-details.ts:53`.
+- [ ] **Unit Tests** - Add tests for all the above items that were added
 
 #### Frontend - Error Handling & UX (Spec: angular-result-pattern)
 
 - [ ] **Implement toast/notification service** - Display non-validation errors from API calls. Result pattern infrastructure exists but no toast integration.
 - [ ] **Create UnauthorizedComponent** - `roleGuard` redirects to `/unauthorized` but route/component doesn't exist.
 - [ ] **Apply auth guards to budget routes** - Add `authGuard` and `roleGuard` to `/budgets` and `/analytics` routes in `app.routes.ts`. Guards exist but are not applied.
+- [ ] **Unit Tests** - Add tests for all the above items that were added
 
 ### P2 - Medium (Secondary Features)
 
