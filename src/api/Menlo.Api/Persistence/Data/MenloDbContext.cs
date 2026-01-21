@@ -1,5 +1,5 @@
-using Menlo.Api.Persistence.Interceptors;
 using Menlo.Lib.Auth.Entities;
+using Menlo.Lib.Budget.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Menlo.Api.Persistence.Data;
@@ -22,6 +22,16 @@ public sealed class MenloDbContext : DbContext
     /// Gets or sets the Users DbSet (auth schema).
     /// </summary>
     public DbSet<User> Users => Set<User>();
+
+    /// <summary>
+    /// Gets or sets the Budgets DbSet (budget schema).
+    /// </summary>
+    public DbSet<Budget> Budgets => Set<Budget>();
+
+    /// <summary>
+    /// Gets or sets the BudgetCategories DbSet (budget schema).
+    /// </summary>
+    public DbSet<BudgetCategory> BudgetCategories => Set<BudgetCategory>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

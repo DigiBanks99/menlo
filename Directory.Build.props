@@ -1,10 +1,9 @@
 <Project>
     <PropertyGroup>
-        <!-- Align target frameworks to .NET 9 per architecture document -->
         <TargetFramework>net10.0</TargetFramework>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <LangVersion>preview</LangVersion>
-        
+        <GenerateTargetFrameworkAttribute Condition="'$(MENLO_DEV_CONTAINER)' == 'true'">false</GenerateTargetFrameworkAttribute>
+
         <!-- 
         Redirect build outputs to /tmp for Windows + WSL2 + container compatibility.
         The Windows filesystem doesn't support Unix file modes that .NET build requires.

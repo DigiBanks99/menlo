@@ -16,7 +16,8 @@ public static class BudgetEndpoints
             .WithTags("Budgets")
             .MapCreateBudget()
             .MapGetBudget()
-            .MapListBudgets();
+            .MapListBudgets()
+            .MapUpdateBudget();
 
         return app;
     }

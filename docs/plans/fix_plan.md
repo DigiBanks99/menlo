@@ -29,7 +29,7 @@
 
 ### P0 - Critical (Blocking Validation)
 
-_Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
+_Build succeeds. All 214 tests pass (119 API, 92 Lib, 2 AI, 1 skipped). Lint passes with 3 warnings._
 
 ### P1 - High (Core Missing Features per Specs)
 
@@ -65,12 +65,12 @@ _Build succeeds. All 143 tests pass. Lint passes with 3 warnings._
 
 #### Backend - Budget API Endpoints (Specs: budget-create-vertical, budget-categories-vertical)
 
-> **Status**: ✅ Core endpoints created (POST, GET list, GET detail). All endpoints registered with proper auth policies.
+> **Status**: ✅ Core CRUD endpoints created (POST, GET list, GET detail, PUT). All endpoints registered with proper auth policies. Next: Activate endpoint and category CRUD.
 
 - [x] **Create POST /api/budgets endpoint** - Created endpoint at `src/api/Menlo.Api/Budgets/Endpoints/CreateBudgetEndpoint.cs`. Returns 201 Created with Location header, 400 for validation errors, 409 for duplicate (user+period+name). Includes budget period validation, duplicate checking, and proper error responses with ProblemDetails.
 - [x] **Create GET /api/budgets endpoint** - Created list endpoint at `src/api/Menlo.Api/Budgets/Endpoints/ListBudgetsEndpoint.cs`. Returns list of budget summaries with optional filtering by year and status. Orders by period descending (most recent first).
 - [x] **Create GET /api/budgets/{id} endpoint** - Created detail endpoint at `src/api/Menlo.Api/Budgets/Endpoints/GetBudgetEndpoint.cs`. Returns budget DTO with categories tree and totals snapshot. Returns 404 if budget not found or user doesn't have permission.
-- [ ] **Create PUT /api/budgets/{id} endpoint** - Update budget name/description.
+- [x] **Create PUT /api/budgets/{id} endpoint** - Created endpoint at `src/api/Menlo.Api/Budgets/Endpoints/UpdateBudgetEndpoint.cs`. Returns 200 OK with updated budget, 400 for validation errors (e.g., empty name), 404 if not found or no permission. Uses `Budget.UpdateName()` domain method. Added `UpdateBudgetRequest` DTO.
 - [ ] **Create POST /api/budgets/{id}/activate endpoint** - Transition Draft to Active with validation per spec (FR-2).
 - [ ] **Create category CRUD endpoints** - POST/PUT/DELETE for `/api/budgets/{id}/categories` per budget-categories-vertical spec.
 - [x] **Register budget endpoints** - Created `BudgetEndpoints.MapBudgetEndpoints()` extension method in `src/api/Menlo.Api/Budgets/BudgetEndpoints.cs` and registered in Program.cs. All endpoints require authentication and apply appropriate authorization policies (CanEditBudget for POST, CanViewBudget for GET).
@@ -177,10 +177,10 @@ graph TD
 
 | Check          | Status | Details                                              |
 | -------------- | ------ | ---------------------------------------------------- |
-| Build          | ✅ PASS | 0 warnings, 0 errors                                 |
-| Backend Tests  | ✅ PASS | 143 tests: 2 AI, 92 Lib, 49 API                      |
+| Build          | ✅ PASS | 0 errors, 8 warnings                                 |
+| Backend Tests  | ✅ PASS | 213 tests: 2 AI, 92 Lib, 119 API (1 skipped)         |
 | Frontend Tests | ✅ PASS | All projects pass                                    |
-| Frontend Lint  | ✅ PASS | 1 warning - pre-existing in Storybook config         |
+| Frontend Lint  | ✅ PASS | 3 warnings - pre-existing in Storybook config        |
 
 ---
 

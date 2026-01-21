@@ -29,3 +29,7 @@ pnpm --dir src/ui/web lint          # No lint errors
 
 ## Learnings
 <!-- Ralph updates this section with discoveries - keep brief -->
+
+- **xUnit v3 tests**: Run test exe directly (e.g., `/tmp/menlo-build/Menlo.Lib.Tests/bin/Debug/net10.0/Menlo.Lib.Tests`) for visible output. `dotnet test` doesn't show xUnit v3 output properly.
+- **Duplicate assembly errors**: If CS0579 errors appear, clean both `/tmp/menlo-build` AND local `src/**/obj` dirs: `find src -name obj -type d -exec rm -rf {} +`
+- **API endpoint pattern**: Use extension methods on RouteGroupBuilder (C# 14 feature) - see `src/api/Menlo.Api/Budgets/Endpoints/` for examples.

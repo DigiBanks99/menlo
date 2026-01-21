@@ -11,6 +11,7 @@ if [ "$MODE" = "plan" ]; then
     cat "PROMPT_PLAN.md" | claude -p \
         --dangerously-skip-permissions \
         --model opus \
+        --output-format=stream-json \
         --verbose
     echo "Planning complete. Check docs/plans/fix_plan.md"
 elif [ "$MODE" = "build" ]; then
@@ -22,7 +23,8 @@ elif [ "$MODE" = "build" ]; then
         date
         cat "PROMPT_BUILD.md" | claude -p \
             --dangerously-skip-permissions \
-            --model opus \
+            --model sonnet \
+            --output-format=stream-json \
             --verbose
         echo "Loop iteration complete. Sleeping 5s..."
         sleep 5

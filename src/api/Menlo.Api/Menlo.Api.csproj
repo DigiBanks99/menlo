@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>menlo-api</UserSecretsId>
     <InternalsVisibleTo>Menlo.Api.Tests</InternalsVisibleTo>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
