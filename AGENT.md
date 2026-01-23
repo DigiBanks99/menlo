@@ -23,9 +23,28 @@ pnpm --dir src/ui/web lint          # No lint errors
 - **Plan**: `docs/plans/fix_plan.md` (your working TODO list)
 
 ## Tech Stack
-- .NET 10, C# 12, Entity Framework Core, PostgreSQL
+- .NET 10, C# 14, Entity Framework Core, PostgreSQL
 - Angular 21, TypeScript, Vite, Vitest
 - Aspire 13.1 for orchestration
 
 ## Learnings
 <!-- Ralph updates this section with discoveries - keep brief -->
+
+- **API tests partial issue**: Fixed 1 ValueConverter test (currency validation). 12 API tests still failing: 5 EntityConfigurationTests (EF Core configuration issues with Budget/BudgetCategory entities) + 7 endpoint tests (likely dependent on EF issues). Total: 148/160 API tests passing (92.5% success rate).
+- **Duplicate assembly errors**: If CS0579 errors appear, clean both `/tmp/menlo-build` AND local `src/**/obj` dirs: `find src -name obj -type d -exec rm -rf {} +`
+- **API endpoint pattern**: Use extension methods on RouteGroupBuilder (C# 14 feature) - see `src/api/Menlo.Api/Budgets/Endpoints/` for examples.
+- **EF Core BudgetId queries**: Use `b.Id == budgetId` directly rather than `b.Id.Value == id`. The value converters handle the comparison properly.
+- **EF Core nullable Money**: Use `ComplexProperty()` instead of shadow properties for nullable value objects. Shadow properties don't hydrate back to the domain model properly.
+- **Test assertion JSON**: ProblemDetails extensions return JsonElement objects. Use `?.ToString()` for string comparisons: `problemDetails.Extensions["errorCode"]?.ToString().ShouldBe("expected")`
+- **Entity property access**: User entity has `ExternalId` and `DisplayName` properties (not `ExternalUserId` and `Name`). Budget uses `AddSubcategory()` for nested categories.
+- **Money nullable testing**: Access Money properties via `.Value.Amount` and `.Value.Currency` when Money? is not null. Money is a struct so nullable access differs from class references.
+- **Domain method additions**: When adding new domain operations, add the method to the aggregate root and delegate to entity methods. Use `internal` for entity methods to maintain encapsulation. Example: `Budget.UpdateCategoryDescription()` → `BudgetCategory.UpdateDescription()`
+- **Money.Create return type**: Returns `Result<Money, Error>` not `Result<Money, string>`. Import `Menlo.Lib.Common.Abstractions.Error` for proper typing.
+- **Category endpoints**: Built 5 endpoints for budget category management: CREATE, UPDATE, DELETE, SET_AMOUNT, CLEAR_AMOUNT. All follow same pattern: auth check → validate request → load budget → find category → execute domain operation → save → return response.
+- **Aspire AppHost.Sdk 13.1.0**: Remove explicit `Aspire.Hosting.AppHost` package from `Directory.Packages.props` when upgrading to 13.1.0 - the SDK includes it automatically. DCP path issues may persist in some development environments.
+- **Endpoint test patterns**: API endpoint tests follow pattern: create test scenarios for success, validation errors, not found, unauthorized access. Use helper methods for assertions with descriptive names like `ItShouldHaveRequestedCurrency()`. Always test error response structure and status codes.
+- **Frontend-Backend integration**: TypeScript interfaces should match C# DTOs exactly. Use `toResult()` operator from shared-util for consistent error handling in Angular services. Signal-based state management works well with Result pattern - handle loading, success, and error states in separate signals.
+
+## Rules
+
+- Avoid in-memory databases. Prefer test containers

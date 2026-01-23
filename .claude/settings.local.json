@@ -11,7 +11,16 @@
       "WebFetch(domain:aspire.dev)",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_snapshot",
-      "Bash(git -C /c/users/wilco.boshoff/source/personal/dotnet/menlo log --oneline -20)"
+      "Bash(git -C /c/users/wilco.boshoff/source/personal/dotnet/menlo log --oneline -20)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(pnpm --dir /workspaces/menlo/src/ui/web test:all)",
+      "Bash(pnpm --dir /workspaces/menlo/src/ui/web lint:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(pnpm --dir src/ui/web lint:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
