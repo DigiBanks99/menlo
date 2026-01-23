@@ -184,6 +184,14 @@ public sealed class BudgetCategory : IEntity<BudgetCategoryId>
     }
 
     /// <summary>
+    /// Updates the description of this category.
+    /// </summary>
+    internal void UpdateDescription(string? description)
+    {
+        Description = description?.Trim();
+    }
+
+    /// <summary>
     /// Sets the planned amount for this category.
     /// </summary>
     internal Result<Money?, BudgetError> SetPlannedAmount(Money amount, string budgetCurrency)

@@ -18,7 +18,12 @@ public static class BudgetEndpoints
             .MapGetBudget()
             .MapListBudgets()
             .MapUpdateBudget()
-            .MapActivateBudget();
+            .MapActivateBudget()
+            .MapCreateCategory()
+            .MapUpdateCategory()
+            .MapDeleteCategory()
+            .MapSetPlannedAmount()
+            .MapClearPlannedAmount();
 
         return app;
     }

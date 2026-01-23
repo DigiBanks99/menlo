@@ -305,6 +305,26 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Updates the description of a category.
+    /// </summary>
+    /// <param name="categoryId">The ID of the category to update.</param>
+    /// <param name="description">The new description (can be null).</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result<bool, BudgetError> UpdateCategoryDescription(BudgetCategoryId categoryId, string? description)
+    {
+        BudgetCategory? category = FindCategory(categoryId);
+
+        if (category is null)
+        {
+            return new CategoryNotFoundError(categoryId.Value);
+        }
+
+        category.UpdateDescription(description);
+
+        return true;
+    }
+
+    /// <summary>
     /// Removes a category from the budget.
     /// </summary>
     /// <param name="categoryId">The ID of the category to remove.</param>
