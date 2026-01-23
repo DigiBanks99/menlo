@@ -41,6 +41,8 @@ pnpm --dir src/ui/web lint          # No lint errors
 - **Domain method additions**: When adding new domain operations, add the method to the aggregate root and delegate to entity methods. Use `internal` for entity methods to maintain encapsulation. Example: `Budget.UpdateCategoryDescription()` → `BudgetCategory.UpdateDescription()`
 - **Money.Create return type**: Returns `Result<Money, Error>` not `Result<Money, string>`. Import `Menlo.Lib.Common.Abstractions.Error` for proper typing.
 - **Category endpoints**: Built 5 endpoints for budget category management: CREATE, UPDATE, DELETE, SET_AMOUNT, CLEAR_AMOUNT. All follow same pattern: auth check → validate request → load budget → find category → execute domain operation → save → return response.
+- **Aspire AppHost.Sdk 13.1.0**: Remove explicit `Aspire.Hosting.AppHost` package from `Directory.Packages.props` when upgrading to 13.1.0 - the SDK includes it automatically. DCP path issues may persist in some development environments.
+- **Endpoint test patterns**: API endpoint tests follow pattern: create test scenarios for success, validation errors, not found, unauthorized access. Use helper methods for assertions with descriptive names like `ItShouldHaveRequestedCurrency()`. Always test error response structure and status codes.
 
 ## Rules
 
