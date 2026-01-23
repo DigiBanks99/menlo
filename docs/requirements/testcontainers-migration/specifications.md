@@ -30,13 +30,13 @@ Furthermore, the project's architectural guidelines explicitly mandate the use o
 ## 4. Scope
 
 ### 4.1. In-Scope Components
-The following files in `src/api/tests/Menlo.Api.Tests/` require modification:
-- **Project File**: `Menlo.Api.Tests.csproj` (Remove package).
-- **Test Fixtures**: `Fixtures/DbContextFixture.cs` (Replace setup logic).
-- **Data Tests**: `Data/MenloDbContextTests.cs` (Refactor `DbContextOptions`).
+The following files in `src/api/Menlo.Api.Tests/` require modification:
+- **Project File**: `Menlo.Api.Tests.csproj` (Remove InMemory package, add Testcontainers.PostgreSql and Respawn).
+- **Test Fixtures**: `Persistence/Fixtures/DbContextFixture.cs` (Replace setup logic with PostgreSQL container).
+- **Configuration Tests**: `Persistence/Configurations/EntityConfigurationTests.cs` (Refactor `DbContextOptions`).
 - **Interceptor Tests**:
-    - `Data/Interceptors/AuditingInterceptorTests.cs`
-    - `Data/Interceptors/SoftDeleteInterceptorTests.cs`
+    - `Persistence/Interceptors/AuditingInterceptorTests.cs`
+    - `Persistence/Interceptors/SoftDeleteInterceptorTests.cs`
 
 ### 4.2. Out of Scope
 - Migrating `TestWebApplicationFactory` (currently explicitly using SQLite In-Memory with known limitations).

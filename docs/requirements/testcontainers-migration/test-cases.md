@@ -7,8 +7,8 @@ The primary goal is to ensure that all existing functional tests continue to pas
 **Objective:** Confirm strictly no usage of In-Memory provider remains.
 
 **Steps:**
-1. Open `src/api/tests/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
-2. check for `<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />`.
+1. Open `src/api/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
+2. Check for `<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />`.
 3. Search entire solution for `UseInMemoryDatabase`.
 
 **Expected Result:**
@@ -22,8 +22,8 @@ The primary goal is to ensure that all existing functional tests continue to pas
 - Docker engine is running.
 
 **Steps:**
-1. Run `dotnet build src/api/tests/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
-2. Run `dotnet test src/api/tests/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
+1. Run `dotnet build src/api/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
+2. Run `dotnet test src/api/Menlo.Api.Tests/Menlo.Api.Tests.csproj`.
 
 **Expected Result:**
 - Build succeeds with 0 warnings related to DB providers.

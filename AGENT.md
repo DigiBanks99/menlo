@@ -43,6 +43,7 @@ pnpm --dir src/ui/web lint          # No lint errors
 - **Category endpoints**: Built 5 endpoints for budget category management: CREATE, UPDATE, DELETE, SET_AMOUNT, CLEAR_AMOUNT. All follow same pattern: auth check → validate request → load budget → find category → execute domain operation → save → return response.
 - **Aspire AppHost.Sdk 13.1.0**: Remove explicit `Aspire.Hosting.AppHost` package from `Directory.Packages.props` when upgrading to 13.1.0 - the SDK includes it automatically. DCP path issues may persist in some development environments.
 - **Endpoint test patterns**: API endpoint tests follow pattern: create test scenarios for success, validation errors, not found, unauthorized access. Use helper methods for assertions with descriptive names like `ItShouldHaveRequestedCurrency()`. Always test error response structure and status codes.
+- **Frontend-Backend integration**: TypeScript interfaces should match C# DTOs exactly. Use `toResult()` operator from shared-util for consistent error handling in Angular services. Signal-based state management works well with Result pattern - handle loading, success, and error states in separate signals.
 
 ## Rules
 

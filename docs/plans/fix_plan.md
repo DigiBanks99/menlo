@@ -33,7 +33,7 @@ _Build succeeds. ActivateBudgetEndpoint now works correctly. Database query and 
 
 ### P0 - Critical Bugs (Must Fix Immediately)
 
-- [x] **Fix Aspire AppHost configuration** - RESOLVED: Updated Aspire.AppHost.Sdk from 13.0.2 to 13.1.0 and removed conflicting `Aspire.Hosting.AppHost` package version from Directory.Packages.props. The SDK now automatically includes this package. However, DCP (Distributed Application Control Plane) paths are still missing - need to investigate proper DCP installation.
+- [ ] **Fix Aspire DCP paths configuration** - AppHost failing to start with error: "Property CliPath: The path to the DCP executable used for Aspire orchestration is required.; Property DashboardPath: The path to the Aspire Dashboard binaries is missing." This blocks `aspire run` validation. Need to install/configure DCP properly for development environment.
 
 - [x] **Fix Money converter test failure** - RESOLVED: The `GivenStringWithInvalidCurrency_WhenConvertingToMoney` test is already passing. Test correctly returns null for invalid currency codes. This item was inaccurate.
 
@@ -97,11 +97,10 @@ _Build succeeds. ActivateBudgetEndpoint now works correctly. Database query and 
 
 #### Frontend - Budget UI (Specs: budget-create-vertical, budget-categories-vertical)
 
-> **Current state**: UI components exist but use HARDCODED MOCK DATA. No real API integration.
+> **Status**: ✅ BudgetService implemented and BudgetListComponent wired to real API. UI now displays real data from backend with proper loading/error states. Next: Implement budget creation form.
 
-- [ ] **Implement BudgetService** - Create service in `data-access-menlo-api` with: `getBudgets()`, `getBudget(id)`, `createBudget()`, `updateBudget()`, `deleteBudget()` using `HttpClient` and `toResult()` operator.
-- [ ] **Implement CategoryService** - CRUD methods for categories using Result pattern.
-- [ ] **Wire BudgetListComponent to BudgetService** - Replace hardcoded `budgets = signal([...])` with actual API calls via service.
+- [x] **Implement BudgetService** - COMPLETED: Created BudgetService in `data-access-menlo-api` with full CRUD operations: `getBudgets()`, `getBudget(id)`, `createBudget()`, `updateBudget()`, `activateBudget()`, and category operations (`createCategory`, `updateCategory`, `deleteCategory`, `setPlannedAmount`, `clearPlannedAmount`). All methods use `HttpClient` with `toResult()` operator for proper Result pattern integration. Added TypeScript interfaces matching C# DTOs for type safety.
+- [x] **Wire BudgetListComponent to BudgetService** - COMPLETED: Updated BudgetListComponent to replace hardcoded mock data with actual API calls via BudgetService. Component now handles loading states, error states, and success states using Angular signals. Added proper error handling and retry functionality. Template updated to show loading spinner, error messages, and real budget data with proper period formatting and status indicators.
 - [ ] **Implement budget creation form** - Modal/dialog with reactive form: Name (required), Year (select), Month (select), Currency (select). Wire to `BudgetService.createBudget()`.
 - [ ] **Implement budget details view** - Route `/budgets/:id` with category tree visualization and totals.
 - [ ] **Wire BudgetAnalyticsComponent to real data** - Replace mock `totalBudget`, `spentThisMonth`, `categories` signals with API data.
