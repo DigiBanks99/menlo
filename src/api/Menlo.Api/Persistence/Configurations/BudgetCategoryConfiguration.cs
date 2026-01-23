@@ -49,19 +49,18 @@ public sealed class BudgetCategoryConfiguration : IEntityTypeConfiguration<Budge
             .HasColumnName("display_order")
             .IsRequired();
 
-        // Money value object - use Ignore and shadow properties since Money is a nullable struct
-        // PlannedAmount is nullable Money?, we'll store as two separate columns
-        // EF Core will use the shadow properties for persistence
-        builder.Ignore(c => c.PlannedAmount);
+        // Money value object - use complex property mapping for nullable Money
+        // Since Money? is nullable struct, we need to handle the mapping carefully
+        builder.ComplexProperty(c => c.PlannedAmount, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("planned_amount")
+                .HasPrecision(19, 4);
 
-        // Add shadow properties for the Money value object columns
-        builder.Property<decimal?>("PlannedAmountValue")
-            .HasColumnName("planned_amount")
-            .HasPrecision(19, 4);
-
-        builder.Property<string?>("PlannedAmountCurrency")
-            .HasColumnName("planned_currency")
-            .HasMaxLength(3);
+            money.Property(m => m.Currency)
+                .HasColumnName("planned_currency")
+                .HasMaxLength(3);
+        });
 
         // Self-referencing relationship for hierarchy (parent-child)
         builder.HasOne<BudgetCategory>()

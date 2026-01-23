@@ -29,7 +29,13 @@
 
 ### P0 - Critical (Blocking Validation)
 
-_Build succeeds. All 214 tests pass (119 API, 92 Lib, 2 AI, 1 skipped). Lint passes with 3 warnings._
+_Build succeeds. ActivateBudgetEndpoint now works correctly. Database query and test assertion issues resolved._
+
+### P0 - Critical Bugs (Must Fix Immediately)
+
+- [x] **Fix ActivateBudgetEndpoint database query** - RESOLVED: Fixed EF Core query `FirstOrDefaultAsync(b => b.Id == budgetId && b.OwnerId == userId)` by ensuring proper BudgetId comparison works with value converters. The issue was with Money value object persistence - switched from shadow properties to ComplexProperty configuration for nullable Money.
+
+- [x] **Fix ActivateBudgetEndpointTests helper methods** - RESOLVED: Fixed test helpers JSON parsing for "Unrecognized Guid format" errors by using `?.ToString()` on ProblemDetails extensions instead of direct comparison (e.g., `problemDetails.Extensions["errorCode"]?.ToString().ShouldBe("Budget.ActivationFailed")`). The issue was that JSON deserialization returns JsonElement objects, not strings.
 
 ### P1 - High (Core Missing Features per Specs)
 

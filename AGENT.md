@@ -33,3 +33,10 @@ pnpm --dir src/ui/web lint          # No lint errors
 - **xUnit v3 tests**: Run test exe directly (e.g., `/tmp/menlo-build/Menlo.Lib.Tests/bin/Debug/net10.0/Menlo.Lib.Tests`) for visible output. `dotnet test` doesn't show xUnit v3 output properly.
 - **Duplicate assembly errors**: If CS0579 errors appear, clean both `/tmp/menlo-build` AND local `src/**/obj` dirs: `find src -name obj -type d -exec rm -rf {} +`
 - **API endpoint pattern**: Use extension methods on RouteGroupBuilder (C# 14 feature) - see `src/api/Menlo.Api/Budgets/Endpoints/` for examples.
+- **EF Core BudgetId queries**: Use `b.Id == budgetId` directly rather than `b.Id.Value == id`. The value converters handle the comparison properly.
+- **EF Core nullable Money**: Use `ComplexProperty()` instead of shadow properties for nullable value objects. Shadow properties don't hydrate back to the domain model properly.
+- **Test assertion JSON**: ProblemDetails extensions return JsonElement objects. Use `?.ToString()` for string comparisons: `problemDetails.Extensions["errorCode"]?.ToString().ShouldBe("expected")`
+
+## Rules
+
+- Avoid in-memory databases. Prefer test containers

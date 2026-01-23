@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Menlo.AI.Extensions;
 using Menlo.AI.Interfaces;
 using Menlo.Api.Auth;
@@ -11,6 +12,11 @@ using Scalar.AspNetCore;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.AddServiceDefaults();
 

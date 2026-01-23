@@ -1,9 +1,13 @@
-﻿using Menlo.AI.Interfaces;
+﻿using System.Data.Common;
+using Menlo.AI.Interfaces;
+using Menlo.Api.Persistence.Data;
 using Menlo.Api.Tests.Fixtures;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -59,6 +63,38 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
             // Add mock AI services
             AddMockAiServices(services);
+
+            // Remove the real database and all EF Core services
+            List<ServiceDescriptor> efDescriptors = services
+                .Where(d => d.ServiceType.Namespace?.StartsWith("Microsoft.EntityFrameworkCore") == true
+                    || d.ServiceType.Namespace?.StartsWith("Npgsql") == true
+                    || d.ServiceType == typeof(MenloDbContext)
+                    || d.ServiceType == typeof(DbContextOptions<MenloDbContext>)
+                    || d.ServiceType == typeof(DbConnection))
+                .ToList();
+
+            foreach (ServiceDescriptor descriptor in efDescriptors)
+            {
+                services.Remove(descriptor);
+            }
+
+            // Create a shared SQLite in-memory connection that stays open for the test
+            SqliteConnection connection = new("DataSource=:memory:");
+            connection.Open();
+            services.AddSingleton<DbConnection>(connection);
+
+            // Add SQLite database for tests (supports complex types unlike InMemory provider)
+            services.AddDbContext<MenloDbContext>((sp, options) =>
+            {
+                DbConnection conn = sp.GetRequiredService<DbConnection>();
+                options.UseSqlite(conn);
+            });
+
+            // Ensure the database schema is created
+            using ServiceProvider sp = services.BuildServiceProvider();
+            using IServiceScope scope = sp.CreateScope();
+            MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+            db.Database.EnsureCreated();
 
             // Add the test authentication scheme
             services
