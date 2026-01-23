@@ -437,6 +437,169 @@ public sealed class ValueConverterTests
 
     #endregion
 
+    #region MoneyConverter Tests
+
+    [Fact]
+    public void GivenValidMoney_WhenConvertingToDatabase()
+    {
+        NullableMoneyConverter converter = new();
+        Money money = Money.Create(123.45m, "ZAR").Value;
+
+        string result = (string)converter.ConvertToProvider(money)!;
+
+        ItShouldConvertToString(result, "123.45|ZAR");
+    }
+
+    [Fact]
+    public void GivenNullMoney_WhenConvertingToDatabase()
+    {
+        NullableMoneyConverter converter = new();
+        Money? money = null;
+
+        string? result = (string?)converter.ConvertToProvider(money);
+
+        ItShouldBeNullString(result);
+    }
+
+    [Fact]
+    public void GivenValidString_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "456.78|USD";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldConvertToMoney(result, 456.78m, "USD");
+    }
+
+    [Fact]
+    public void GivenNullString_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string? value = null;
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenEmptyString_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenWhitespaceString_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "   ";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenInvalidFormatString_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "invalid-format";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenStringWithInvalidAmount_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "invalid|USD";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenStringWithInvalidCurrency_WhenConvertingToMoney()
+    {
+        NullableMoneyConverter converter = new();
+        string value = "123.45|INVALID";
+
+        Money? result = (Money?)converter.ConvertFromProvider(value);
+
+        ItShouldBeNullMoney(result);
+    }
+
+    [Fact]
+    public void GivenZeroAmount_WhenRoundTripping()
+    {
+        NullableMoneyConverter converter = new();
+        Money originalMoney = Money.Zero("EUR");
+
+        string? dbValue = (string?)converter.ConvertToProvider(originalMoney);
+        Money? roundTripMoney = (Money?)converter.ConvertFromProvider(dbValue);
+
+        ItShouldMatchOriginalMoney(roundTripMoney, originalMoney);
+    }
+
+    [Fact]
+    public void GivenNegativeAmount_WhenRoundTripping()
+    {
+        NullableMoneyConverter converter = new();
+        Money originalMoney = Money.Create(-50.75m, "GBP").Value;
+
+        string? dbValue = (string?)converter.ConvertToProvider(originalMoney);
+        Money? roundTripMoney = (Money?)converter.ConvertFromProvider(dbValue);
+
+        ItShouldMatchOriginalMoney(roundTripMoney, originalMoney);
+    }
+
+    [Fact]
+    public void GivenLargeAmount_WhenRoundTripping()
+    {
+        NullableMoneyConverter converter = new();
+        Money originalMoney = Money.Create(999999.99m, "JPY").Value;
+
+        string? dbValue = (string?)converter.ConvertToProvider(originalMoney);
+        Money? roundTripMoney = (Money?)converter.ConvertFromProvider(dbValue);
+
+        ItShouldMatchOriginalMoney(roundTripMoney, originalMoney);
+    }
+
+    [Fact]
+    public void GivenPreciseDecimal_WhenRoundTripping()
+    {
+        NullableMoneyConverter converter = new();
+        Money originalMoney = Money.Create(123.456789m, "ZAR").Value;
+
+        string? dbValue = (string?)converter.ConvertToProvider(originalMoney);
+        Money? roundTripMoney = (Money?)converter.ConvertFromProvider(dbValue);
+
+        ItShouldMatchOriginalMoney(roundTripMoney, originalMoney);
+    }
+
+    [Fact]
+    public void GivenNullMoney_WhenRoundTripping()
+    {
+        NullableMoneyConverter converter = new();
+        Money? originalMoney = null;
+
+        string? dbValue = (string?)converter.ConvertToProvider(originalMoney);
+        Money? roundTripMoney = (Money?)converter.ConvertFromProvider(dbValue);
+
+        ItShouldBeNullMoney(roundTripMoney);
+    }
+
+    #endregion
+
     #region Assertion Helpers - UserId
 
     private static void ItShouldConvertToGuid(Guid result, Guid expected)
@@ -594,6 +757,35 @@ public sealed class ValueConverterTests
         {
             result!.Value.Value.ShouldBe(original.Value.Value);
         }
+    }
+
+    #endregion
+
+    #region Assertion Helpers - Money
+
+    private static void ItShouldBeNullString(string? result)
+    {
+        result.ShouldBeNull();
+    }
+
+    private static void ItShouldConvertToMoney(Money? result, decimal expectedAmount, string expectedCurrency)
+    {
+        result.ShouldNotBeNull();
+        result.Value.Amount.ShouldBe(expectedAmount);
+        result.Value.Currency.ShouldBe(expectedCurrency);
+    }
+
+    private static void ItShouldBeNullMoney(Money? result)
+    {
+        result.ShouldBeNull();
+    }
+
+    private static void ItShouldMatchOriginalMoney(Money? result, Money original)
+    {
+        result.ShouldNotBeNull();
+        result.Value.ShouldBe(original);
+        result.Value.Amount.ShouldBe(original.Amount);
+        result.Value.Currency.ShouldBe(original.Currency);
     }
 
     #endregion

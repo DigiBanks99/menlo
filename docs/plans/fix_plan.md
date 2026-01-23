@@ -43,7 +43,7 @@ _Build succeeds. ActivateBudgetEndpoint now works correctly. Database query and 
 
 > **Status**: ✅ Core persistence infrastructure complete. Budget entity configurations and initial migration created. Next: Add unit tests for persistence features.
 
-- [ ] **Unit tests** - Add unit tests for all persistence features, including converters and interceptors
+- [x] **Unit tests** - Add unit tests for all persistence features, including converters and interceptors - COMPLETED: Added comprehensive tests for MoneyConverter (NullableMoneyConverter) in ValueConverterTests.cs covering all conversion scenarios, round-trip testing, and edge cases. Added EntityConfigurationTests.cs with comprehensive tests for User and Budget entity configurations including nested categories, value object persistence, and round-trip data integrity testing.
 
 #### Backend - Budget Domain (Spec: budget-aggregate-minimum)
 
