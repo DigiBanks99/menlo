@@ -1,19 +1,28 @@
+using System.Text.Json.Serialization;
 using Menlo.AI.Extensions;
 using Menlo.AI.Interfaces;
 using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.OpenApi;
+using Menlo.Api.Persistence;
+using Menlo.Lib.Budget;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
 builder.AddServiceDefaults();
 
 builder
     .AddMenloAuthentication()
+    .AddMenloPersistence()
     .AddMenloAiWithAspire()
     .AddMenloOpenApi();
 
@@ -44,6 +53,9 @@ RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+
+// Budget endpoints
+apiGroup.MapBudgetEndpoints();
 
 apiGroup
     .MapGet("/weatherforecast", () =>

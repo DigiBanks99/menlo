@@ -5,42 +5,56 @@
     <button class="btn btn-primary">+ Create New Budget</button>
   </header>
 
-  <section class="budgets-section">
-    @if (budgets().length > 0) {
-      <div class="budgets-grid">
-        @for (budget of budgets(); track budget.id) {
-          <div class="budget-card">
-            <div class="budget-header">
-              <h3>{{ budget.name }}</h3>
-              <span class="budget-period">{{ budget.period }}</span>
-            </div>
-            <div class="budget-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="budget.spentPercentage"></div>
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading budgets...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h2>Error loading budgets</h2>
+      <p>{{ error() }}</p>
+      <button class="btn btn-secondary" (click)="loadBudgets()">Try Again</button>
+    </div>
+  } @else {
+    <section class="budgets-section">
+      @if (budgets().length > 0) {
+        <div class="budgets-grid">
+          @for (budget of budgets(); track budget.id) {
+            <div class="budget-card">
+              <div class="budget-header">
+                <h3>{{ budget.name }}</h3>
+                <span class="budget-period">{{ formatPeriod(budget) }}</span>
               </div>
-              <div class="progress-text">
-                <span>R{{ budget.spent | number:'1.0-0' }} of R{{ budget.total | number:'1.0-0' }}</span>
-                <span class="percentage">{{ budget.spentPercentage | number:'1.0-0' }}%</span>
+              <div class="budget-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="getSpentPercentage(budget)"></div>
+                </div>
+                <div class="progress-text">
+                  <span>R{{ budget.total.amount | number:'1.0-0' }} total</span>
+                  <span class="percentage">{{ budget.categoryCount }} categories</span>
+                </div>
+              </div>
+              <div class="budget-status" [class]="'status-' + getStatusInfo(budget).cssClass">
+                <span class="status-indicator">{{ getStatusInfo(budget).icon }}</span>
+                <span class="status-text">{{ getStatusInfo(budget).text }}</span>
+              </div>
+              <div class="budget-actions">
+                <button class="btn btn-small">View Details</button>
+                <button class="btn btn-small btn-secondary">Edit</button>
               </div>
             </div>
-            <div class="budget-status" [class]="'status-' + budget.status">
-              <span class="status-indicator">{{ budget.statusIcon }}</span>
-              <span class="status-text">{{ budget.statusText }}</span>
-            </div>
-            <div class="budget-actions">
-              <button class="btn btn-small">View Details</button>
-              <button class="btn btn-small btn-secondary">Edit</button>
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-state">
-        <div class="empty-icon">💰</div>
-        <h2>No budgets yet</h2>
-        <p>Create your first budget to start tracking your family's finances</p>
-        <button class="btn btn-primary">Create Your First Budget</button>
-      </div>
-    }
-  </section>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">💰</div>
+          <h2>No budgets yet</h2>
+          <p>Create your first budget to start tracking your family's finances</p>
+          <button class="btn btn-primary">Create Your First Budget</button>
+        </div>
+      }
+    </section>
+  }
 </div>

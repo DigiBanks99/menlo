@@ -1,0 +1,179 @@
+namespace Menlo.Lib.Budget.Endpoints;
+
+using System.Security.Claims;
+using CSharpFunctionalExtensions;
+using Menlo.Api.Auth.Policies;
+using Menlo.Api.Persistence.Data;
+using Menlo.Lib.Budget.Entities;
+using Menlo.Lib.Budget.Errors;
+using Menlo.Lib.Budget.Models;
+using Menlo.Lib.Budget.ValueObjects;
+using Menlo.Lib.Common.ValueObjects;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+/// <summary>
+/// Endpoint for updating budget categories.
+/// </summary>
+public static class UpdateCategoryEndpoint
+{
+    extension (RouteGroupBuilder group)
+    {
+        public RouteGroupBuilder MapUpdateCategory()
+        {
+            group.MapPut("{id:guid}/categories/{categoryId:guid}", Handle)
+                .WithName("UpdateCategory")
+                .WithSummary("Updates a budget category")
+                .RequireAuthorization(MenloPolicies.CanEditBudget)
+                .Produces<BudgetCategoryResponse>(StatusCodes.Status200OK)
+                .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+                .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+                .Produces<ProblemDetails>(StatusCodes.Status409Conflict)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .Produces(StatusCodes.Status403Forbidden);
+
+            return group;
+        }
+    }
+
+    private static async Task<Results<Ok<BudgetCategoryResponse>, NotFound<ProblemDetails>, BadRequest<ProblemDetails>, Conflict<ProblemDetails>>> Handle(
+        Guid id,
+        Guid categoryId,
+        UpdateCategoryRequest request,
+        ClaimsPrincipal user,
+        MenloDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        // Resolve current user ID from claims
+        UserId userId = GetUserIdFromClaims(user);
+
+        // Validate request
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation failed",
+                Detail = "Category name is required",
+                Extensions = { ["errorCode"] = "VALIDATION_FAILED" }
+            });
+        }
+
+        // Query budget with categories
+        BudgetId budgetId = new(id);
+        Budget? budget = await dbContext.Budgets
+            .Include(b => b.Categories)
+            .ThenInclude(c => c.Children)
+            .FirstOrDefaultAsync(
+                b => b.Id == budgetId && b.OwnerId == userId,
+                cancellationToken);
+
+        if (budget is null)
+        {
+            return TypedResults.NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Budget not found",
+                Detail = "Budget not found",
+                Extensions = { ["errorCode"] = "BUDGET_NOT_FOUND" }
+            });
+        }
+
+        // Check if category exists
+        BudgetCategoryId categoryIdValue = new(categoryId);
+        BudgetCategory? category = budget.FindCategory(categoryIdValue);
+        
+        if (category is null)
+        {
+            return TypedResults.NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Category not found",
+                Detail = "Category not found in this budget",
+                Extensions = { ["errorCode"] = "CATEGORY_NOT_FOUND" }
+            });
+        }
+
+        // Update category name
+        Result<bool, BudgetError> renameResult = budget.RenameCategory(categoryIdValue, request.Name);
+
+        if (renameResult.IsFailure)
+        {
+            return renameResult.Error.Code switch
+            {
+                "Budget.DuplicateCategory" => TypedResults.Conflict(new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Category name already exists",
+                    Detail = renameResult.Error.Message,
+                    Extensions = { ["errorCode"] = renameResult.Error.Code }
+                }),
+                _ => TypedResults.BadRequest(new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Category update failed",
+                    Detail = renameResult.Error.Message,
+                    Extensions = { ["errorCode"] = renameResult.Error.Code }
+                })
+            };
+        }
+
+        // Update description if different
+        if (!string.Equals(category.Description, request.Description, StringComparison.Ordinal))
+        {
+            Result<bool, BudgetError> descriptionResult = budget.UpdateCategoryDescription(categoryIdValue, request.Description);
+            
+            if (descriptionResult.IsFailure)
+            {
+                return TypedResults.BadRequest(new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Failed to update category description",
+                    Detail = descriptionResult.Error.Message,
+                    Extensions = { ["errorCode"] = descriptionResult.Error.Code }
+                });
+            }
+        }
+
+        // Save changes
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Build response - reload category to get updated values
+        category = budget.FindCategory(categoryIdValue)!;
+        BudgetCategoryResponse response = MapToCategoryResponse(category);
+
+        return TypedResults.Ok(response);
+    }
+
+    private static BudgetCategoryResponse MapToCategoryResponse(BudgetCategory category)
+    {
+        return new BudgetCategoryResponse(
+            Id: category.Id.Value,
+            Name: category.Name,
+            Description: category.Description,
+            ParentId: category.ParentId?.Value,
+            PlannedAmount: category.PlannedAmount is { } amount
+                ? new MoneyResponse(amount.Amount, amount.Currency)
+                : null,
+            DisplayOrder: category.DisplayOrder,
+            IsRoot: category.IsRoot,
+            IsLeaf: category.IsLeaf,
+            Children: category.Children.Select(MapToCategoryResponse).ToList());
+    }
+
+    private static UserId GetUserIdFromClaims(ClaimsPrincipal user)
+    {
+        // Try to get the user ID from the 'oid' claim (Azure AD object ID) or NameIdentifier
+        string? oidClaim = user.FindFirst("oid")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (Guid.TryParse(oidClaim, out Guid userId))
+        {
+            return new UserId(userId);
+        }
+
+        // Fallback to empty GUID if no valid ID found
+        return new UserId(Guid.Empty);
+    }
+}
