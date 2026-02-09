@@ -5,6 +5,12 @@
       "type": "promptString",
       "description": "GitHub token with repo access",
       "password": true
+    },
+    {
+      "id": "playwright-token",
+      "type": "promptString",
+      "description": "Playwright MCP extension token",
+      "password": true
     }
   ],
   "servers": {
@@ -60,7 +66,10 @@
       "args": [
         "-y",
         "@playwright/mcp@latest"
-      ]
+      ],
+      "env": {
+        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "${inputs.playwright-token}"
+      }
     }
   }
 }

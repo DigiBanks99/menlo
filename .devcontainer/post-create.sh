@@ -29,6 +29,10 @@ if ! grep -q 'mise activate' "$HOME/.bashrc" 2>/dev/null; then
     echo 'eval "$(mise activate bash)"' >> "$HOME/.bashrc"
 fi
 
+if ! grep -q '$(which npx)' "$HOME/.bashrc" 2>/dev/null; then
+    echo 'export PATH="$(npx -y mise@latest which shims):$PATH"' >> "$HOME/.bashrc"
+fi
+
 echo "Node: $(node --version)"
 
 # ============================================
@@ -119,6 +123,18 @@ fi
 
 echo "Building .NET solution..."
 dotnet build --no-incremental || echo "Warning: dotnet build failed"
+
+# ============================================
+# PLAYWRIGHT SETUP
+# ============================================
+echo "Setting up Playwright browsers..."
+if command -v pnpm &> /dev/null; then
+    # Install Playwright browsers and system dependencies
+    npx -y playwright@latest install --with-deps chromium || echo "Warning: Playwright browser installation failed"
+    echo "Playwright chromium browser installed"
+else
+    echo "Skipping Playwright setup - pnpm not available (will be available after container restart)"
+fi
 
 # ============================================
 # VERIFICATION
