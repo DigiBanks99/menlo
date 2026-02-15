@@ -7,6 +7,7 @@
     "test": "cd src/ui/web && pnpm test && cd -"
   },
   "devDependencies": {
+    "@vitest/mocker": "^4.0.18",
     "corepack": "^0.34.6",
     "pnpm": "^10.29.2",
     "vite": "^7.3.0"
