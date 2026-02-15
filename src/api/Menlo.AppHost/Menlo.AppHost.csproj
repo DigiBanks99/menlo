@@ -11,6 +11,6 @@
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Menlo.Api\Menlo.Api.csproj" />
+    <ProjectReference Include="..\Menlo.Api\Menlo.Api.csproj" IsAspireProject="true" />
   </ItemGroup>
 </Project>
