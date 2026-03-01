@@ -78,7 +78,7 @@
     "@nx/workspace": "22.5.3",
     "@schematics/angular": "^21.1.4",
     "@storybook/addon-docs": "0.0.0-pr-33884-sha-b1967901",
-    "@storybook/angular": "0.0.0-pr-33884-sha-b1967901",
+    "@storybook/angular": "0.0.0-pr-33930-sha-c047ebe9",
     "@swc-node/register": "~1.11.1",
     "@swc/core": "~1.15.11",
     "@swc/helpers": "~0.5.18",
