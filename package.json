@@ -1,16 +1,16 @@
 {
   "scripts": {
-    "build": "cd src/ui/web && pnpm build && cd -",
-    "dev": "cd src/ui/web && pnpm dev && cd -",
-    "format": "cd src/ui/web && pnpm format && cd -",
-    "lint": "cd src/ui/web && pnpm lint && cd -",
-    "test": "cd src/ui/web && pnpm test && cd -"
+    "build": "pushd src/ui/web && pnpm build && popd",
+    "dev": "pushd src/ui/web && pnpm dev && popd",
+    "format": "pushd src/ui/web && pnpm format && popd",
+    "lint": "pushd src/ui/web && pnpm lint && popd",
+    "test": "pushd src/ui/web && pnpm test && popd"
   },
   "devDependencies": {
     "@vitest/mocker": "^4.0.18",
     "corepack": "^0.34.6",
-    "pnpm": "^10.30.1",
-    "vite": "^7.3.0"
+    "pnpm": "^10.30.3",
+    "vite": "^7.3.1"
   },
   "packageManager": "pnpm@10.30.1+sha512.3590e550d5384caa39bd5c7c739f72270234b2f6059e13018f975c313b1eb9fefcc09714048765d4d9efe961382c312e624572c0420762bdc5d5940cdf9be73a",
   "optionalDependencies": {
