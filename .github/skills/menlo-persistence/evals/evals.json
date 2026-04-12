@@ -1,0 +1,146 @@
+{
+  "skill_name": "menlo-persistence",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Add a BudgetEntry entity to the Menlo persistence layer. It tracks a budget category name (string, max 100 chars), an amount in ZAR (decimal money), an entry date (DateTimeOffset), and which user created it (UserId). The entity should be soft-deletable and auditable. Implement the full persistence slice — entity type config, slice context interface, DbContext wiring, DI registration, and the migration command. Show me the complete code.",
+      "expected_output": "Complete implementation including: BudgetEntry entity in Menlo.Lib with IBudgetEntry<BudgetEntryId> + IAuditable + ISoftDeletable, BudgetEntryId typed ID, BudgetEntryEntityTypeConfiguration with ToTable('budget_entries','budget') and numeric(18,4) for Amount, IBudgetContext interface, MenloDbContext updated to add DbSet<BudgetEntry> + : IBudgetContext, AddMenloApplication updated to register IBudgetContext, and migration command with correct --project and --startup-project flags.",
+      "assertions": [
+        {
+          "id": "entity-in-menlo-lib",
+          "text": "BudgetEntry entity is placed in Menlo.Lib (not Menlo.Application)",
+          "weight": 1
+        },
+        {
+          "id": "implements-interfaces",
+          "text": "BudgetEntry implements IAuditable and ISoftDeletable",
+          "weight": 1
+        },
+        {
+          "id": "typed-id",
+          "text": "A BudgetEntryId strongly typed ID is defined as a readonly record struct wrapping a Guid",
+          "weight": 1
+        },
+        {
+          "id": "entity-config-correct-schema",
+          "text": "Entity type config uses ToTable(\"budget_entries\", \"budget\") — correct snake_case table name in budget schema",
+          "weight": 2
+        },
+        {
+          "id": "money-column-type",
+          "text": "Amount property uses HasColumnType(\"numeric(18,4)\") explicitly",
+          "weight": 2
+        },
+        {
+          "id": "no-manual-column-names",
+          "text": "No HasColumnName() calls anywhere — snake_case naming convention handles it automatically",
+          "weight": 1
+        },
+        {
+          "id": "slice-interface",
+          "text": "IBudgetContext interface is defined with DbSet<BudgetEntry> and SaveChangesAsync",
+          "weight": 2
+        },
+        {
+          "id": "no-direct-dbcontext-injection",
+          "text": "Feature handlers or interfaces inject IBudgetContext, never MenloDbContext directly",
+          "weight": 2
+        },
+        {
+          "id": "di-registration",
+          "text": "AddMenloApplication registers IBudgetContext → MenloDbContext via AddScoped",
+          "weight": 1
+        },
+        {
+          "id": "migration-command",
+          "text": "Migration command uses --project src/lib/Menlo.Application and --startup-project src/api/Menlo.Api",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Write integration tests for IUserContext in the Menlo.Application.Tests project. I need tests for: (1) save a new User and retrieve it, asserting all fields including audit fields are correct; (2) soft-delete a User and confirm it's excluded from standard queries but visible with IgnoreQueryFilters(); (3) update a User and confirm the audit modified fields are updated. Use TestContainers. Do not use in-memory EF Core.",
+      "expected_output": "Integration tests using Testcontainers.PostgreSql PostgreSqlContainer, IAsyncLifetime fixture, MigrateAsync() in InitializeAsync, fresh scopes for read-back assertions, IUserContext injection (not MenloDbContext), tests for CRUD + soft delete with IgnoreQueryFilters + audit field population.",
+      "assertions": [
+        {
+          "id": "uses-testcontainers",
+          "text": "Tests use PostgreSqlContainer (Testcontainers.PostgreSql), not in-memory or SQLite",
+          "weight": 3
+        },
+        {
+          "id": "uses-iusercontext",
+          "text": "Tests inject IUserContext, not MenloDbContext directly",
+          "weight": 2
+        },
+        {
+          "id": "migrate-async-called",
+          "text": "MigrateAsync() is called in the test fixture setup before tests run",
+          "weight": 1
+        },
+        {
+          "id": "fresh-scope-for-retrieval",
+          "text": "Read-back assertions use a separate DI scope to avoid change-tracker cache hits",
+          "weight": 2
+        },
+        {
+          "id": "soft-delete-test",
+          "text": "Soft-delete test asserts entity is null on standard query AND visible with IgnoreQueryFilters() and IsDeleted == true",
+          "weight": 2
+        },
+        {
+          "id": "audit-fields-tested",
+          "text": "At least one test asserts that audit fields (CreatedAt, CreatedBy) are non-null after save",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a HouseholdMember entity to the Menlo persistence layer. It belongs to the household schema, has a Name (string max 50), a Role (string max 50), and must support soft deletes and auditing. Walk me through the complete implementation and show all the files I need to create or update.",
+      "expected_output": "HouseholdMemberId typed ID, HouseholdMember entity in Menlo.Lib/Household, IEntityTypeConfiguration in Menlo.Application/Household with ToTable('household_members','household'), IHouseholdContext interface, MenloDbContext updated, DI registration, migration command.",
+      "assertions": [
+        {
+          "id": "correct-schema",
+          "text": "Table is placed in the household schema — ToTable(\"household_members\", \"household\")",
+          "weight": 2
+        },
+        {
+          "id": "entity-lib-placement",
+          "text": "HouseholdMember entity is in Menlo.Lib, not Menlo.Application",
+          "weight": 1
+        },
+        {
+          "id": "typed-id-defined",
+          "text": "HouseholdMemberId is defined as a readonly record struct with a Guid Value property",
+          "weight": 1
+        },
+        {
+          "id": "soft-deletable",
+          "text": "HouseholdMember implements ISoftDeletable",
+          "weight": 2
+        },
+        {
+          "id": "auditable",
+          "text": "HouseholdMember implements IAuditable",
+          "weight": 1
+        },
+        {
+          "id": "slice-interface-household",
+          "text": "IHouseholdContext interface exposes DbSet<HouseholdMember> and SaveChangesAsync",
+          "weight": 2
+        },
+        {
+          "id": "no-manual-column-names-2",
+          "text": "No HasColumnName() calls — relies on snake_case naming convention",
+          "weight": 1
+        },
+        {
+          "id": "migration-flags",
+          "text": "Migration command includes --project src/lib/Menlo.Application --startup-project src/api/Menlo.Api",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}
