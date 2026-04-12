@@ -1,13 +1,18 @@
 {
   "chat.agent.maxRequests": 500,
   "chat.customAgentInSubagent.enabled": true,
-  "chat.mcp.autostart": "onlyNew",
-  "chat.tools.autoApprove": true,
   "chat.tools.terminal.autoApprove": {
     "rm": false,
     "rmdir": false,
     "del": false,
     "aspire run": true,
+    "aspire start": true,
+    "aspire stop": true,
+    "aspire docs": true,
+    "aspire doctor": true,
+    "aspire logs": true,
+    "aspire otel": true,
+    "aspire help": true,
     "dotnet build": true,
     "dotnet restore": true,
     "dotnet outdated": true,
@@ -55,6 +60,8 @@
     "editor.colorDecorators": true
   },
   "nxConsole.nxWorkspacePath": "src\\ui\\web",
-  "nxConsole.generateAiAgentRules": true,
-  "terminal.integrated.shellIntegration.enabled": true
+  "terminal.integrated.shellIntegration.enabled": true,
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "c:\\users\\wilco.boshoff\\appdata\\local\\mise\\shims\\node"
+  }
 }
