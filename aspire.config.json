@@ -1,0 +1,6 @@
+{
+  "appHost": {
+    "path": "src/api/Menlo.AppHost/Menlo.AppHost.csproj",
+    "language": "csharp"
+  }
+}
