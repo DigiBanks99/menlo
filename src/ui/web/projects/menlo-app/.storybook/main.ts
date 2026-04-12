@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { StorybookConfig } from '@analogjs/storybook-angular';
+import angular from '@analogjs/vite-plugin-angular';
 
 const config: StorybookConfig = {
   "stories": [
@@ -14,7 +15,11 @@ const config: StorybookConfig = {
     "name": "@analogjs/storybook-angular",
     "options": {}
   },
-  "docs": {}
+  "docs": {},
+  async viteFinal(viteConfig) {
+    viteConfig.plugins = [...(viteConfig.plugins || []), angular()];
+    return viteConfig;
+  }
 };
 export default config;
 
