@@ -1,5 +1,7 @@
-﻿using Menlo.AI.Interfaces;
+using Menlo.AI.Interfaces;
 using Menlo.Api.Tests.Fixtures;
+using Menlo.Lib.Common.Abstractions;
+using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -30,7 +32,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     {
         Dictionary<string, string?> hostConfig = new()
         {
-            ["ASPNETCORE_ENVIRONMENT"] = "Production"
+            ["ASPNETCORE_ENVIRONMENT"] = "Production",
+            ["ConnectionStrings:menlo"] = "Host=test;Database=test;Username=test;Password=test",
+            ["Menlo:SkipMigration"] = "true"
         };
 
         builder.UseConfiguration(new ConfigurationBuilder()
@@ -50,6 +54,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
             // Add mock AI services
             AddMockAiServices(services);
+
+            // Register stub audit/soft-delete factories (database not used in API tests)
+            services.AddScoped<IAuditStampFactory, NoOpAuditStampFactory>();
+            services.AddScoped<ISoftDeleteStampFactory, NoOpSoftDeleteStampFactory>();
 
             // Add the test authentication scheme
             services
@@ -103,4 +111,14 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         services.AddSingleton(mockEmbeddingService);
         services.AddSingleton(mockVisionService);
     }
+}
+
+internal sealed class NoOpAuditStampFactory : IAuditStampFactory
+{
+    public AuditStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
+}
+
+internal sealed class NoOpSoftDeleteStampFactory : ISoftDeleteStampFactory
+{
+    public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }

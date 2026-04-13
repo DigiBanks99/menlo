@@ -1,5 +1,5 @@
-using System.Net;
 using Menlo.Api.Tests.Fixtures;
+using System.Net;
 
 namespace Menlo.Api.Tests.Auth;
 

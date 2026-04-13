@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
-using Menlo.Lib.Common.Errors;
 using Menlo.Lib.Common.Abstractions;
+using Menlo.Lib.Common.Errors;
 
 namespace Menlo.Lib.Common.ValueObjects;
 

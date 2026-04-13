@@ -1,9 +1,9 @@
+using Menlo.AI.Interfaces;
+using Menlo.AI.Services;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using NSubstitute;
 using Shouldly;
-using Menlo.AI.Interfaces;
-using Menlo.AI.Services;
 
 namespace Menlo.AI.Tests.Services;
 
@@ -20,8 +20,8 @@ public sealed class ChatServiceTests
     public void GivenChatServiceWithValidParameters_WhenConstructed_ThenShouldNotBeNull()
     {
         // Given
-        var kernel = Kernel.CreateBuilder().Build();
-        var chatClient = Substitute.For<IChatClient>();
+        Kernel kernel = Kernel.CreateBuilder().Build();
+        IChatClient chatClient = Substitute.For<IChatClient>();
 
         // When
         var chatService = new ChatService(kernel, chatClient);

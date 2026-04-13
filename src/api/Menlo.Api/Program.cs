@@ -4,6 +4,7 @@ using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.OpenApi;
+using Menlo.Application.Common;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,8 @@ builder.AddServiceDefaults();
 builder
     .AddMenloAuthentication()
     .AddMenloAiWithAspire()
-    .AddMenloOpenApi();
+    .AddMenloOpenApi()
+    .AddMenloApplication();
 
 WebApplication app = builder.Build();
 
@@ -48,14 +50,16 @@ RouteGroupBuilder apiGroup = app
 apiGroup
     .MapGet("/weatherforecast", () =>
     {
-        WeatherForecast[] forecast = Enumerable.Range(1, 5).Select(index =>
+        WeatherForecast[] forecast =
+        [
+            .. Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast
                 (
                     DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                     Random.Shared.Next(-20, 55),
                     summaries[Random.Shared.Next(summaries.Length)]
                 ))
-            .ToArray();
+        ];
         return forecast;
     })
     .WithName("GetWeatherForecast")
@@ -79,6 +83,8 @@ apiGroup
     .WithSummary("Gets the health status of the AI service");
 
 app.MapDefaultEndpoints();
+
+await app.MigrateDatabaseAsync();
 
 app.Run();
 
