@@ -1,7 +1,7 @@
-using System.Net;
-using System.Net.Http.Json;
 using Menlo.Api.Tests.Fixtures;
 using Menlo.Lib.Auth.Models;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace Menlo.Api.Tests.Auth;
 

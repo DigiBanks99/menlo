@@ -238,7 +238,7 @@ public sealed class MoneyArithmeticTests
         result.IsFailure.ShouldBeTrue();
         result.Error.ShouldBeOfType<CurrencyMismatchError>();
         result.Error.Code.ShouldBe("MONEY_001");
-        
+
         CurrencyMismatchError error = (CurrencyMismatchError)result.Error;
         error.ExpectedCurrency.ShouldBe(expected);
         error.ActualCurrency.ShouldBe(actual);

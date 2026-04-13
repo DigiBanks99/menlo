@@ -16,6 +16,8 @@
   <Folder Name="/lib/">
     <Project Path="src/lib/Menlo.AI.Tests/Menlo.AI.Tests.csproj" />
     <Project Path="src/lib/Menlo.AI/Menlo.AI.csproj" />
+    <Project Path="src/lib/Menlo.Application.Tests/Menlo.Application.Tests.csproj" />
+    <Project Path="src/lib/Menlo.Application/Menlo.Application.csproj" />
     <Project Path="src/lib/Menlo.Lib.Tests/Menlo.Lib.Tests.csproj" />
     <Project Path="src/lib/Menlo.Lib/Menlo.Lib.csproj" />
     <Project Path="src/lib/Menlo.ServiceDefaults/Menlo.ServiceDefaults.csproj" />

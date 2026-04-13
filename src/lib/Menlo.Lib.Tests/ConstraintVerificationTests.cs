@@ -1,5 +1,5 @@
-using System.Reflection;
 using Shouldly;
+using System.Reflection;
 
 namespace Menlo.Lib.Tests;
 

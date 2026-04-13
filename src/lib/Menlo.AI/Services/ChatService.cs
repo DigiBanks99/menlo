@@ -1,7 +1,7 @@
-using System.Runtime.CompilerServices;
+using Menlo.AI.Interfaces;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
-using Menlo.AI.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace Menlo.AI.Services;
 
@@ -20,11 +20,11 @@ public sealed class ChatService : IChatService
     {
         if (_chatClient is not null)
         {
-            var response = await _chatClient.GetResponseAsync(prompt, cancellationToken: cancellationToken);
+            ChatResponse response = await _chatClient.GetResponseAsync(prompt, cancellationToken: cancellationToken);
             return response.Text ?? string.Empty;
         }
 
-        var result = await _kernel.InvokePromptAsync(prompt, cancellationToken: cancellationToken);
+        FunctionResult result = await _kernel.InvokePromptAsync(prompt, cancellationToken: cancellationToken);
         return result.GetValue<string>() ?? string.Empty;
     }
 
@@ -33,7 +33,7 @@ public sealed class ChatService : IChatService
     {
         if (_chatClient is not null)
         {
-            await foreach (var item in _chatClient.GetStreamingResponseAsync(prompt, cancellationToken: cancellationToken))
+            await foreach (ChatResponseUpdate item in _chatClient.GetStreamingResponseAsync(prompt, cancellationToken: cancellationToken))
             {
                 yield return item.Text ?? string.Empty;
             }

@@ -1,6 +1,6 @@
-﻿namespace Menlo.Api.OpenApi;
+namespace Menlo.Api.OpenApi;
 
-internal static  class OpenApiServiceCollectionExtensions
+internal static class OpenApiServiceCollectionExtensions
 {
     extension(IHostApplicationBuilder builder)
     {

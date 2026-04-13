@@ -1,8 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Menlo.AI.Configuration;
 using Menlo.AI.Interfaces;
 using Menlo.AI.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 #pragma warning disable SKEXP0070 // Ollama connector is experimental
 

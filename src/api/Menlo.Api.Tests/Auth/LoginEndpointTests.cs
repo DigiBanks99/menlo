@@ -1,10 +1,10 @@
-using System.Net;
 using Menlo.Api.Tests.Fixtures;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using System.Net;
 
 namespace Menlo.Api.Tests.Auth;
 

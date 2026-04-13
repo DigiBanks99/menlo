@@ -11,6 +11,10 @@
     <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
     <PackageReference Include="Scalar.AspNetCore" />
@@ -19,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\lib\Menlo.Lib\Menlo.Lib.csproj" />
     <ProjectReference Include="..\..\lib\Menlo.AI\Menlo.AI.csproj" />
+    <ProjectReference Include="..\..\lib\Menlo.Application\Menlo.Application.csproj" />
     <ProjectReference Include="..\..\lib\Menlo.ServiceDefaults\Menlo.ServiceDefaults.csproj" />
   </ItemGroup>
 
