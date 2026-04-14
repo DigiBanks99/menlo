@@ -83,6 +83,25 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         ItShouldHaveSslModeRequired(connectionString);
     }
 
+    [Fact]
+    public void GivenMissingConnectionString_WhenResolvingDbContext_ThenThrowsInvalidOperationException()
+    {
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+        {
+            EnvironmentName = Environments.Production
+        });
+        // No connection string configured
+        builder.AddMenloApplication();
+        builder.Services.AddScoped<IAuditStampFactory, TestAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestSoftDeleteStampFactory>();
+        using IHost host = builder.Build();
+        using IServiceScope scope = host.Services.CreateScope();
+
+        Action act = () => scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        act.ShouldThrow<InvalidOperationException>();
+    }
+
     private static void ItShouldHaveSslModeRequired(string? connectionString)
     {
         connectionString.ShouldNotBeNull();

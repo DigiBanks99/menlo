@@ -7,6 +7,7 @@ Menlo is an AI-enhanced family home management application designed for a South 
 - **Backend**: `src/api/` (Menlo.Api, Menlo.AppHost) and `src/lib/` (Menlo.Lib, Menlo.AI)
 - **Frontend**: `src/ui/web/projects/` (menlo-app, menlo-lib, data-access)
 - **Specs**: `docs/requirements/` (READ-ONLY - do not modify unless told to draft new specs)
+- **Repo**: <https://github.com/DigiBanks99/menlo>
 
 ## Tech Stack
 
@@ -24,6 +25,13 @@ Use `aspire` to run the application
 - Use `aspire` and `playwright-cli` for interactive feature testing and validation
 - Use `dotnet` for back-end unit and integration tests
 - Use `pnpm` for front-end tests
+
+## Linting and formatting
+
+- Web:
+  - Linting: `pnpm lint`
+  - Formatting: `pnpm format`
+- All .NET: `dotnet format`
 
 ## Learnings
 
