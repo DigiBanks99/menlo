@@ -1,51 +1,31 @@
-Study @docs/requirements/* for specifications (READ-ONLY, do not modify).
-Study @docs/plans/fix_plan.md for current plan.
-Study @AGENT.md for build/test commands and learnings.
-
-Your task: Choose the most important item from fix_plan.md and implement it.
+1. Explore the codebase
+2. Explore the github issue $issueNumber and find its sub-issue
+3. Identify the next sub-issue that is not blocked and seems most important
+4. Start working on that issue until all acceptance criteria are done
 
 ## Rules
 
-### Searching
-- Search before assuming not implemented (use parallel subagents, max 5)
-- Do not duplicate existing functionality
+### General
 
-### Implementation
-- Use up to 5 parallel subagents for searching and writing
-- Use exactly 1 subagent for validation operations
+All work related to a feature must be completed in one unit:
 
-### Bug Handling (CRITICAL)
-- When you encounter ANY bug or issue: FIRST document it in @docs/plans/fix_plan.md
-- THEN spin up a subagent to fix it
-- Never attempt to fix without documenting first
+- Functionality
+- Tests
+- Documentation
+- Linting/Formatting
+- Security scanning
+- License compliance
 
-### Validation (Back Pressure)
-Run these in order, stop if any fail:
-1. `aspire run` - verify ALL resources report healthy (PostgreSQL, API, Web)
-2. `dotnet build Menlo.slnx` - must pass
-3. `dotnet test Menlo.slnx` - must pass
-4. `pnpm --dir src/ui/web test:all` - must pass
-5. `pnpm --dir src/ui/web lint` - must pass
+### Before starting
 
-Do not proceed to git operations until ALL validation passes.
+- Explore the work previously done
+- Search for existing functionality before duplicating
+- If a decision is open, create a blocking issue with the clarification needed
 
-### Plan Maintenance
-- Mark items complete in fix_plan.md when done (use subagent)
-- When fix_plan.md exceeds 100 items, use a subagent to clean it up:
-  - Remove completed items
-  - Consolidate duplicate/related items
-  - Re-prioritize remaining work
+### Before committing
 
-### Learnings
-- Update @AGENT.md with useful learnings (keep brief, no status reports)
-- Only add genuinely useful information for future loops
-
-### Git (Only After All Validation Passes)
-- `git add -A && git commit -m "descriptive message"`
-- For significant changes: `gh pr create --title "..." --body "..."`
-- Never push directly to main
-
-### Specs Protection
-- Files in @docs/requirements/* are READ-ONLY
-- Implement TO the specs, never modify them
-- If specs seem wrong, document the discrepancy in fix_plan.md for human review
+1. All services must be wired-up to DI
+2. The application must start
+3. All tests must pass, regardless of if they were changed
+4. All code must be locally linted and formatted
+5. Relevant documentation must be updated
