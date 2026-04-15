@@ -35,4 +35,8 @@ Use `aspire` to run the application
 
 ## Learnings
 
+You must not be on the main branch. You may commit to an existing branch.
+You must use conventional commits and tag the github issue you are working on in the body of the commit.
+Update your learnings as you progress but keep them brief.
+
 <!-- Agent updates this section with discoveries - keep brief -->
