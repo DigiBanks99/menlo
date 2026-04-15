@@ -31,3 +31,5 @@ internal sealed class EmbeddingService : IEmbeddingService
         return embeddings.Select(e => e.Vector.ToArray()).ToArray();
     }
 }
+
+

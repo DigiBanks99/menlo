@@ -15,3 +15,5 @@ public sealed class TestAuthHandlerOptions
     /// </summary>
     public bool SimulateUnauthenticated { get; set; }
 }
+
+

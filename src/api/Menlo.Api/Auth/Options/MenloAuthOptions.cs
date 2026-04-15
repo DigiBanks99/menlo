@@ -17,3 +17,5 @@ public sealed class MenloAuthOptions : MicrosoftIdentityOptions
     /// </summary>
     public required string CookieDomain { get; init; }
 }
+
+

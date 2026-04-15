@@ -8,6 +8,8 @@ This document provides reference documentation for the authentication and author
 
 The `User` entity represents a system user linked to an external identity provider (Entra ID). It serves as the Aggregate Root for user-related operations.
 
+`User` is persisted through the `IUserContext` slice interface in `Menlo.Application`, backed by the `shared.users` PostgreSQL table.
+
 ```mermaid
 ---
 config:

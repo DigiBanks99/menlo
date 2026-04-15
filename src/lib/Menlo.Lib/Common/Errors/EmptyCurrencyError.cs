@@ -7,3 +7,5 @@ namespace Menlo.Lib.Common.Errors;
 /// </summary>
 public sealed class EmptyCurrencyError()
     : Error("MONEY_000", "Currency code cannot be null or empty");
+
+

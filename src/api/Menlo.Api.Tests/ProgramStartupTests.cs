@@ -18,7 +18,7 @@ public sealed class ProgramStartupTests : TestFixture
 
         using TestWebApplicationFactory factory = new()
         {
-            MenloConnectionString = container.GetConnectionString(),
+            MenloConnectionString = $"{container.GetConnectionString()};SSL Mode=Disable",
             SkipMigration = false
         };
         using HttpClient client = factory.CreateClient();
@@ -98,4 +98,5 @@ public sealed class ProgramStartupTests : TestFixture
         exception.Failures.ShouldContain("CookieDomain is required.");
     }
 }
+
 

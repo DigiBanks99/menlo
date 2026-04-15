@@ -43,3 +43,5 @@ public static class GetUserEndpoint
         return Results.Ok(profile);
     }
 }
+
+

@@ -78,3 +78,5 @@ public sealed class UserLoggedInEventTests
         event1.ShouldNotBe(event2);
     }
 }
+
+

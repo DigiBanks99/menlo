@@ -34,7 +34,7 @@ public sealed class MigrationTests : IAsyncLifetime
 
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["ConnectionStrings:menlo"] = _container.GetConnectionString()
+            ["ConnectionStrings:menlo"] = $"{_container.GetConnectionString()};SSL Mode=Disable"
         });
 
         builder.AddMenloApplication();
@@ -82,3 +82,5 @@ public sealed class MigrationTests : IAsyncLifetime
         applied.ShouldBeEmpty("All migrations should have been rolled back");
     }
 }
+
+

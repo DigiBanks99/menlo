@@ -37,3 +37,5 @@ public sealed class AiSettings
     /// </summary>
     public bool EnableTelemetry { get; init; } = true;
 }
+
+

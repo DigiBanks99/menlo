@@ -251,3 +251,5 @@ public sealed class MoneyArithmeticTests
         result.Error.Code.ShouldBe("MONEY_002");
     }
 }
+
+

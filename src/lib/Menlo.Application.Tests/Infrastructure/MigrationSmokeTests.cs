@@ -33,4 +33,39 @@ public sealed class MigrationSmokeTests(PersistenceFixture fixture)
         migrations.ShouldContain(m => m.Contains("InitialCreate"),
             "InitialCreate migration should be recorded in __EFMigrationsHistory");
     }
+
+    [Fact]
+    public async Task GivenFreshDatabase_WhenMigrationRuns_ThenSharedUsersTableExists()
+    {
+        using IServiceScope scope = fixture.Services.CreateScope();
+        MenloDbContext db = scope.ServiceProvider.GetRequiredService<Menlo.Application.Common.MenloDbContext>();
+
+        List<string> columnNames = await db.Database
+            .SqlQueryRaw<string>(
+                """
+                SELECT column_name AS "Value"
+                FROM information_schema.columns
+                WHERE table_schema = 'shared'
+                  AND table_name = 'users'
+                ORDER BY ordinal_position
+                """)
+            .ToListAsync(TestContext.Current.CancellationToken);
+
+        ItShouldContainSharedUsersColumns(columnNames);
+    }
+
+    private static void ItShouldContainSharedUsersColumns(IReadOnlyCollection<string> columnNames)
+    {
+        columnNames.ShouldContain("id");
+        columnNames.ShouldContain("external_id");
+        columnNames.ShouldContain("email");
+        columnNames.ShouldContain("display_name");
+        columnNames.ShouldContain("last_login_at");
+        columnNames.ShouldContain("created_by");
+        columnNames.ShouldContain("created_at");
+        columnNames.ShouldContain("modified_by");
+        columnNames.ShouldContain("modified_at");
+    }
 }
+
+

@@ -44,3 +44,5 @@ public sealed class MenloAuthOptionsValidator : IValidateOptions<MenloAuthOption
             : ValidateOptionsResult.Success;
     }
 }
+
+

@@ -123,3 +123,5 @@ public sealed class ConstraintVerificationTests
         hasEfCoreReference.ShouldBeFalse("Menlo.Lib should not reference Entity Framework Core");
     }
 }
+
+

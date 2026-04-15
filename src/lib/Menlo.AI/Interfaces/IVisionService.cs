@@ -15,3 +15,5 @@ public interface IVisionService
     /// </summary>
     Task<string> ExtractTextAsync(byte[] imageData, CancellationToken cancellationToken = default);
 }
+
+

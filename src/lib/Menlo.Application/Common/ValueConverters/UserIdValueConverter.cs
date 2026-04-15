@@ -5,3 +5,5 @@ namespace Menlo.Application.Common.ValueConverters;
 
 internal sealed class UserIdValueConverter()
     : ValueConverter<UserId, Guid>(id => id.Value, guid => new UserId(guid));
+
+

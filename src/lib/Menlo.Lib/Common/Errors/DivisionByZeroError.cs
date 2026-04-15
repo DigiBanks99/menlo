@@ -5,3 +5,5 @@ namespace Menlo.Lib.Common.Errors;
 /// </summary>
 public sealed class DivisionByZeroError()
     : MoneyError("MONEY_002", "Cannot divide money by zero");
+
+

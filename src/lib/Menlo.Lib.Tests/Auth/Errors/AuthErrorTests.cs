@@ -105,3 +105,5 @@ public sealed class AuthErrorTests
         error.Reason.ShouldBe(expectedReason);
     }
 }
+
+

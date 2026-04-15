@@ -15,3 +15,5 @@ public interface IEmbeddingService
     /// </summary>
     Task<float[][]> GenerateEmbeddingsAsync(IEnumerable<string> texts, CancellationToken cancellationToken = default);
 }
+
+

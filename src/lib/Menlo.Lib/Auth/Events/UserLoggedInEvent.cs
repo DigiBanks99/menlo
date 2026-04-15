@@ -9,3 +9,5 @@ namespace Menlo.Lib.Auth.Events;
 /// <param name="UserId">The ID of the user who logged in.</param>
 /// <param name="Timestamp">When the login occurred.</param>
 public readonly record struct UserLoggedInEvent(UserId UserId, DateTimeOffset Timestamp) : IDomainEvent;
+
+

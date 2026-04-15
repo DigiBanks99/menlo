@@ -18,3 +18,5 @@ public sealed class CurrencyMismatchError(string expected, string actual)
     /// </summary>
     public string ActualCurrency { get; } = actual;
 }
+
+

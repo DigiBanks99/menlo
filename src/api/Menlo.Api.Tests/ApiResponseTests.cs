@@ -92,3 +92,6 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
         forecast.TryGetProperty("summary", out _).ShouldBeTrue();
     }
 }
+
+
+

@@ -17,7 +17,7 @@ public sealed class InterceptorPersistenceFixture : IAsyncLifetime
 
     public IServiceProvider Services => _host.Services;
 
-    public string ConnectionString => _container.GetConnectionString();
+    public string ConnectionString => $"{_container.GetConnectionString()};SSL Mode=Disable";
 
     public async ValueTask InitializeAsync()
     {
@@ -58,3 +58,5 @@ public sealed class InterceptorPersistenceFixture : IAsyncLifetime
 
 [CollectionDefinition("InterceptorPersistence")]
 public sealed class InterceptorPersistenceCollection : ICollectionFixture<InterceptorPersistenceFixture>;
+
+

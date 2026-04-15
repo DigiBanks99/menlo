@@ -8,3 +8,5 @@ namespace Menlo.Lib.Common.Abstractions;
 public interface IDomainEvent
 {
 }
+
+

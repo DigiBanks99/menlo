@@ -28,7 +28,7 @@ public sealed class PersistenceFixture : IAsyncLifetime
 
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["ConnectionStrings:menlo"] = _container.GetConnectionString()
+            ["ConnectionStrings:menlo"] = $"{_container.GetConnectionString()};SSL Mode=Disable"
         });
 
         builder.AddMenloApplication();
@@ -60,3 +60,5 @@ public sealed class TestSoftDeleteStampFactory : ISoftDeleteStampFactory
 
 [CollectionDefinition("Persistence")]
 public sealed class PersistenceCollection : ICollectionFixture<PersistenceFixture>;
+
+

@@ -9,3 +9,5 @@ namespace Menlo.Lib.Common.Abstractions;
 public interface IAggregateRoot<out TId> : IEntity<TId>
 {
 }
+
+

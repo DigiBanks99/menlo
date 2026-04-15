@@ -70,3 +70,5 @@ public sealed class UserProfileTests
         profile1.ShouldNotBe(profile2);
     }
 }
+
+

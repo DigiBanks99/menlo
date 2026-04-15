@@ -36,3 +36,5 @@ internal sealed class AuditingInterceptor(IAuditStampFactory factory) : SaveChan
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 }
+
+

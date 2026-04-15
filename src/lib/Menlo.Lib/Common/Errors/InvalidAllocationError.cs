@@ -12,3 +12,5 @@ public sealed class InvalidAllocationError(string reason)
     /// </summary>
     public string Reason { get; } = reason;
 }
+
+

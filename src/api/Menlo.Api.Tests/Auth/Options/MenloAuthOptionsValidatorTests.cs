@@ -483,3 +483,5 @@ public sealed class MenloAuthOptionsValidatorTests
         options.ClientCertificates.ShouldNotBeEmpty();
     }
 }
+
+

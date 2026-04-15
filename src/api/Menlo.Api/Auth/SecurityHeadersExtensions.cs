@@ -53,3 +53,5 @@ internal static class SecurityHeadersExtensions
         return policies;
     }
 }
+
+

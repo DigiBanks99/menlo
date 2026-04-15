@@ -27,3 +27,5 @@ public interface IHasDomainEvents
     /// </summary>
     void ClearDomainEvents();
 }
+
+

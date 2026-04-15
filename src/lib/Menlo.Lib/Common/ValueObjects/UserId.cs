@@ -17,3 +17,5 @@ public readonly record struct UserId(Guid Value)
     /// </summary>
     public override string ToString() => Value.ToString();
 }
+
+

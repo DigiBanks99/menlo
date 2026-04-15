@@ -16,3 +16,5 @@ public interface IAuditStampFactory
     /// <returns>An AuditStamp containing the current actor, timestamp, and optional correlation ID.</returns>
     AuditStamp CreateStamp();
 }
+
+

@@ -12,3 +12,5 @@ public interface IEntity<out TId>
     /// </summary>
     TId Id { get; }
 }
+
+

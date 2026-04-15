@@ -208,3 +208,5 @@ public sealed class MoneyAllocationTests
         result.Error.Code.ShouldBe("MONEY_003");
     }
 }
+
+
