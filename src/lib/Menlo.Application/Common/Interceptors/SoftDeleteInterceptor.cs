@@ -24,7 +24,9 @@ internal sealed class SoftDeleteInterceptor(ISoftDeleteStampFactory factory) : S
         {
             entry.State = EntityState.Modified;
             SoftDeleteStamp stamp = factory.CreateStamp();
-            entry.Entity.MarkDeleted(stamp.ActorId, stamp.Timestamp);
+            entry.Entity.IsDeleted = true;
+            entry.Entity.DeletedAt = stamp.Timestamp;
+            entry.Entity.DeletedBy = stamp.ActorId;
         }
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);

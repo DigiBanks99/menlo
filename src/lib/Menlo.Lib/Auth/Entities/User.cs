@@ -11,7 +11,7 @@ namespace Menlo.Lib.Auth.Entities;
 /// <summary>
 /// Aggregate root representing a system user linked to an external identity provider.
 /// </summary>
-public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
+public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable, ISoftDeletable
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 
@@ -28,7 +28,10 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
         UserId? createdBy,
         DateTimeOffset? createdAt,
         UserId? modifiedBy,
-        DateTimeOffset? modifiedAt)
+        DateTimeOffset? modifiedAt,
+        bool isDeleted,
+        DateTimeOffset? deletedAt,
+        UserId? deletedBy)
     {
         Id = id;
         ExternalId = externalId;
@@ -39,6 +42,10 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
         CreatedAt = createdAt;
         ModifiedBy = modifiedBy;
         ModifiedAt = modifiedAt;
+
+        IsDeleted = isDeleted;
+        DeletedAt = deletedAt;
+        DeletedBy = deletedBy;
     }
 
     /// <summary>
@@ -109,6 +116,11 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
         ModifiedAt = stamp.Timestamp;
     }
 
+    // ISoftDeletable
+    public bool IsDeleted { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
+    public UserId? DeletedBy { get; set; }
+
     /// <summary>
     /// Factory method to create a new User.
     /// </summary>
@@ -142,7 +154,10 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
             createdBy: null,
             createdAt: null,
             modifiedBy: null,
-            modifiedAt: null);
+            modifiedAt: null,
+            isDeleted: false,
+            deletedAt: null,
+            deletedBy: null);
 
         return user;
     }

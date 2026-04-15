@@ -10,7 +10,7 @@ namespace Menlo.Application.Common;
 /// Attempts to resolve IHttpContextAccessor via reflection to avoid a hard dependency on ASP.NET packages.
 /// Falls back to a system actor (Guid.Empty) when no HTTP context or user is available.
 /// </summary>
-public sealed class ReflectiveAuditStampFactory : IAuditStampFactory
+public sealed class ReflectiveAuditStampFactory : IAuditStampFactory, ISoftDeleteStampFactory
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -19,7 +19,7 @@ public sealed class ReflectiveAuditStampFactory : IAuditStampFactory
         _serviceProvider = serviceProvider;
     }
 
-    public AuditStamp CreateStamp()
+    private UserId GetActorIdFromHttpContext()
     {
         // Try to load the IHttpContextAccessor type from the common ASP.NET assembly name if present.
         Type? accessorType = Type.GetType("Microsoft.AspNetCore.Http.IHttpContextAccessor, Microsoft.AspNetCore.Http.Abstractions");
@@ -40,7 +40,7 @@ public sealed class ReflectiveAuditStampFactory : IAuditStampFactory
                         Claim? idClaim = principal.FindFirst(ClaimTypes.NameIdentifier) ?? principal.FindFirst("sub");
                         if (idClaim != null && Guid.TryParse(idClaim.Value, out Guid guid))
                         {
-                            return new AuditStamp(new UserId(guid), DateTimeOffset.UtcNow);
+                            return new UserId(guid);
                         }
                     }
                 }
@@ -48,6 +48,16 @@ public sealed class ReflectiveAuditStampFactory : IAuditStampFactory
         }
 
         // No HTTP user available — return system actor
-        return new AuditStamp(new UserId(Guid.Empty), DateTimeOffset.UtcNow);
+        return new UserId(Guid.Empty);
+    }
+
+    public AuditStamp CreateStamp()
+    {
+        return new AuditStamp(GetActorIdFromHttpContext(), DateTimeOffset.UtcNow);
+    }
+
+    SoftDeleteStamp ISoftDeleteStampFactory.CreateStamp()
+    {
+        return new SoftDeleteStamp(GetActorIdFromHttpContext(), DateTimeOffset.UtcNow);
     }
 }
