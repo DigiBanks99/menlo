@@ -82,5 +82,3 @@ public sealed class MigrationTests : IAsyncLifetime
         applied.ShouldBeEmpty("All migrations should have been rolled back");
     }
 }
-
-

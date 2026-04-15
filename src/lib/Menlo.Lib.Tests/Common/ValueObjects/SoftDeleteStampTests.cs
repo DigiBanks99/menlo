@@ -90,5 +90,3 @@ public sealed class SoftDeleteStampTests
         deconstructedTimestamp.ShouldBe(expectedTimestamp);
     }
 }
-
-

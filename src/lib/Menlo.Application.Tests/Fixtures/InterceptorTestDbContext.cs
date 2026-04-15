@@ -74,5 +74,3 @@ internal static class InterceptorTestDbContextFactory
         ];
     }
 }
-
-
