@@ -78,7 +78,7 @@ public sealed class SoftDeleteStampTests
         SoftDeleteStamp stamp = new(actorId, timestamp);
 
         // Act
-        var (deconstructedActorId, deconstructedTimestamp) = stamp;
+        (UserId deconstructedActorId, DateTimeOffset deconstructedTimestamp) = stamp;
 
         // Assert
         ItShouldDeconstructCorrectly(deconstructedActorId, deconstructedTimestamp, actorId, timestamp);
@@ -90,3 +90,5 @@ public sealed class SoftDeleteStampTests
         deconstructedTimestamp.ShouldBe(expectedTimestamp);
     }
 }
+
+

@@ -244,3 +244,5 @@ public sealed class MoneyCreationTests
         (money1 != money2).ShouldBeTrue();
     }
 }
+
+

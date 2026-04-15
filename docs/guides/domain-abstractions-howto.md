@@ -54,7 +54,7 @@ public class Product : IEntity<ProductId>, IAuditable
 }
 ```
 
-Typically, the `Audit` method is called by the repository or a domain service using an `IAuditStampFactory` before persistence.
+In Menlo's persistence layer, the `Audit` method is typically triggered by EF Core save interceptors using an `IAuditStampFactory` during persistence.
 
 ## How to Define a Domain Error
 

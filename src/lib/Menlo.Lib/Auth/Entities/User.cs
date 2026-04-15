@@ -157,3 +157,5 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable
         AddDomainEvent(new UserLoggedInEvent(Id, timestamp));
     }
 }
+
+

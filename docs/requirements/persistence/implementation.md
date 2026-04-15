@@ -1,71 +1,94 @@
-# PostgreSQL Setup Implementation Guide
+# Persistence Implementation Guide
 
-This document outlines the step-by-step process for integrating PostgreSQL with Entity Framework Core and .NET Aspire in the Menlo Home Management solution.
+This guide reflects the current Menlo persistence architecture based on `Menlo.Application` as the single EF Core + PostgreSQL integration point.
 
-## Prerequisites
+## Current architecture
 
-- Review the [Architecture Document](../../explanations/architecture-document.md) for infrastructure requirements.
-- Ensure you have Podman installed for local container orchestration.
-- .NET 9 SDK or later installed.
+- `src/lib/Menlo.Application/` owns EF Core, PostgreSQL provider configuration, migrations, interceptors, and slice interfaces.
+- `src/api/Menlo.Api/` references `Menlo.Application` and calls `AddMenloApplication()` plus `MigrateDatabaseAsync()` during startup.
+- `src/api/Menlo.AppHost/` provisions PostgreSQL for local development through Aspire and injects the `menlo` connection string.
+- Feature code does not inject `MenloDbContext` directly. It consumes focused slice interfaces such as `IUserContext`.
 
-## Steps
+## Key implementation pieces
 
-### 1. Add PostgreSQL EF Core Provider ✅
+### 1. `MenloDbContext`
 
-- Add the `Npgsql.EntityFrameworkCore.PostgreSQL` NuGet package to your data access projects (e.g., `Menlo.Api`).
-  - Use the following command:
+`MenloDbContext` lives in `src/lib/Menlo.Application/Common/` and is the single scoped DbContext for the application.
 
-    ```sh
-    dotnet add src/api/Menlo.Api/Menlo.Api.csproj package Npgsql.EntityFrameworkCore.PostgreSQL
-    ```
+- Applies `UseSnakeCaseNamingConvention()`
+- Applies all entity configurations from the assembly
+- Registers strongly typed ID value converters centrally
+- Implements slice interfaces such as `IUserContext`
 
-### 2. Configure EF Core for PostgreSQL ✅
+### 2. User persistence slice
 
-- In your `DbContext` or in `Program.cs`, configure EF Core to use the Npgsql provider:
+The first persisted aggregate is `User` in the `shared.users` table.
 
-    ```csharp
-    builder.Services.AddDbContext<YourDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-    ```
+- Slice interface: `src/lib/Menlo.Application/Auth/IUserContext.cs`
+- Entity mapping: `src/lib/Menlo.Application/Auth/EntityConfigurations/UserEntityTypeConfiguration.cs`
+- Migration: `src/lib/Menlo.Application/Migrations/*AddUserEntity*.cs`
 
-- Use Aspire's configuration system to setup the connection string.
+`IUserContext` exposes:
 
-### 3. Update Aspire AppHost ✅
+```csharp
+public interface IUserContext
+{
+    DbSet<User> Users { get; }
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+```
 
-- Add `Aspire.Hosting.PostgreSQL` as a package reference to `api/Menlo.AppHost`.
-- Add `Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` to `api/Menlo.Api`.
-- In `Menlo.AppHost`, add a PostgreSQL container resource to the Aspire orchestration. Use the Microsoft Docs mcp to find the `.NET Aspire PostgreSQL integration` documentation for configuring it correctly.
-- Wire up the connection string from Aspire to your API/service projects.
+### 3. Dependency injection
 
-### 4. Create/Update Migrations ✅
+`AddMenloApplication()` registers:
 
-- Ensure the Persitance folder is renamed Persistence
-- Move the EF Core dependency configuration to a dedicated extension class in the `Menlo.Api/Persistence` folder and use it in `Program.cs`.
-- Ensure `Menlo.Api` references package `Microsoft.EntityFrameworkCore.Design`.
-- Add an initial EF Core migration for your schema:
+- `MenloDbContext`
+- persistence interceptors
+- slice interfaces mapped back to the scoped `MenloDbContext`
 
-    ```sh
-    dotnet ef migrations add InitialCreate --project src/api/Menlo.Api/Menlo.Api.csproj -o src/api/Menlo.Api/Persistence/Migrations
-    ```
+Current registration pattern:
 
-- Ensure the migration targets PostgreSQL.
+```csharp
+builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
+```
 
-### 5. Test Local Development ✅
+### 4. Startup migration
 
-- Automated migrations: Implemented via a Hosted Service that runs EF Core migrations on startup, controlled by configuration.
-- Aspire orchestration: Solution runs with Aspire, verifying the Postgres container starts and the API connects successfully.
-- Integration test: A TestContainer-based integration test (`GivenTheMenloApplication_WhenStartingTheApplication`) is implemented in `Menlo.Api.IntegrationTests`. This test:
-  - Starts a PostgreSQL Testcontainer.
-  - Launches the Menlo API configured to use the container.
-  - Verifies the API responds to the OpenAPI endpoint (`/openapi/menlo-api.json`).
-  - Asserts that EF Core migrations have been applied by checking that the `__EFMigrationsHistory` table contains records after startup.
+`Menlo.Api/Program.cs` calls:
 
-### 6. Documentation & Validation ✅
+```csharp
+await app.MigrateDatabaseAsync();
+```
 
-- Documentation updated to reflect the new setup and testing approach.
-- Integration test ensures DB connectivity and that migrations are applied on startup.
-- No CRUD tests are required at this stage, as per current requirements.
+This ensures pending migrations are applied before the API begins serving traffic. A migration failure aborts startup.
 
----
+## Migration workflow
 
-For more details, see the [Implementation Roadmap](../../requirements/implementation-roadmap.md) and [Architecture Document](../../explanations/architecture-document.md).
+Create new migrations from the repository root with:
+
+```sh
+dotnet ef migrations add <MigrationName> --project src/lib/Menlo.Application --startup-project src/api/Menlo.Api
+```
+
+The initial infrastructure migration is followed by entity-specific migrations such as `AddUserEntity`.
+
+## Testing approach
+
+Persistence tests live in `src/lib/Menlo.Application.Tests/` and use real PostgreSQL containers via Testcontainers.
+
+- `Fixtures/PersistenceFixture.cs` provisions a clean PostgreSQL container and applies migrations
+- `Infrastructure/MigrationSmokeTests.cs` verifies migration history and schema creation
+- `Infrastructure/UserContextIntegrationTests.cs` verifies save-and-reload behavior through `IUserContext`
+
+In-memory EF Core providers are not used.
+
+## Validation checklist
+
+When extending persistence:
+
+1. Add or update the slice interface in `Menlo.Application/<BoundedContext>/`
+2. Add the matching `DbSet<T>` to `MenloDbContext`
+3. Add the DI registration in `AddMenloApplication()`
+4. Create the migration in `Menlo.Application`
+5. Add Testcontainers-backed integration coverage in `Menlo.Application.Tests`
+6. Confirm the API still starts with `MigrateDatabaseAsync()`

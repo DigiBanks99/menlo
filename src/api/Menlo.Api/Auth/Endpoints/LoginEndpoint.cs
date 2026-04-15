@@ -41,3 +41,5 @@ public static class LoginEndpoint
         return Results.Challenge(properties, [OpenIdConnectDefaults.AuthenticationScheme]);
     }
 }
+
+

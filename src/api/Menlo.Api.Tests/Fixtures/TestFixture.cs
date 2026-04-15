@@ -12,3 +12,5 @@ public abstract class TestFixture
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 }
+
+

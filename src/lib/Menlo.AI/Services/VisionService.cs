@@ -15,3 +15,5 @@ internal sealed class VisionService : IVisionService
         throw new NotImplementedException("Vision service will be implemented in future phases");
     }
 }
+
+

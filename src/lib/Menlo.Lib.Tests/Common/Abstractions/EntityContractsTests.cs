@@ -91,3 +91,5 @@ public sealed class EntityContractsTests
         actualId.ShouldBe(expectedId);
     }
 }
+
+

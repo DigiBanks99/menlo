@@ -110,3 +110,5 @@ public sealed class StronglyTypedIdTests
         result.ShouldBe(value.ToString());
     }
 }
+
+

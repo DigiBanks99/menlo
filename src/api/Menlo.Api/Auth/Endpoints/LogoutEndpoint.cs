@@ -37,3 +37,5 @@ public static class LogoutEndpoint
             [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]);
     }
 }
+
+

@@ -1,3 +1,4 @@
+using Menlo.Application.Auth;
 using Menlo.Application.Common.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,11 +22,16 @@ public static class ServiceCollectionExtensions
                                           ?? throw new InvalidOperationException(
                                               "Connection string 'menlo' is not configured.");
 
-                if (builder.Environment.IsDevelopment())
+                NpgsqlConnectionStringBuilder csBuilder = new(connectionString);
+
+                if (!HasExplicitSslMode(connectionString))
                 {
-                    NpgsqlConnectionStringBuilder csBuilder = new(connectionString) { SslMode = SslMode.Require };
-                    connectionString = csBuilder.ConnectionString;
+                    csBuilder.SslMode = ShouldDisableSsl(builder.Environment, csBuilder)
+                        ? SslMode.Disable
+                        : SslMode.Require;
                 }
+
+                connectionString = csBuilder.ConnectionString;
 
                 options
                     .UseNpgsql(connectionString)
@@ -34,6 +40,8 @@ public static class ServiceCollectionExtensions
                         sp.GetRequiredService<AuditingInterceptor>(),
                         sp.GetRequiredService<SoftDeleteInterceptor>());
             });
+
+        builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
 
         return builder;
     }
@@ -58,4 +66,26 @@ public static class ServiceCollectionExtensions
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
         await db.Database.MigrateAsync(cancellationToken);
     }
+
+    private static bool HasExplicitSslMode(string connectionString)
+    {
+        return connectionString.Contains("SSL Mode", StringComparison.OrdinalIgnoreCase)
+               || connectionString.Contains("SslMode", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldDisableSsl(IHostEnvironment environment, NpgsqlConnectionStringBuilder connectionStringBuilder)
+    {
+        if (environment.IsDevelopment())
+        {
+            return true;
+        }
+
+        string? host = connectionStringBuilder.Host;
+
+        return string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(host, "::1", StringComparison.OrdinalIgnoreCase);
+    }
 }
+
+

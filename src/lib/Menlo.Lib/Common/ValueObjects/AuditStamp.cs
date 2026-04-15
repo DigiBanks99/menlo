@@ -19,3 +19,5 @@ public readonly record struct AuditStamp(
         $"By {ActorId} at {Timestamp:yyyy-MM-dd HH:mm:ss}Z" +
         (CorrelationId != null ? $" [{CorrelationId}]" : string.Empty);
 }
+
+

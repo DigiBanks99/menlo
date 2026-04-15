@@ -17,3 +17,5 @@ public interface IChatService
     /// </summary>
     IAsyncEnumerable<string> GetStreamingResponseAsync(string prompt, CancellationToken cancellationToken = default);
 }
+
+

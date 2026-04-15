@@ -1,3 +1,4 @@
+using Menlo.Application.Auth;
 using Menlo.Application.Common;
 using Menlo.Application.Tests.Fixtures;
 using Menlo.Lib.Common.Abstractions;
@@ -59,7 +60,7 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
     }
 
     [Fact]
-    public void GivenDevelopmentEnvironment_WhenResolvingDbContext_ThenConnectionStringHasSslMode()
+    public void GivenDevelopmentEnvironment_WhenResolvingDbContext_ThenConnectionStringDisablesSsl()
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
         {
@@ -78,9 +79,55 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         // Act - resolving MenloDbContext triggers the AddDbContext lambda
         MenloDbContext dbContext = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
 
-        // Assert - connection string should have SSL mode required
+        // Assert - local development should not require SSL
+        string? connectionString = dbContext.Database.GetConnectionString();
+        ItShouldHaveSslModeDisabled(connectionString);
+    }
+
+    [Fact]
+    public void GivenProductionEnvironment_WhenResolvingDbContext_ThenConnectionStringRequiresSsl()
+    {
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+        {
+            EnvironmentName = Environments.Production
+        });
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:menlo"] = "Host=menlo-db.example.com;Database=test;Username=test;Password=test"
+        });
+        builder.AddMenloApplication();
+        builder.Services.AddScoped<IAuditStampFactory, TestAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestSoftDeleteStampFactory>();
+        using IHost host = builder.Build();
+        using IServiceScope scope = host.Services.CreateScope();
+
+        MenloDbContext dbContext = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
         string? connectionString = dbContext.Database.GetConnectionString();
         ItShouldHaveSslModeRequired(connectionString);
+    }
+
+    [Fact]
+    public void GivenExplicitSslMode_WhenResolvingDbContext_ThenConfiguredSslModeIsPreserved()
+    {
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+        {
+            EnvironmentName = Environments.Production
+        });
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:menlo"] = "Host=localhost;Database=test;Username=test;Password=test;SSL Mode=Disable"
+        });
+        builder.AddMenloApplication();
+        builder.Services.AddScoped<IAuditStampFactory, TestAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestSoftDeleteStampFactory>();
+        using IHost host = builder.Build();
+        using IServiceScope scope = host.Services.CreateScope();
+
+        MenloDbContext dbContext = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        string? connectionString = dbContext.Database.GetConnectionString();
+        ItShouldHaveSslModeDisabled(connectionString);
     }
 
     [Fact]
@@ -102,9 +149,43 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         act.ShouldThrow<InvalidOperationException>();
     }
 
+    [Fact]
+    public void GivenValidConfiguration_WhenResolvingIUserContext_ThenReturnsScopedMenloDbContext()
+    {
+        string connectionString = fixture.Services
+            .GetRequiredService<IConfiguration>().GetConnectionString("menlo")!;
+
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+        {
+            EnvironmentName = Environments.Production
+        });
+        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:menlo"] = connectionString
+        });
+        builder.AddMenloApplication();
+        builder.Services.AddScoped<IAuditStampFactory, TestAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestSoftDeleteStampFactory>();
+        using IHost host = builder.Build();
+        using IServiceScope scope = host.Services.CreateScope();
+
+        IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
+        MenloDbContext dbContext = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        userContext.ShouldBe(dbContext);
+    }
+
     private static void ItShouldHaveSslModeRequired(string? connectionString)
     {
         connectionString.ShouldNotBeNull();
         connectionString.ShouldContain("SSL Mode=Require", Case.Insensitive);
     }
+
+    private static void ItShouldHaveSslModeDisabled(string? connectionString)
+    {
+        connectionString.ShouldNotBeNull();
+        connectionString.ShouldContain("SSL Mode=Disable", Case.Insensitive);
+    }
 }
+
+

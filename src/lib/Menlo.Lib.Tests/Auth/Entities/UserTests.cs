@@ -366,3 +366,5 @@ public sealed class UserTests
         return new FakeAuditStampFactory(new AuditStamp(actorId, timestamp));
     }
 }
+
+

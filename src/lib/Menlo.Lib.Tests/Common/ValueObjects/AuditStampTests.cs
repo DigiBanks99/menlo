@@ -49,3 +49,5 @@ public sealed class AuditStampTests
         result.ShouldBe($"By {actorId} at {timestamp:yyyy-MM-dd HH:mm:ss}Z [{correlationId}]");
     }
 }
+
+

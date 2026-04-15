@@ -218,3 +218,5 @@ public readonly record struct Money : IComparable<Money>
     public static bool operator >(Money left, Money right) => left.CompareTo(right) > 0;
     public static bool operator >=(Money left, Money right) => left.CompareTo(right) >= 0;
 }
+
+

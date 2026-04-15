@@ -60,3 +60,5 @@ public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
         _standardUserFactory.Dispose();
     }
 }
+
+

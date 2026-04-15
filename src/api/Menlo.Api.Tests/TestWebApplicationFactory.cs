@@ -170,3 +170,5 @@ internal sealed class NoOpSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }
+
+

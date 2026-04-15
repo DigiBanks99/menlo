@@ -151,3 +151,5 @@ public sealed class AuditingContractsTests
         Should.Throw<ArgumentNullException>(action);
     }
 }
+
+

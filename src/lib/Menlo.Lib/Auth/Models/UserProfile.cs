@@ -14,3 +14,5 @@ public sealed record UserProfile(
     string Email,
     string DisplayName,
     IReadOnlyList<string> Roles);
+
+

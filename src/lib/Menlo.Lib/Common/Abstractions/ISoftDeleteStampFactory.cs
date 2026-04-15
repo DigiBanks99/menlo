@@ -11,3 +11,5 @@ public interface ISoftDeleteStampFactory
     /// <summary>Creates a stamp capturing the current actor and timestamp for a soft delete.</summary>
     SoftDeleteStamp CreateStamp();
 }
+
+

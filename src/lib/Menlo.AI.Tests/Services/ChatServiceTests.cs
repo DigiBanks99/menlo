@@ -31,3 +31,5 @@ public sealed class ChatServiceTests
         chatService.ShouldBeAssignableTo<IChatService>();
     }
 }
+
+

@@ -15,3 +15,5 @@ internal static class EntraIdExtensions
         return env;
     }
 }
+
+

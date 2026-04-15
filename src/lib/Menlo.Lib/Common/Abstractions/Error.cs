@@ -40,3 +40,5 @@ public abstract class Error
     /// </summary>
     public override string ToString() => $"[{Code}] {Message}";
 }
+
+

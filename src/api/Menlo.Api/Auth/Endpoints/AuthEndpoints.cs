@@ -21,3 +21,5 @@ public static class AuthEndpoints
         return app;
     }
 }
+
+

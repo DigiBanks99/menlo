@@ -12,3 +12,5 @@ public readonly record struct ExternalUserId(string Value)
     /// </summary>
     public override string ToString() => Value;
 }
+
+

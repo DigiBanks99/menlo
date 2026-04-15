@@ -43,3 +43,5 @@ public interface IAuditable
     /// <param name="operation">The type of audit operation being performed.</param>
     void Audit(IAuditStampFactory factory, AuditOperation operation);
 }
+
+

@@ -1,4 +1,6 @@
+using Menlo.Application.Auth;
 using Menlo.Application.Common.ValueConverters;
+using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +9,11 @@ using System.Linq.Expressions;
 
 namespace Menlo.Application.Common;
 
-public sealed class MenloDbContext : DbContext
+public sealed class MenloDbContext : DbContext, IUserContext
 {
     public MenloDbContext(DbContextOptions<MenloDbContext> options) : base(options) { }
+
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,3 +42,5 @@ public sealed class MenloDbContext : DbContext
             .HaveConversion<UserIdValueConverter>();
     }
 }
+
+

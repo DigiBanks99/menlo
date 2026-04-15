@@ -25,3 +25,5 @@ internal sealed class TestAuditableEntity : IAuditable
         ModifiedAt = stamp.Timestamp;
     }
 }
+
+

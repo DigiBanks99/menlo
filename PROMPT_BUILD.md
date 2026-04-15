@@ -16,11 +16,17 @@ All work related to a feature must be completed in one unit:
 - Security scanning
 - License compliance
 
+Use subagents liberally to free-up your own context. You are an orchestrator.
+
 ### Before starting
 
 - Explore the work previously done
 - Search for existing functionality before duplicating
 - If a decision is open, create a blocking issue with the clarification needed
+
+### Testing
+
+Use the `.Net Test Agent` for writing backend tests
 
 ### Before committing
 

@@ -19,3 +19,5 @@ internal sealed class MenloDbContextFactory : IDesignTimeDbContextFactory<MenloD
         return new MenloDbContext(options);
     }
 }
+
+

@@ -24,3 +24,5 @@ public interface ISoftDeletable
     /// </summary>
     void MarkDeleted(UserId deletedBy, DateTimeOffset deletedAt);
 }
+
+

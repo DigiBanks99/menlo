@@ -11,3 +11,5 @@ internal static class OpenApiServiceCollectionExtensions
         }
     }
 }
+
+

@@ -30,3 +30,5 @@ internal sealed class SoftDeleteInterceptor(ISoftDeleteStampFactory factory) : S
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 }
+
+

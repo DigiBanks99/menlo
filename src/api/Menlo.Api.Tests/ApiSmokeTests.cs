@@ -20,3 +20,5 @@ public class ApiSmokeTests(TestWebApplicationFactory factory) : IClassFixture<Te
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 }
+
+

@@ -120,3 +120,5 @@ public sealed class DomainEventsTests
         ((TestDomainEvent)aggregate.DomainEvents.First()).Message.ShouldBe("Struct Event");
     }
 }
+
+

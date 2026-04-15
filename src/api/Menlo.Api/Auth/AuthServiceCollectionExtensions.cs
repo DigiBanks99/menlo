@@ -1,5 +1,6 @@
 using Menlo.Api.Auth.Options;
 using Menlo.Api.Auth.Policies;
+using Menlo.Lib.Common.Abstractions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,11 @@ public static class AuthServiceCollectionExtensions
             .ValidateOnStart();
 
         builder.Services.AddSingleton<IValidateOptions<MenloAuthOptions>, MenloAuthOptionsValidator>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<CurrentUserPersistenceStampFactory>();
+        builder.Services.AddScoped<IAuditStampFactory>(sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
+        builder.Services.AddScoped<ISoftDeleteStampFactory>(
+            sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
 
         IConfigurationSection section = builder.Configuration.GetSection(MenloAuthOptions.SectionName);
         MenloAuthOptions authOptions = section
@@ -82,3 +88,5 @@ public static class AuthServiceCollectionExtensions
         return builder;
     }
 }
+
+
