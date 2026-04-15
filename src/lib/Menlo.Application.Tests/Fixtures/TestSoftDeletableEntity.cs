@@ -39,5 +39,3 @@ internal sealed class TestSoftDeletableEntity : IAuditable, ISoftDeletable
         DeletedAt = deletedAt;
     }
 }
-
-

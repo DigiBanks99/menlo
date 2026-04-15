@@ -174,8 +174,3 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
         persistedEntity.DeletedAt.ShouldNotBeNull();
     }
 }
-
-
-
-
-

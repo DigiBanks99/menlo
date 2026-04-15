@@ -58,5 +58,3 @@ public sealed class InterceptorPersistenceFixture : IAsyncLifetime
 
 [CollectionDefinition("InterceptorPersistence")]
 public sealed class InterceptorPersistenceCollection : ICollectionFixture<InterceptorPersistenceFixture>;
-
-

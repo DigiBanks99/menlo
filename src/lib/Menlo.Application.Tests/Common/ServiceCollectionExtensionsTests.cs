@@ -187,5 +187,3 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         connectionString.ShouldContain("SSL Mode=Disable", Case.Insensitive);
     }
 }
-
-

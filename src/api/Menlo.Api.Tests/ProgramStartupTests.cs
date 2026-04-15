@@ -98,5 +98,3 @@ public sealed class ProgramStartupTests : TestFixture
         exception.Failures.ShouldContain("CookieDomain is required.");
     }
 }
-
-
