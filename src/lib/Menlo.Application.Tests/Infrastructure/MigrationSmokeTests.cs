@@ -14,7 +14,7 @@ public sealed class MigrationSmokeTests(PersistenceFixture fixture)
         using IServiceScope scope = fixture.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<Menlo.Application.Common.MenloDbContext>();
 
-        var tableExists = await db.Database
+        bool tableExists = await db.Database
             .SqlQueryRaw<int>(
                 "SELECT 1 FROM information_schema.tables WHERE table_name = '__EFMigrationsHistory'")
             .AnyAsync(TestContext.Current.CancellationToken);

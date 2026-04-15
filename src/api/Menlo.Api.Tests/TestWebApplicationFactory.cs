@@ -57,10 +57,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             .AddInMemoryCollection(hostConfig)
             .Build());
 
-        builder.ConfigureAppConfiguration((context, config) =>
-        {
-            config.AddInMemoryCollection();
-        });
+        builder.ConfigureAppConfiguration((context, config) => config.AddInMemoryCollection());
 
         builder.ConfigureServices(services =>
         {

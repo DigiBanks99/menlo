@@ -10,14 +10,9 @@ namespace Menlo.Application.Common;
 /// Attempts to resolve IHttpContextAccessor via reflection to avoid a hard dependency on ASP.NET packages.
 /// Falls back to a system actor (Guid.Empty) when no HTTP context or user is available.
 /// </summary>
-public sealed class ReflectiveAuditStampFactory : IAuditStampFactory, ISoftDeleteStampFactory
+public sealed class ReflectiveAuditStampFactory(IServiceProvider serviceProvider) : IAuditStampFactory, ISoftDeleteStampFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public ReflectiveAuditStampFactory(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     private UserId GetActorIdFromHttpContext()
     {

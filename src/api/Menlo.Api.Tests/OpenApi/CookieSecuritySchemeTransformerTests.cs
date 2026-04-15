@@ -247,7 +247,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         return new OpenApiDocument
         {
             Info = new OpenApiInfo { Title = "Test API", Version = "v1" },
-            Paths = new OpenApiPaths()
+            Paths = []
         };
     }
 
@@ -317,7 +317,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         return new OpenApiDocument
         {
             Info = new OpenApiInfo { Title = "Test API", Version = "v1" },
-            Paths = new OpenApiPaths(),
+            Paths = [],
             Components = new OpenApiComponents
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
@@ -340,7 +340,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         OpenApiDocument document = new()
         {
             Info = new OpenApiInfo { Title = "Test API", Version = "v1" },
-            Paths = new OpenApiPaths()
+            Paths = []
         };
 
         document.Paths["/test"] = new OpenApiPathItem
@@ -350,13 +350,13 @@ public sealed class CookieSecuritySchemeTransformerTests
                 [HttpMethod.Get] = new OpenApiOperation
                 {
                     OperationId = "GetTest",
-                    Security = new List<OpenApiSecurityRequirement>
-                    {
+                    Security =
+                    [
                         new OpenApiSecurityRequirement
                         {
                             [new OpenApiSecuritySchemeReference("Bearer", document)] = []
                         }
-                    },
+                    ],
                     Responses = new OpenApiResponses
                     {
                         ["200"] = new OpenApiResponse { Description = "Success" }

@@ -17,7 +17,7 @@ public sealed class ConstraintVerificationTests
 
         // Act
         Type[] allTypes = menloLibAssembly.GetTypes();
-        List<string> violatingTypes = new();
+        List<string> violatingTypes = [];
 
         foreach (Type type in allTypes)
         {

@@ -10,22 +10,13 @@ namespace Menlo.Lib.Tests.Common.Abstractions;
 /// </summary>
 public sealed class ErrorResultTests
 {
-    private sealed class TestError : Error
+    private sealed class TestError(string code, string message) : Error(code, message)
     {
-        public TestError(string code, string message) : base(code, message)
-        {
-        }
     }
 
-    private sealed class InvalidInputError : Error
+    private sealed class InvalidInputError(string parameterName) : Error("TEST_001", $"Invalid input for parameter: {parameterName}")
     {
-        public InvalidInputError(string parameterName)
-            : base("TEST_001", $"Invalid input for parameter: {parameterName}")
-        {
-            ParameterName = parameterName;
-        }
-
-        public string ParameterName { get; }
+        public string ParameterName { get; } = parameterName;
     }
 
     [Fact]
@@ -140,12 +131,7 @@ public sealed class ErrorResultTests
 
     private static Result<string, Error> ProcessInput(string input)
     {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return new InvalidInputError("input");
-        }
-
-        return $"Processed: {input}";
+        return string.IsNullOrWhiteSpace(input) ? (Result<string, Error>)new InvalidInputError("input") : (Result<string, Error>)$"Processed: {input}";
     }
 }
 

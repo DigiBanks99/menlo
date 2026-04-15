@@ -3,14 +3,9 @@ using Microsoft.Extensions.AI;
 
 namespace Menlo.AI.Services;
 
-internal sealed class EmbeddingService : IEmbeddingService
+internal sealed class EmbeddingService(IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator) : IEmbeddingService
 {
-    private readonly IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
-
-    public EmbeddingService(IEmbeddingGenerator<string, Embedding<float>>? embeddingGenerator)
-    {
-        _embeddingGenerator = embeddingGenerator;
-    }
+    private readonly IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator = embeddingGenerator;
 
     public async Task<float[]> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
     {
@@ -28,7 +23,7 @@ internal sealed class EmbeddingService : IEmbeddingService
             throw new InvalidOperationException("Embedding generator is not configured");
 
         GeneratedEmbeddings<Embedding<float>> embeddings = await _embeddingGenerator.GenerateAsync(texts, cancellationToken: cancellationToken);
-        return embeddings.Select(e => e.Vector.ToArray()).ToArray();
+        return [.. embeddings.Select(e => e.Vector.ToArray())];
     }
 }
 

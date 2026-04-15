@@ -18,13 +18,10 @@ internal sealed class CurrentUserPersistenceStampFactory(IHttpContextAccessor ht
                         ?? user?.FindFirstValue("oid")
                         ?? user?.FindFirstValue("sub");
 
-        if (!Guid.TryParse(value, out Guid parsedUserId))
-        {
-            throw new InvalidOperationException(
-                "A valid authenticated user identifier claim is required to create persistence audit stamps.");
-        }
-
-        return new UserId(parsedUserId);
+        return !Guid.TryParse(value, out Guid parsedUserId)
+            ? throw new InvalidOperationException(
+                "A valid authenticated user identifier claim is required to create persistence audit stamps.")
+            : new UserId(parsedUserId);
     }
 }
 
