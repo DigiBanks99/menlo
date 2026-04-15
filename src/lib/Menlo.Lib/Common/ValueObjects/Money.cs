@@ -41,12 +41,7 @@ public readonly record struct Money : IComparable<Money>
     /// <returns>Success with Money if valid; Failure with EmptyCurrencyError if currency is empty.</returns>
     public static Result<Money, Error> Create(decimal amount, string currency)
     {
-        if (string.IsNullOrWhiteSpace(currency))
-        {
-            return new EmptyCurrencyError();
-        }
-
-        return new Money(amount, currency);
+        return string.IsNullOrWhiteSpace(currency) ? (Result<Money, Error>)new EmptyCurrencyError() : (Result<Money, Error>)new Money(amount, currency);
     }
 
     /// <summary>
@@ -63,12 +58,9 @@ public readonly record struct Money : IComparable<Money>
     /// <returns>Success with the sum if currencies match; Failure with CurrencyMismatchError otherwise.</returns>
     public Result<Money, Error> Add(Money other)
     {
-        if (!Currency.Equals(other.Currency, StringComparison.Ordinal))
-        {
-            return new CurrencyMismatchError(Currency, other.Currency);
-        }
-
-        return new Money(Amount + other.Amount, Currency);
+        return !Currency.Equals(other.Currency, StringComparison.Ordinal)
+            ? (Result<Money, Error>)new CurrencyMismatchError(Currency, other.Currency)
+            : (Result<Money, Error>)new Money(Amount + other.Amount, Currency);
     }
 
     /// <summary>
@@ -78,12 +70,9 @@ public readonly record struct Money : IComparable<Money>
     /// <returns>Success with the difference if currencies match; Failure with CurrencyMismatchError otherwise.</returns>
     public Result<Money, Error> Subtract(Money other)
     {
-        if (!Currency.Equals(other.Currency, StringComparison.Ordinal))
-        {
-            return new CurrencyMismatchError(Currency, other.Currency);
-        }
-
-        return new Money(Amount - other.Amount, Currency);
+        return !Currency.Equals(other.Currency, StringComparison.Ordinal)
+            ? (Result<Money, Error>)new CurrencyMismatchError(Currency, other.Currency)
+            : (Result<Money, Error>)new Money(Amount - other.Amount, Currency);
     }
 
     /// <summary>
@@ -103,12 +92,7 @@ public readonly record struct Money : IComparable<Money>
     /// <returns>Success with the divided Money; Failure with DivisionByZeroError if divisor is zero.</returns>
     public Result<Money, Error> Divide(decimal divisor)
     {
-        if (divisor == 0)
-        {
-            return new DivisionByZeroError();
-        }
-
-        return new Money(Amount / divisor, Currency);
+        return divisor == 0 ? (Result<Money, Error>)new DivisionByZeroError() : (Result<Money, Error>)new Money(Amount / divisor, Currency);
     }
 
     /// <summary>
@@ -203,14 +187,11 @@ public readonly record struct Money : IComparable<Money>
     /// <exception cref="ArgumentException">Thrown when currencies don't match.</exception>
     public int CompareTo(Money other)
     {
-        if (!Currency.Equals(other.Currency, StringComparison.Ordinal))
-        {
-            throw new ArgumentException(
+        return !Currency.Equals(other.Currency, StringComparison.Ordinal)
+            ? throw new ArgumentException(
                 $"Cannot compare Money with different currencies: '{Currency}' vs '{other.Currency}'",
-                nameof(other));
-        }
-
-        return Amount.CompareTo(other.Amount);
+                nameof(other))
+            : Amount.CompareTo(other.Amount);
     }
 
     public static bool operator <(Money left, Money right) => left.CompareTo(right) < 0;

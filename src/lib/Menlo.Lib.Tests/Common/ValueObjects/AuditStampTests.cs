@@ -13,7 +13,7 @@ public sealed class AuditStampTests
     {
         // Arrange
         UserId actorId = UserId.NewId();
-        DateTimeOffset timestamp = new DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero);
+        DateTimeOffset timestamp = new(2024, 6, 15, 10, 30, 0, TimeSpan.Zero);
         AuditStamp stamp = new(actorId, timestamp);
 
         // Act
@@ -33,7 +33,7 @@ public sealed class AuditStampTests
     {
         // Arrange
         UserId actorId = UserId.NewId();
-        DateTimeOffset timestamp = new DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero);
+        DateTimeOffset timestamp = new(2024, 6, 15, 10, 30, 0, TimeSpan.Zero);
         const string correlationId = "abc-123";
         AuditStamp stamp = new(actorId, timestamp, correlationId);
 

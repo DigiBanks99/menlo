@@ -9,10 +9,8 @@ using System.Linq.Expressions;
 
 namespace Menlo.Application.Common;
 
-public sealed class MenloDbContext : DbContext, IUserContext
+public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options) : DbContext(options), IUserContext
 {
-    public MenloDbContext(DbContextOptions<MenloDbContext> options) : base(options) { }
-
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

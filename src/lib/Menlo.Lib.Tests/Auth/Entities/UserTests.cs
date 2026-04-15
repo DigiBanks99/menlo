@@ -347,14 +347,9 @@ public sealed class UserTests
     }
 
     // Test Setup Helpers
-    private sealed class FakeAuditStampFactory : IAuditStampFactory
+    private sealed class FakeAuditStampFactory(AuditStamp stamp) : IAuditStampFactory
     {
-        private readonly AuditStamp _stamp;
-
-        public FakeAuditStampFactory(AuditStamp stamp)
-        {
-            _stamp = stamp;
-        }
+        private readonly AuditStamp _stamp = stamp;
 
         public AuditStamp CreateStamp() => _stamp;
     }

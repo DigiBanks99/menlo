@@ -5,16 +5,10 @@ using System.Runtime.CompilerServices;
 
 namespace Menlo.AI.Services;
 
-public sealed class ChatService : IChatService
+public sealed class ChatService(Kernel kernel, IChatClient? chatClient = null) : IChatService
 {
-    private readonly Kernel _kernel;
-    private readonly IChatClient? _chatClient;
-
-    public ChatService(Kernel kernel, IChatClient? chatClient = null)
-    {
-        _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
-        _chatClient = chatClient;
-    }
+    private readonly Kernel _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
+    private readonly IChatClient? _chatClient = chatClient;
 
     public async Task<string> GetResponseAsync(string prompt, CancellationToken cancellationToken = default)
     {
@@ -41,7 +35,7 @@ public sealed class ChatService : IChatService
         else
         {
             // For Semantic Kernel, we'll return the complete response as a single item
-            var result = await GetResponseAsync(prompt, cancellationToken);
+            string result = await GetResponseAsync(prompt, cancellationToken);
             yield return result;
         }
     }

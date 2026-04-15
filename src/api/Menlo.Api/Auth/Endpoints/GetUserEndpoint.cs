@@ -38,7 +38,7 @@ public static class GetUserEndpoint
             Id: user.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
             Email: user.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
             DisplayName: user.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
-            Roles: user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList());
+            Roles: [.. user.FindAll(ClaimTypes.Role).Select(c => c.Value)]);
 
         return Results.Ok(profile);
     }

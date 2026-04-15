@@ -46,7 +46,7 @@ public sealed class MoneyAllocationTests
 
         // Assert
         ItShouldSucceed(result);
-        ItShouldDistributeRemainder(result, new[] { 3.34m, 3.33m, 3.33m });
+        ItShouldDistributeRemainder(result, [3.34m, 3.33m, 3.33m]);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public sealed class MoneyAllocationTests
 
         // Assert
         ItShouldSucceed(result);
-        ItShouldDistributeRemainder(result, new[] { 25.00m, 25.00m, 50.00m });
+        ItShouldDistributeRemainder(result, [25.00m, 25.00m, 50.00m]);
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public sealed class MoneyAllocationTests
 
         // Assert
         ItShouldSucceed(result);
-        ItShouldDistributeRemainder(result, new[] { 0m, 33.33m, 0m, 66.67m });
+        ItShouldDistributeRemainder(result, [0m, 33.33m, 0m, 66.67m]);
     }
 
     /// <summary>

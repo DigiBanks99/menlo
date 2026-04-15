@@ -12,29 +12,19 @@ namespace Menlo.Lib.Tests.Common.Abstractions;
 /// </summary>
 public sealed class AuditingContractsTests
 {
-    private sealed class FakeAuditStampFactory : IAuditStampFactory
+    private sealed class FakeAuditStampFactory(AuditStamp stamp) : IAuditStampFactory
     {
-        private readonly AuditStamp _stamp;
-
-        public FakeAuditStampFactory(AuditStamp stamp)
-        {
-            _stamp = stamp;
-        }
+        private readonly AuditStamp _stamp = stamp;
 
         public AuditStamp CreateStamp() => _stamp;
     }
 
     private sealed class TestAuditableEntity : IAuditable
     {
-        private UserId? _createdBy;
-        private DateTimeOffset? _createdAt;
-        private UserId? _modifiedBy;
-        private DateTimeOffset? _modifiedAt;
-
-        public UserId? CreatedBy => _createdBy;
-        public DateTimeOffset? CreatedAt => _createdAt;
-        public UserId? ModifiedBy => _modifiedBy;
-        public DateTimeOffset? ModifiedAt => _modifiedAt;
+        public UserId? CreatedBy { get; private set; }
+        public DateTimeOffset? CreatedAt { get; private set; }
+        public UserId? ModifiedBy { get; private set; }
+        public DateTimeOffset? ModifiedAt { get; private set; }
 
         public void Audit(IAuditStampFactory factory, AuditOperation operation)
         {
@@ -45,15 +35,15 @@ public sealed class AuditingContractsTests
             switch (operation)
             {
                 case AuditOperation.Create:
-                    _createdBy = stamp.ActorId;
-                    _createdAt = stamp.Timestamp;
-                    _modifiedBy = stamp.ActorId;
-                    _modifiedAt = stamp.Timestamp;
+                    CreatedBy = stamp.ActorId;
+                    CreatedAt = stamp.Timestamp;
+                    ModifiedBy = stamp.ActorId;
+                    ModifiedAt = stamp.Timestamp;
                     break;
 
                 case AuditOperation.Update:
-                    _modifiedBy = stamp.ActorId;
-                    _modifiedAt = stamp.Timestamp;
+                    ModifiedBy = stamp.ActorId;
+                    ModifiedAt = stamp.Timestamp;
                     break;
 
                 default:

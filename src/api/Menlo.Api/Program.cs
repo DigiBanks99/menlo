@@ -71,7 +71,7 @@ apiGroup
     {
         try
         {
-            var response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
+            string response = await chatService.GetResponseAsync("Hello, respond with 'AI service is working'");
             return Results.Ok(new { Status = "Healthy", Response = response });
         }
         catch (Exception ex)

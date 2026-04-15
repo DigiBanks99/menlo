@@ -29,10 +29,7 @@ public partial class AddUserEntity : Migration
                 modified_by = table.Column<Guid>(type: "uuid", nullable: true),
                 modified_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("pk_users", x => x.id);
-            });
+            constraints: table => table.PrimaryKey("pk_users", x => x.id));
 
         migrationBuilder.CreateIndex(
             name: "ix_users_external_id",

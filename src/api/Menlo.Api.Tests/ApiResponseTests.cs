@@ -30,15 +30,12 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
             .GetResponseAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException<string>(new InvalidOperationException("AI unavailable")));
 
-        using WebApplicationFactory<Program> throwingFactory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
+        using WebApplicationFactory<Program> throwingFactory = factory.WithWebHostBuilder(builder => builder.ConfigureServices(services =>
             {
                 ServiceDescriptor? existing = services.FirstOrDefault(d => d.ServiceType == typeof(IChatService));
                 if (existing is not null) services.Remove(existing);
                 services.AddSingleton(throwingChatService);
-            });
-        });
+            }));
         using HttpClient client = throwingFactory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);

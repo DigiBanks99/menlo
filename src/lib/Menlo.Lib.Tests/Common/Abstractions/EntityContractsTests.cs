@@ -19,7 +19,7 @@ public sealed class EntityContractsTests
 
     private sealed class TestAggregateRoot : IAggregateRoot<TestEntityId>
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
+        private readonly List<IDomainEvent> _domainEvents = [];
 
         public TestEntityId Id { get; init; }
 

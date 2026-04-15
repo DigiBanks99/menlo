@@ -7,14 +7,9 @@ using System.Security.Claims;
 namespace Menlo.Application.Common;
 
 // Backwards-compatible name, but implemented via reflection to avoid an ASP.NET compile dependency.
-public sealed class HttpContextAuditStampFactory : IAuditStampFactory
+public sealed class HttpContextAuditStampFactory(IServiceProvider serviceProvider) : IAuditStampFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public HttpContextAuditStampFactory(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public AuditStamp CreateStamp()
     {
