@@ -9,20 +9,14 @@ namespace Menlo.Lib.Common.Abstractions;
 /// </summary>
 public interface ISoftDeletable
 {
-    /// <summary>Gets whether this entity has been soft-deleted.</summary>
-    bool IsDeleted { get; }
+    /// <summary>Whether this entity has been soft-deleted.</summary>
+    bool IsDeleted { get; set; }
 
-    /// <summary>Gets when this entity was soft-deleted (UTC). Null if not deleted.</summary>
-    DateTimeOffset? DeletedAt { get; }
+    /// <summary>When this entity was soft-deleted (UTC). Null if not deleted.</summary>
+    DateTimeOffset? DeletedAt { get; set; }
 
-    /// <summary>Gets the user who soft-deleted this entity. Null if not deleted.</summary>
-    UserId? DeletedBy { get; }
-
-    /// <summary>
-    /// Marks this entity as soft-deleted. Called by the <c>SoftDeleteInterceptor</c>;
-    /// application code should use <c>DbSet.Remove()</c> instead.
-    /// </summary>
-    void MarkDeleted(UserId deletedBy, DateTimeOffset deletedAt);
+    /// <summary>The user who soft-deleted this entity. Null if not deleted.</summary>
+    UserId? DeletedBy { get; set; }
 }
 
 

@@ -43,6 +43,17 @@ public sealed class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.ModifiedAt)
             .IsRequired(false);
 
+        // Soft-delete properties
+        builder.Property(user => user.IsDeleted)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(user => user.DeletedAt)
+            .IsRequired(false);
+
+        builder.Property(user => user.DeletedBy)
+            .IsRequired(false);
+
         builder.HasIndex(user => user.ExternalId)
             .IsUnique();
 

@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
     {
         builder.Services
             .AddScoped<IAuditStampFactory, ReflectiveAuditStampFactory>()
+            .AddScoped<ISoftDeleteStampFactory, ReflectiveAuditStampFactory>()
             .AddScoped<AuditingInterceptor>()
             .AddScoped<SoftDeleteInterceptor>()
             .AddDbContext<MenloDbContext>((sp, options) =>
@@ -40,7 +41,8 @@ public static class ServiceCollectionExtensions
                     .UseSnakeCaseNamingConvention()
                     .AddInterceptors(
                         sp.GetRequiredService<AuditingInterceptor>(),
-                        sp.GetRequiredService<SoftDeleteInterceptor>());
+                        sp.GetRequiredService<SoftDeleteInterceptor>())
+                    .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
 
         builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
