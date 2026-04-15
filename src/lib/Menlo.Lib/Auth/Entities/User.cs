@@ -86,6 +86,26 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
     /// <inheritdoc />
     public DateTimeOffset? ModifiedAt { get; private set; }
 
+    // ISoftDeletable implementation
+    /// <inheritdoc />
+    public bool IsDeleted { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset? DeletedAt { get; private set; }
+
+    /// <inheritdoc />
+    public UserId? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Marks this entity as soft-deleted. Called by the SoftDeleteInterceptor.
+    /// </summary>
+    public void MarkDeleted(UserId deletedBy, DateTimeOffset deletedAt)
+    {
+        IsDeleted = true;
+        DeletedBy = deletedBy;
+        DeletedAt = deletedAt;
+    }
+
     // IHasDomainEvents implementation
     /// <inheritdoc />
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
@@ -115,11 +135,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         ModifiedBy = stamp.ActorId;
         ModifiedAt = stamp.Timestamp;
     }
-
-    // ISoftDeletable
-    public bool IsDeleted { get; set; }
-    public DateTimeOffset? DeletedAt { get; set; }
-    public UserId? DeletedBy { get; set; }
 
     /// <summary>
     /// Factory method to create a new User.

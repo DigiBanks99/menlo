@@ -10,13 +10,13 @@ namespace Menlo.Lib.Common.Abstractions;
 public interface ISoftDeletable
 {
     /// <summary>Whether this entity has been soft-deleted.</summary>
-    bool IsDeleted { get; set; }
+    bool IsDeleted { get; }
 
     /// <summary>When this entity was soft-deleted (UTC). Null if not deleted.</summary>
-    DateTimeOffset? DeletedAt { get; set; }
+    DateTimeOffset? DeletedAt { get; }
 
     /// <summary>The user who soft-deleted this entity. Null if not deleted.</summary>
-    UserId? DeletedBy { get; set; }
+    UserId? DeletedBy { get; }
 }
 
 
