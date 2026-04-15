@@ -1,5 +1,6 @@
 using Menlo.Application.Auth;
 using Menlo.Application.Common.Interceptors;
+using Menlo.Lib.Common.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ public static class ServiceCollectionExtensions
     public static IHostApplicationBuilder AddMenloApplication(this IHostApplicationBuilder builder)
     {
         builder.Services
+            .AddScoped<IAuditStampFactory, ReflectiveAuditStampFactory>()
             .AddScoped<AuditingInterceptor>()
             .AddScoped<SoftDeleteInterceptor>()
             .AddDbContext<MenloDbContext>((sp, options) =>
