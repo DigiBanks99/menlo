@@ -446,7 +446,7 @@ jobs:
             --logger trx \
             --logger "console;verbosity=detailed"
         env:
-          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=menlo_test;Username=postgres;Password=postgres"
+          ConnectionStrings__menlo: "Host=localhost;Port=5432;Database=menlo_test;Username=postgres;Password=postgres"
 
       - name: Upload integration test results
         uses: actions/upload-artifact@v7
