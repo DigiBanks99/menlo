@@ -49,8 +49,24 @@ dotnet sln add lib/Menlo.ServiceDefaults/Menlo.ServiceDefaults.csproj
 ```sh
 dotnet new classlib -n Menlo.Lib -o lib/Menlo.Lib
 dotnet new classlib -n Menlo.AI -o lib/Menlo.AI
+dotnet new classlib -n Menlo.Application -o lib/Menlo.Application
 dotnet sln add lib/Menlo.Lib/Menlo.Lib.csproj
 dotnet sln add lib/Menlo.AI/Menlo.AI.csproj
+dotnet sln add lib/Menlo.Application/Menlo.Application.csproj
+```
+
+Install EF Core packages to `Menlo.Application`:
+
+```sh
+dotnet add lib/Menlo.Application/Menlo.Application.csproj package Npgsql.EntityFrameworkCore.PostgreSQL
+dotnet add lib/Menlo.Application/Menlo.Application.csproj package EFCore.NamingConventions
+dotnet add lib/Menlo.Application/Menlo.Application.csproj package Microsoft.EntityFrameworkCore.Design
+```
+
+Add reference from `Menlo.Application` to `Menlo.Lib`:
+
+```sh
+dotnet add lib/Menlo.Application/Menlo.Application.csproj reference lib/Menlo.Lib/Menlo.Lib.csproj
 ```
 
 ### 4.4. Minimal API
@@ -66,6 +82,8 @@ dotnet sln add api/Menlo.Api/Menlo.Api.csproj
 # Menlo.Lib and Menlo.AI to Menlo.Api
 dotnet add api/Menlo.Api/Menlo.Api.csproj reference ../lib/Menlo.Lib/Menlo.Lib.csproj
 dotnet add api/Menlo.Api/Menlo.Api.csproj reference ../lib/Menlo.AI/Menlo.AI.csproj
+# Menlo.Application to Menlo.Api (persistence layer)
+dotnet add api/Menlo.Api/Menlo.Api.csproj reference ../lib/Menlo.Application/Menlo.Application.csproj
 # ServiceDefaults to Menlo.Api
 dotnet add api/Menlo.Api/Menlo.Api.csproj reference ../lib/Menlo.ServiceDefaults/Menlo.ServiceDefaults.csproj
 # Menlo.Api and ServiceDefaults to AppHost
@@ -95,13 +113,25 @@ dotnet add api/Menlo.AppHost/Menlo.AppHost.csproj reference ../lib/Menlo.Service
   builder.Build().Run();
   ```
 
-### 4.7. (Optional) EF Core Migrations
+### 4.7. EF Core Migrations
+
+EF Core tooling and packages are already configured in `Menlo.Application`. Install the EF CLI tool globally:
 
 ```sh
 dotnet tool install --global dotnet-ef
-dotnet add lib/Menlo.Lib/Menlo.Lib.csproj package Microsoft.EntityFrameworkCore
-dotnet add api/Menlo.Api/Menlo.Api.csproj package Microsoft.EntityFrameworkCore.Design
 ```
+
+Create and apply migrations from the repository root:
+
+```sh
+# Create a new migration
+dotnet ef migrations add <MigrationName> --project src/lib/Menlo.Application --startup-project src/api/Menlo.Api
+
+# Apply pending migrations
+dotnet ef database update --project src/lib/Menlo.Application --startup-project src/api/Menlo.Api
+```
+
+> ℹ️ **Note**: Migrations run automatically on API startup via `MigrateDatabaseAsync()`. Manual migration commands are typically only needed during development when adding new migrations.
 
 ## 5. Frontend (Angular)
 
