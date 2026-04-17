@@ -25,6 +25,7 @@ internal sealed class TestSoftDeletableEntity : IAuditable, ISoftDeletable
         SoftDeleteStamp stamp = factory.CreateStamp();
         IsDeleted = true;
         DeletedBy = stamp.ActorId;
+        DeletedAt = stamp.Timestamp;
     }
 
     public void Audit(IAuditStampFactory factory, AuditOperation operation)
