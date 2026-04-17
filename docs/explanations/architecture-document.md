@@ -458,7 +458,13 @@ src/
 │   │   ├── Financial/           # Financial domain
 │   │   ├── Events/              # Events domain
 │   │   ├── Household/           # Household domain
+│   │   ├── Auth/                # Authentication domain
 │   │   └── Common/              # Shared domain patterns
+│   ├── Menlo.Application/       # EF Core + persistence layer
+│   │   ├── Common/              # DbContext, interceptors, DI setup
+│   │   │   └── Interceptors/    # AuditingInterceptor, SoftDeleteInterceptor
+│   │   ├── Auth/                # IUserContext, User entity configuration
+│   │   └── Migrations/          # EF Core migrations
 │   ├── Menlo.AI/                # AI infrastructure layer
 │   └── Menlo.ServiceDefaults/   # Shared infrastructure
 └── ui/                          # Frontend application
@@ -466,6 +472,8 @@ src/
         ├── projects/menlo-app/  # Main application
         └── projects/menlo-lib/  # Shared UI components
 ```
+
+**Slice Context Interface Pattern**: Feature code does not inject `MenloDbContext` directly. Instead, each bounded context has a focused interface (e.g., `IUserContext`) exposing only its own `DbSet<T>` and `SaveChangesAsync()`. `MenloDbContext` implements all slice interfaces, ensuring shared change tracking while enforcing domain boundary access control at the type system level.
 
 ### Design Pattern Standards
 

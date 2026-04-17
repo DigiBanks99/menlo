@@ -85,6 +85,19 @@ graph TB
             NotificationService[📡 Notification Service<br/>SignalR Hub<br/>Real-time notifications<br/>across features]
             AuthenticationService[🔐 Authentication Service<br/>ASP.NET Identity<br/>JWT token validation<br/>and user management]
         end
+
+        %% Application Layer (Menlo.Application)
+        subgraph ApplicationLayer["📦 Menlo.Application"]
+            MenloDbContext[🗄️ MenloDbContext<br/>Single EF Core DbContext<br/>Implements all slice interfaces<br/>snake_case naming convention]
+            IBudgetContext[📋 IBudgetContext<br/>Slice interface for<br/>Budget bounded context]
+            IPlanningContext[📋 IPlanningContext<br/>Slice interface for<br/>Planning bounded context]
+            IFinancialContext[📋 IFinancialContext<br/>Slice interface for<br/>Financial bounded context]
+            IHouseholdContext[📋 IHouseholdContext<br/>Slice interface for<br/>Household bounded context]
+            IEventContext[📋 IEventContext<br/>Slice interface for<br/>Events bounded context]
+            IUserContext[📋 IUserContext<br/>Slice interface for<br/>Auth bounded context]
+            AuditingInterceptor[🔍 AuditingInterceptor<br/>Auto-populates audit fields<br/>on create/update]
+            SoftDeleteInterceptor[🗑️ SoftDeleteInterceptor<br/>Converts deletes to<br/>soft deletes transparently]
+        end
         
         %% Database
         Database[(🗃️ PostgreSQL Database<br/>Stores all application data<br/>with EF Core mapping)]
@@ -112,7 +125,7 @@ graph TB
     %% Feature Internal Flows (Budget)
     BudgetEndpoints --> BudgetHandlers
     BudgetHandlers --> BudgetModels
-    BudgetHandlers --> BudgetRepository
+    BudgetHandlers --> IBudgetContext
     BudgetHandlers --> BudgetAnalyser
     BudgetHandlers --> TransactionCategorizer
     BudgetHandlers --> RentalCostAnalyser
@@ -120,7 +133,7 @@ graph TB
     %% Feature Internal Flows (Planning)
     PlanningEndpoints --> PlanningHandlers
     PlanningHandlers --> PlanningModels
-    PlanningHandlers --> PlanningRepository
+    PlanningHandlers --> IPlanningContext
     PlanningHandlers --> ListInterpreter
     PlanningHandlers --> BudgetImpactAnalyser
     PlanningHandlers --> PantryOptimizer
@@ -129,7 +142,7 @@ graph TB
     %% Feature Internal Flows (Financial)
     FinancialEndpoints --> FinancialHandlers
     FinancialHandlers --> FinancialModels
-    FinancialHandlers --> FinancialRepository
+    FinancialHandlers --> IFinancialContext
     FinancialHandlers --> ImportProcessor
     FinancialHandlers --> DuplicateDetector
     FinancialHandlers --> AttributionSuggester
@@ -138,14 +151,14 @@ graph TB
     %% Feature Internal Flows (Household)
     HouseholdEndpoints --> HouseholdHandlers
     HouseholdHandlers --> HouseholdModels
-    HouseholdHandlers --> HouseholdRepository
+    HouseholdHandlers --> IHouseholdContext
     HouseholdHandlers --> UtilityOptimizer
     HouseholdHandlers --> RentalAttributionAnalyser
     
     %% Feature Internal Flows (Event)
     EventEndpoints --> EventHandlers
     EventHandlers --> EventModels
-    EventHandlers --> EventRepository
+    EventHandlers --> IEventContext
     EventHandlers --> SmartScheduler
     
     %% AI Orchestration
@@ -160,12 +173,18 @@ graph TB
     AICoordinator --> OllamaService
     AICoordinator --> LearningEngine
     
-    %% Repository to Database
-    BudgetRepository --> Database
-    PlanningRepository --> Database
-    FinancialRepository --> Database
-    HouseholdRepository --> Database
-    EventRepository --> Database
+    %% Slice Contexts to MenloDbContext
+    IBudgetContext --> MenloDbContext
+    IPlanningContext --> MenloDbContext
+    IFinancialContext --> MenloDbContext
+    IHouseholdContext --> MenloDbContext
+    IEventContext --> MenloDbContext
+    IUserContext --> MenloDbContext
+    
+    %% MenloDbContext to Database (with interceptors)
+    MenloDbContext --> AuditingInterceptor
+    MenloDbContext --> SoftDeleteInterceptor
+    MenloDbContext --> Database
     
     %% Shared Services
     BudgetHandlers --> NotificationService
@@ -179,12 +198,12 @@ graph TB
     ImportProcessor --> BankSystem
     NotificationService --> Pages
     
-    %% Cross-feature Dependencies
-    BudgetImpactAnalyser --> BudgetRepository
-    SmartScheduler --> BudgetRepository
-    TransactionCategorizer --> PlanningRepository
-    PantryOptimizer --> PlanningRepository
-    ShoppingListGenerator --> PlanningRepository
+    %% Cross-feature Dependencies (via slice context interfaces)
+    BudgetImpactAnalyser --> IBudgetContext
+    SmartScheduler --> IBudgetContext
+    TransactionCategorizer --> IPlanningContext
+    PantryOptimizer --> IPlanningContext
+    ShoppingListGenerator --> IPlanningContext
     
     %% Styling
     classDef azureClass fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
@@ -197,19 +216,21 @@ graph TB
     classDef eventClass fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000
     classDef aiClass fill:#f1f8e9,stroke:#558b2f,stroke-width:2px,color:#000
     classDef sharedClass fill:#fafafa,stroke:#424242,stroke-width:2px,color:#000
+    classDef applicationClass fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#000
     classDef dbClass fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
     classDef externalClass fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000
     
     class Pages azureClass
     class CFTunnel cloudflareClass
     class APIHost apiClass
-    class BudgetEndpoints,BudgetHandlers,BudgetModels,BudgetRepository,BudgetAnalyser,TransactionCategorizer,RentalCostAnalyser budgetClass
-    class PlanningEndpoints,PlanningHandlers,PlanningModels,PlanningRepository,ListInterpreter,BudgetImpactAnalyser,PantryOptimizer,ShoppingListGenerator planningClass
-    class FinancialEndpoints,FinancialHandlers,FinancialModels,FinancialRepository,ImportProcessor,DuplicateDetector,AttributionSuggester,ReconciliationMatcher financialClass
-    class HouseholdEndpoints,HouseholdHandlers,HouseholdModels,HouseholdRepository,UtilityOptimizer,RentalAttributionAnalyser householdClass
-    class EventEndpoints,EventHandlers,EventModels,EventRepository,SmartScheduler eventClass
+    class BudgetEndpoints,BudgetHandlers,BudgetModels,BudgetAnalyser,TransactionCategorizer,RentalCostAnalyser budgetClass
+    class PlanningEndpoints,PlanningHandlers,PlanningModels,ListInterpreter,BudgetImpactAnalyser,PantryOptimizer,ShoppingListGenerator planningClass
+    class FinancialEndpoints,FinancialHandlers,FinancialModels,ImportProcessor,DuplicateDetector,AttributionSuggester,ReconciliationMatcher financialClass
+    class HouseholdEndpoints,HouseholdHandlers,HouseholdModels,UtilityOptimizer,RentalAttributionAnalyser householdClass
+    class EventEndpoints,EventHandlers,EventModels,SmartScheduler eventClass
     class SemanticKernel,AICoordinator,LearningEngine,OllamaService aiClass
     class NotificationService,AuthenticationService sharedClass
+    class MenloDbContext,IBudgetContext,IPlanningContext,IFinancialContext,IHouseholdContext,IEventContext,IUserContext,AuditingInterceptor,SoftDeleteInterceptor applicationClass
     class Database dbClass
     class FamilyDevices,BankSystem externalClass
 ```
@@ -230,8 +251,18 @@ Each feature (Budget, Planning, Financial, Household, Event) is organized as a v
 - **Endpoints**: Minimal API controllers
 - **Handlers**: Command/Query handlers for business logic
 - **Models**: Domain entities as C# records
-- **Repository**: EF Core data access
+- **Slice Context Interface**: Focused data access (e.g., `IBudgetContext`)
 - **AI Services**: Feature-specific AI capabilities
+
+### Menlo.Application - Persistence Layer
+
+The `Menlo.Application` project provides the unified data access layer:
+
+- **Single MenloDbContext**: Implements all slice context interfaces
+- **Slice Context Interfaces**: Per-bounded-context focused interfaces (e.g., `IUserContext`, `IBudgetContext`) enforcing domain boundary access control
+- **Interceptors**: `AuditingInterceptor` and `SoftDeleteInterceptor` transparently handle cross-cutting concerns
+- **EF Core Conventions**: snake_case naming, strongly typed ID value converters, UTC timestamps
+- **Global Query Filters**: Soft-deleted records automatically excluded from standard queries
 
 ### AI Integration
 

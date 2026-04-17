@@ -16,7 +16,11 @@ Define and enforce the directory layout, naming conventions, and architectural r
 - Backend APIs and related infrastructure must be placed under `src/api/`.
 - The Aspire AppHost must also be placed under `src/api/`.
 - Features are grouped by vertical slice (domain/feature), not by technical layer.
-- Shared libraries and infrastructure live under `lib/`.
+- Shared libraries and infrastructure live under `lib/`:
+  - `Menlo.Lib` contains domain models, abstractions, and business logic.
+  - `Menlo.Application` contains EF Core infrastructure, migrations, interceptors, and slice context interfaces.
+  - `Menlo.AI` contains AI service implementations.
+  - `Menlo.ServiceDefaults` contains Aspire service defaults.
 - UI implementations (e.g., web apps, mobile apps) are under `ui/`.
 - Each vertical slice contains its own domain models, handlers, endpoints, and tests.
 - Naming conventions and folder structure must follow the [Architecture Document](../../explanations/architecture-document.md#code-organization-structure).
