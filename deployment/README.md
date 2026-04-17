@@ -196,6 +196,55 @@ podman exec menlo-ollama ollama pull llava:latest
 
 Models are stored in the `ollama_data` volume and persist across container restarts.
 
+## 🗄️ Database Backup & Restore
+
+Automated daily backups are handled by the `db-backup` service using [`prodrigestivill/postgres-backup-local`](https://github.com/prodrigestivill/docker-postgres-backup-local). Backups are written to the `menlo_postgres_backups` volume and the last 7 daily backups are retained automatically.
+
+### Verify a Backup Ran
+
+```powershell
+# List backup files in the volume
+podman exec menlo-db-backup ls -lh /backups/daily/
+```
+
+You should see `.sql.gz` files named with a date (e.g., `menlo-20260417.sql.gz`) and a `menlo-latest.sql.gz` symlink pointing to the most recent one.
+
+### Restore from a Backup
+
+```powershell
+# Copy the latest backup out of the volume (or use a specific dated file)
+podman cp menlo-db-backup:/backups/last/menlo-latest.sql.gz .
+
+# Decompress
+gunzip menlo-latest.sql.gz
+
+# Stop the API first to avoid conflicts
+podman stop menlo-api
+
+# Restore into the running postgres container
+Get-Content menlo-latest.sql | podman exec -i menlo-postgres psql -U menlo -d menlo
+
+# Restart the API
+podman start menlo-api
+```
+
+> **Note:** To restore a specific point-in-time backup, replace `menlo-latest.sql.gz` with a timestamped file from `/backups/last/` (e.g., `menlo-20260417-020000.sql.gz`).
+
+### Configure Schedule and Retention
+
+Set these environment variables before bringing the stack up (e.g., in a `.env` file):
+
+| Variable | Default | Description |
+|---|---|---|
+| `BACKUP_SCHEDULE` | `@daily` | Cron expression or `@daily`/`@hourly` shorthand |
+| `BACKUP_KEEP_DAYS` | `7` | Number of daily backups to retain |
+
+Example `.env` override:
+```env
+BACKUP_SCHEDULE=0 2 * * *
+BACKUP_KEEP_DAYS=14
+```
+
 ## 🛠️ Troubleshooting
 
 ### Podman Issues
