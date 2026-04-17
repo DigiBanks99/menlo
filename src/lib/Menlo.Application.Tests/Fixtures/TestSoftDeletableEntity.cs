@@ -6,19 +6,26 @@ namespace Menlo.Application.Tests.Fixtures;
 
 internal sealed class TestSoftDeletableEntity : IAuditable, ISoftDeletable
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; } = string.Empty;
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public required string Name { get; init; }
 
     // IAuditable
     public UserId? CreatedBy { get; set; }
-    public DateTimeOffset? CreatedAt { get; set; }
-    public UserId? ModifiedBy { get; set; }
-    public DateTimeOffset? ModifiedAt { get; set; }
+    public DateTimeOffset? CreatedAt { get; private set; }
+    public UserId? ModifiedBy { get; private set; }
+    public DateTimeOffset? ModifiedAt { get; private set; }
 
     // ISoftDeletable
-    public bool IsDeleted { get; set; }
-    public DateTimeOffset? DeletedAt { get; set; }
-    public UserId? DeletedBy { get; set; }
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
+    public UserId? DeletedBy { get; private set; }
+
+    public void Delete(ISoftDeleteStampFactory factory)
+    {
+        SoftDeleteStamp stamp = factory.CreateStamp();
+        IsDeleted = true;
+        DeletedBy = stamp.ActorId;
+    }
 
     public void Audit(IAuditStampFactory factory, AuditOperation operation)
     {
@@ -30,12 +37,5 @@ internal sealed class TestSoftDeletableEntity : IAuditable, ISoftDeletable
         }
         ModifiedBy = stamp.ActorId;
         ModifiedAt = stamp.Timestamp;
-    }
-
-    public void MarkDeleted(UserId deletedBy, DateTimeOffset deletedAt)
-    {
-        IsDeleted = true;
-        DeletedBy = deletedBy;
-        DeletedAt = deletedAt;
     }
 }

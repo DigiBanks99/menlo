@@ -11,8 +11,7 @@ namespace Menlo.Application.Tests.Fixtures;
 
 public sealed class PersistenceFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:17")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     public IServiceProvider Services { get; private set; } = null!;

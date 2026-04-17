@@ -11,8 +11,7 @@ public sealed class ProgramStartupTests : TestFixture
     [Fact]
     public async Task CreateClient_WithStartupMigrationEnabled()
     {
-        await using PostgreSqlContainer container = new PostgreSqlBuilder()
-            .WithImage("postgres:17")
+        await using PostgreSqlContainer container = new PostgreSqlBuilder("postgres:17")
             .Build();
         await container.StartAsync(TestContext.Current.CancellationToken);
 

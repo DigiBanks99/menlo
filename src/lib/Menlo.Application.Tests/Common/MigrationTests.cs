@@ -17,8 +17,7 @@ namespace Menlo.Application.Tests.Common;
 /// </summary>
 public sealed class MigrationTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:17")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     private IHost _host = null!;

@@ -1,11 +1,13 @@
 <Project>
     <PropertyGroup>
-        <!-- Align target frameworks to .NET 9 per architecture document -->
         <TargetFramework>net10.0</TargetFramework>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <LangVersion>preview</LangVersion>
-        
-        <!-- 
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
+        <!--
         Redirect build outputs to /tmp for Windows + WSL2 + container compatibility.
         The Windows filesystem doesn't support Unix file modes that .NET build requires.
         Only enabled when MENLO_DEV_CONTAINER environment variable is set (by devcontainer).
@@ -13,5 +15,10 @@
         -->
         <BaseIntermediateOutputPath Condition="'$(MENLO_DEV_CONTAINER)' == 'true'">/tmp/menlo-build/$(MSBuildProjectName)/obj/</BaseIntermediateOutputPath>
         <BaseOutputPath Condition="'$(MENLO_DEV_CONTAINER)' == 'true'">/tmp/menlo-build/$(MSBuildProjectName)/bin/</BaseOutputPath>
+    </PropertyGroup>
+    <PropertyGroup>
+        <NuGetAudit>true</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+        <NuGetAuditLevel>low</NuGetAuditLevel>
     </PropertyGroup>
 </Project>
