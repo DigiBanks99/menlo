@@ -57,6 +57,28 @@ services:
       retries: 5
       start_period: 30s
 
+  db-backup:
+    image: prodrigestivill/postgres-backup-local:17
+    container_name: menlo-db-backup
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-menlo}
+      - POSTGRES_USER=${POSTGRES_USER:-menlo}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SCHEDULE=${BACKUP_SCHEDULE:-@daily}
+      - BACKUP_KEEP_DAYS=${BACKUP_KEEP_DAYS:-7}
+      - BACKUP_KEEP_WEEKS=0
+      - BACKUP_KEEP_MONTHS=0
+      - HEALTHCHECK_PORT=8080
+    volumes:
+      - postgres_backups:/backups
+    networks:
+      - menlo-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   ollama:
     image: ollama/ollama:latest
     container_name: menlo-ollama
@@ -113,6 +135,8 @@ networks:
 # - POSTGRES_USER: Database username (default: menlo)
 # - POSTGRES_PASSWORD: Database password (REQUIRED)
 # - POSTGRES_DB: Database name (default: menlo)
+# - BACKUP_SCHEDULE: Backup cron schedule (default: @daily)
+# - BACKUP_KEEP_DAYS: Number of daily backups to retain (default: 7)
 #
 # Model Management:
 # After first startup, download required models:
