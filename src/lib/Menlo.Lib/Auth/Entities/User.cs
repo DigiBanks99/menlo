@@ -99,11 +99,12 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
     /// <summary>
     /// Marks this entity as soft-deleted. Called by the SoftDeleteInterceptor.
     /// </summary>
-    public void MarkDeleted(UserId deletedBy, DateTimeOffset deletedAt)
+    public void Delete(ISoftDeleteStampFactory factory)
     {
+        SoftDeleteStamp stamp = factory.CreateStamp();
         IsDeleted = true;
-        DeletedBy = deletedBy;
-        DeletedAt = deletedAt;
+        DeletedBy = stamp.ActorId;
+        DeletedAt = stamp.Timestamp;
     }
 
     // IHasDomainEvents implementation

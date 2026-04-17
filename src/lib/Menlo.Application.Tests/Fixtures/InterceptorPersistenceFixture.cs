@@ -9,8 +9,7 @@ namespace Menlo.Application.Tests.Fixtures;
 
 public sealed class InterceptorPersistenceFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:17")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     private IHost _host = null!;

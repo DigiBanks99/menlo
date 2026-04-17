@@ -17,6 +17,12 @@ public interface ISoftDeletable
 
     /// <summary>The user who soft-deleted this entity. Null if not deleted.</summary>
     UserId? DeletedBy { get; }
+
+    /// <summary>
+    /// Marks this entity as soft-deleted with the information provided by the factory.
+    /// </summary>
+    /// <param name="factory">The factory to create a soft delete stamp.</param>
+    void Delete(ISoftDeleteStampFactory factory);
 }
 
 
