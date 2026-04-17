@@ -1,0 +1,34 @@
+{
+  "skill_name": "github-actions-act-debug",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A GitHub Actions run for cd-frontend is failing on main and I want to debug it locally with nektos act. Start from the workflow, figure out which job and step are breaking, reproduce the failure on my machine, and keep iterating until the issue is resolved locally or narrowed to an external Cloudflare-only boundary.",
+      "expected_output": "The response scopes the failing workflow and job, chooses a targeted act command for cd-frontend, accounts for required Cloudflare secrets and vars, and iterates on local reproduction instead of stopping at workflow inspection.",
+      "files": [
+        ".github/workflows/cd-frontend.yml",
+        "package.json",
+        "pnpm-lock.yaml",
+        "scripts/act-ci.ps1"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "CI is red on a pull request but the GitHub logs are noisy. Use act to narrow it to the failing job, replicate the pull_request context locally, and debug until I have either a code fix or a precise explanation of why the workflow is wrong.",
+      "expected_output": "The response uses the repo's act helper or an equivalent scoped act command for CI, preserves pull_request semantics, and follows a reproduce-debug-rerun loop with concrete local commands.",
+      "files": [
+        ".github/workflows/ci.yml",
+        "scripts/act-ci.ps1"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A deployment workflow works in theory but keeps failing on GitHub when triggered manually. I need you to use nektos act to reproduce the workflow_dispatch path locally, figure out whether the break is in our YAML, shell logic, or missing inputs, and fix what can be fixed locally.",
+      "expected_output": "The response chooses workflow_dispatch reproduction, inspects inputs and conditionals, uses a job-scoped act run, and distinguishes local workflow defects from environment-protected deployment behavior.",
+      "files": [
+        ".github/workflows/cd-backend.yml",
+        ".github/workflows/cd-infra.yml"
+      ]
+    }
+  ]
+}

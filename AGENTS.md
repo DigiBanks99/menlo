@@ -40,3 +40,4 @@ You must use conventional commits and tag the github issue you are working on in
 Update your learnings as you progress but keep them brief.
 
 <!-- Agent updates this section with discoveries - keep brief -->
+- Local GitHub Actions reproduction already has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
