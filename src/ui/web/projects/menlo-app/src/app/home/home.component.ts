@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { BudgetWidgetComponent } from './budget-widget.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, BudgetWidgetComponent],
   template: `
     <div class="home-container">
       <header>
@@ -15,6 +16,10 @@ import { RouterLink } from '@angular/router';
         <a routerLink="/budgets" class="nav-button">View Budgets</a>
         <a routerLink="/analytics" class="nav-button">Analytics</a>
       </nav>
+
+      <section class="widgets">
+        <app-budget-widget />
+      </section>
 
       <!-- Deferrable view for analytics preview - loads only when visible -->
       @defer (on viewport) {
@@ -46,105 +51,114 @@ import { RouterLink } from '@angular/router';
       }
     </div>
   `,
-  styles: [`
-    .home-container {
-      padding: 2rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .home-container {
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
 
-    header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
 
-    header h1 {
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-    }
+      header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+      }
 
-    header p {
-      color: #6c757d;
-      font-size: 1.1rem;
-    }
+      header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+      }
 
-    .main-nav {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 3rem;
-    }
+      .main-nav {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
 
-    .nav-button {
-      display: inline-block;
-      padding: 1rem 2rem;
-      background: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
+      .widgets {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        margin-bottom: 2rem;
+      }
 
-    .nav-button:hover {
-      background: #0056b3;
-    }
+      .nav-button {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
 
-    .preview-section {
-      margin-top: 3rem;
-      padding: 2rem;
-      border: 1px solid #e9ecef;
-      border-radius: 12px;
-      background: #f8f9fa;
-    }
+      .nav-button:hover {
+        background: #0056b3;
+      }
 
-    .preview-cards {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      margin-top: 1rem;
-    }
+      .preview-section {
+        margin-top: 3rem;
+        padding: 2rem;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        background: #f8f9fa;
+      }
 
-    .preview-card {
-      padding: 1.5rem;
-      background: white;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+      .preview-cards {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        margin-top: 1rem;
+      }
 
-    .preview-card h3 {
-      margin: 0 0 0.5rem 0;
-      color: #495057;
-      font-size: 0.9rem;
-    }
+      .preview-card {
+        padding: 1.5rem;
+        background: white;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-    .amount {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #28a745;
-      margin: 0;
-    }
+      .preview-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: #495057;
+        font-size: 0.9rem;
+      }
 
-    .loading-placeholder {
-      margin-top: 3rem;
-      padding: 2rem;
-      text-align: center;
-      color: #6c757d;
-      background: #f8f9fa;
-      border-radius: 12px;
-      border: 1px solid #e9ecef;
-    }
+      .amount {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #28a745;
+        margin: 0;
+      }
 
-    .error-placeholder {
-      margin-top: 3rem;
-      padding: 2rem;
-      text-align: center;
-      color: #dc3545;
-      background: #f8d7da;
-      border-radius: 12px;
-      border: 1px solid #f5c6cb;
-    }
-  `]
+      .loading-placeholder {
+        margin-top: 3rem;
+        padding: 2rem;
+        text-align: center;
+        color: #6c757d;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+      }
+
+      .error-placeholder {
+        margin-top: 3rem;
+        padding: 2rem;
+        text-align: center;
+        color: #dc3545;
+        background: #f8d7da;
+        border-radius: 12px;
+        border: 1px solid #f5c6cb;
+      }
+    `,
+  ],
 })
 export class HomeComponent {}
