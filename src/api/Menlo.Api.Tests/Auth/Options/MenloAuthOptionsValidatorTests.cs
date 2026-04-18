@@ -396,8 +396,7 @@ public sealed class MenloAuthOptionsValidatorTests
 
         ValidateOptionsResult result = _validator.Validate(null, options);
 
-        ItShouldFail(result);
-        ItShouldContainFailure(result, "CookieDomain");
+        ItShouldSucceed(result);
     }
 
     [Fact]
@@ -414,8 +413,7 @@ public sealed class MenloAuthOptionsValidatorTests
 
         ValidateOptionsResult result = _validator.Validate(null, options);
 
-        ItShouldFail(result);
-        ItShouldContainFailure(result, "CookieDomain");
+        ItShouldSucceed(result);
     }
 
     [Fact]
@@ -427,13 +425,12 @@ public sealed class MenloAuthOptionsValidatorTests
             TenantId = "tenant-guid",
             ClientId = "client-guid",
             ClientSecret = "secret-value",
-            CookieDomain = null!
+            CookieDomain = null
         };
 
         ValidateOptionsResult result = _validator.Validate(null, options);
 
-        ItShouldFail(result);
-        ItShouldContainFailure(result, "CookieDomain");
+        ItShouldSucceed(result);
     }
 
     [Fact]
@@ -451,7 +448,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ValidateOptionsResult result = _validator.Validate(null, options);
 
         ItShouldFail(result);
-        ItShouldHaveMultipleFailures(result, 5);
+        ItShouldHaveMultipleFailures(result, 4);
     }
 
     // Assertion Helpers

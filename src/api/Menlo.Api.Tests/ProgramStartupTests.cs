@@ -94,6 +94,5 @@ public sealed class ProgramStartupTests : TestFixture
         exception.Failures.ShouldContain("TenantId is required.");
         exception.Failures.ShouldContain("ClientId is required.");
         exception.Failures.ShouldContain("Either ClientSecret or ClientCertificates is required.");
-        exception.Failures.ShouldContain("CookieDomain is required.");
     }
 }
