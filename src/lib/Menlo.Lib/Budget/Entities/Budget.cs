@@ -278,6 +278,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         }
 
         node.SetPlannedAmount(amount);
+        AddDomainEvent(new PlannedAmountSetEvent(Id, categoryId, amount));
         return UnitResult.Success<BudgetError>();
     }
 
