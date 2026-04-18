@@ -22,6 +22,12 @@ public sealed class CategoryNode : IEntity<BudgetCategoryId>
         PlannedMonthlyAmount = plannedMonthlyAmount;
     }
 
+    // Required by EF Core for materialization
+    private CategoryNode()
+    {
+        Name = null!;
+    }
+
     /// <summary>
     /// Gets the unique identifier for this category node.
     /// </summary>
