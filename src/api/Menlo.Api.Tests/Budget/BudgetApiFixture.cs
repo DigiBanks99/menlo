@@ -23,15 +23,19 @@ public sealed class BudgetApiFixture : IAsyncLifetime
     public static readonly HouseholdId TestHouseholdId =
         new(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
 
+    public string ConnectionString { get; private set; } = string.Empty;
+
     public HttpClient CreateClient() => _factory.CreateClient();
 
     public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();
 
+        ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
+
         _factory = new BudgetTestWebApplicationFactory(TestHouseholdId)
         {
-            MenloConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable",
+            MenloConnectionString = ConnectionString,
             SkipMigration = false,
             ConfigurationOverrides = new Dictionary<string, string?>
             {
