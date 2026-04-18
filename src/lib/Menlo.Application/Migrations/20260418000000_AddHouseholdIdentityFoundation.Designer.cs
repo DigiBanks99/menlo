@@ -3,6 +3,7 @@ using System;
 using Menlo.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Menlo.Application.Migrations
 {
     [DbContext(typeof(MenloDbContext))]
-    partial class MenloDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260418000000_AddHouseholdIdentityFoundation")]
+    partial class AddHouseholdIdentityFoundation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
