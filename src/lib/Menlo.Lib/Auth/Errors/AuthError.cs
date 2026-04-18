@@ -61,6 +61,19 @@ public class InvalidUserDataError(string reason)
 }
 
 /// <summary>
+/// Error indicating the user is not assigned to any household.
+/// </summary>
+/// <param name="externalId">The external ID of the user without a household assignment.</param>
+public class UserNotAssignedToHouseholdError(string externalId)
+    : AuthError("Auth.UserNotAssignedToHousehold", $"User '{externalId}' is not assigned to any household.")
+{
+    /// <summary>
+    /// Gets the external ID of the user.
+    /// </summary>
+    public string ExternalId { get; } = externalId;
+}
+
+/// <summary>
 /// Base class for household domain errors.
 /// </summary>
 /// <param name="code">Machine-readable error code.</param>
