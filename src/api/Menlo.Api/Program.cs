@@ -3,6 +3,7 @@ using Menlo.AI.Interfaces;
 using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
+using Menlo.Api.Budget;
 using Menlo.Api.OpenApi;
 using Menlo.Application.Common;
 using Scalar.AspNetCore;
@@ -64,6 +65,9 @@ apiGroup
     })
     .WithName("GetWeatherForecast")
     .WithSummary("Gets a 5-day weather forecast");
+
+// Budget endpoints
+apiGroup.MapBudgetEndpoints();
 
 // Add simple AI health check endpoint
 apiGroup
