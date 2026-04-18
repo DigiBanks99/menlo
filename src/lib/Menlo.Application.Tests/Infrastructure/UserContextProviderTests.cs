@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Shouldly;
 using System.Security.Claims;
 
 namespace Menlo.Application.Tests.Infrastructure;
@@ -190,15 +191,19 @@ public sealed class UserContextProviderIntegrationTests(PersistenceFixture fixtu
     public async Task GetUserContextAsync_WithRealUser_ReturnsCorrectUserContext()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
+        IHouseholdContext householdContext = scope.ServiceProvider.GetRequiredService<IHouseholdContext>();
         IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
 
+        Household household = Household.Create($"Integration Household {Guid.NewGuid():N}").Value;
+        householdContext.Households.Add(household);
+        await householdContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
         ExternalUserId externalId = new($"integration-{Guid.NewGuid():N}");
-        HouseholdId householdId = HouseholdId.NewId();
         User user = User.Create(
             externalId,
             $"integration-{Guid.NewGuid():N}@test.com",
             "Integration Test User").Value;
-        UserTestHelper.SetHouseholdId(user, householdId);
+        UserTestHelper.SetHouseholdId(user, household.Id);
 
         userContext.Users.Add(user);
         await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -214,6 +219,6 @@ public sealed class UserContextProviderIntegrationTests(PersistenceFixture fixtu
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.HouseholdId.ShouldBe(household.Id);
     }
 }
