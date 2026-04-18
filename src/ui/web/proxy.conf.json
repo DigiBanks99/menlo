@@ -1,5 +1,5 @@
 {
-  "/api/*": {
+  "/api": {
     "target": "https://localhost:7298",
     "secure": false,
     "changeOrigin": true,
@@ -8,6 +8,12 @@
     "headers": {
       "Connection": "Keep-Alive"
     }
+  },
+  "/auth": {
+    "target": "https://localhost:7298",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "info"
   },
   "/health": {
     "target": "https://localhost:7298",
