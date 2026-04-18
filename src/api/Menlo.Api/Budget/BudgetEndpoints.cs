@@ -24,6 +24,12 @@ public static class BudgetEndpoints
             .WithSummary("Creates a new budget for the given year, or returns the existing one.")
             .RequireAuthorization(MenloPolicies.CanEditBudget);
 
+        budgets
+            .MapGet("/{id:guid}", GetBudgetHandler.Handle)
+            .WithName("GetBudget")
+            .WithSummary("Retrieves a budget by ID.")
+            .RequireAuthorization(MenloPolicies.CanViewBudget);
+
         return group;
     }
 }
