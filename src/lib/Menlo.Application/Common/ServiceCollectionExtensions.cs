@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
             });
 
         builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
+        builder.Services.AddScoped<IHouseholdContext>(sp => sp.GetRequiredService<MenloDbContext>());
 
         return builder;
     }

@@ -25,6 +25,7 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         string email,
         string displayName,
         DateTimeOffset? lastLoginAt,
+        HouseholdId? householdId,
         UserId? createdBy,
         DateTimeOffset? createdAt,
         UserId? modifiedBy,
@@ -38,6 +39,7 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         Email = email;
         DisplayName = displayName;
         LastLoginAt = lastLoginAt;
+        HouseholdId = householdId;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         ModifiedBy = modifiedBy;
@@ -72,6 +74,11 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
     /// Gets when the user last logged in.
     /// </summary>
     public DateTimeOffset? LastLoginAt { get; private set; }
+
+    /// <summary>
+    /// Gets the household this user belongs to, if assigned.
+    /// </summary>
+    public HouseholdId? HouseholdId { get; private set; }
 
     // IAuditable implementation
     /// <inheritdoc />
@@ -167,6 +174,7 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
             email: email.Trim(),
             displayName: displayName.Trim(),
             lastLoginAt: DateTimeOffset.UtcNow,
+            householdId: null,
             createdBy: null,
             createdAt: null,
             modifiedBy: null,

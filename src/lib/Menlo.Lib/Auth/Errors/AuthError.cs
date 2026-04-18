@@ -60,4 +60,24 @@ public class InvalidUserDataError(string reason)
     public string Reason { get; } = reason;
 }
 
+/// <summary>
+/// Base class for household domain errors.
+/// </summary>
+/// <param name="code">Machine-readable error code.</param>
+/// <param name="message">Human-readable error message.</param>
+public class HouseholdError(string code, string message) : Error(code, message);
+
+/// <summary>
+/// Error indicating invalid household data.
+/// </summary>
+/// <param name="reason">The reason the data is invalid.</param>
+public class InvalidHouseholdDataError(string reason)
+    : HouseholdError("Household.InvalidData", $"Invalid household data: {reason}")
+{
+    /// <summary>
+    /// Gets the reason the data is invalid.
+    /// </summary>
+    public string Reason { get; } = reason;
+}
+
 
