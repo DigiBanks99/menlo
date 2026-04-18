@@ -418,6 +418,43 @@ public sealed class BudgetTests
         ItShouldHaveClonedCategories(result, source);
     }
 
+    [Fact]
+    public void GivenSourceBudgetWithNestedCategories_WhenCloningForYear_ThenParentChildRelationshipsPreserved()
+    {
+        Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
+        CategoryNode parent = source.AddCategory("Living Expenses").Value;
+        CategoryNode child = source.AddCategory("Rent", parent.Id).Value;
+        CategoryNode grandchild = source.AddCategory("Maintenance", child.Id).Value;
+        source.SetPlanned(parent.Id, Money.Create(5000m, "ZAR").Value);
+        source.SetPlanned(child.Id, Money.Create(3000m, "ZAR").Value);
+        source.SetPlanned(grandchild.Id, Money.Create(500m, "ZAR").Value);
+        IAuditStampFactory factory = CreateAuditStampFactory();
+
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
+            Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
+
+        ItShouldSucceed(result);
+        ItShouldHaveClonedCategoriesWithParentChildRelationships(result, source);
+    }
+
+    [Fact]
+    public void GivenClone_WhenModifyingSource_ThenCloneIsNotAffected()
+    {
+        Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
+        CategoryNode cat = source.AddCategory("Groceries").Value;
+        source.SetPlanned(cat.Id, Money.Create(1000m, "ZAR").Value);
+        IAuditStampFactory factory = CreateAuditStampFactory();
+
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
+            Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
+
+        // Modify source after cloning
+        source.AddCategory("NewCategory");
+
+        // Clone should not be affected
+        result.Value.Categories.Count.ShouldBe(1);
+    }
+
     // =========================================================================
     // Assertion helpers — Budget.Create / general
     // =========================================================================
@@ -568,6 +605,38 @@ public sealed class BudgetTests
             match.ShouldNotBeNull();
             match.PlannedMonthlyAmount.Amount.ShouldBe(sourceCategory.PlannedMonthlyAmount.Amount);
             match.PlannedMonthlyAmount.Currency.ShouldBe(sourceCategory.PlannedMonthlyAmount.Currency);
+        }
+    }
+
+    private static void ItShouldHaveClonedCategoriesWithParentChildRelationships(
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result,
+        Menlo.Lib.Budget.Entities.Budget source)
+    {
+        Menlo.Lib.Budget.Entities.Budget cloned = result.Value;
+        cloned.Categories.Count.ShouldBe(source.Categories.Count);
+
+        // Build name->cloned node lookup
+        Dictionary<string, CategoryNode> clonedByName = cloned.Categories
+            .ToDictionary(c => c.Name.Value);
+
+        foreach (CategoryNode sourceNode in source.Categories)
+        {
+            CategoryNode clonedNode = clonedByName[sourceNode.Name.Value];
+
+            // IDs must differ
+            clonedNode.Id.ShouldNotBe(sourceNode.Id);
+
+            if (sourceNode.ParentId is null)
+            {
+                clonedNode.ParentId.ShouldBeNull();
+            }
+            else
+            {
+                // Find the source parent's name and check the cloned parent ID matches
+                string parentName = source.Categories.First(c => c.Id == sourceNode.ParentId.Value).Name.Value;
+                CategoryNode clonedParent = clonedByName[parentName];
+                clonedNode.ParentId.ShouldBe(clonedParent.Id);
+            }
         }
     }
 
