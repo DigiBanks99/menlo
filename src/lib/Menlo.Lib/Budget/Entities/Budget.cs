@@ -300,6 +300,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         }
 
         Status = BudgetStatus.Active;
+        AddDomainEvent(new BudgetActivatedEvent(Id));
         return UnitResult.Success<BudgetError>();
     }
 
@@ -315,6 +316,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         }
 
         Status = BudgetStatus.Closed;
+        AddDomainEvent(new BudgetClosedEvent(Id));
         return UnitResult.Success<BudgetError>();
     }
 }
