@@ -7,7 +7,6 @@ using Menlo.Api.Budget;
 using Menlo.Api.OpenApi;
 using Menlo.Application.Common;
 using Scalar.AspNetCore;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
@@ -23,6 +22,7 @@ builder
 WebApplication app = builder.Build();
 
 app.UseMenloSecurityHeaders()
+    .UseCors(MenloCorsPolicy.Default)
     .UseAuthentication()
     .UseAuthorization();
 
