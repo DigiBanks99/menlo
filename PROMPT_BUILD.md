@@ -21,7 +21,7 @@ Use subagents liberally to free-up your own context. You are an orchestrator.
 
 ### Before starting
 
-- Explore the work previously done
+- Explore the work previously done using git history
 - Search for existing functionality before duplicating
 - If a decision is open, create a blocking issue with the clarification needed
 
