@@ -1,26 +1,45 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BudgetApiService, BudgetResponse } from 'data-access-menlo-api';
+import { MoneyPipe } from 'menlo-lib';
 import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 
 @Component({
   selector: 'app-budget-widget',
-  imports: [],
+  imports: [MoneyPipe],
   template: `
     <div class="budget-widget">
       <h3 data-testid="widget-title">Budget {{ currentYear }}</h3>
+
+      @if (loading()) {
+        <div class="loading" data-testid="widget-loading">Loading...</div>
+      }
 
       @if (error()) {
         <div class="error-banner" data-testid="widget-error">{{ error() }}</div>
       }
 
+      @if (budget(); as b) {
+        <div class="budget-summary">
+          <span
+            class="status-badge status-{{ b.status.toLowerCase() }}"
+            data-testid="widget-status"
+          >
+            {{ b.status }}
+          </span>
+          <span class="total-amount" data-testid="widget-total">
+            {{ b.totalPlannedMonthlyAmount | money }}
+          </span>
+        </div>
+      }
+
       <button
         class="btn-primary"
         data-testid="view-budget-btn"
-        [disabled]="loading()"
+        [disabled]="loading() || !budget()"
         (click)="viewBudget()"
       >
-        {{ loading() ? 'Loading...' : 'View Budget' }}
+        View Budget
       </button>
     </div>
   `,
@@ -37,6 +56,46 @@ import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
       .budget-widget h3 {
         margin: 0 0 1rem 0;
         color: #2c3e50;
+      }
+
+      .budget-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-draft {
+        background: #e9ecef;
+        color: #495057;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-closed {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .total-amount {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #28a745;
+      }
+
+      .loading {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.75rem;
       }
 
       .error-banner {
@@ -70,15 +129,16 @@ import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
     `,
   ],
 })
-export class BudgetWidgetComponent {
+export class BudgetWidgetComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly budgetApiService = inject(BudgetApiService);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly budget = signal<BudgetResponse | null>(null);
   readonly currentYear = new Date().getFullYear();
 
-  viewBudget(): void {
+  ngOnInit(): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -87,10 +147,17 @@ export class BudgetWidgetComponent {
       .subscribe((result: Result<BudgetResponse, ApiError>) => {
         this.loading.set(false);
         if (isSuccess(result)) {
-          this.router.navigate(['/budgets', result.value.id]);
+          this.budget.set(result.value);
         } else {
           this.error.set(getErrorMessage(result.error));
         }
       });
+  }
+
+  viewBudget(): void {
+    const b = this.budget();
+    if (b) {
+      this.router.navigate(['/budgets', b.id]);
+    }
   }
 }
