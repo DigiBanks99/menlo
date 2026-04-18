@@ -208,13 +208,32 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         }
 
         Budget newBudget = result.Value;
-        foreach (CategoryNode node in sourceBudget._categories)
+
+        // Build old-to-new ID mapping, processing nodes in topological order (parents before children)
+        Dictionary<BudgetCategoryId, BudgetCategoryId> idMap = [];
+        List<CategoryNode> remaining = [.. sourceBudget._categories];
+
+        while (remaining.Count > 0)
         {
-            newBudget._categories.Add(new CategoryNode(
-                id: BudgetCategoryId.NewId(),
-                name: node.Name,
-                parentId: null,
-                plannedMonthlyAmount: node.PlannedMonthlyAmount));
+            List<CategoryNode> processable = remaining
+                .Where(n => n.ParentId == null || idMap.ContainsKey(n.ParentId.Value))
+                .ToList();
+
+            foreach (CategoryNode node in processable)
+            {
+                BudgetCategoryId newId = BudgetCategoryId.NewId();
+                idMap[node.Id] = newId;
+
+                BudgetCategoryId? newParentId = node.ParentId.HasValue ? idMap[node.ParentId.Value] : null;
+
+                newBudget._categories.Add(new CategoryNode(
+                    id: newId,
+                    name: node.Name,
+                    parentId: newParentId,
+                    plannedMonthlyAmount: node.PlannedMonthlyAmount));
+
+                remaining.Remove(node);
+            }
         }
 
         return newBudget;
