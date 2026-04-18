@@ -8,6 +8,15 @@ using Microsoft.Extensions.Options;
 namespace Menlo.Api.Auth;
 
 /// <summary>
+/// CORS policy name used for the Menlo API.
+/// </summary>
+public static class MenloCorsPolicy
+{
+    /// <summary>The default CORS policy name.</summary>
+    public const string Default = "MenloDefaultCors";
+}
+
+/// <summary>
 /// Extension methods for configuring authentication services.
 /// </summary>
 public static class AuthServiceCollectionExtensions
@@ -30,6 +39,26 @@ public static class AuthServiceCollectionExtensions
         builder.Services.AddScoped<IAuditStampFactory>(sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
         builder.Services.AddScoped<ISoftDeleteStampFactory>(
             sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
+
+        // Configure CORS — allow Angular dev server origins (dev only) or configured origins
+        string[] allowedOrigins = builder.Configuration
+            .GetSection("Menlo:Cors:AllowedOrigins")
+            .Get<string[]>() ?? [];
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(MenloCorsPolicy.Default, policy =>
+            {
+                if (allowedOrigins.Length > 0)
+                {
+                    policy
+                        .WithOrigins(allowedOrigins)
+                        .AllowCredentials()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                }
+            });
+        });
 
         IConfigurationSection section = builder.Configuration.GetSection(MenloAuthOptions.SectionName);
         MenloAuthOptions authOptions = section
