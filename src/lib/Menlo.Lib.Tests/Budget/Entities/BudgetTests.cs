@@ -252,6 +252,24 @@ public sealed class BudgetTests
         category.PlannedMonthlyAmount.Amount.ShouldBe(0m);
     }
 
+    [Fact]
+    public void GivenValidAmount_WhenSettingPlanned_PlannedAmountSetEventIsRaised()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Groceries").Value;
+        budget.ClearDomainEvents();
+        Money amount = Money.Create(750m, "ZAR").Value;
+
+        budget.SetPlanned(category.Id, amount);
+
+        IDomainEvent domainEvent = budget.DomainEvents.ShouldHaveSingleItem();
+        PlannedAmountSetEvent plannedEvent = domainEvent.ShouldBeOfType<PlannedAmountSetEvent>();
+        plannedEvent.BudgetId.ShouldBe(budget.Id);
+        plannedEvent.CategoryId.ShouldBe(category.Id);
+        plannedEvent.Amount.Amount.ShouldBe(750m);
+        plannedEvent.Amount.Currency.ShouldBe("ZAR");
+    }
+
     // -------------------------------------------------------------------------
     // Budget.Activate
     // -------------------------------------------------------------------------
