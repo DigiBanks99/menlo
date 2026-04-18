@@ -20,3 +20,19 @@ export class MenloApiClient {
     });
   }
 }
+
+export interface BudgetCategoryResponse {
+  id: string;
+  name: string;
+  parentId: string | null;
+  plannedMonthlyAmount: { amount: number; currency: string };
+}
+
+export interface BudgetResponse {
+  id: string;
+  year: number;
+  householdId: string;
+  status: 'Draft' | 'Active' | 'Closed';
+  categories: BudgetCategoryResponse[];
+  totalPlannedMonthlyAmount: { amount: number; currency: string };
+}
