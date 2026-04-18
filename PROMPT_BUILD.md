@@ -36,3 +36,9 @@ Use the `.Net Test Agent` for writing backend tests
 3. All tests must pass, regardless of if they were changed
 4. All code must be locally linted and formatted
 5. Relevant documentation must be updated
+
+### Once comitted
+
+If there is already an open PR for $issueNumber, push once committed
+If there is not an open PR for $issueNumber, create one.
+Ensure the PR description is updated appropriately with information that is useful
