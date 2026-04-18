@@ -2,7 +2,7 @@
 2. Explore the github issue $issueNumber and explore its sub-issues
 3. Identify the next sub-issue that is not blocked and seems most important
 4. Start working on that issue and that issue alone until all acceptance criteria for the sub-issue are met
-5. When all acceptance criteria are met, create an empty file named `.ralph.done`
+5. When all acceptance criteria for $issueNumber are met, create an empty file named `.ralph.done`
 
 ## Rules
 
