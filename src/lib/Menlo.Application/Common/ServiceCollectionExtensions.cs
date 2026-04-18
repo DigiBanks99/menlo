@@ -47,6 +47,7 @@ public static class ServiceCollectionExtensions
                     .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
 
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
         builder.Services.AddScoped<IHouseholdContext>(sp => sp.GetRequiredService<MenloDbContext>());
         builder.Services.AddScoped<IBudgetContext>(sp => sp.GetRequiredService<MenloDbContext>());
