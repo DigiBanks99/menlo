@@ -14,8 +14,9 @@ public sealed class MenloAuthOptions : MicrosoftIdentityOptions
 
     /// <summary>
     /// Gets the cookie domain for cross-subdomain session sharing.
+    /// When empty, no explicit Domain attribute is set and the cookie defaults to the request host.
     /// </summary>
-    public required string CookieDomain { get; init; }
+    public string? CookieDomain { get; init; }
 }
 
 

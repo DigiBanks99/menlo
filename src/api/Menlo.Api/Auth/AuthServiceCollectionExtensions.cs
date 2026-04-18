@@ -77,14 +77,22 @@ public static class AuthServiceCollectionExtensions
                 options.Cookie.Name = ".Menlo.Session";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Strict;
-                options.Cookie.Domain = authOptions.CookieDomain;
+                // In development the Angular app runs on http while the API is https (cross-scheme).
+                // SameSite=None allows credentials to be forwarded across that scheme boundary.
+                options.Cookie.SameSite = builder.Environment.IsDevelopment()
+                    ? SameSiteMode.None
+                    : SameSiteMode.Strict;
+                if (!string.IsNullOrWhiteSpace(authOptions.CookieDomain))
+                {
+                    options.Cookie.Domain = authOptions.CookieDomain;
+                }
                 options.ExpireTimeSpan = TimeSpan.FromHours(8);
                 options.SlidingExpiration = true;
                 options.Events.OnRedirectToLogin = context =>
                 {
-                    // Return 401 for API calls instead of redirect
-                    if (context.Request.Path.StartsWithSegments("/api"))
+                    // Return 401 for XHR/fetch calls (API and auth endpoints accessed programmatically)
+                    // rather than redirect to OIDC login, which would overwrite the session cookie
+                    if (IsXhrRequest(context.Request))
                     {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         return Task.CompletedTask;
@@ -108,6 +116,18 @@ public static class AuthServiceCollectionExtensions
                 options.CallbackPath = authOptions.CallbackPath;
                 options.SignedOutCallbackPath = authOptions.SignedOutCallbackPath;
                 options.TokenValidationParameters.RoleClaimType = "roles";
+                // Return 401 instead of redirecting to AAD for programmatic/XHR requests
+                // so Angular can handle auth state gracefully without OIDC overwriting the session cookie.
+                options.Events.OnRedirectToIdentityProvider = context =>
+                {
+                    if (IsXhrRequest(context.Request))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.HandleResponse();
+                    }
+
+                    return Task.CompletedTask;
+                };
             });
 
         builder.Services
@@ -116,6 +136,11 @@ public static class AuthServiceCollectionExtensions
 
         return builder;
     }
+
+    private static bool IsXhrRequest(HttpRequest request) =>
+        request.Path.StartsWithSegments("/api")
+        || request.Headers.Accept.Any(a => a != null && a.Contains("application/json"))
+        || request.Headers.ContainsKey("X-Requested-With");
 }
 
 

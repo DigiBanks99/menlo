@@ -34,11 +34,6 @@ public sealed class MenloAuthOptionsValidator : IValidateOptions<MenloAuthOption
             failures.Add("Either ClientSecret or ClientCertificates is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(options.CookieDomain))
-        {
-            failures.Add("CookieDomain is required.");
-        }
-
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)
             : ValidateOptionsResult.Success;

@@ -40,7 +40,7 @@ string[] summaries =
 ];
 
 // Map authentication endpoints (public, no auth required)
-app.MapAuthEndpoints();
+app.MapAuthEndpoints(app.Environment, app.Configuration);
 
 // Protected API endpoints
 RouteGroupBuilder apiGroup = app

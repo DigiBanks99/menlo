@@ -12,7 +12,7 @@ internal static class SecurityHeadersExtensions
         internal WebApplication UseMenloSecurityHeaders()
         {
             HeaderPolicyCollection securityPolicy = new HeaderPolicyCollection()
-                .AddMenloSecurityHeaders()
+                .AddMenloSecurityHeaders(app.Environment)
                 .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
 
             app.UseSecurityHeaders(securityPolicy);
@@ -25,10 +25,18 @@ internal static class SecurityHeadersExtensions
     /// Adds Menlo-specific security headers configuration.
     /// </summary>
     /// <param name="policies">The header policy collection.</param>
+    /// <param name="environment">The web host environment.</param>
     /// <returns>The header policy collection for chaining.</returns>
-    public static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies)
+    public static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies, IWebHostEnvironment environment)
     {
         policies.AddDefaultApiSecurityHeaders();
+
+        if (environment.IsDevelopment())
+        {
+            // In dev the Angular app runs on http while the API is https. The default
+            // CORP same-site header blocks cross-scheme fetches so we relax it here.
+            policies.AddCustomHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        }
 
         policies.AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: (int)TimeSpan.FromDays(365 * 2).TotalSeconds);
 
