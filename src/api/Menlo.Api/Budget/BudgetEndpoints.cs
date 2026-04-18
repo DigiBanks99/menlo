@@ -30,6 +30,12 @@ public static class BudgetEndpoints
             .WithSummary("Retrieves a budget by ID.")
             .RequireAuthorization(MenloPolicies.CanViewBudget);
 
+        budgets
+            .MapPost("/{id:guid}/activate", ActivateBudgetHandler.Handle)
+            .WithName("ActivateBudget")
+            .WithSummary("Activates a budget. Auto-closes the previous year's active budget.")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
         return group;
     }
 }
