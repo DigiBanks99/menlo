@@ -56,7 +56,43 @@ describe('BudgetWidgetComponent', () => {
     expect(title.textContent?.trim()).toBe(`Budget ${currentYear}`);
   });
 
-  it('navigates to budget detail page on successful viewBudget', () => {
+  it('loads budget on init and calls createOrEnsureBudget with current year', () => {
+    mockBudgetApiService.createOrEnsureBudget.mockReturnValue(of(success(mockBudget)));
+
+    const fixture = TestBed.createComponent(BudgetWidgetComponent);
+    fixture.detectChanges();
+
+    expect(mockBudgetApiService.createOrEnsureBudget).toHaveBeenCalledWith(currentYear);
+    expect(fixture.componentInstance.budget()).toEqual(mockBudget);
+  });
+
+  it('shows budget status after loading', () => {
+    mockBudgetApiService.createOrEnsureBudget.mockReturnValue(of(success(mockBudget)));
+
+    const fixture = TestBed.createComponent(BudgetWidgetComponent);
+    fixture.detectChanges();
+
+    const statusEl = fixture.nativeElement.querySelector(
+      '[data-testid="widget-status"]',
+    ) as HTMLElement;
+    expect(statusEl).toBeTruthy();
+    expect(statusEl.textContent?.trim()).toBe('Active');
+  });
+
+  it('shows budget total planned monthly amount after loading', () => {
+    mockBudgetApiService.createOrEnsureBudget.mockReturnValue(of(success(mockBudget)));
+
+    const fixture = TestBed.createComponent(BudgetWidgetComponent);
+    fixture.detectChanges();
+
+    const totalEl = fixture.nativeElement.querySelector(
+      '[data-testid="widget-total"]',
+    ) as HTMLElement;
+    expect(totalEl).toBeTruthy();
+    expect(totalEl.textContent?.trim()).toContain('10');
+  });
+
+  it('navigates to budget detail page on viewBudget click', () => {
     mockBudgetApiService.createOrEnsureBudget.mockReturnValue(of(success(mockBudget)));
 
     const fixture = TestBed.createComponent(BudgetWidgetComponent);
@@ -64,19 +100,15 @@ describe('BudgetWidgetComponent', () => {
 
     fixture.componentInstance.viewBudget();
 
-    expect(mockBudgetApiService.createOrEnsureBudget).toHaveBeenCalledWith(currentYear);
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/budgets', 'budget-1']);
   });
 
-  it('shows error banner when viewBudget fails', () => {
+  it('shows error banner when init load fails', () => {
     mockBudgetApiService.createOrEnsureBudget.mockReturnValue(
       of(failure(unknownError('Something went wrong'))),
     );
 
     const fixture = TestBed.createComponent(BudgetWidgetComponent);
-    fixture.detectChanges();
-
-    fixture.componentInstance.viewBudget();
     fixture.detectChanges();
 
     const errorBanner = fixture.nativeElement.querySelector(
@@ -87,26 +119,29 @@ describe('BudgetWidgetComponent', () => {
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 
-  it('shows loading state while request is in flight then resolves', () => {
+  it('shows loading state while request is in flight then enables button on success', () => {
     const subject = new Subject<Result<BudgetResponse, ApiError>>();
     mockBudgetApiService.createOrEnsureBudget.mockReturnValue(subject.asObservable());
 
     const fixture = TestBed.createComponent(BudgetWidgetComponent);
     fixture.detectChanges();
 
-    fixture.componentInstance.viewBudget();
-    fixture.detectChanges();
-
     const button = fixture.nativeElement.querySelector(
       '[data-testid="view-budget-btn"]',
     ) as HTMLButtonElement;
+    const loadingEl = fixture.nativeElement.querySelector(
+      '[data-testid="widget-loading"]',
+    ) as HTMLElement;
     expect(button.disabled).toBe(true);
-    expect(button.textContent?.trim()).toBe('Loading...');
+    expect(loadingEl).toBeTruthy();
 
     subject.next(success(mockBudget));
     fixture.detectChanges();
 
+    const loadingElAfter = fixture.nativeElement.querySelector(
+      '[data-testid="widget-loading"]',
+    ) as HTMLElement;
     expect(button.disabled).toBe(false);
-    expect(button.textContent?.trim()).toBe('View Budget');
+    expect(loadingElAfter).toBeNull();
   });
 });
