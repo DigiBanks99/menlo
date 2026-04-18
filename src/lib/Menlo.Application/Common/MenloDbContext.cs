@@ -9,9 +9,10 @@ using System.Linq.Expressions;
 
 namespace Menlo.Application.Common;
 
-public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options) : DbContext(options), IUserContext
+public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options) : DbContext(options), IUserContext, IHouseholdContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Household> Households => Set<Household>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +39,10 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options) : D
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<UserIdValueConverter>();
+
+        configurationBuilder
+            .Properties<HouseholdId>()
+            .HaveConversion<HouseholdIdValueConverter>();
     }
 }
 
