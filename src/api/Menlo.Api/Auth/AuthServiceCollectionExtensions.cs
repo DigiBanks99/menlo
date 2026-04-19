@@ -78,7 +78,6 @@ public static class AuthServiceCollectionExtensions
                 options.Scope.Add("email");
                 options.CallbackPath = authOptions.CallbackPath;
                 options.SignedOutCallbackPath = authOptions.SignedOutCallbackPath;
-                options.TokenValidationParameters.RoleClaimType = "roles";
                 // Return 401 instead of redirecting to AAD for programmatic/XHR requests
                 // so Angular can handle auth state gracefully without OIDC overwriting the session cookie.
                 options.Events.OnRedirectToIdentityProvider = context =>
