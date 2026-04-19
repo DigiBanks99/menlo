@@ -34,10 +34,11 @@ Use the `.Net Test Agent` for writing backend tests
 1. All services must be wired-up to DI
 2. The application must start
 3. All tests must pass, regardless of if they were changed
-4. All code must be locally linted and formatted
-5. Relevant documentation must be updated
+4. Coverage targets must be met
+5. All code must be locally linted and formatted
+6. Relevant documentation must be updated
 
-### Once comitted
+### Once committed
 
 If there is already an open PR for $issueNumber, push once committed
 If there is not an open PR for $issueNumber, create one.
