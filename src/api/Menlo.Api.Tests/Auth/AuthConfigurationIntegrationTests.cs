@@ -19,7 +19,7 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);

@@ -47,18 +47,6 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
         ItShouldHaveProblemDetailsContentType(response);
     }
 
-    [Fact]
-    public async Task GivenAuthenticatedUser_WhenGettingWeatherForecast_ThenResponseHasExpectedStructure()
-    {
-        HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
-        JsonElement[] forecasts = await response.Content.ReadFromJsonAsync<JsonElement[]>(TestContext.Current.CancellationToken) ?? [];
-
-        ItShouldHaveSucceeded(response);
-        ItShouldReturnFiveForecasts(forecasts);
-        ItShouldHaveExpectedForecastShape(forecasts[0]);
-    }
-
     private static void ItShouldHaveHealthyStatus(JsonElement body)
     {
         body.GetProperty("status").GetString().ShouldBe("Healthy");
@@ -79,16 +67,4 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
         response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
     }
 
-    private static void ItShouldReturnFiveForecasts(JsonElement[] forecasts)
-    {
-        forecasts.Length.ShouldBe(5);
-    }
-
-    private static void ItShouldHaveExpectedForecastShape(JsonElement forecast)
-    {
-        forecast.TryGetProperty("date", out _).ShouldBeTrue();
-        forecast.TryGetProperty("temperatureC", out _).ShouldBeTrue();
-        forecast.TryGetProperty("temperatureF", out _).ShouldBeTrue();
-        forecast.TryGetProperty("summary", out _).ShouldBeTrue();
-    }
 }

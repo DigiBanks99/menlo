@@ -13,14 +13,11 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     private const string RequestTokenCookieName = "XSRF-TOKEN";
     private const string HeaderName = "X-XSRF-TOKEN";
 
-    private static readonly JsonSerializerOptions JsonOptions =
-        new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private static readonly HouseholdId MissingTokenHousehold =
-        new(Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0"));
+    private static readonly HouseholdId MissingTokenHousehold = new(Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0"));
 
-    private static readonly HouseholdId ValidTokenHousehold =
-        new(Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"));
+    private static readonly HouseholdId ValidTokenHousehold = new(Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"));
 
     [Fact]
     public async Task GetAsync_WithAuthenticatedApiRequestWithoutAntiForgeryToken()
@@ -28,8 +25,8 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response =
-            await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client
+            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
         ItShouldHaveSucceeded(response);
     }
@@ -41,8 +38,8 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         using HttpClient client = factory.CreateClient();
         int year = DateTimeOffset.UtcNow.Year;
 
-        HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client
+            .PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
 
         string problemDetails = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
@@ -57,8 +54,8 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         using HttpClient client = factory.CreateClient();
         int year = DateTimeOffset.UtcNow.Year;
 
-        HttpResponseMessage tokenResponse =
-            await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage tokenResponse = await client
+            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
         string requestToken = GetRequestToken(tokenResponse);
         client.DefaultRequestHeaders.Add(HeaderName, requestToken);
 
@@ -77,8 +74,8 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response =
-            await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client
+            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
         string requestTokenCookie = GetCookieHeader(response, RequestTokenCookieName);
 
@@ -95,23 +92,19 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response =
-            await client.PostAsync("/auth/logout", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client
+            .PostAsync("/auth/logout", null, TestContext.Current.CancellationToken);
 
         ItShouldNotHaveBeenRejectedByAntiforgery(response);
         ItShouldRedirect(response);
     }
 
-    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) =>
-        new(householdId)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
-        };
+    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) => new(householdId)
+    {
+        MenloConnectionString = fixture.ConnectionString,
+        SkipMigration = true,
+        ConfigurationOverrides = new Dictionary<string, string?> { ["Features:Budget"] = "true" }
+    };
 
     private static void ItShouldHaveReturned400BadRequest(HttpResponseMessage response) =>
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -143,10 +136,10 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     private static void ItShouldRedirect(HttpResponseMessage response)
     {
         response.Headers.Location.ShouldNotBeNull();
-        (response.StatusCode == HttpStatusCode.Found
-            || response.StatusCode == HttpStatusCode.Redirect
-            || response.StatusCode == HttpStatusCode.SeeOther
-            || response.StatusCode == HttpStatusCode.TemporaryRedirect)
+        (response.StatusCode is HttpStatusCode.Found
+                or HttpStatusCode.Redirect
+                or HttpStatusCode.SeeOther
+                or HttpStatusCode.TemporaryRedirect)
             .ShouldBeTrue();
     }
 
@@ -156,10 +149,10 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     private static string GetCookieHeader(HttpResponseMessage response, string cookieName)
     {
         response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders).ShouldBeTrue();
-        cookieHeaders.ShouldNotBeNull();
+        string[] headers = cookieHeaders as string[] ?? cookieHeaders.ToArray();
+        headers.ShouldNotBeNull();
 
-        return cookieHeaders.Single(header =>
-            header.StartsWith($"{cookieName}=", StringComparison.Ordinal));
+        return headers.Single(header => header.StartsWith($"{cookieName}=", StringComparison.Ordinal));
     }
 
     private static async Task<BudgetDto?> DeserializeBudgetDto(HttpResponseMessage response)

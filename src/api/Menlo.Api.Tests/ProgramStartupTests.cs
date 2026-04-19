@@ -22,7 +22,7 @@ public sealed class ProgramStartupTests : TestFixture
         };
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
         await using AsyncServiceScope scope = factory.Services.CreateAsyncScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
         IEnumerable<string> appliedMigrations = await db.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken);
@@ -43,7 +43,7 @@ public sealed class ProgramStartupTests : TestFixture
         Action act = () =>
         {
             using HttpClient client = factory.CreateClient();
-            _ = client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+            _ = client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken).GetAwaiter().GetResult();
         };
 
         InvalidOperationException exception = act.ShouldThrow<InvalidOperationException>();
