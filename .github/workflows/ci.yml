@@ -143,7 +143,6 @@ jobs:
           AzureAd__TenantId: ${{ secrets.AZURE_TENANT_ID }}
           AzureAd__ClientId: ${{ secrets.AZUREAD_APP_CLIENT_ID }}
           AzureAd__ClientSecret: ${{ steps.create-secret.outputs.client-secret }}
-          AzureAd__CookieDomain: "localhost"
         run: |
           dotnet test \
             --no-build \

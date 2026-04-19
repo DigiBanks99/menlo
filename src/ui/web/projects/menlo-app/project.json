@@ -23,9 +23,7 @@
             "input": "projects/menlo-app/public"
           }
         ],
-        "styles": [
-          "projects/menlo-app/src/styles.scss"
-        ],
+        "styles": ["projects/menlo-app/src/styles.scss"],
         "outputPath": "dist/menlo-app"
       },
       "configurations": {
@@ -57,9 +55,7 @@
         }
       },
       "defaultConfiguration": "production",
-      "outputs": [
-        "{options.outputPath}"
-      ]
+      "outputs": ["{options.outputPath}"]
     },
     "serve": {
       "executor": "@angular/build:dev-server",
@@ -68,8 +64,7 @@
           "buildTarget": "menlo-app:build:production"
         },
         "development": {
-          "buildTarget": "menlo-app:build:development",
-          "proxyConfig": "proxy.conf.json"
+          "buildTarget": "menlo-app:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -79,9 +74,7 @@
     },
     "test": {
       "executor": "@analogjs/vitest-angular:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/projects/menlo-app",
@@ -90,14 +83,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "projects/menlo-app/**/*.ts",
-          "projects/menlo-app/**/*.html"
-        ]
+        "lintFilePatterns": ["projects/menlo-app/**/*.ts", "projects/menlo-app/**/*.html"]
       }
     },
     "storybook": {

@@ -103,6 +103,19 @@ describe('BudgetWidgetComponent', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/budgets', 'budget-1']);
   });
 
+  it('does not navigate when no budget has been loaded', () => {
+    mockBudgetApiService.createOrEnsureBudget.mockReturnValue(
+      of(failure(unknownError('Something went wrong'))),
+    );
+
+    const fixture = TestBed.createComponent(BudgetWidgetComponent);
+    fixture.detectChanges();
+
+    fixture.componentInstance.viewBudget();
+
+    expect(mockRouter.navigate).not.toHaveBeenCalled();
+  });
+
   it('shows error banner when init load fails', () => {
     mockBudgetApiService.createOrEnsureBudget.mockReturnValue(
       of(failure(unknownError('Something went wrong'))),

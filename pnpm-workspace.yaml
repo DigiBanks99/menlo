@@ -13,3 +13,8 @@ onlyBuiltDependencies:
 
 overrides:
   axios@<1.15.0: '>=1.15.0'
+  vite-plugin-dts>@microsoft/api-extractor: 7.58.5
+  '@compodoc/compodoc>@angular-devkit/schematics': 21.2.7
+  axios>follow-redirects: 1.16.0
+  http-proxy>follow-redirects: 1.16.0
+  '@modelcontextprotocol/sdk>hono': 4.12.14

@@ -56,6 +56,8 @@ Ready to begin development? Follow these paths based on your focus:
 - .NET 10.0 with clean architecture patterns
 - Docker stack: PostgreSQL + Ollama for local AI
 - Test-driven development: Unit → Integration → API testing
+- Local web development runs through the Menlo API URL from Aspire; the Angular app is proxied same-origin instead of being accessed directly on port 4200
+- Production container builds bundle the Angular output into `wwwroot/`, so the SPA, health endpoint, and API ship from one image on one port
 
 ## 🛠️ Technology Stack
 
@@ -63,7 +65,7 @@ Ready to begin development? Follow these paths based on your focus:
 - **Backend**: .NET Core, Entity Framework Core
 - **Database**: PostgreSQL
 - **AI Framework**: Microsoft Semantic Kernel + Ollama (Phi models)
-- **Hosting**: Azure Static Web Apps + Cloudflare Tunnel
+- **Hosting**: Single ASP.NET Core container image serving both the API and Angular SPA
 - **Infrastructure**: Home server with UPS for load shedding resilience
 
 ## 🔑 Key Features

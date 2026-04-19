@@ -32,6 +32,7 @@ public sealed class LoginEndpointTests : TestFixture, IDisposable
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
+        ItShouldChallengeTheOidcProvider(response);
     }
 
     [Fact]
@@ -93,11 +94,15 @@ public sealed class LoginEndpointTests : TestFixture, IDisposable
         response.Headers.Location.ShouldNotBeNull();
     }
 
+    private static void ItShouldChallengeTheOidcProvider(HttpResponseMessage response)
+    {
+        response.Headers.Location.ShouldNotBeNull();
+        response.Headers.Location.AbsoluteUri.ShouldStartWith("https://login.test/authorize");
+    }
+
     public void Dispose()
     {
         _client.Dispose();
         _factory.Dispose();
     }
 }
-
-

@@ -7,16 +7,5 @@ namespace Menlo.Api.Auth.Options;
 /// </summary>
 public sealed class MenloAuthOptions : MicrosoftIdentityOptions
 {
-    /// <summary>
-    /// Configuration section name.
-    /// </summary>
     public const string SectionName = "AzureAd";
-
-    /// <summary>
-    /// Gets the cookie domain for cross-subdomain session sharing.
-    /// When empty, no explicit Domain attribute is set and the cookie defaults to the request host.
-    /// </summary>
-    public string? CookieDomain { get; init; }
 }
-
-

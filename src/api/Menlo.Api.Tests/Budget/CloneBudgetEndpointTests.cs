@@ -33,7 +33,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     public async Task GivenCurrentYearBudgetExists_WhenCreateNextYearBudget_ThenReturns201WithClonedCategories()
     {
         await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CloneWithCategoriesHousehold);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Create current-year budget via API
@@ -68,7 +68,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     public async Task GivenNoCurrentYearBudget_WhenCreateNextYearBudget_ThenReturns201WithEmptyCategories()
     {
         await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NoCurrentYearHousehold);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Do NOT create any current-year budget — go straight to next year
@@ -89,7 +89,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     public async Task GivenNestedCategoriesInCurrentYear_WhenCreateNextYearBudget_ThenParentChildRelationshipsPreserved()
     {
         await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NestedCategoriesHousehold);
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Create current-year budget via API

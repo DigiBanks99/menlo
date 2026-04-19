@@ -27,6 +27,9 @@ public sealed class BudgetApiFixture : IAsyncLifetime
 
     public HttpClient CreateClient() => _factory.CreateClient();
 
+    public Task<HttpClient> CreateAntiforgeryClientAsync(CancellationToken cancellationToken = default) =>
+        _factory.CreateAntiforgeryClientAsync(cancellationToken: cancellationToken);
+
     public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();

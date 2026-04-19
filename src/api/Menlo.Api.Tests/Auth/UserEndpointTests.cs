@@ -1,5 +1,6 @@
 using Menlo.Api.Tests.Fixtures;
 using Menlo.Lib.Auth.Models;
+using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -37,11 +38,15 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         {
             SimulateUnauthenticated = true
         };
-        using HttpClient unauthenticatedClient = unauthenticatedFactory.CreateClient();
+        using HttpClient unauthenticatedClient = unauthenticatedFactory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
 
         HttpResponseMessage response = await unauthenticatedClient.GetAsync("/auth/user", TestContext.Current.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
+        ItShouldNotHaveRedirected(response);
     }
 
     [Fact]
@@ -82,11 +87,14 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         userProfile.Roles.ShouldBeEmpty();
     }
 
+    private static void ItShouldNotHaveRedirected(HttpResponseMessage response)
+    {
+        response.Headers.Location.ShouldBeNull();
+    }
+
     public void Dispose()
     {
         _client.Dispose();
         _factory.Dispose();
     }
 }
-
-

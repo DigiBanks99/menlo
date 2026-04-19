@@ -11,23 +11,23 @@ describe('AuthGuard', () => {
     isLoading: ReturnType<typeof signal<boolean>>;
     isAuthenticated: ReturnType<typeof signal<boolean>>;
     loadUser: ReturnType<typeof vi.fn>;
-    login: ReturnType<typeof vi.fn>;
   };
 
   let router: {
-    url: string;
+    createUrlTree: ReturnType<typeof vi.fn>;
   };
+  let redirectTree: { redirected: boolean };
 
   beforeEach(() => {
     authService = {
       isLoading: signal(false),
       isAuthenticated: signal(false),
       loadUser: vi.fn(async () => undefined),
-      login: vi.fn(),
     };
+    redirectTree = { redirected: true };
 
     router = {
-      url: '/protected',
+      createUrlTree: vi.fn(() => redirectTree),
     };
 
     TestBed.configureTestingModule({
@@ -42,7 +42,9 @@ describe('AuthGuard', () => {
     authService.isLoading.set(true);
     authService.isAuthenticated.set(true);
 
-    const result = await TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
+    const result = await TestBed.runInInjectionContext(() =>
+      authGuard({} as never, { url: '/protected' } as never),
+    );
 
     expect(authService.loadUser).toHaveBeenCalledOnce();
     expect(result).toBe(true);
@@ -51,18 +53,34 @@ describe('AuthGuard', () => {
   it('should allow navigation when authenticated', async () => {
     authService.isAuthenticated.set(true);
 
-    const result = await TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
+    const result = await TestBed.runInInjectionContext(() =>
+      authGuard({} as never, { url: '/protected' } as never),
+    );
 
-    expect(authService.login).not.toHaveBeenCalled();
+    expect(router.createUrlTree).not.toHaveBeenCalled();
     expect(result).toBe(true);
   });
 
-  it('should redirect to login when not authenticated', async () => {
+  it('should redirect to sign-in when not authenticated', async () => {
     authService.isAuthenticated.set(false);
 
-    const result = await TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
+    const result = await TestBed.runInInjectionContext(() =>
+      authGuard({} as never, { url: '/protected' } as never),
+    );
 
-    expect(authService.login).toHaveBeenCalledWith('/protected');
-    expect(result).toBe(false);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/sign-in'], {
+      queryParams: { returnUrl: '/protected' },
+    });
+    expect(result).toBe(redirectTree);
+  });
+
+  it('should fall back to the home return url when the target url is empty', async () => {
+    authService.isAuthenticated.set(false);
+
+    await TestBed.runInInjectionContext(() => authGuard({} as never, { url: '' } as never));
+
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/sign-in'], {
+      queryParams: { returnUrl: '/' },
+    });
   });
 });

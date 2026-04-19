@@ -4,10 +4,12 @@ using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NSubstitute;
@@ -16,6 +18,8 @@ namespace Menlo.Api.Tests;
 
 public class TestWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private static readonly Uri TestBaseAddress = new("https://localhost");
+
     /// <summary>
     /// Gets the roles to assign to the test user.
     /// </summary>
@@ -25,6 +29,21 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     /// Gets whether to simulate an unauthenticated user.
     /// </summary>
     public bool SimulateUnauthenticated { get; init; }
+
+    /// <summary>
+    /// Gets whether the test authentication handler should replace the production auth schemes.
+    /// </summary>
+    public bool UseTestAuthentication { get; init; } = true;
+
+    /// <summary>
+    /// Gets the environment name to host the API under.
+    /// </summary>
+    public string EnvironmentName { get; init; } = Environments.Production;
+
+    /// <summary>
+    /// Gets the content root path to use for the host.
+    /// </summary>
+    public string? ContentRootPath { get; init; }
 
     /// <summary>
     /// Gets the connection string to use for the API host. When null, the host starts
@@ -44,6 +63,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         new Dictionary<string, string?>();
 
     /// <summary>
+    /// Allows tests to add extra app branches or endpoints without modifying production startup.
+    /// </summary>
+    public Action<IApplicationBuilder>? ConfigureApp { get; init; }
+
+    /// <summary>
     /// Configures the web host for testing.
     /// This includes setting up test authentication and mock AI services.
     /// </summary>
@@ -52,7 +76,13 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     {
         Dictionary<string, string?> hostConfig = BuildHostConfiguration();
 
-        builder.UseEnvironment("Production");
+        builder.UseEnvironment(EnvironmentName);
+
+        if (!string.IsNullOrWhiteSpace(ContentRootPath))
+        {
+            builder.UseContentRoot(ContentRootPath);
+        }
+
         builder.UseConfiguration(new ConfigurationBuilder()
             .AddInMemoryCollection(hostConfig)
             .Build());
@@ -81,36 +111,88 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 options.ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(configuration);
             });
 
-            services
-                .AddAuthentication()
-                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
-
-            services.PostConfigure<AuthenticationOptions>(options =>
+            if (UseTestAuthentication)
             {
-                options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
-                options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
-                options.DefaultScheme = TestAuthHandler.SchemeName;
-            });
+                services
+                    .AddAuthentication()
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
 
-            services.Configure<TestAuthHandlerOptions>(options =>
+                services.PostConfigure<AuthenticationOptions>(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
+                    options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
+                    options.DefaultScheme = TestAuthHandler.SchemeName;
+                });
+
+                services.Configure<TestAuthHandlerOptions>(options =>
+                {
+                    options.Roles = UserRoles;
+                    options.SimulateUnauthenticated = SimulateUnauthenticated;
+                });
+            }
+
+            if (ConfigureApp is not null)
             {
-                options.Roles = UserRoles;
-                options.SimulateUnauthenticated = SimulateUnauthenticated;
-            });
+                services.AddSingleton<IStartupFilter>(_ => new DelegateStartupFilter(ConfigureApp));
+            }
         });
+    }
+
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        client.BaseAddress = TestBaseAddress;
+    }
+
+    public new HttpClient CreateClient() =>
+        CreateClient(new WebApplicationFactoryClientOptions());
+
+    public new HttpClient CreateClient(WebApplicationFactoryClientOptions options)
+    {
+        if (options.BaseAddress is null || !string.Equals(options.BaseAddress.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            options.BaseAddress = TestBaseAddress;
+        }
+
+        return base.CreateClient(options);
+    }
+
+    public async Task<HttpClient> CreateAntiforgeryClientAsync(
+        WebApplicationFactoryClientOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        HttpClient client = CreateClient(options ?? new WebApplicationFactoryClientOptions());
+        await ConfigureAntiforgeryAsync(client, cancellationToken);
+        return client;
+    }
+
+    private static async Task ConfigureAntiforgeryAsync(HttpClient client, CancellationToken cancellationToken)
+    {
+        HttpResponseMessage response =
+            await client.GetAsync("/api/weatherforecast", cancellationToken);
+
+        response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders).ShouldBeTrue();
+        cookieHeaders.ShouldNotBeNull();
+
+        string requestTokenCookie = cookieHeaders.Single(header =>
+            header.StartsWith("XSRF-TOKEN=", StringComparison.Ordinal));
+
+        string requestToken = requestTokenCookie["XSRF-TOKEN=".Length..].Split(';', 2)[0];
+
+        client.DefaultRequestHeaders.Remove("X-XSRF-TOKEN");
+        client.DefaultRequestHeaders.Add("X-XSRF-TOKEN", requestToken);
     }
 
     private Dictionary<string, string?> BuildHostConfiguration()
     {
         Dictionary<string, string?> hostConfig = new()
         {
-            ["ASPNETCORE_ENVIRONMENT"] = "Production",
+            ["ASPNETCORE_ENVIRONMENT"] = EnvironmentName,
             ["Menlo:SkipMigration"] = SkipMigration.ToString(),
             ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
             ["AzureAd:TenantId"] = "test-tenant-id",
             ["AzureAd:ClientId"] = "test-client-id",
-            ["AzureAd:ClientSecret"] = "test-client-secret",
-            ["AzureAd:CookieDomain"] = "localhost"
+            ["AzureAd:ClientSecret"] = "test-client-secret"
         };
 
         if (MenloConnectionString is not null)
@@ -166,4 +248,14 @@ internal sealed class NoOpAuditStampFactory : IAuditStampFactory
 internal sealed class NoOpSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
+}
+
+internal sealed class DelegateStartupFilter(Action<IApplicationBuilder> configureApp) : IStartupFilter
+{
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) =>
+        app =>
+        {
+            configureApp(app);
+            next(app);
+        };
 }

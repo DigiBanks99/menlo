@@ -1,11 +1,14 @@
 using Menlo.AI.Extensions;
 using Menlo.AI.Interfaces;
+using Menlo.Api.Antiforgery;
 using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
 using Menlo.Api.OpenApi;
+using Menlo.Api.SpaHosting;
 using Menlo.Application.Common;
+using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,14 +18,26 @@ builder.AddServiceDefaults();
 
 builder
     .AddMenloAuthentication()
+    .AddMenloAntiforgery()
+    .AddSpaReverseProxy()
     .AddMenloAiWithAspire()
     .AddMenloOpenApi()
     .AddMenloApplication();
 
 WebApplication app = builder.Build();
 
-app.UseMenloSecurityHeaders()
-    .UseCors(MenloCorsPolicy.Default)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    KnownIPNetworks = { },
+    KnownProxies = { }
+});
+
+app.UseHttpsRedirection();
+
+app.UseMenloAntiforgery()
+    .UseMenloSpaStaticFiles()
+    .UseMenloSecurityHeaders()
     .UseAuthentication()
     .UseAuthorization();
 
@@ -32,15 +47,13 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
-
 string[] summaries =
 [
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 ];
 
 // Map authentication endpoints (public, no auth required)
-app.MapAuthEndpoints(app.Environment, app.Configuration);
+app.MapAuthEndpoints();
 
 // Protected API endpoints
 RouteGroupBuilder apiGroup = app
@@ -87,6 +100,7 @@ apiGroup
     .WithSummary("Gets the health status of the AI service");
 
 app.MapDefaultEndpoints();
+app.MapMenloSpa();
 
 await app.MigrateDatabaseAsync();
 
@@ -96,5 +110,3 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
-
-
