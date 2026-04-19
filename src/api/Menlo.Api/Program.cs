@@ -10,6 +10,7 @@ using Menlo.Api.SpaHosting;
 using Menlo.Application.Common;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
@@ -47,11 +48,6 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-string[] summaries =
-[
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-];
-
 // Map authentication endpoints (public, no auth required)
 app.MapAuthEndpoints();
 
@@ -60,24 +56,6 @@ RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
-
-apiGroup
-    .MapGet("/weatherforecast", () =>
-    {
-        WeatherForecast[] forecast =
-        [
-            .. Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-        ];
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithSummary("Gets a 5-day weather forecast");
 
 // Budget endpoints
 apiGroup.MapBudgetEndpoints();
@@ -105,8 +83,3 @@ app.MapMenloSpa();
 await app.MigrateDatabaseAsync();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
