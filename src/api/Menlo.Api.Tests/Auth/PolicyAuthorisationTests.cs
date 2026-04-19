@@ -6,7 +6,7 @@ namespace Menlo.Api.Tests.Auth;
 
 public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
 {
-    private const string ProtectedEndpoint = "/api/weatherforecast";
+    private const string ProtectedEndpoint = "/api/ai/health";
 
     private readonly TestWebApplicationFactory _standardUserFactory;
     private readonly HttpClient _standardUserClient;

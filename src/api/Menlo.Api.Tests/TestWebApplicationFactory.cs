@@ -169,7 +169,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     private static async Task ConfigureAntiforgeryAsync(HttpClient client, CancellationToken cancellationToken)
     {
         HttpResponseMessage response =
-            await client.GetAsync("/api/weatherforecast", cancellationToken);
+            await client.GetAsync("/api/ai/health", cancellationToken);
 
         response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders).ShouldBeTrue();
         cookieHeaders.ShouldNotBeNull();

@@ -37,7 +37,7 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage apiResponse = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage apiResponse = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
         string apiBody = await apiResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         HttpResponseMessage authResponse = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);

@@ -1,6 +1,6 @@
 @Api_HostAddress = https://localhost:7298
 
-GET {{Api_HostAddress}}/api/weatherforecast/
+GET {{Api_HostAddress}}/api/ai/health
 Accept: application/json
 
 ###

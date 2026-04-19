@@ -13,7 +13,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
             c.Request.Method = "GET";
             c.Request.Scheme = "https";
             c.Request.Host = new HostString("example.com");
-            c.Request.Path = "/api/weatherforecast";
+            c.Request.Path = "/api/ai/health";
         }, TestContext.Current.CancellationToken);
 
         ItShouldHaveStrictTransportSecurityHeader(ctx);
@@ -23,7 +23,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
     public async Task GivenAuthenticatedUser_WhenMakingRequest_ThenResponseIncludesContentSecurityPolicyHeader()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveContentSecurityPolicyHeader(response);
@@ -33,7 +33,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
     public async Task GivenAuthenticatedUser_WhenMakingRequest_ThenResponseIncludesXContentTypeOptionsHeader()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/weatherforecast", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveXContentTypeOptionsHeader(response);
