@@ -65,7 +65,7 @@ IResourceBuilder<JavaScriptAppResource> libStorybook = builder
 
 uiStorybook.WithParentRelationship(ui);
 libStorybook.WithParentRelationship(ui);
+api.WithReference(ui);
 
 builder.Build().Run();
-
 

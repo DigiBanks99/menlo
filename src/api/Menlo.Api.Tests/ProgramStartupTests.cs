@@ -61,8 +61,7 @@ public sealed class ProgramStartupTests : TestFixture
                 ["AzureAd:Instance"] = string.Empty,
                 ["AzureAd:TenantId"] = string.Empty,
                 ["AzureAd:ClientId"] = string.Empty,
-                ["AzureAd:ClientSecret"] = string.Empty,
-                ["AzureAd:CookieDomain"] = string.Empty
+                ["AzureAd:ClientSecret"] = string.Empty
             }
         };
 

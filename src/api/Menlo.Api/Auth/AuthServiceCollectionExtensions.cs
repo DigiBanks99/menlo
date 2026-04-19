@@ -8,15 +8,6 @@ using Microsoft.Extensions.Options;
 namespace Menlo.Api.Auth;
 
 /// <summary>
-/// CORS policy name used for the Menlo API.
-/// </summary>
-public static class MenloCorsPolicy
-{
-    /// <summary>The default CORS policy name.</summary>
-    public const string Default = "MenloDefaultCors";
-}
-
-/// <summary>
 /// Extension methods for configuring authentication services.
 /// </summary>
 public static class AuthServiceCollectionExtensions
@@ -40,26 +31,6 @@ public static class AuthServiceCollectionExtensions
         builder.Services.AddScoped<ISoftDeleteStampFactory>(
             sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
 
-        // Configure CORS — allow Angular dev server origins (dev only) or configured origins
-        string[] allowedOrigins = builder.Configuration
-            .GetSection("Menlo:Cors:AllowedOrigins")
-            .Get<string[]>() ?? [];
-
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy(MenloCorsPolicy.Default, policy =>
-            {
-                if (allowedOrigins.Length > 0)
-                {
-                    policy
-                        .WithOrigins(allowedOrigins)
-                        .AllowCredentials()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                }
-            });
-        });
-
         IConfigurationSection section = builder.Configuration.GetSection(MenloAuthOptions.SectionName);
         MenloAuthOptions authOptions = section
             .Get<MenloAuthOptions>()
@@ -77,15 +48,7 @@ public static class AuthServiceCollectionExtensions
                 options.Cookie.Name = ".Menlo.Session";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                // In development the Angular app runs on http while the API is https (cross-scheme).
-                // SameSite=None allows credentials to be forwarded across that scheme boundary.
-                options.Cookie.SameSite = builder.Environment.IsDevelopment()
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict;
-                if (!string.IsNullOrWhiteSpace(authOptions.CookieDomain))
-                {
-                    options.Cookie.Domain = authOptions.CookieDomain;
-                }
+                options.Cookie.SameSite = SameSiteMode.Strict;
                 options.ExpireTimeSpan = TimeSpan.FromHours(8);
                 options.SlidingExpiration = true;
                 options.Events.OnRedirectToLogin = context =>
@@ -139,8 +102,7 @@ public static class AuthServiceCollectionExtensions
 
     private static bool IsXhrRequest(HttpRequest request) =>
         request.Path.StartsWithSegments("/api")
+        || request.Path.Equals("/auth/user", StringComparison.OrdinalIgnoreCase)
         || request.Headers.Accept.Any(a => a != null && a.Contains("application/json"))
         || request.Headers.ContainsKey("X-Requested-With");
 }
-
-

@@ -40,7 +40,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
                 ["Features:Budget"] = "true"
             }
         };
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage createResponse =
@@ -92,7 +92,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
                 ["Features:Budget"] = "true"
             }
         };
-        using HttpClient ownerClient = ownerFactory.CreateClient();
+        using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage createResponse =

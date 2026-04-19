@@ -19,6 +19,21 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     private static readonly JsonSerializerOptions JsonOptions =
         new() { PropertyNameCaseInsensitive = true };
 
+    private static readonly HouseholdId CreateBudgetHousehold =
+        new(Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0"));
+
+    private static readonly HouseholdId ExistingBudgetHousehold =
+        new(Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"));
+
+    private static readonly HouseholdId NextYearBudgetHousehold =
+        new(Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"));
+
+    private static readonly HouseholdId PastYearBudgetHousehold =
+        new(Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"));
+
+    private static readonly HouseholdId FutureYearBudgetHousehold =
+        new(Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4"));
+
     // -------------------------------------------------------------------------
     // DB-backed happy-path scenarios (use the shared fixture factory)
     // -------------------------------------------------------------------------
@@ -26,7 +41,8 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     [Fact]
     public async Task GivenValidYear_WhenPostBudget_ThenReturns201WithBudgetDto()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CreateBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage response =
@@ -38,7 +54,7 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
         ItShouldHaveANonEmptyId(dto);
         ItShouldHaveTheCorrectYear(dto, year);
         ItShouldHaveTheDraftStatus(dto);
-        ItShouldBelongToTheTestHousehold(dto, BudgetApiFixture.TestHouseholdId);
+        ItShouldBelongToTheTestHousehold(dto, CreateBudgetHousehold);
         ItShouldHaveZeroTotalPlannedMonthlyAmount(dto);
         ItShouldHaveNoCategories(dto);
     }
@@ -46,7 +62,8 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     [Fact]
     public async Task GivenExistingBudget_WhenPostBudgetAgain_ThenReturns200WithSameBudgetId()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(ExistingBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage firstResponse =
@@ -64,7 +81,8 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     [Fact]
     public async Task GivenNextYear_WhenPostBudget_ThenReturns201()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NextYearBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year + 1;
 
         HttpResponseMessage response =
@@ -83,7 +101,8 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     [Fact]
     public async Task GivenPastYear_WhenPostBudget_ThenReturns400()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(PastYearBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int pastYear = DateTimeOffset.UtcNow.Year - 1;
 
         HttpResponseMessage response =
@@ -95,7 +114,8 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     [Fact]
     public async Task GivenFutureYearBeyondNextYear_WhenPostBudget_ThenReturns400()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FutureYearBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int farFutureYear = DateTimeOffset.UtcNow.Year + 2;
 
         HttpResponseMessage response =
@@ -116,7 +136,7 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
             SimulateUnauthenticated = true,
             MenloConnectionString = null
         };
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage response =
@@ -135,7 +155,7 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
                 ["Features:Budget"] = "false"
             }
         };
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage response =
@@ -209,4 +229,15 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
         string content = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<BudgetDto>(content, JsonOptions);
     }
+
+    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) =>
+        new(householdId)
+        {
+            MenloConnectionString = fixture.ConnectionString,
+            SkipMigration = true,
+            ConfigurationOverrides = new Dictionary<string, string?>
+            {
+                ["Features:Budget"] = "true"
+            }
+        };
 }

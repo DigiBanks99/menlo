@@ -44,6 +44,7 @@ describe('BudgetDetailComponent', () => {
     createOrEnsureBudget: ReturnType<typeof vi.fn>;
   };
   let mockRouter: { navigate: ReturnType<typeof vi.fn> };
+  let routeBudgetId: string | null;
 
   beforeEach(async () => {
     mockBudgetApiService = {
@@ -51,6 +52,7 @@ describe('BudgetDetailComponent', () => {
       createOrEnsureBudget: vi.fn(),
     };
     mockRouter = { navigate: vi.fn() };
+    routeBudgetId = 'budget-current';
 
     await TestBed.configureTestingModule({
       imports: [BudgetDetailComponent],
@@ -58,7 +60,7 @@ describe('BudgetDetailComponent', () => {
         provideZonelessChangeDetection(),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => 'budget-current' } } },
+          useValue: { snapshot: { paramMap: { get: () => routeBudgetId } } },
         },
         { provide: BudgetApiService, useValue: mockBudgetApiService },
         { provide: Router, useValue: mockRouter },
@@ -86,9 +88,25 @@ describe('BudgetDetailComponent', () => {
 
       expect(fixture.nativeElement.querySelector('[data-testid="loading"]')).toBeNull();
     });
+
+    it('uses an empty id when the route parameter is missing', () => {
+      routeBudgetId = null;
+      mockBudgetApiService.getBudget.mockReturnValue(of(success(mockBudgetCurrentYear)));
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      expect(mockBudgetApiService.getBudget).toHaveBeenCalledWith('');
+    });
   });
 
   describe('successful budget load', () => {
+    it('returns no sorted categories before a budget has loaded', () => {
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+
+      expect(fixture.componentInstance.sortedCategories()).toEqual([]);
+    });
+
     it('renders the budget year in the heading', () => {
       mockBudgetApiService.getBudget.mockReturnValue(of(success(mockBudgetCurrentYear)));
 
@@ -135,6 +153,17 @@ describe('BudgetDetailComponent', () => {
   });
 
   describe('error handling', () => {
+    it('uses an empty string when the route id is missing', () => {
+      routeBudgetId = null;
+      mockBudgetApiService.getBudget.mockReturnValue(of(failure(unknownError('Missing id'))));
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      expect(mockBudgetApiService.getBudget).toHaveBeenCalledWith('');
+      expect(fixture.nativeElement.querySelector('[data-testid="error-banner"]')).toBeTruthy();
+    });
+
     it('shows error banner when getBudget fails', () => {
       mockBudgetApiService.getBudget.mockReturnValue(of(failure(unknownError('Not found'))));
 
@@ -281,6 +310,26 @@ describe('BudgetDetailComponent', () => {
       ) as NodeListOf<HTMLElement>;
       expect(items.length).toBe(2);
       expect(items[1].querySelector('.category-name')?.textContent?.trim()).toBe('Orphan One');
+    });
+
+    it('renders duplicate category ids only once', () => {
+      const categories: BudgetCategoryResponse[] = [
+        makeCat('dup', 'First Duplicate'),
+        makeCat('dup', 'Second Duplicate'),
+      ];
+
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      const items = fixture.nativeElement.querySelectorAll(
+        '.category-item',
+      ) as NodeListOf<HTMLElement>;
+      expect(items.length).toBe(1);
+      expect(items[0].querySelector('.category-name')?.textContent?.trim()).toBe('First Duplicate');
     });
 
     it('shows depth warning for categories at depth >= 4', () => {

@@ -36,7 +36,10 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
                 if (existing is not null) services.Remove(existing);
                 services.AddSingleton(throwingChatService);
             }));
-        using HttpClient client = throwingFactory.CreateClient();
+        using HttpClient client = throwingFactory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost")
+        });
 
         HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
 
