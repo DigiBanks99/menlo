@@ -489,6 +489,7 @@ $RECYCLE.BIN/
 # Tools
 .nx/*
 .playwright-mcp/
+.playwright-cli/
 
 # Project Specific
 src/api/Menlo.Api/wwwroot/*
