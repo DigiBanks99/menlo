@@ -2,66 +2,87 @@
 
 ## Business Requirements
 
-- Users can define, organise, and manage budget categories and subcategories to structure their budgets.
-- Categories support hierarchical relationships (category → subcategories) with practical limits to prevent deep nesting complexity (1 level of subcategories to start).
-- Categories can be soft-deleted so they can no longer be used in new budget items, while preserving historical data.
-- Category management does not rely on per-user/household ownership. The system will typically have a single budget per year; categories are scoped to that budget year.
-- The system must make it easy to maintain categories during budget drafting and later modification.
+- Users can define, organise, and manage budget categories and subcategories **inline within a budget** to structure their finances.
+- Categories are **owned by a Budget** — there is no standalone Category Catalog. Management happens in the budget detail view.
+- Categories support hierarchical relationships (root → child) with a depth limit of **2 levels** (root → one level of children).
+- Categories are **grouping containers only**; they do not hold planned amounts. Budget items (a separate future vertical) will carry amounts.
+- Categories can be soft-deleted so they can no longer be used in new budget items, while preserving historical data. Soft-delete **cascades to children**; restore also cascades.
+- A **CanonicalCategory** entity provides stable cross-year identity. When a category is added to a budget that doesn't map to an existing canonical entry, the system auto-creates the CanonicalCategory record. During `CloneForYear`, the `CanonicalCategoryId` is preserved.
+- When creating a budget for year Y, the category tree is **automatically cloned from year Y-1's budget** via `Budget.CloneForYear()`. No user prompt, no catalog lookup.
 - UX must provide clear feedback on errors (validation, conflicts) without exposing technical details.
-- Categories may optionally carry defaults to speed up drafting:
-  - Attribution: main household or rental apartment
-  - Contributor to income (for income categories)
-  - Responsible payer (for expense categories)
+- Categories carry optional metadata to speed up drafting:
+  - `BudgetFlow` (Income, Expense, Both) — controls which categories appear for income vs expense items.
+  - `Attribution` (nullable: Main, Rental) — whether the category is for the main household or rental apartment.
+  - `IncomeContributor` (nullable, free text) — who earns income (for income categories).
+  - `ResponsiblePayer` (nullable, free text) — who pays (for expense categories).
 
 ## Functional Requirements
 
-### Category lifecycle
+### CategoryNode lifecycle
 
-- Create category with required fields: name (unique among siblings within the same budget year), optional description, optional colour/icon, and optional parent (for subcategory).
-- Create subcategory by assigning a parent category; parent must not be soft-deleted.
-- Update category details (name, description, colour/icon) and re-parenting rules:
-  - A category may be re-parented (or promoted to root) if it does not create cycles and respects depth limit.
-  - Renaming must maintain uniqueness among siblings within the same budget year.
-- Soft delete a category (and optionally cascade-disable all subcategories). Soft-deleted categories:
-  - Cannot be selected for new budget items or templates.
+- Create category within a budget with required fields: `Name` (unique among siblings within the same budget), optional `Description`, optional `ParentId` (for subcategory), `BudgetFlow`, and optional `Attribution`, `IncomeContributor`, `ResponsiblePayer`.
+- Create subcategory by assigning a parent category; parent must be a root (parent's parent must be null) and must not be soft-deleted.
+- Update category details (name, description, BudgetFlow, Attribution, IncomeContributor, ResponsiblePayer) and re-parenting rules:
+  - A category may be re-parented (or promoted to root) if it does not create cycles and respects the 2-level depth limit.
+  - Renaming must maintain uniqueness among siblings within the same budget.
+- Soft-delete a category with **cascade to children**:
+  - Cannot be selected for new budget items.
   - Remain visible in historical views and reports.
-  - Can be restored (un-delete) if needed.
+  - Can be restored (un-delete), which also **cascades restoration to children**.
+- Implements `ISoftDeletable` (IsDeleted, DeletedAt, DeletedBy) and `IAuditable` (CreatedAt, CreatedBy, ModifiedAt, ModifiedBy).
+
+### CanonicalCategory
+
+- Provides stable cross-year identity for logical categories across budget years.
+- Fields: `Id` (Guid), `Name` (string), audit fields (CreatedAt, CreatedBy, ModifiedAt, ModifiedBy via `IAuditable`).
+- Lean entity — no BudgetFlow, no defaults. Just identity + name + audit.
+- **Implicitly created**: when a user adds a new category to a budget that doesn't map to an existing canonical entry, the system auto-creates the CanonicalCategory record.
+- Each `CategoryNode` has a FK (`CanonicalCategoryId`) pointing to this entity.
+- During `CloneForYear`, the `CanonicalCategoryId` is preserved so the same logical category is linked across years.
 
 ### Usage and constraints
 
-- Category uniqueness: per budget year, name must be unique among siblings at the same level.
-- Depth policy: one subcategory level (root → child) for MVP.
+- Category uniqueness: per budget, name must be unique among siblings at the same level.
+- Depth policy: **2 levels** (root → child). A category's parent must be a root (parentId's parent must be null).
 - Categories used in existing budget items cannot be hard-deleted.
-- Scope: categories are scoped to a budget year (no per-user ownership model).
-- Audit: all lifecycle actions stamped with created/updated/deleted by/at.
+- Scope: categories are scoped to a budget (no per-user ownership model).
+- No restrictions on which year's budget can be edited — users can edit any year's categories.
+- Audit: all lifecycle actions stamped with created/modified/deleted by/at.
 
 ### Query and drafting
 
-- Read model provides category tree for drafting (root with children), with filters:
-  - includeDeleted: boolean (default false)
-  - search: string
-  - onlySelectable: boolean (exclude soft-deleted)
-  - attribution: enum filter (main, rental, all)
-  - payer: optional filter (responsible payer)
-  - contributor: optional filter (income contributor)
-- API supports listing categories, fetching a single category, and searching by name.
+- Read model provides category tree for a budget (root with children), with a single server-side filter:
+  - `includeDeleted`: boolean (default false)
+- All other filtering (search, BudgetFlow, Attribution, payer, contributor) is done **client-side in Angular**.
+- The category tree per budget is small enough (~200 nodes max) for client-side filtering to be performant.
+- API supports listing the category tree for a budget, fetching a single category by ID.
 
 ### Security and access
 
-- Auth required for all endpoints. No per-owner tenancy; if/when multiple years are present, ensure requests are constrained to the active budget year.
-- Rate limit or throttle category mutations to prevent accidental rapid changes.
+- Auth required for all endpoints.
+- No rate limiting — this is a family app, not a public API.
+- No year-based access constraints — users can edit any year's categories.
 
 ## Non-functional Requirements
 
-- Observability: structured logging (LoggerMessage), minimal metrics (counts of create/update/delete), tracing across UI→API→DB.
-- Performance: list tree should render in <150ms from API for typical sizes (<= 200 categories per owner).
+- Observability: structured logging (LoggerMessage source generators), minimal metrics (counts of create/update/delete), tracing across UI→API→domain→DB.
+- Performance: list tree should render in <150ms from API for typical sizes (≤ 200 categories per budget).
 - Reliability: category operations are idempotent where applicable (e.g., restore already-active = no-op).
 
 ## Dependencies
 
-- Reuses Domain Abstractions (strongly-typed IDs, Result pattern, AuditStamp).
-- Integrates with Minimum Budget Aggregate for item categorisation.
-- Frontend follows Angular instructions (signals, typed forms, Result pattern for API).
+- Reuses Domain Abstractions (strongly-typed IDs using Guid, Result pattern, IAuditable, ISoftDeletable).
+- Integrates with Budget aggregate (`Budget.CloneForYear()` for year-over-year category cloning).
+- Frontend follows Angular instructions (standalone components, signals, typed forms, Result pattern for API).
+
+## Deferred
+
+- Category Catalog (standalone template registry) — entirely deferred.
+- Save-as-template functionality.
+- Cross-year analysis endpoints.
+- Color and icon fields on CategoryNode.
+- Feature toggles.
+- Budget item entity (separate vertical).
 
 ## Diagrams
 
