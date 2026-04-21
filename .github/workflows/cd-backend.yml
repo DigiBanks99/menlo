@@ -229,7 +229,7 @@ jobs:
               environment:
                 - ASPNETCORE_ENVIRONMENT=Production
                 - ASPNETCORE_URLS=http://+:8080
-                - ConnectionStrings__menlo=Host=postgres;Database=menlo;Username=$env:POSTGRES_USER;Password=$env:POSTGRES_PASSWORD
+                - ConnectionStrings__menlo=Host=postgres;Database=menlo;Username=$env:POSTGRES_USER;Password=$env:POSTGRES_PASSWORD;SSL Mode=Disable
                 - Ollama__BaseUrl=http://ollama:11434
                 - Logging__LogLevel__Default=Information
                 - AzureAd__Instance=$env:AZURE_AD_INSTANCE
