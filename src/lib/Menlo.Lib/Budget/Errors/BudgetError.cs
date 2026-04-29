@@ -65,3 +65,31 @@ public class InvalidBudgetStatusError(string operation, string currentStatus)
     /// </summary>
     public string CurrentStatus { get; } = currentStatus;
 }
+
+/// <summary>
+/// Error indicating a category was not found in the budget.
+/// </summary>
+/// <param name="categoryId">The category ID that was not found.</param>
+public class CategoryNotFoundError(string categoryId)
+    : BudgetError("Budget.CategoryNotFound", $"Category '{categoryId}' not found in this budget.")
+{
+    /// <summary>Gets the missing category ID.</summary>
+    public string CategoryId { get; } = categoryId;
+}
+
+/// <summary>
+/// Error indicating a depth violation in the category hierarchy.
+/// </summary>
+/// <param name="reason">The reason for the depth violation.</param>
+public class CategoryDepthError(string reason)
+    : BudgetError("Budget.CategoryDepthViolation", $"Category depth violation: {reason}")
+{
+    /// <summary>Gets the reason for the depth violation.</summary>
+    public string Reason { get; } = reason;
+}
+
+/// <summary>
+/// Error indicating the category's parent is deleted and cannot accept children.
+/// </summary>
+public class DeletedParentError()
+    : BudgetError("Budget.DeletedParent", "Cannot add a child to a soft-deleted parent category.");

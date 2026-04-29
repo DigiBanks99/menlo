@@ -15,7 +15,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
     // BudgetApiFixture.TestHouseholdId = "aaaa..."), so these tests can run in any order
     // without conflicting with the shared fixture's budget rows.
     private static readonly HouseholdId VerifiedHousehold =
-        new(Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"));
+        new(Guid.Parse("cccccccc-a1a1-a1a1-a1a1-cccccccccccc"));
 
     private static readonly HouseholdId WrongHouseholdOwner =
         new(Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"));
