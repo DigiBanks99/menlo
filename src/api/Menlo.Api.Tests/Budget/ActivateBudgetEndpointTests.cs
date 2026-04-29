@@ -1,6 +1,7 @@
 using Menlo.Api.Budget;
 using Menlo.Application.Common;
 using Menlo.Lib.Budget.Entities;
+using Menlo.Lib.Budget.Enums;
 using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
@@ -69,7 +70,7 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
     // -------------------------------------------------------------------------
 
     [Fact]
-    public async Task GivenDraftBudgetWithNoNonZeroAmounts_WhenActivate_ThenReturns400()
+    public async Task GivenDraftBudgetWithNoNonZeroAmounts_WhenActivate_ThenReturns200()
     {
         await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NoNonZeroAmountsHousehold);
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
@@ -84,7 +85,7 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
         HttpResponseMessage activateResponse =
             await client.PostAsync($"/api/budgets/{createdDto.Id}/activate", null, TestContext.Current.CancellationToken);
 
-        ItShouldHaveReturned400BadRequest(activateResponse);
+        ItShouldHaveReturned200Ok(activateResponse);
     }
 
     // -------------------------------------------------------------------------
@@ -250,15 +251,18 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
     {
         using IServiceScope scope = factory.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         Lib.Budget.Entities.Budget budget = await db.Budgets
             .Include(b => b.Categories)
             .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
 
-        budget.AddCategory("Housing");
-        CategoryNode category = budget.Categories.First();
-        Money amount = Money.Create(1000m, "ZAR").Value;
-        budget.SetPlanned(category.Id, amount);
+        budget.AddCategory("Housing", BudgetFlow.Expense);
+        CategoryNode category = budget.Categories.First(c => c.Name.Value == "Housing");
+
+        CanonicalCategory canonical = CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value);
+        canonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
+        db.CanonicalCategories.Add(canonical);
 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
@@ -276,10 +280,13 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
             .Create(householdId, year, auditFactory)
             .Value;
 
-        budget.AddCategory("Housing");
-        CategoryNode category = budget.Categories.First();
-        Money amount = Money.Create(1000m, "ZAR").Value;
-        budget.SetPlanned(category.Id, amount);
+        budget.AddCategory("Housing", BudgetFlow.Expense);
+        CategoryNode category = budget.Categories.First(c => c.Name.Value == "Housing");
+
+        CanonicalCategory canonical = CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value);
+        canonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
+        db.CanonicalCategories.Add(canonical);
+
         budget.Activate();
 
         db.Budgets.Add(budget);

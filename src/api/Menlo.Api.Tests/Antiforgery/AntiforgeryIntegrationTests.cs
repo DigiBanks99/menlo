@@ -17,7 +17,7 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
 
     private static readonly HouseholdId MissingTokenHousehold = new(Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0"));
 
-    private static readonly HouseholdId ValidTokenHousehold = new(Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"));
+    private static readonly HouseholdId ValidTokenHousehold = new(Guid.Parse("c1c1c1c1-a1a1-a1a1-a1a1-c1c1c1c1c1c1"));
 
     [Fact]
     public async Task GetAsync_WithAuthenticatedApiRequestWithoutAntiForgeryToken()
