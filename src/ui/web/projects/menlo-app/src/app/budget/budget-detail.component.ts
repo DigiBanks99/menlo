@@ -3,10 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetApiService, BudgetCategoryResponse, BudgetResponse } from 'data-access-menlo-api';
 import { MoneyPipe } from 'menlo-lib';
 import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
+import { CategoryTreeComponent } from './categories/category-tree.component';
 
 @Component({
   selector: 'app-budget-detail',
-  imports: [MoneyPipe],
+  imports: [MoneyPipe, CategoryTreeComponent],
   template: `
     <div class="budget-detail">
       @if (loading()) {
@@ -45,6 +46,7 @@ import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 
         <section class="categories">
           <h2>Categories</h2>
+          <app-category-tree [budgetId]="b.id" data-testid="category-tree-section" />
           <ul class="category-list">
             @for (cat of sortedCategories(); track cat.id) {
               <li
@@ -53,7 +55,6 @@ import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
                 [attr.data-testid]="'category-' + cat.id"
               >
                 <span class="category-name">{{ cat.name }}</span>
-                <span class="category-amount">{{ cat.plannedMonthlyAmount | money }}</span>
                 @if (getDepth(cat, b.categories) >= 4) {
                   <span
                     class="depth-warning"

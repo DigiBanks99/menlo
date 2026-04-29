@@ -25,7 +25,6 @@ export interface BudgetCategoryResponse {
   id: string;
   name: string;
   parentId: string | null;
-  plannedMonthlyAmount: { amount: number; currency: string };
 }
 
 export interface BudgetResponse {
@@ -35,4 +34,53 @@ export interface BudgetResponse {
   status: 'Draft' | 'Active' | 'Closed';
   categories: BudgetCategoryResponse[];
   totalPlannedMonthlyAmount: { amount: number; currency: string };
+}
+
+export interface CategoryDto {
+  id: string;
+  budgetId: string;
+  name: string;
+  description?: string;
+  parentId?: string;
+  canonicalCategoryId: string;
+  budgetFlow: 'Income' | 'Expense' | 'Both';
+  attribution?: 'Main' | 'Rental' | 'ServiceProvider';
+  incomeContributor?: string;
+  responsiblePayer?: string;
+  isDeleted: boolean;
+}
+
+export interface CategoryTreeNode {
+  id: string;
+  name: string;
+  description?: string;
+  budgetFlow: 'Income' | 'Expense' | 'Both';
+  attribution?: 'Main' | 'Rental' | 'ServiceProvider';
+  incomeContributor?: string;
+  responsiblePayer?: string;
+  isDeleted: boolean;
+  children: CategoryTreeNode[];
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  budgetFlow: 'Income' | 'Expense' | 'Both';
+  parentId?: string;
+  description?: string;
+  attribution?: 'Main' | 'Rental' | 'ServiceProvider';
+  incomeContributor?: string;
+  responsiblePayer?: string;
+}
+
+export interface UpdateCategoryRequest {
+  name: string;
+  budgetFlow: 'Income' | 'Expense' | 'Both';
+  description?: string;
+  attribution?: 'Main' | 'Rental' | 'ServiceProvider';
+  incomeContributor?: string;
+  responsiblePayer?: string;
+}
+
+export interface ReparentCategoryRequest {
+  newParentId?: string;
 }
