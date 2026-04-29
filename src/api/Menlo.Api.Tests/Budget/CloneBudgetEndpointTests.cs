@@ -1,7 +1,9 @@
 using Menlo.Api.Budget;
 using Menlo.Application.Common;
 using Menlo.Lib.Budget.Entities;
+using Menlo.Lib.Budget.Enums;
 using Menlo.Lib.Budget.ValueObjects;
+using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,7 +58,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         ItShouldHaveDraftStatus(dto);
         ItShouldHaveExactlyOneCategory(dto);
         ItShouldHaveCategoryNamed(dto, "Housing");
-        ItShouldHaveCategoryPlannedAmount(dto, 1000m, "ZAR");
+        ItShouldHaveCategoryPlannedAmount(dto, 0m, "ZAR");
         ItShouldHaveNewCategoryId(dto, sourceCategoryId);
     }
 
@@ -141,15 +143,18 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     {
         using IServiceScope scope = factory.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         Lib.Budget.Entities.Budget budget = await db.Budgets
             .Include(b => b.Categories)
             .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
 
-        budget.AddCategory(categoryName);
-        CategoryNode category = budget.Categories.First();
-        Money money = Money.Create(amount, currency).Value;
-        budget.SetPlanned(category.Id, money);
+        budget.AddCategory(categoryName, BudgetFlow.Expense);
+        CategoryNode category = budget.Categories.First(c => c.Name.Value == categoryName);
+
+        CanonicalCategory canonical = CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value);
+        canonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
+        db.CanonicalCategories.Add(canonical);
 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -164,15 +169,25 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     {
         using IServiceScope scope = factory.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         Lib.Budget.Entities.Budget budget = await db.Budgets
             .Include(b => b.Categories)
             .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
 
-        budget.AddCategory(parentName);
+        budget.AddCategory(parentName, BudgetFlow.Expense);
         CategoryNode parent = budget.Categories.First(c => c.Name.Value == parentName);
 
-        budget.AddCategory(childName, parent.Id);
+        CanonicalCategory parentCanonical = CanonicalCategory.Create(parent.CanonicalCategoryId, parent.Name.Value);
+        parentCanonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
+        db.CanonicalCategories.Add(parentCanonical);
+
+        budget.AddCategory(childName, BudgetFlow.Expense, parent.Id);
+        CategoryNode child = budget.Categories.First(c => c.Name.Value == childName);
+
+        CanonicalCategory childCanonical = CanonicalCategory.Create(child.CanonicalCategoryId, child.Name.Value);
+        childCanonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
+        db.CanonicalCategories.Add(childCanonical);
 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
