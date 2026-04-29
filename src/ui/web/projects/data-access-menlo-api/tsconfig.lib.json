@@ -5,7 +5,10 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "shared-util": ["../../dist/shared-util"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": [
