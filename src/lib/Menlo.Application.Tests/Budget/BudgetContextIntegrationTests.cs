@@ -1,5 +1,7 @@
 using Menlo.Application.Budget;
 using Menlo.Application.Tests.Fixtures;
+using Menlo.Lib.Budget.Entities;
+using Menlo.Lib.Budget.Enums;
 using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
@@ -34,8 +36,14 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
             2030,
             scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
 
-        budget.AddCategory("Income").Value.ToString();
-        budget.AddCategory("Expenses");
+        budget.AddCategory("Income", BudgetFlow.Income);
+        budget.AddCategory("Expenses", BudgetFlow.Expense);
+
+        // Create canonical categories for the FK constraint
+        foreach (CategoryNode category in budget.Categories)
+        {
+            ctx.CanonicalCategories.Add(CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value));
+        }
 
         ctx.Budgets.Add(budget);
         await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);

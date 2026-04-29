@@ -211,7 +211,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
         // Build old-to-new ID mapping, processing nodes in topological order (parents before children)
         Dictionary<BudgetCategoryId, BudgetCategoryId> idMap = [];
-        List<CategoryNode> remaining = [.. sourceBudget._categories];
+        List<CategoryNode> remaining = [.. sourceBudget._categories.Where(n => !n.IsDeleted)];
 
         while (remaining.Count > 0)
         {
@@ -230,7 +230,12 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
                     id: newId,
                     name: node.Name,
                     parentId: newParentId,
-                    plannedMonthlyAmount: node.PlannedMonthlyAmount));
+                    canonicalCategoryId: node.CanonicalCategoryId,
+                    budgetFlow: node.BudgetFlow,
+                    attribution: node.Attribution,
+                    description: node.Description,
+                    incomeContributor: node.IncomeContributor,
+                    responsiblePayer: node.ResponsiblePayer));
 
                 remaining.Remove(node);
             }
@@ -241,12 +246,16 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
     /// <summary>
     /// Adds a category to the budget's category tree.
-    /// Category names must be unique within their sibling scope (same parent).
+    /// Category names must be unique within their sibling scope (same parent, non-deleted).
     /// </summary>
-    /// <param name="name">The category name.</param>
-    /// <param name="parentId">The parent category ID, or null for a root category.</param>
-    /// <returns>Success with the new CategoryNode; Failure with BudgetError if name is invalid or duplicate.</returns>
-    public Result<CategoryNode, BudgetError> AddCategory(string name, BudgetCategoryId? parentId = null)
+    public Result<CategoryNode, BudgetError> AddCategory(
+        string name,
+        BudgetFlow budgetFlow,
+        BudgetCategoryId? parentId = null,
+        string? description = null,
+        Attribution? attribution = null,
+        string? incomeContributor = null,
+        string? responsiblePayer = null)
     {
         Result<CategoryName, BudgetError> nameResult = CategoryName.Create(name);
         if (nameResult.IsFailure)
@@ -256,8 +265,30 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
         CategoryName categoryName = nameResult.Value;
 
+        // Validate parent if provided
+        if (parentId is not null)
+        {
+            CategoryNode? parent = _categories.FirstOrDefault(c => c.Id == parentId.Value);
+            if (parent is null)
+            {
+                return new CategoryNotFoundError(parentId.Value.ToString());
+            }
+
+            if (parent.IsDeleted)
+            {
+                return new DeletedParentError();
+            }
+
+            // Depth validation: parent must be a root (parent's parent must be null)
+            if (parent.ParentId is not null)
+            {
+                return new CategoryDepthError("Cannot create a child of a child category. Maximum depth is 2 levels (root → child).");
+            }
+        }
+
+        // Duplicate name check among non-deleted siblings
         bool isDuplicate = _categories
-            .Where(c => c.ParentId == parentId)
+            .Where(c => c.ParentId == parentId && !c.IsDeleted)
             .Any(c => string.Equals(c.Name.Value, categoryName.Value, StringComparison.OrdinalIgnoreCase));
 
         if (isDuplicate)
@@ -269,7 +300,12 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
             id: BudgetCategoryId.NewId(),
             name: categoryName,
             parentId: parentId,
-            plannedMonthlyAmount: Money.Zero(BudgetCurrency.Zar));
+            canonicalCategoryId: CanonicalCategoryId.NewId(),
+            budgetFlow: budgetFlow,
+            attribution: attribution,
+            description: description,
+            incomeContributor: incomeContributor,
+            responsiblePayer: responsiblePayer);
 
         _categories.Add(node);
         AddDomainEvent(new BudgetCategoryAddedEvent(Id, node.Id, node.Name.Value, parentId));
@@ -278,32 +314,205 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
-    /// Sets the default planned monthly amount for a category.
+    /// Updates a category's mutable properties.
     /// </summary>
-    /// <param name="categoryId">The category to update.</param>
-    /// <param name="amount">The planned monthly amount. Must be non-negative.</param>
-    /// <returns>Success if updated; Failure with BudgetError if category not found or amount is negative.</returns>
-    public UnitResult<BudgetError> SetPlanned(BudgetCategoryId categoryId, Money amount)
+    public Result<CategoryNode, BudgetError> UpdateCategory(
+        BudgetCategoryId categoryId,
+        string name,
+        BudgetFlow budgetFlow,
+        Attribution? attribution = null,
+        string? description = null,
+        string? incomeContributor = null,
+        string? responsiblePayer = null)
     {
-        if (amount.Amount < 0)
-        {
-            return new InvalidBudgetDataError("Planned amount cannot be negative.");
-        }
-
         CategoryNode? node = _categories.FirstOrDefault(c => c.Id == categoryId);
         if (node is null)
         {
-            return new InvalidBudgetDataError($"Category '{categoryId}' not found in this budget.");
+            return new CategoryNotFoundError(categoryId.ToString());
         }
 
-        node.SetPlannedAmount(amount);
-        AddDomainEvent(new PlannedAmountSetEvent(Id, categoryId, amount));
+        if (node.IsDeleted)
+        {
+            return new InvalidBudgetDataError("Cannot update a soft-deleted category.");
+        }
+
+        Result<CategoryName, BudgetError> nameResult = CategoryName.Create(name);
+        if (nameResult.IsFailure)
+        {
+            return nameResult.Error;
+        }
+
+        CategoryName categoryName = nameResult.Value;
+
+        // Duplicate name check among non-deleted siblings (exclude self)
+        bool isDuplicate = _categories
+            .Where(c => c.ParentId == node.ParentId && !c.IsDeleted && c.Id != categoryId)
+            .Any(c => string.Equals(c.Name.Value, categoryName.Value, StringComparison.OrdinalIgnoreCase));
+
+        if (isDuplicate)
+        {
+            return new DuplicateCategoryNameError(categoryName.Value);
+        }
+
+        node.Update(categoryName, budgetFlow, attribution, description, incomeContributor, responsiblePayer);
+        AddDomainEvent(new CategoryUpdatedEvent(Id, categoryId));
+
+        return node;
+    }
+
+    /// <summary>
+    /// Changes a category's parent. Pass null to promote to root.
+    /// </summary>
+    public Result<CategoryNode, BudgetError> ReparentCategory(
+        BudgetCategoryId categoryId,
+        BudgetCategoryId? newParentId)
+    {
+        CategoryNode? node = _categories.FirstOrDefault(c => c.Id == categoryId);
+        if (node is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        if (node.IsDeleted)
+        {
+            return new InvalidBudgetDataError("Cannot reparent a soft-deleted category.");
+        }
+
+        if (newParentId is not null)
+        {
+            CategoryNode? newParent = _categories.FirstOrDefault(c => c.Id == newParentId.Value);
+            if (newParent is null)
+            {
+                return new CategoryNotFoundError(newParentId.Value.ToString());
+            }
+
+            if (newParent.IsDeleted)
+            {
+                return new DeletedParentError();
+            }
+
+            // Depth: new parent must be a root
+            if (newParent.ParentId is not null)
+            {
+                return new CategoryDepthError("Cannot reparent under a child category. Maximum depth is 2 levels (root → child).");
+            }
+
+            // Cannot reparent to self
+            if (newParentId.Value == categoryId)
+            {
+                return new InvalidBudgetDataError("Cannot reparent a category under itself.");
+            }
+        }
+
+        // If the node being reparented is currently a root and has children,
+        // and new parent is not null, then the children would become depth 3 — not allowed.
+        if (newParentId is not null)
+        {
+            bool hasChildren = _categories.Any(c => c.ParentId == categoryId && !c.IsDeleted);
+            if (hasChildren)
+            {
+                return new CategoryDepthError("Cannot reparent a root category with children under another category. This would exceed the 2-level depth limit.");
+            }
+        }
+
+        // Duplicate name check in new sibling scope
+        bool isDuplicate = _categories
+            .Where(c => c.ParentId == newParentId && !c.IsDeleted && c.Id != categoryId)
+            .Any(c => string.Equals(c.Name.Value, node.Name.Value, StringComparison.OrdinalIgnoreCase));
+
+        if (isDuplicate)
+        {
+            return new DuplicateCategoryNameError(node.Name.Value);
+        }
+
+        BudgetCategoryId? oldParentId = node.ParentId;
+        node.SetParent(newParentId);
+        AddDomainEvent(new CategoryReparentedEvent(Id, categoryId, oldParentId, newParentId));
+
+        return node;
+    }
+
+    /// <summary>
+    /// Soft-deletes a category. Cascades to all children.
+    /// </summary>
+    public UnitResult<BudgetError> SoftDeleteCategory(
+        BudgetCategoryId categoryId,
+        ISoftDeleteStampFactory softDeleteStampFactory)
+    {
+        CategoryNode? node = _categories.FirstOrDefault(c => c.Id == categoryId);
+        if (node is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        if (node.IsDeleted)
+        {
+            return UnitResult.Success<BudgetError>();
+        }
+
+        // Delete the node
+        node.Delete(softDeleteStampFactory);
+
+        // Cascade to children
+        List<CategoryNode> children = _categories
+            .Where(c => c.ParentId == categoryId && !c.IsDeleted)
+            .ToList();
+
+        foreach (CategoryNode child in children)
+        {
+            child.Delete(softDeleteStampFactory);
+        }
+
+        AddDomainEvent(new CategorySoftDeletedEvent(Id, categoryId));
+        return UnitResult.Success<BudgetError>();
+    }
+
+    /// <summary>
+    /// Restores a soft-deleted category. Cascades restoration to children.
+    /// </summary>
+    public UnitResult<BudgetError> RestoreCategory(BudgetCategoryId categoryId)
+    {
+        CategoryNode? node = _categories.FirstOrDefault(c => c.Id == categoryId);
+        if (node is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        if (!node.IsDeleted)
+        {
+            return UnitResult.Success<BudgetError>();
+        }
+
+        // If this is a child, its parent must be active
+        if (node.ParentId is not null)
+        {
+            CategoryNode? parent = _categories.FirstOrDefault(c => c.Id == node.ParentId.Value);
+            if (parent is not null && parent.IsDeleted)
+            {
+                return new InvalidBudgetDataError("Cannot restore a child category while its parent is still deleted.");
+            }
+        }
+
+        // Restore the node
+        node.Restore();
+
+        // Cascade restoration to children
+        List<CategoryNode> deletedChildren = _categories
+            .Where(c => c.ParentId == categoryId && c.IsDeleted)
+            .ToList();
+
+        foreach (CategoryNode child in deletedChildren)
+        {
+            child.Restore();
+        }
+
+        AddDomainEvent(new CategoryRestoredEvent(Id, categoryId));
         return UnitResult.Success<BudgetError>();
     }
 
     /// <summary>
     /// Activates this budget, making it the live plan for the year.
-    /// At least one category must have a non-zero planned amount.
+    /// Budget must be in Draft status.
     /// </summary>
     /// <returns>Success if activated; Failure with BudgetError if preconditions are not met.</returns>
     public UnitResult<BudgetError> Activate()
@@ -311,12 +520,6 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         if (Status != BudgetStatus.Draft)
         {
             return new InvalidBudgetStatusError("Activate", Status.ToString());
-        }
-
-        bool hasNonZeroAmount = _categories.Any(c => c.PlannedMonthlyAmount.Amount > 0);
-        if (!hasNonZeroAmount)
-        {
-            return new BudgetActivationError("At least one category must have a non-zero planned amount.");
         }
 
         Status = BudgetStatus.Active;

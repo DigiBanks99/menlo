@@ -98,7 +98,7 @@ public sealed class BudgetTests
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries");
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense);
 
         ItShouldSucceedCategoryResult(result);
         ItShouldHaveCategoryName(result, "Groceries");
@@ -111,7 +111,7 @@ public sealed class BudgetTests
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("  Groceries  ");
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("  Groceries  ", BudgetFlow.Expense);
 
         ItShouldSucceedCategoryResult(result);
         ItShouldHaveCategoryName(result, "Groceries");
@@ -122,7 +122,7 @@ public sealed class BudgetTests
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("");
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("", BudgetFlow.Expense);
 
         ItShouldFailCategoryResult(result);
         ItShouldBeCategoryInvalidBudgetDataError(result);
@@ -132,9 +132,9 @@ public sealed class BudgetTests
     public void GivenDuplicateSiblingName_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        budget.AddCategory("Groceries");
+        budget.AddCategory("Groceries", BudgetFlow.Expense);
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("GROCERIES");
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("GROCERIES", BudgetFlow.Expense);
 
         ItShouldFailCategoryResult(result);
         ItShouldBeDuplicateCategoryNameError(result, "GROCERIES");
@@ -144,11 +144,11 @@ public sealed class BudgetTests
     public void GivenDuplicateNameUnderDifferentParent_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        Result<CategoryNode, BudgetError> parent1Result = budget.AddCategory("Food");
-        Result<CategoryNode, BudgetError> parent2Result = budget.AddCategory("Transport");
+        Result<CategoryNode, BudgetError> parent1Result = budget.AddCategory("Food", BudgetFlow.Expense);
+        Result<CategoryNode, BudgetError> parent2Result = budget.AddCategory("Transport", BudgetFlow.Expense);
 
-        budget.AddCategory("Groceries", parent1Result.Value.Id);
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", parent2Result.Value.Id);
+        budget.AddCategory("Groceries", BudgetFlow.Expense, parent1Result.Value.Id);
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense, parent2Result.Value.Id);
 
         ItShouldSucceedCategoryResult(result);
         ItShouldHaveCategoryName(result, "Groceries");
@@ -158,29 +158,26 @@ public sealed class BudgetTests
     public void GivenParentId_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        Result<CategoryNode, BudgetError> parentResult = budget.AddCategory("Food");
+        Result<CategoryNode, BudgetError> parentResult = budget.AddCategory("Food", BudgetFlow.Expense);
         BudgetCategoryId parentId = parentResult.Value.Id;
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", parentId);
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense, parentId);
 
         ItShouldSucceedCategoryResult(result);
         ItShouldHaveParentId(result, parentId);
     }
 
     [Fact]
-    public void GivenDeepNesting_WhenAddingCategory()
+    public void GivenChildCategory_WhenAddingGrandchild_ThenDepthErrorReturned()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        Result<CategoryNode, BudgetError> current = budget.AddCategory("Level1");
+        CategoryNode root = budget.AddCategory("Level1", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Level2", BudgetFlow.Expense, root.Id).Value;
 
-        for (int i = 2; i <= 10; i++)
-        {
-            current = budget.AddCategory($"Level{i}", current.Value.Id);
-            ItShouldSucceedCategoryResult(current);
-        }
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Level3", BudgetFlow.Expense, child.Id);
 
-        budget.Categories.Count.ShouldBe(10);
-        current.Value.Name.Value.ShouldBe("Level10");
+        result.IsFailure.ShouldBeTrue();
+        result.Error.ShouldBeOfType<CategoryDepthError>();
     }
 
     [Fact]
@@ -188,7 +185,7 @@ public sealed class BudgetTests
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
 
-        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries");
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense);
 
         ItShouldSucceedCategoryResult(result);
         result.Value.PlannedMonthlyAmount.Amount.ShouldBe(0m);
@@ -196,89 +193,14 @@ public sealed class BudgetTests
     }
 
     // -------------------------------------------------------------------------
-    // Budget.SetPlanned
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void GivenValidAmountAndCategoryId_WhenSettingPlanned()
-    {
-        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        Money amount = Money.Create(500m, "ZAR").Value;
-
-        UnitResult<BudgetError> result = budget.SetPlanned(category.Id, amount);
-
-        result.IsSuccess.ShouldBeTrue();
-        category.PlannedMonthlyAmount.Amount.ShouldBe(500m);
-        category.PlannedMonthlyAmount.Currency.ShouldBe("ZAR");
-    }
-
-    [Fact]
-    public void GivenNegativeAmount_WhenSettingPlanned()
-    {
-        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        Money negativeAmount = Money.Create(-100m, "ZAR").Value;
-
-        UnitResult<BudgetError> result = budget.SetPlanned(category.Id, negativeAmount);
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBeOfType<InvalidBudgetDataError>();
-    }
-
-    [Fact]
-    public void GivenUnknownCategoryId_WhenSettingPlanned()
-    {
-        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        BudgetCategoryId unknownId = BudgetCategoryId.NewId();
-        Money amount = Money.Create(100m, "ZAR").Value;
-
-        UnitResult<BudgetError> result = budget.SetPlanned(unknownId, amount);
-
-        result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBeOfType<InvalidBudgetDataError>();
-    }
-
-    [Fact]
-    public void GivenZeroAmount_WhenSettingPlanned()
-    {
-        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        Money zeroAmount = Money.Zero("ZAR");
-
-        UnitResult<BudgetError> result = budget.SetPlanned(category.Id, zeroAmount);
-
-        result.IsSuccess.ShouldBeTrue();
-        category.PlannedMonthlyAmount.Amount.ShouldBe(0m);
-    }
-
-    [Fact]
-    public void GivenValidAmountAndCategory_WhenSettingPlanned_RaisesPlannedAmountSetEvent()
-    {
-        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        budget.ClearDomainEvents();
-        Money amount = Money.Create(750m, "ZAR").Value;
-
-        budget.SetPlanned(category.Id, amount);
-
-        budget.DomainEvents.ShouldContain(e => e is PlannedAmountSetEvent);
-        PlannedAmountSetEvent evt = budget.DomainEvents.OfType<PlannedAmountSetEvent>().Single();
-        evt.BudgetId.ShouldBe(budget.Id);
-        evt.CategoryId.ShouldBe(category.Id);
-        evt.Amount.Amount.ShouldBe(750m);
-    }
-
-    // -------------------------------------------------------------------------
     // Budget.Activate
     // -------------------------------------------------------------------------
 
     [Fact]
-    public void GivenDraftBudgetWithNonZeroCategory_WhenActivating()
+    public void GivenDraftBudgetWithCategory_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        budget.SetPlanned(category.Id, Money.Create(500m, "ZAR").Value);
+        budget.AddCategory("Groceries", BudgetFlow.Expense);
 
         UnitResult<BudgetError> result = budget.Activate();
 
@@ -287,15 +209,14 @@ public sealed class BudgetTests
     }
 
     [Fact]
-    public void GivenDraftBudgetWithNoNonZeroCategory_WhenActivating()
+    public void GivenDraftBudgetWithNoCategories_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        budget.AddCategory("Groceries");
 
         UnitResult<BudgetError> result = budget.Activate();
 
-        result.IsFailure.ShouldBeTrue();
-        result.Error.ShouldBeOfType<BudgetActivationError>();
+        result.IsSuccess.ShouldBeTrue();
+        budget.Status.ShouldBe(BudgetStatus.Active);
     }
 
     [Fact]
@@ -379,18 +300,13 @@ public sealed class BudgetTests
     // -------------------------------------------------------------------------
 
     [Fact]
-    public void GivenMultipleCategories_TotalPlannedMonthlyAmountIsSumOfAll()
+    public void GivenMultipleCategories_TotalPlannedMonthlyAmountIsAlwaysZero()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode cat1 = budget.AddCategory("Groceries").Value;
-        CategoryNode cat2 = budget.AddCategory("Transport").Value;
-        CategoryNode cat3 = budget.AddCategory("Fuel", cat2.Id).Value;
+        budget.AddCategory("Groceries", BudgetFlow.Expense);
+        budget.AddCategory("Transport", BudgetFlow.Expense);
 
-        budget.SetPlanned(cat1.Id, Money.Create(1000m, "ZAR").Value);
-        budget.SetPlanned(cat2.Id, Money.Create(500m, "ZAR").Value);
-        budget.SetPlanned(cat3.Id, Money.Create(300m, "ZAR").Value);
-
-        budget.TotalPlannedMonthlyAmount.Amount.ShouldBe(1800m);
+        budget.TotalPlannedMonthlyAmount.Amount.ShouldBe(0m);
         budget.TotalPlannedMonthlyAmount.Currency.ShouldBe("ZAR");
     }
 
@@ -402,10 +318,8 @@ public sealed class BudgetTests
     public void GivenSourceBudget_WhenCloningForYear()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
-        CategoryNode cat1 = source.AddCategory("Groceries").Value;
-        CategoryNode cat2 = source.AddCategory("Transport").Value;
-        source.SetPlanned(cat1.Id, Money.Create(1000m, "ZAR").Value);
-        source.SetPlanned(cat2.Id, Money.Create(500m, "ZAR").Value);
+        source.AddCategory("Groceries", BudgetFlow.Expense);
+        source.AddCategory("Transport", BudgetFlow.Expense);
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
@@ -422,12 +336,8 @@ public sealed class BudgetTests
     public void GivenSourceBudgetWithNestedCategories_WhenCloningForYear_ThenParentChildRelationshipsPreserved()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
-        CategoryNode parent = source.AddCategory("Living Expenses").Value;
-        CategoryNode child = source.AddCategory("Rent", parent.Id).Value;
-        CategoryNode grandchild = source.AddCategory("Maintenance", child.Id).Value;
-        source.SetPlanned(parent.Id, Money.Create(5000m, "ZAR").Value);
-        source.SetPlanned(child.Id, Money.Create(3000m, "ZAR").Value);
-        source.SetPlanned(grandchild.Id, Money.Create(500m, "ZAR").Value);
+        CategoryNode parent = source.AddCategory("Living Expenses", BudgetFlow.Expense).Value;
+        source.AddCategory("Rent", BudgetFlow.Expense, parent.Id);
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
@@ -441,15 +351,14 @@ public sealed class BudgetTests
     public void GivenClone_WhenModifyingSource_ThenCloneIsNotAffected()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
-        CategoryNode cat = source.AddCategory("Groceries").Value;
-        source.SetPlanned(cat.Id, Money.Create(1000m, "ZAR").Value);
+        source.AddCategory("Groceries", BudgetFlow.Expense);
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
             Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
 
         // Modify source after cloning
-        source.AddCategory("NewCategory");
+        source.AddCategory("NewCategory", BudgetFlow.Expense);
 
         // Clone should not be affected
         result.Value.Categories.Count.ShouldBe(1);
@@ -654,8 +563,7 @@ public sealed class BudgetTests
     private static Menlo.Lib.Budget.Entities.Budget CreateActiveBudget()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
-        CategoryNode category = budget.AddCategory("Groceries").Value;
-        budget.SetPlanned(category.Id, Money.Create(500m, "ZAR").Value);
+        budget.AddCategory("Groceries", BudgetFlow.Expense);
         budget.Activate();
         return budget;
     }
@@ -691,5 +599,701 @@ public sealed class BudgetTests
         UserId actorId = UserId.NewId();
         DateTimeOffset timestamp = DateTimeOffset.UtcNow;
         return new FakeSoftDeleteStampFactory(new SoftDeleteStamp(actorId, timestamp));
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.AddCategory — extended tests
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenAllOptionalFields_WhenAddingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory(
+            "Salary",
+            BudgetFlow.Income,
+            description: "Monthly salary",
+            attribution: Attribution.Main,
+            incomeContributor: "John",
+            responsiblePayer: "Employer");
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveCategoryName(result, "Salary");
+        ItShouldHaveBudgetFlow(result, BudgetFlow.Income);
+        ItShouldHaveAttribution(result, Attribution.Main);
+        ItShouldHaveDescription(result, "Monthly salary");
+        ItShouldHaveIncomeContributor(result, "John");
+        ItShouldHaveResponsiblePayer(result, "Employer");
+        ItShouldHaveCanonicalCategoryId(result);
+    }
+
+    [Fact]
+    public void GivenNonExistentParent_WhenAddingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        BudgetCategoryId fakeParentId = BudgetCategoryId.NewId();
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Child", BudgetFlow.Expense, fakeParentId);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    [Fact]
+    public void GivenSoftDeletedParent_WhenAddingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode parent = budget.AddCategory("Parent", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(parent.Id, CreateSoftDeleteStampFactory());
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Child", BudgetFlow.Expense, parent.Id);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<DeletedParentError>();
+    }
+
+    [Fact]
+    public void GivenDuplicateNameButExistingSiblingIsDeleted_WhenAddingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode original = budget.AddCategory("Groceries", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(original.Id, CreateSoftDeleteStampFactory());
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveCategoryName(result, "Groceries");
+    }
+
+    [Fact]
+    public void GivenWhitespaceOnlyName_WhenAddingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("   ", BudgetFlow.Expense);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeCategoryInvalidBudgetDataError(result);
+    }
+
+    [Fact]
+    public void GivenBudgetFlowIncome_WhenAddingCategory_ThenBudgetFlowIsIncome()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Salary", BudgetFlow.Income);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveBudgetFlow(result, BudgetFlow.Income);
+    }
+
+    [Fact]
+    public void GivenBudgetFlowBoth_WhenAddingCategory_ThenBudgetFlowIsBoth()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Mixed", BudgetFlow.Both);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveBudgetFlow(result, BudgetFlow.Both);
+    }
+
+    [Fact]
+    public void GivenSubcategory_WhenAddingCategory_ThenRaisesEventWithParentId()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode parent = budget.AddCategory("Food", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.AddCategory("Groceries", BudgetFlow.Expense, parent.Id);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldRaiseBudgetCategoryAddedEvent(budget, result.Value, parent.Id);
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.UpdateCategory
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenValidCategory_WhenUpdatingName()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("OldName", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            category.Id, "NewName", BudgetFlow.Expense);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveCategoryName(result, "NewName");
+    }
+
+    [Fact]
+    public void GivenValidCategory_WhenUpdatingAllFields()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Salary", BudgetFlow.Income).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            category.Id,
+            "Updated Salary",
+            BudgetFlow.Both,
+            attribution: Attribution.Rental,
+            description: "Updated description",
+            incomeContributor: "Jane",
+            responsiblePayer: "Corp");
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveCategoryName(result, "Updated Salary");
+        ItShouldHaveBudgetFlow(result, BudgetFlow.Both);
+        ItShouldHaveAttribution(result, Attribution.Rental);
+        ItShouldHaveDescription(result, "Updated description");
+        ItShouldHaveIncomeContributor(result, "Jane");
+        ItShouldHaveResponsiblePayer(result, "Corp");
+    }
+
+    [Fact]
+    public void GivenDuplicateSiblingName_WhenUpdatingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        budget.AddCategory("Existing", BudgetFlow.Expense);
+        CategoryNode target = budget.AddCategory("Target", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            target.Id, "Existing", BudgetFlow.Expense);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeDuplicateCategoryNameError(result, "Existing");
+    }
+
+    [Fact]
+    public void GivenNonExistentCategory_WhenUpdating()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        BudgetCategoryId fakeId = BudgetCategoryId.NewId();
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            fakeId, "NewName", BudgetFlow.Expense);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    [Fact]
+    public void GivenSoftDeletedCategory_WhenUpdating()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("ToDelete", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(category.Id, CreateSoftDeleteStampFactory());
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            category.Id, "Updated", BudgetFlow.Expense);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeCategoryInvalidBudgetDataError(result);
+    }
+
+    [Fact]
+    public void GivenValidCategory_WhenUpdating_ThenRaisesCategoryUpdatedEvent()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        budget.ClearDomainEvents();
+
+        budget.UpdateCategory(category.Id, "UpdatedCat", BudgetFlow.Expense);
+
+        ItShouldRaiseCategoryUpdatedEvent(budget, category.Id);
+    }
+
+    [Fact]
+    public void GivenValidCategory_WhenUpdating_ThenCanonicalCategoryIdIsPreserved()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        CanonicalCategoryId originalCanonicalId = category.CanonicalCategoryId;
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            category.Id, "UpdatedCat", BudgetFlow.Income);
+
+        ItShouldSucceedCategoryResult(result);
+        result.Value.CanonicalCategoryId.ShouldBe(originalCanonicalId);
+    }
+
+    [Fact]
+    public void GivenSameNameAsSelf_WhenUpdatingCategory_ThenSucceeds()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("SameName", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.UpdateCategory(
+            category.Id, "SameName", BudgetFlow.Income);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveBudgetFlow(result, BudgetFlow.Income);
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.ReparentCategory
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenChildCategory_WhenReparentingToDifferentRoot()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root1 = budget.AddCategory("Root1", BudgetFlow.Expense).Value;
+        CategoryNode root2 = budget.AddCategory("Root2", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, root1.Id).Value;
+        budget.ClearDomainEvents();
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(child.Id, root2.Id);
+
+        ItShouldSucceedCategoryResult(result);
+        ItShouldHaveParentId(result, root2.Id);
+        ItShouldRaiseCategoryReparentedEvent(budget, child.Id, root1.Id, root2.Id);
+    }
+
+    [Fact]
+    public void GivenChildCategory_WhenPromotingToRoot()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root = budget.AddCategory("Root", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, root.Id).Value;
+        budget.ClearDomainEvents();
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(child.Id, null);
+
+        ItShouldSucceedCategoryResult(result);
+        result.Value.ParentId.ShouldBeNull();
+        ItShouldRaiseCategoryReparentedEvent(budget, child.Id, root.Id, null);
+    }
+
+    [Fact]
+    public void GivenRootWithChildren_WhenReparentingUnderAnotherRoot_ThenDepthError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root1 = budget.AddCategory("Root1", BudgetFlow.Expense).Value;
+        budget.AddCategory("Child1", BudgetFlow.Expense, root1.Id);
+        CategoryNode root2 = budget.AddCategory("Root2", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(root1.Id, root2.Id);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryDepthError>();
+    }
+
+    [Fact]
+    public void GivenCategory_WhenReparentingUnderAChild_ThenDepthError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root = budget.AddCategory("Root", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, root.Id).Value;
+        CategoryNode orphan = budget.AddCategory("Orphan", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(orphan.Id, child.Id);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryDepthError>();
+    }
+
+    [Fact]
+    public void GivenCategory_WhenReparentingToSelf_ThenInvalidBudgetDataError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Self", BudgetFlow.Expense).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(category.Id, category.Id);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeCategoryInvalidBudgetDataError(result);
+    }
+
+    [Fact]
+    public void GivenDeletedParent_WhenReparentingCategory_ThenDeletedParentError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root = budget.AddCategory("Root", BudgetFlow.Expense).Value;
+        CategoryNode target = budget.AddCategory("Target", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(root.Id, CreateSoftDeleteStampFactory());
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(target.Id, root.Id);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<DeletedParentError>();
+    }
+
+    [Fact]
+    public void GivenNonExistentNewParent_WhenReparentingCategory()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        BudgetCategoryId fakeId = BudgetCategoryId.NewId();
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(category.Id, fakeId);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    [Fact]
+    public void GivenNonExistentCategory_WhenReparenting()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root = budget.AddCategory("Root", BudgetFlow.Expense).Value;
+        BudgetCategoryId fakeId = BudgetCategoryId.NewId();
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(fakeId, root.Id);
+
+        ItShouldFailCategoryResult(result);
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    [Fact]
+    public void GivenSoftDeletedCategory_WhenReparenting()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root = budget.AddCategory("Root", BudgetFlow.Expense).Value;
+        CategoryNode target = budget.AddCategory("Target", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(target.Id, CreateSoftDeleteStampFactory());
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(target.Id, root.Id);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeCategoryInvalidBudgetDataError(result);
+    }
+
+    [Fact]
+    public void GivenDuplicateNameInNewScope_WhenReparenting_ThenDuplicateNameError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode root1 = budget.AddCategory("Root1", BudgetFlow.Expense).Value;
+        CategoryNode root2 = budget.AddCategory("Root2", BudgetFlow.Expense).Value;
+        budget.AddCategory("SameName", BudgetFlow.Expense, root1.Id);
+        CategoryNode moveable = budget.AddCategory("SameName", BudgetFlow.Expense, root2.Id).Value;
+
+        Result<CategoryNode, BudgetError> result = budget.ReparentCategory(moveable.Id, root1.Id);
+
+        ItShouldFailCategoryResult(result);
+        ItShouldBeDuplicateCategoryNameError(result, "SameName");
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.SoftDeleteCategory
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenLeafCategory_WhenSoftDeleting()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode leaf = budget.AddCategory("Leaf", BudgetFlow.Expense).Value;
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.SoftDeleteCategory(leaf.Id, CreateSoftDeleteStampFactory());
+
+        result.IsSuccess.ShouldBeTrue();
+        ItShouldHaveDeletedCategory(budget, leaf.Id);
+        ItShouldRaiseCategorySoftDeletedEvent(budget, leaf.Id);
+    }
+
+    [Fact]
+    public void GivenParentCategory_WhenSoftDeleting_ThenCascadesToChildren()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode parent = budget.AddCategory("Parent", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, parent.Id).Value;
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.SoftDeleteCategory(parent.Id, CreateSoftDeleteStampFactory());
+
+        result.IsSuccess.ShouldBeTrue();
+        ItShouldHaveDeletedCategory(budget, parent.Id);
+        ItShouldHaveDeletedCategory(budget, child.Id);
+    }
+
+    [Fact]
+    public void GivenAlreadyDeletedCategory_WhenSoftDeleting_ThenNoOpSuccess()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(category.Id, CreateSoftDeleteStampFactory());
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.SoftDeleteCategory(category.Id, CreateSoftDeleteStampFactory());
+
+        result.IsSuccess.ShouldBeTrue();
+        budget.DomainEvents.ShouldBeEmpty(); // No event for no-op
+    }
+
+    [Fact]
+    public void GivenNonExistentCategory_WhenSoftDeleting()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        BudgetCategoryId fakeId = BudgetCategoryId.NewId();
+
+        UnitResult<BudgetError> result = budget.SoftDeleteCategory(fakeId, CreateSoftDeleteStampFactory());
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.RestoreCategory
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenDeletedCategory_WhenRestoring()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        budget.SoftDeleteCategory(category.Id, CreateSoftDeleteStampFactory());
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.RestoreCategory(category.Id);
+
+        result.IsSuccess.ShouldBeTrue();
+        ItShouldHaveActiveCategory(budget, category.Id);
+        ItShouldRaiseCategoryRestoredEvent(budget, category.Id);
+    }
+
+    [Fact]
+    public void GivenDeletedParentWithChildren_WhenRestoring_ThenCascadesToChildren()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode parent = budget.AddCategory("Parent", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, parent.Id).Value;
+        budget.SoftDeleteCategory(parent.Id, CreateSoftDeleteStampFactory());
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.RestoreCategory(parent.Id);
+
+        result.IsSuccess.ShouldBeTrue();
+        ItShouldHaveActiveCategory(budget, parent.Id);
+        ItShouldHaveActiveCategory(budget, child.Id);
+    }
+
+    [Fact]
+    public void GivenAlreadyActiveCategory_WhenRestoring_ThenNoOpSuccess()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Cat", BudgetFlow.Expense).Value;
+        budget.ClearDomainEvents();
+
+        UnitResult<BudgetError> result = budget.RestoreCategory(category.Id);
+
+        result.IsSuccess.ShouldBeTrue();
+        budget.DomainEvents.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GivenDeletedChild_WhenRestoringWhileParentIsDeleted_ThenInvalidBudgetDataError()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode parent = budget.AddCategory("Parent", BudgetFlow.Expense).Value;
+        CategoryNode child = budget.AddCategory("Child", BudgetFlow.Expense, parent.Id).Value;
+        budget.SoftDeleteCategory(parent.Id, CreateSoftDeleteStampFactory());
+
+        // Try to restore just the child while parent is still deleted
+        UnitResult<BudgetError> result = budget.RestoreCategory(child.Id);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.ShouldBeOfType<InvalidBudgetDataError>();
+    }
+
+    [Fact]
+    public void GivenNonExistentCategory_WhenRestoring()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        BudgetCategoryId fakeId = BudgetCategoryId.NewId();
+
+        UnitResult<BudgetError> result = budget.RestoreCategory(fakeId);
+
+        result.IsFailure.ShouldBeTrue();
+        result.Error.ShouldBeOfType<CategoryNotFoundError>();
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.CloneForYear — extended tests
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenSourceWithDeletedCategories_WhenCloningForYear_ThenDeletedCategoriesAreNotCloned()
+    {
+        Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
+        source.AddCategory("Active", BudgetFlow.Expense);
+        CategoryNode deleted = source.AddCategory("Deleted", BudgetFlow.Expense).Value;
+        source.SoftDeleteCategory(deleted.Id, CreateSoftDeleteStampFactory());
+        IAuditStampFactory factory = CreateAuditStampFactory();
+
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
+            Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
+
+        ItShouldSucceed(result);
+        result.Value.Categories.Count.ShouldBe(1);
+        result.Value.Categories.First().Name.Value.ShouldBe("Active");
+    }
+
+    [Fact]
+    public void GivenSourceWithCategories_WhenCloningForYear_ThenCanonicalCategoryIdsArePreserved()
+    {
+        Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
+        CategoryNode sourceCategory = source.AddCategory("Groceries", BudgetFlow.Expense).Value;
+        IAuditStampFactory factory = CreateAuditStampFactory();
+
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
+            Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
+
+        ItShouldSucceed(result);
+        CategoryNode clonedCategory = result.Value.Categories.First();
+        clonedCategory.CanonicalCategoryId.ShouldBe(sourceCategory.CanonicalCategoryId);
+    }
+
+    [Fact]
+    public void GivenSourceWithAllFields_WhenCloningForYear_ThenAllFieldsArePreserved()
+    {
+        Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
+        source.AddCategory(
+            "Salary",
+            BudgetFlow.Income,
+            description: "My salary",
+            attribution: Attribution.Main,
+            incomeContributor: "John",
+            responsiblePayer: "Corp");
+        IAuditStampFactory factory = CreateAuditStampFactory();
+
+        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
+            Menlo.Lib.Budget.Entities.Budget.CloneForYear(source, 2025, factory);
+
+        ItShouldSucceed(result);
+        CategoryNode cloned = result.Value.Categories.First();
+        cloned.BudgetFlow.ShouldBe(BudgetFlow.Income);
+        cloned.Attribution.ShouldBe(Attribution.Main);
+        cloned.Description.ShouldBe("My salary");
+        cloned.IncomeContributor.ShouldBe("John");
+        cloned.ResponsiblePayer.ShouldBe("Corp");
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget.Activate — extended tests
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenDraftBudgetWithNoAmounts_WhenActivating_ThenSucceeds()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+
+        UnitResult<BudgetError> result = budget.Activate();
+
+        result.IsSuccess.ShouldBeTrue();
+        budget.Status.ShouldBe(BudgetStatus.Active);
+    }
+
+    // -------------------------------------------------------------------------
+    // CategoryNode.PlannedMonthlyAmount
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GivenCategoryNode_PlannedMonthlyAmountIsAlwaysZero()
+    {
+        Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
+        CategoryNode category = budget.AddCategory("Test", BudgetFlow.Expense).Value;
+
+        category.PlannedMonthlyAmount.Amount.ShouldBe(0m);
+        category.PlannedMonthlyAmount.Currency.ShouldBe("ZAR");
+    }
+
+    // =========================================================================
+    // Assertion helpers — UpdateCategory
+    // =========================================================================
+
+    private static void ItShouldHaveBudgetFlow(Result<CategoryNode, BudgetError> result, BudgetFlow expected)
+        => result.Value.BudgetFlow.ShouldBe(expected);
+
+    private static void ItShouldHaveAttribution(Result<CategoryNode, BudgetError> result, Attribution expected)
+        => result.Value.Attribution.ShouldBe(expected);
+
+    private static void ItShouldHaveDescription(Result<CategoryNode, BudgetError> result, string expected)
+        => result.Value.Description.ShouldBe(expected);
+
+    private static void ItShouldHaveIncomeContributor(Result<CategoryNode, BudgetError> result, string expected)
+        => result.Value.IncomeContributor.ShouldBe(expected);
+
+    private static void ItShouldHaveResponsiblePayer(Result<CategoryNode, BudgetError> result, string expected)
+        => result.Value.ResponsiblePayer.ShouldBe(expected);
+
+    private static void ItShouldHaveCanonicalCategoryId(Result<CategoryNode, BudgetError> result)
+        => result.Value.CanonicalCategoryId.Value.ShouldNotBe(Guid.Empty);
+
+    private static void ItShouldRaiseCategoryUpdatedEvent(
+        Menlo.Lib.Budget.Entities.Budget budget, BudgetCategoryId categoryId)
+    {
+        IDomainEvent domainEvent = budget.DomainEvents.Last();
+        domainEvent.ShouldBeOfType<CategoryUpdatedEvent>();
+        CategoryUpdatedEvent evt = (CategoryUpdatedEvent)domainEvent;
+        evt.BudgetId.ShouldBe(budget.Id);
+        evt.CategoryId.ShouldBe(categoryId);
+    }
+
+    // =========================================================================
+    // Assertion helpers — ReparentCategory
+    // =========================================================================
+
+    private static void ItShouldRaiseCategoryReparentedEvent(
+        Menlo.Lib.Budget.Entities.Budget budget,
+        BudgetCategoryId categoryId,
+        BudgetCategoryId? oldParentId,
+        BudgetCategoryId? newParentId)
+    {
+        IDomainEvent domainEvent = budget.DomainEvents.Last();
+        domainEvent.ShouldBeOfType<CategoryReparentedEvent>();
+        CategoryReparentedEvent evt = (CategoryReparentedEvent)domainEvent;
+        evt.BudgetId.ShouldBe(budget.Id);
+        evt.CategoryId.ShouldBe(categoryId);
+        evt.OldParentId.ShouldBe(oldParentId);
+        evt.NewParentId.ShouldBe(newParentId);
+    }
+
+    // =========================================================================
+    // Assertion helpers — SoftDeleteCategory
+    // =========================================================================
+
+    private static void ItShouldHaveDeletedCategory(
+        Menlo.Lib.Budget.Entities.Budget budget, BudgetCategoryId categoryId)
+    {
+        CategoryNode node = budget.Categories.First(c => c.Id == categoryId);
+        node.IsDeleted.ShouldBeTrue();
+        node.DeletedAt.ShouldNotBeNull();
+        node.DeletedBy.ShouldNotBeNull();
+    }
+
+    private static void ItShouldRaiseCategorySoftDeletedEvent(
+        Menlo.Lib.Budget.Entities.Budget budget, BudgetCategoryId categoryId)
+    {
+        IDomainEvent domainEvent = budget.DomainEvents.Last();
+        domainEvent.ShouldBeOfType<CategorySoftDeletedEvent>();
+        CategorySoftDeletedEvent evt = (CategorySoftDeletedEvent)domainEvent;
+        evt.BudgetId.ShouldBe(budget.Id);
+        evt.CategoryId.ShouldBe(categoryId);
+    }
+
+    // =========================================================================
+    // Assertion helpers — RestoreCategory
+    // =========================================================================
+
+    private static void ItShouldHaveActiveCategory(
+        Menlo.Lib.Budget.Entities.Budget budget, BudgetCategoryId categoryId)
+    {
+        CategoryNode node = budget.Categories.First(c => c.Id == categoryId);
+        node.IsDeleted.ShouldBeFalse();
+        node.DeletedAt.ShouldBeNull();
+        node.DeletedBy.ShouldBeNull();
+    }
+
+    private static void ItShouldRaiseCategoryRestoredEvent(
+        Menlo.Lib.Budget.Entities.Budget budget, BudgetCategoryId categoryId)
+    {
+        IDomainEvent domainEvent = budget.DomainEvents.Last();
+        domainEvent.ShouldBeOfType<CategoryRestoredEvent>();
+        CategoryRestoredEvent evt = (CategoryRestoredEvent)domainEvent;
+        evt.BudgetId.ShouldBe(budget.Id);
+        evt.CategoryId.ShouldBe(categoryId);
     }
 }
