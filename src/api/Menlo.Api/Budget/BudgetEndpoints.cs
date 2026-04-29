@@ -1,4 +1,5 @@
 using Menlo.Api.Auth.Policies;
+using Menlo.Api.Budget.Categories;
 
 namespace Menlo.Api.Budget;
 
@@ -35,6 +36,10 @@ public static class BudgetEndpoints
             .WithName("ActivateBudget")
             .WithSummary("Activates a budget. Auto-closes the previous year's active budget.")
             .RequireAuthorization(MenloPolicies.CanEditBudget);
+
+        budgets.MapGroup("/{budgetId:guid}/categories")
+            .WithTags("Budget Categories")
+            .MapCategoryEndpoints();
 
         return group;
     }
