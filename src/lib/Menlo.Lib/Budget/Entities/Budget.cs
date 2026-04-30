@@ -25,6 +25,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 {
     private readonly List<IDomainEvent> _domainEvents = [];
     private readonly List<CategoryNode> _categories = [];
+    private readonly List<BudgetItem> _items = [];
 
     private Budget(
         BudgetId id,
@@ -76,6 +77,11 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     /// Gets the category nodes in this budget's category tree.
     /// </summary>
     public IReadOnlyCollection<CategoryNode> Categories => _categories.AsReadOnly();
+
+    /// <summary>
+    /// Gets the budget items in this budget.
+    /// </summary>
+    public IReadOnlyCollection<BudgetItem> Items => _items.AsReadOnly();
 
     /// <summary>
     /// Gets the sum of all planned monthly amounts across all categories.
@@ -508,6 +514,85 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
         AddDomainEvent(new CategoryRestoredEvent(Id, categoryId));
         return UnitResult.Success<BudgetError>();
+    }
+
+    /// <summary>
+    /// Adds a planned budget item to a leaf category for a specific month.
+    /// </summary>
+    /// <param name="categoryId">The leaf category to add the item to.</param>
+    /// <param name="month">The month (1-12).</param>
+    /// <param name="budgetFlow">Whether this is an income or expense item.</param>
+    /// <param name="plannedAmount">The planned amount for this month.</param>
+    /// <param name="payerSplit">How payment responsibility is split.</param>
+    /// <param name="attributionSplit">How the cost is attributed by purpose.</param>
+    /// <param name="adjustmentRuleId">Optional future adjustment rule reference.</param>
+    /// <param name="isManualOverride">Whether this was manually set (default true).</param>
+    /// <returns>Success with the new BudgetItem; Failure with BudgetError if validation fails.</returns>
+    public Result<BudgetItem, BudgetError> AddItem(
+        BudgetCategoryId categoryId,
+        int month,
+        BudgetFlow budgetFlow,
+        Money plannedAmount,
+        PayerSplit payerSplit,
+        AttributionSplit attributionSplit,
+        Guid? adjustmentRuleId = null,
+        bool isManualOverride = true)
+    {
+        // Validate month
+        if (month < 1 || month > 12)
+        {
+            return new InvalidMonthError(month);
+        }
+
+        // Validate category exists
+        CategoryNode? category = _categories.FirstOrDefault(c => c.Id == categoryId && !c.IsDeleted);
+        if (category is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        // Validate leaf-only (no children)
+        bool hasChildren = _categories.Any(c => c.ParentId == categoryId && !c.IsDeleted);
+        if (hasChildren)
+        {
+            return new NonLeafCategoryError(categoryId.ToString());
+        }
+
+        // Validate BudgetFlow compatibility
+        if (category.BudgetFlow != BudgetFlow.Both && category.BudgetFlow != budgetFlow)
+        {
+            return new InvalidBudgetFlowError(category.BudgetFlow.ToString(), budgetFlow.ToString());
+        }
+
+        // BudgetFlow on items cannot be Both
+        if (budgetFlow == BudgetFlow.Both)
+        {
+            return new InvalidBudgetFlowError("Income or Expense", "Both");
+        }
+
+        // Check for duplicate (same category + month, non-deleted)
+        bool isDuplicate = _items.Any(i => i.CategoryId == categoryId && i.Month == month && !i.IsDeleted);
+        if (isDuplicate)
+        {
+            return new DuplicateBudgetItemError(categoryId.ToString(), month);
+        }
+
+        BudgetItem item = new(
+            id: BudgetItemId.NewId(),
+            budgetId: Id,
+            categoryId: categoryId,
+            month: month,
+            budgetFlow: budgetFlow,
+            plannedAmount: plannedAmount,
+            payerSplit: payerSplit,
+            attributionSplit: attributionSplit,
+            adjustmentRuleId: adjustmentRuleId,
+            isManualOverride: isManualOverride);
+
+        _items.Add(item);
+        AddDomainEvent(new BudgetItemPlannedEvent(Id, item.Id, categoryId, month, plannedAmount));
+
+        return item;
     }
 
     /// <summary>

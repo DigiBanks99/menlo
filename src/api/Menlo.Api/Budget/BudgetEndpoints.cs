@@ -1,5 +1,6 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget.Categories;
+using Menlo.Api.Budget.Items;
 
 namespace Menlo.Api.Budget;
 
@@ -40,6 +41,10 @@ public static class BudgetEndpoints
         budgets.MapGroup("/{budgetId:guid}/categories")
             .WithTags("Budget Categories")
             .MapCategoryEndpoints();
+
+        budgets.MapGroup("/{budgetId:guid}/categories/{categoryId:guid}/items")
+            .WithTags("Budget Items")
+            .MapBudgetItemEndpoints();
 
         return group;
     }

@@ -60,6 +60,16 @@ public sealed class BudgetEntityTypeConfiguration : IEntityTypeConfiguration<Bud
             .HasField("_categories")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(b => b.Items)
+            .WithOne()
+            .HasForeignKey(i => i.BudgetId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(b => b.Items)
+            .HasField("_items")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(b => new { b.HouseholdId, b.Year })
             .IsUnique()
             .HasDatabaseName("ix_budgets_household_id_year");
