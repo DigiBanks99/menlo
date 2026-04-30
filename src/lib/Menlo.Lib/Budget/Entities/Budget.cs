@@ -698,6 +698,24 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Soft-deletes a budget item. No restore is available (deliberate design choice).
+    /// </summary>
+    /// <param name="itemId">The ID of the item to delete.</param>
+    /// <param name="stampFactory">Factory for the soft-delete stamp.</param>
+    /// <returns>Success if deleted; Failure with BudgetError if not found.</returns>
+    public UnitResult<BudgetError> DeleteItem(BudgetItemId itemId, ISoftDeleteStampFactory stampFactory)
+    {
+        BudgetItem? item = _items.FirstOrDefault(i => i.Id == itemId && !i.IsDeleted);
+        if (item is null)
+        {
+            return new BudgetItemNotFoundError(itemId.ToString());
+        }
+
+        item.Delete(stampFactory);
+        return UnitResult.Success<BudgetError>();
+    }
+
+    /// <summary>
     /// Activates this budget, making it the live plan for the year.
     /// Budget must be in Draft status.
     /// </summary>

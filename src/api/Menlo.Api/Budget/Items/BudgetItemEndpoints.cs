@@ -36,6 +36,12 @@ public static class BudgetItemEndpoints
             .WithSummary("Records the spent amount for a budget item (payment made).")
             .RequireAuthorization(MenloPolicies.CanEditBudget);
 
+        group
+            .MapDelete("/{itemId:guid}", DeleteBudgetItemHandler.Handle)
+            .WithName("DeleteBudgetItem")
+            .WithSummary("Soft-deletes a budget item.")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
         return group;
     }
 }

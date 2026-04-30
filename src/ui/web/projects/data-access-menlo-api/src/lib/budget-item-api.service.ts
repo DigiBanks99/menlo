@@ -139,4 +139,16 @@ export class BudgetItemApiService {
       )
       .pipe(toResult());
   }
+
+  deleteItem(
+    budgetId: string,
+    categoryId: string,
+    itemId: string,
+  ): Observable<Result<void, ApiError>> {
+    return this.http
+      .delete<void>(
+        `${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/${itemId}`,
+      )
+      .pipe(toResult());
+  }
 }
