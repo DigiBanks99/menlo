@@ -110,4 +110,19 @@ public sealed class BudgetItem : IEntity<BudgetItemId>, IAuditable, ISoftDeletab
         DeletedBy = stamp.ActorId;
         DeletedAt = stamp.Timestamp;
     }
+
+    /// <summary>Updates the planned amount.</summary>
+    internal void SetPlannedAmount(Money amount) => PlannedAmount = amount;
+
+    /// <summary>Updates the realized amount.</summary>
+    internal void SetRealizedAmount(Money? amount) => RealizedAmount = amount;
+
+    /// <summary>Updates the spent amount.</summary>
+    internal void SetSpentAmount(Money? amount) => SpentAmount = amount;
+
+    /// <summary>Updates the payer split.</summary>
+    internal void SetPayerSplit(PayerSplit split) => PayerSplit = split;
+
+    /// <summary>Updates the attribution split.</summary>
+    internal void SetAttributionSplit(AttributionSplit split) => AttributionSplit = split;
 }
