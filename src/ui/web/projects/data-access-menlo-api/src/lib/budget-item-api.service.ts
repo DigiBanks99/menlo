@@ -54,6 +54,16 @@ export interface UpdateBudgetItemRequest {
   attributionSplit?: AttributionAllocationDto[];
 }
 
+export interface RealizeBudgetItemRequest {
+  amount: number;
+  currency?: string;
+}
+
+export interface RecordBudgetItemSpentRequest {
+  amount: number;
+  currency?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BudgetItemApiService {
   private readonly http = inject(HttpClient);
@@ -97,6 +107,34 @@ export class BudgetItemApiService {
     return this.http
       .put<BudgetItemDto>(
         `${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/${itemId}`,
+        request,
+      )
+      .pipe(toResult());
+  }
+
+  realizeItem(
+    budgetId: string,
+    categoryId: string,
+    itemId: string,
+    request: RealizeBudgetItemRequest,
+  ): Observable<Result<BudgetItemDto, ApiError>> {
+    return this.http
+      .put<BudgetItemDto>(
+        `${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/${itemId}/realize`,
+        request,
+      )
+      .pipe(toResult());
+  }
+
+  recordItemSpent(
+    budgetId: string,
+    categoryId: string,
+    itemId: string,
+    request: RecordBudgetItemSpentRequest,
+  ): Observable<Result<BudgetItemDto, ApiError>> {
+    return this.http
+      .put<BudgetItemDto>(
+        `${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/${itemId}/spent`,
         request,
       )
       .pipe(toResult());

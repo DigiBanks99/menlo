@@ -24,6 +24,18 @@ public static class BudgetItemEndpoints
             .WithSummary("Updates an existing budget item's amounts and/or splits.")
             .RequireAuthorization(MenloPolicies.CanEditBudget);
 
+        group
+            .MapPut("/{itemId:guid}/realize", RealizeItemHandler.Handle)
+            .WithName("RealizeItem")
+            .WithSummary("Records the realized amount for a budget item (bill/payslip arrived).")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
+        group
+            .MapPut("/{itemId:guid}/spent", RecordItemSpentHandler.Handle)
+            .WithName("RecordItemSpent")
+            .WithSummary("Records the spent amount for a budget item (payment made).")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
         return group;
     }
 }

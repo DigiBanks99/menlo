@@ -72,6 +72,27 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static readonly HouseholdId UpdateEmptyBodyHousehold =
         new(Guid.Parse("e9e9e9e9-e9e9-e9e9-e9e9-e9e9e9e9e9e9"));
 
+    private static readonly HouseholdId RealizeItemHousehold =
+        new(Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1"));
+
+    private static readonly HouseholdId RealizeNonExistentHousehold =
+        new(Guid.Parse("f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2"));
+
+    private static readonly HouseholdId RealizeFeatureOffHousehold =
+        new(Guid.Parse("f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3"));
+
+    private static readonly HouseholdId RecordSpentHousehold =
+        new(Guid.Parse("f4f4f4f4-f4f4-f4f4-f4f4-f4f4f4f4f4f4"));
+
+    private static readonly HouseholdId RecordSpentSkipRealizeHousehold =
+        new(Guid.Parse("f5f5f5f5-f5f5-f5f5-f5f5-f5f5f5f5f5f5"));
+
+    private static readonly HouseholdId RecordSpentNonExistentHousehold =
+        new(Guid.Parse("f6f6f6f6-f6f6-f6f6-f6f6-f6f6f6f6f6f6"));
+
+    private static readonly HouseholdId FullLifecycleHousehold =
+        new(Guid.Parse("f7f7f7f7-f7f7-f7f7-f7f7-f7f7f7f7f7f7"));
+
     // =========================================================================
     // CREATE BUDGET ITEM
     // =========================================================================
@@ -539,6 +560,182 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     // =========================================================================
+    // REALIZE BUDGET ITEM
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenExistingItem_WhenRealize_ThenReturns200WithRealizedAmount()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RealizeItemHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        RealizeBudgetItemRequest realizeRequest = new(Amount: 1450.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}/realize",
+            realizeRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveRealizedAmount(dto, 1450.00m, "ZAR");
+        ItShouldHavePlannedAmount(dto, createdItem.PlannedAmount, createdItem.PlannedCurrency);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentItem_WhenRealize_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RealizeNonExistentHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        RealizeBudgetItemRequest realizeRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{Guid.NewGuid()}/realize",
+            realizeRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenRealize_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(RealizeFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+
+        RealizeBudgetItemRequest realizeRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/realize",
+            realizeRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    // =========================================================================
+    // RECORD SPENT BUDGET ITEM
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenExistingItem_WhenRecordSpent_ThenReturns200WithSpentAmount()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RecordSpentHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        // Record spent directly
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1500.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveSpentAmount(dto, 1500.00m, "ZAR");
+    }
+
+    [Fact]
+    public async Task GivenExistingItemWithoutRealize_WhenRecordSpent_ThenReturns200()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RecordSpentSkipRealizeHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        // Directly record spent without realizing first
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1400.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveSpentAmount(dto, 1400.00m, "ZAR");
+    }
+
+    [Fact]
+    public async Task GivenNonExistentItem_WhenRecordSpent_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RecordSpentNonExistentHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{Guid.NewGuid()}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    // =========================================================================
+    // FULL LIFECYCLE
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenNewItem_WhenFullLifecycle_ThenAllAmountsPresent()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FullLifecycleHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        // Step 1: Realize
+        RealizeBudgetItemRequest realizeRequest = new(Amount: 1550.00m, Currency: "ZAR");
+        HttpResponseMessage realizeResponse = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}/realize",
+            realizeRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? realizedDto = await DeserializeBudgetItemDto(realizeResponse);
+
+        ItShouldHaveReturned200Ok(realizeResponse);
+        ItShouldHavePlannedAmount(realizedDto, 1500.00m, "ZAR");
+        ItShouldHaveRealizedAmount(realizedDto, 1550.00m, "ZAR");
+
+        // Step 2: Record Spent
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1550.00m, Currency: "ZAR");
+        HttpResponseMessage spentResponse = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? spentDto = await DeserializeBudgetItemDto(spentResponse);
+
+        ItShouldHaveReturned200Ok(spentResponse);
+        ItShouldHavePlannedAmount(spentDto, 1500.00m, "ZAR");
+        ItShouldHaveSpentAmount(spentDto, 1550.00m, "ZAR");
+    }
+
+    // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
 
@@ -760,5 +957,19 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     {
         dto.ShouldNotBeNull();
         dto.AttributionSplit.Count.ShouldBe(original.AttributionSplit.Count);
+    }
+
+    private static void ItShouldHaveRealizedAmount(BudgetItemDto? dto, decimal expectedAmount, string expectedCurrency)
+    {
+        dto.ShouldNotBeNull();
+        dto.RealizedAmount.ShouldBe(expectedAmount);
+        dto.RealizedCurrency.ShouldBe(expectedCurrency);
+    }
+
+    private static void ItShouldHaveSpentAmount(BudgetItemDto? dto, decimal expectedAmount, string expectedCurrency)
+    {
+        dto.ShouldNotBeNull();
+        dto.SpentAmount.ShouldBe(expectedAmount);
+        dto.SpentCurrency.ShouldBe(expectedCurrency);
     }
 }
