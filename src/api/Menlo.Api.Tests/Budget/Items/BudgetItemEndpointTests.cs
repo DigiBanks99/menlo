@@ -93,6 +93,18 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static readonly HouseholdId FullLifecycleHousehold =
         new(Guid.Parse("f7f7f7f7-f7f7-f7f7-f7f7-f7f7f7f7f7f7"));
 
+    private static readonly HouseholdId DeleteItemHousehold =
+        new(Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1"));
+
+    private static readonly HouseholdId DeleteNonExistentHousehold =
+        new(Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2"));
+
+    private static readonly HouseholdId DeleteVerifyListHousehold =
+        new(Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3"));
+
+    private static readonly HouseholdId DeleteRecreateHousehold =
+        new(Guid.Parse("a4a4a4a4-a4a4-a4a4-a4a4-a4a4a4a4a4a4"));
+
     // =========================================================================
     // CREATE BUDGET ITEM
     // =========================================================================
@@ -736,6 +748,115 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     // =========================================================================
+    // DELETE BUDGET ITEM
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenExistingItem_WhenDelete_ThenReturns204()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(DeleteItemHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned204NoContent(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentItem_WhenDelete_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(DeleteNonExistentHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{Guid.NewGuid()}",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenDeletedItem_WhenListItems_ThenDeletedItemIsExcluded()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(DeleteVerifyListHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        // Create an item
+        HttpResponseMessage createResponse = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            CreateValidItemRequest(month: 1),
+            TestContext.Current.CancellationToken);
+        createResponse.IsSuccessStatusCode.ShouldBeTrue(
+            $"Item creation failed: {await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+        BudgetItemDto? createdItem = await DeserializeBudgetItemDto(createResponse);
+        createdItem.ShouldNotBeNull();
+
+        // Delete the item
+        HttpResponseMessage deleteResponse = await client.DeleteAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            TestContext.Current.CancellationToken);
+        ItShouldHaveReturned204NoContent(deleteResponse);
+
+        // List items — deleted item should not appear
+        HttpResponseMessage listResponse = await client.GetAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            TestContext.Current.CancellationToken);
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(listResponse);
+
+        ItShouldHaveReturned200Ok(listResponse);
+        ItShouldHaveItemCount(items, 0);
+    }
+
+    [Fact]
+    public async Task GivenDeletedItem_WhenCreateSameCategoryAndMonth_ThenSucceeds()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(DeleteRecreateHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        // Create item for month 1
+        CreateBudgetItemRequest request = CreateValidItemRequest(month: 1);
+        HttpResponseMessage createResponse = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+        createResponse.IsSuccessStatusCode.ShouldBeTrue(
+            $"Item creation failed: {await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+        BudgetItemDto? createdItem = await DeserializeBudgetItemDto(createResponse);
+        createdItem.ShouldNotBeNull();
+
+        // Delete the item
+        HttpResponseMessage deleteResponse = await client.DeleteAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            TestContext.Current.CancellationToken);
+        ItShouldHaveReturned204NoContent(deleteResponse);
+
+        // Re-create item for the same category and month
+        HttpResponseMessage recreateResponse = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned201Created(recreateResponse);
+    }
+
+    // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
 
@@ -885,6 +1006,9 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
 
     private static void ItShouldHaveReturned409Conflict(HttpResponseMessage response) =>
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+
+    private static void ItShouldHaveReturned204NoContent(HttpResponseMessage response) =>
+        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
     private static void ItShouldHaveANonEmptyId(BudgetItemDto? dto)
     {
