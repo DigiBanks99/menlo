@@ -22,7 +22,7 @@ public static class GetBudgetSummaryHandler
         IUserContextProvider userContextProvider,
         IBudgetContext budgetContext,
         IConfiguration configuration,
-        int month,
+        int? month = null,
         CancellationToken cancellationToken = default)
     {
         if (!configuration.GetValue<bool>("Features:BudgetItems", defaultValue: false))
@@ -52,9 +52,9 @@ public static class GetBudgetSummaryHandler
             return Results.NotFound();
         }
 
-        List<BudgetItem> monthItems = budget.Items
-            .Where(i => i.Month == month && !i.IsDeleted)
-            .ToList();
+        List<BudgetItem> filteredItems = month.HasValue
+            ? budget.Items.Where(i => i.Month == month.Value && !i.IsDeleted).ToList()
+            : budget.Items.Where(i => !i.IsDeleted).ToList();
 
         List<CategoryNode> activeCategories = budget.Categories
             .Where(c => !c.IsDeleted)
@@ -65,10 +65,10 @@ public static class GetBudgetSummaryHandler
             .ToList();
 
         List<CategorySummaryDto> income = BuildCategorySummaries(
-            rootCategories, activeCategories, monthItems, BudgetFlow.Income);
+            rootCategories, activeCategories, filteredItems, BudgetFlow.Income);
 
         List<CategorySummaryDto> expenses = BuildCategorySummaries(
-            rootCategories, activeCategories, monthItems, BudgetFlow.Expense);
+            rootCategories, activeCategories, filteredItems, BudgetFlow.Expense);
 
         decimal netPlanned = income.Sum(c => c.PlannedTotal) - expenses.Sum(c => c.PlannedTotal);
 
@@ -100,7 +100,7 @@ public static class GetBudgetSummaryHandler
     private static List<CategorySummaryDto> BuildCategorySummaries(
         List<CategoryNode> rootCategories,
         List<CategoryNode> allCategories,
-        List<BudgetItem> monthItems,
+        List<BudgetItem> filteredItems,
         BudgetFlow flow)
     {
         return rootCategories
@@ -114,7 +114,7 @@ public static class GetBudgetSummaryHandler
                 List<CategorySummaryDto> childDtos = children
                     .Select(child =>
                     {
-                        List<BudgetItem> childItems = monthItems
+                        List<BudgetItem> childItems = filteredItems
                             .Where(i => i.CategoryId == child.Id)
                             .ToList();
 
@@ -129,12 +129,12 @@ public static class GetBudgetSummaryHandler
                     .ToList();
 
                 // Root totals include items directly on the root + all children items
-                List<BudgetItem> rootDirectItems = monthItems
+                List<BudgetItem> rootDirectItems = filteredItems
                     .Where(i => i.CategoryId == root.Id)
                     .ToList();
 
                 HashSet<BudgetCategoryId> childIds = children.Select(c => c.Id).ToHashSet();
-                List<BudgetItem> allRootItems = monthItems
+                List<BudgetItem> allRootItems = filteredItems
                     .Where(i => i.CategoryId == root.Id || childIds.Contains(i.CategoryId))
                     .ToList();
 

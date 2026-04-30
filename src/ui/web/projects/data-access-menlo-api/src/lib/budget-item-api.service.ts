@@ -93,7 +93,7 @@ export interface CategorySummary {
 export interface BudgetSummary {
   budgetId: string;
   year: number;
-  month: number;
+  month: number | null;
   income: CategorySummary[];
   expenses: CategorySummary[];
   netPlanned: number;
@@ -213,11 +213,13 @@ export class BudgetItemApiService {
       .pipe(toResult());
   }
 
-  getSummary(budgetId: string, month: number): Observable<Result<BudgetSummary, ApiError>> {
+  getSummary(budgetId: string, month?: number): Observable<Result<BudgetSummary, ApiError>> {
+    const params: Record<string, string> = {};
+    if (month !== undefined) {
+      params['month'] = month.toString();
+    }
     return this.http
-      .get<BudgetSummary>(`${this.apiBaseUrl}/api/budgets/${budgetId}/summary`, {
-        params: { month: month.toString() },
-      })
+      .get<BudgetSummary>(`${this.apiBaseUrl}/api/budgets/${budgetId}/summary`, { params })
       .pipe(toResult());
   }
 }

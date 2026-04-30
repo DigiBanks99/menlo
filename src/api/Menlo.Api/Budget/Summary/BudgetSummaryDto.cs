@@ -11,7 +11,7 @@ public sealed record CategorySummaryDto(
 public sealed record BudgetSummaryDto(
     Guid BudgetId,
     int Year,
-    int Month,
+    int? Month,
     IReadOnlyList<CategorySummaryDto> Income,
     IReadOnlyList<CategorySummaryDto> Expenses,
     decimal NetPlanned,
