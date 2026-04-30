@@ -791,6 +791,92 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Fills forward a planned amount and splits from a start month through December.
+    /// Creates new items for months without existing items, updates PlannedAmount for months with items.
+    /// </summary>
+    /// <param name="categoryId">The leaf category.</param>
+    /// <param name="fromMonth">The month to start from (1-12).</param>
+    /// <param name="budgetFlow">Income or Expense.</param>
+    /// <param name="amount">The amount to set on all affected months.</param>
+    /// <param name="payerSplit">Payer split for new/updated items.</param>
+    /// <param name="attributionSplit">Attribution split for new/updated items.</param>
+    /// <returns>Success with list of all affected items; Failure with BudgetError.</returns>
+    public Result<IReadOnlyList<BudgetItem>, BudgetError> FillForward(
+        BudgetCategoryId categoryId,
+        int fromMonth,
+        BudgetFlow budgetFlow,
+        Money amount,
+        PayerSplit payerSplit,
+        AttributionSplit attributionSplit)
+    {
+        if (fromMonth < 1 || fromMonth > 12)
+        {
+            return new InvalidMonthError(fromMonth);
+        }
+
+        CategoryNode? category = _categories.FirstOrDefault(c => c.Id == categoryId && !c.IsDeleted);
+        if (category is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        bool hasChildren = _categories.Any(c => c.ParentId == categoryId && !c.IsDeleted);
+        if (hasChildren)
+        {
+            return new NonLeafCategoryError(categoryId.ToString());
+        }
+
+        if (category.BudgetFlow != BudgetFlow.Both && category.BudgetFlow != budgetFlow)
+        {
+            return new InvalidBudgetFlowError(category.BudgetFlow.ToString(), budgetFlow.ToString());
+        }
+
+        if (budgetFlow == BudgetFlow.Both)
+        {
+            return new InvalidBudgetFlowError("Income or Expense", "Both");
+        }
+
+        List<BudgetItem> affectedItems = [];
+
+        for (int month = fromMonth; month <= 12; month++)
+        {
+            BudgetItem? existing = _items.FirstOrDefault(i => i.CategoryId == categoryId && i.Month == month && !i.IsDeleted);
+
+            if (existing is not null)
+            {
+                if (amount != existing.PlannedAmount)
+                {
+                    Money oldAmount = existing.PlannedAmount;
+                    existing.SetPlannedAmount(amount);
+                    AddDomainEvent(new BudgetItemCorrectedEvent(Id, existing.Id, "PlannedAmount", oldAmount, amount));
+                }
+
+                existing.SetPayerSplit(payerSplit);
+                existing.SetAttributionSplit(attributionSplit);
+                affectedItems.Add(existing);
+            }
+            else
+            {
+                BudgetItem item = new(
+                    id: BudgetItemId.NewId(),
+                    budgetId: Id,
+                    categoryId: categoryId,
+                    month: month,
+                    budgetFlow: budgetFlow,
+                    plannedAmount: amount,
+                    payerSplit: payerSplit,
+                    attributionSplit: attributionSplit);
+
+                _items.Add(item);
+                affectedItems.Add(item);
+                AddDomainEvent(new BudgetItemPlannedEvent(Id, item.Id, categoryId, month, amount));
+            }
+        }
+
+        return affectedItems;
+    }
+
+    /// <summary>
     /// Activates this budget, making it the live plan for the year.
     /// Budget must be in Draft status.
     /// </summary>

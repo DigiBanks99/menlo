@@ -63,3 +63,14 @@ public sealed record BulkCreateBudgetItemRequest(
     string Currency,
     IReadOnlyList<PayerAllocationDto> PayerSplit,
     IReadOnlyList<AttributionAllocationDto> AttributionSplit);
+
+/// <summary>
+/// Request to fill forward an amount from a start month through December.
+/// </summary>
+public sealed record FillForwardBudgetItemRequest(
+    int FromMonth,
+    string BudgetFlow,
+    decimal Amount,
+    string Currency,
+    IReadOnlyList<PayerAllocationDto> PayerSplit,
+    IReadOnlyList<AttributionAllocationDto> AttributionSplit);
