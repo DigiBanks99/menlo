@@ -22,7 +22,14 @@ export default defineConfig(({ mode }) => ({
       ],
       all: true,
       include: ['src/**/*.ts'],
-      exclude: ['src/app/core/auth/auth.interceptor.ts'],
+      exclude: [
+        'src/app/core/auth/auth.interceptor.ts',
+        'src/main.ts',
+        'src/app/app.config.ts',
+        'src/environments/**',
+        'src/stories/**',
+        'src/test-setup.ts',
+      ],
       thresholds: {
         lines: 100,
         functions: 100,

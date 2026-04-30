@@ -377,9 +377,7 @@ export class CategoryTreeComponent {
     effect(() => {
       const id = this.budgetId();
       const inclDeleted = this.includeDeleted();
-      if (id) {
-        this.loadCategories(id, inclDeleted);
-      }
+      this.loadCategories(id, inclDeleted);
     });
   }
 

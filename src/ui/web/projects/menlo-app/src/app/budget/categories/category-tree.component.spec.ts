@@ -283,5 +283,109 @@ describe('CategoryTreeComponent', () => {
       expect(mockCategoryApi.restoreCategory).toHaveBeenCalledWith('budget-1', 'n1');
       expect(mockCategoryApi.listCategories).toHaveBeenCalled();
     });
+
+    it('shows error when delete fails', () => {
+      const nodes = [makeNode('n1', 'To Delete')];
+      mockCategoryApi.listCategories.mockReturnValue(of(success(nodes)));
+      mockCategoryApi.deleteCategory.mockReturnValue(of(failure(unknownError('Delete failed'))));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.deleteCategory('n1');
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector('[data-testid="tree-error"]');
+      expect(errorEl).toBeTruthy();
+      expect(errorEl.textContent?.trim()).toBe('Delete failed');
+    });
+
+    it('shows error when restore fails', () => {
+      const nodes = [makeNode('n1', 'Deleted', [], { isDeleted: true })];
+      mockCategoryApi.listCategories.mockReturnValue(of(success(nodes)));
+      mockCategoryApi.restoreCategory.mockReturnValue(of(failure(unknownError('Restore failed'))));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.restoreCategory('n1');
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector('[data-testid="tree-error"]');
+      expect(errorEl).toBeTruthy();
+      expect(errorEl.textContent?.trim()).toBe('Restore failed');
+    });
+
+    it('opens add child form', () => {
+      const nodes = [makeNode('parent', 'Parent', [makeNode('child', 'Child')])];
+      mockCategoryApi.listCategories.mockReturnValue(of(success(nodes)));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.openAddChild('parent');
+      fixture.detectChanges();
+
+      const form = fixture.nativeElement.querySelector('[data-testid="category-form"]');
+      expect(form).toBeTruthy();
+      expect(fixture.componentInstance.addChildParentId()).toBe('parent');
+    });
+
+    it('opens edit form with category data', () => {
+      const nodes = [makeNode('n1', 'Groceries', [], { budgetFlow: 'Expense', attribution: 'Main' })];
+      mockCategoryApi.listCategories.mockReturnValue(of(success(nodes)));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.openEdit(nodes[0]);
+      fixture.detectChanges();
+
+      const form = fixture.nativeElement.querySelector('[data-testid="category-form"]');
+      expect(form).toBeTruthy();
+      expect(fixture.componentInstance.editingCategory()?.name).toBe('Groceries');
+    });
+
+    it('closes form and resets state', () => {
+      mockCategoryApi.listCategories.mockReturnValue(of(success([])));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.openAddRoot();
+      fixture.detectChanges();
+
+      fixture.componentInstance.closeForm();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.formMode()).toBeNull();
+      expect(fixture.componentInstance.editingCategory()).toBeNull();
+      expect(fixture.componentInstance.addChildParentId()).toBeNull();
+    });
+
+    it('closes form and reloads on save', () => {
+      mockCategoryApi.listCategories.mockReturnValue(of(success([])));
+
+      const fixture = TestBed.createComponent(CategoryTreeComponent);
+      fixture.componentRef.setInput('budgetId', 'budget-1');
+      fixture.detectChanges();
+
+      fixture.componentInstance.openAddRoot();
+      fixture.detectChanges();
+
+      mockCategoryApi.listCategories.mockClear();
+      mockCategoryApi.listCategories.mockReturnValue(of(success([])));
+
+      fixture.componentInstance.onFormSaved();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.formMode()).toBeNull();
+      expect(mockCategoryApi.listCategories).toHaveBeenCalled();
+    });
   });
 });

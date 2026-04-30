@@ -227,6 +227,25 @@ describe('CategoryFormComponent', () => {
       expect(nameInput.value).toBe('Groceries');
     });
 
+    it('handles category with undefined optional fields', () => {
+      const existing = mockCategoryDto({
+        attribution: undefined,
+        incomeContributor: undefined,
+        responsiblePayer: undefined,
+        description: undefined,
+      });
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('category', existing);
+      fixture.detectChanges();
+
+      const nameInput = fixture.nativeElement.querySelector(
+        '[data-testid="input-name"]',
+      ) as HTMLInputElement;
+      expect(nameInput.value).toBe('Groceries');
+    });
+
     it('calls updateCategory on submit in edit mode', () => {
       const existing = mockCategoryDto();
       const updatedDto = mockCategoryDto({ name: 'Updated' });
@@ -274,6 +293,152 @@ describe('CategoryFormComponent', () => {
       fixture.componentInstance.onCancel();
 
       expect(cancelledSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('update error handling', () => {
+    it('shows error when update fails', () => {
+      const existing = mockCategoryDto();
+      mockCategoryApi.updateCategory.mockReturnValue(
+        of(failure(problemError({ title: 'Server error', status: 500 }, 500))),
+      );
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('category', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({ name: 'Updated' });
+      fixture.componentInstance.onSubmit();
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector('[data-testid="form-error"]');
+      expect(errorEl).toBeTruthy();
+    });
+
+    it('maps validation errors to form fields', () => {
+      mockCategoryApi.createCategory.mockReturnValue(
+        of(
+          failure(
+            problemError(
+              {
+                title: 'Validation failed',
+                status: 422,
+                errors: { name: ['Name is too long'] },
+              },
+              422,
+            ),
+          ),
+        ),
+      );
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({
+        name: 'A very long name',
+        budgetFlow: 'Expense',
+      });
+      fixture.componentInstance.onSubmit();
+      fixture.detectChanges();
+
+      const nameControl = fixture.componentInstance.form.get('name');
+      expect(nameControl?.errors).toBeTruthy();
+    });
+  });
+
+  describe('optional fields in requests', () => {
+    it('includes all optional fields in create request', () => {
+      const createdDto = mockCategoryDto();
+      mockCategoryApi.createCategory.mockReturnValue(of(success(createdDto)));
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({
+        name: 'Full Category',
+        budgetFlow: 'Expense',
+        description: 'A full description',
+        attribution: 'Rental',
+        incomeContributor: 'Mom',
+        responsiblePayer: 'Dad',
+      });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockCategoryApi.createCategory).toHaveBeenCalledWith(
+        mockBudgetId,
+        expect.objectContaining({
+          name: 'Full Category',
+          budgetFlow: 'Expense',
+          description: 'A full description',
+          attribution: 'Rental',
+          incomeContributor: 'Mom',
+          responsiblePayer: 'Dad',
+        }),
+      );
+    });
+
+    it('includes all optional fields in update request', () => {
+      const existing = mockCategoryDto();
+      const updatedDto = mockCategoryDto({ name: 'Updated' });
+      mockCategoryApi.updateCategory.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('category', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({
+        name: 'Updated',
+        budgetFlow: 'Both',
+        description: 'Updated desc',
+        attribution: 'ServiceProvider',
+        incomeContributor: 'Dad',
+        responsiblePayer: 'Mom',
+      });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockCategoryApi.updateCategory).toHaveBeenCalledWith(
+        mockBudgetId,
+        'cat-1',
+        expect.objectContaining({
+          name: 'Updated',
+          budgetFlow: 'Both',
+          description: 'Updated desc',
+          attribution: 'ServiceProvider',
+          incomeContributor: 'Dad',
+          responsiblePayer: 'Mom',
+        }),
+      );
+    });
+
+    it('excludes empty optional fields from update request', () => {
+      const existing = mockCategoryDto();
+      const updatedDto = mockCategoryDto({ name: 'Minimal' });
+      mockCategoryApi.updateCategory.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('category', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({
+        name: 'Minimal',
+        budgetFlow: 'Expense',
+        description: '',
+        attribution: '',
+        incomeContributor: '',
+        responsiblePayer: '',
+      });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockCategoryApi.updateCategory).toHaveBeenCalledWith(
+        mockBudgetId,
+        'cat-1',
+        { name: 'Minimal', budgetFlow: 'Expense' },
+      );
     });
   });
 });
