@@ -40,6 +40,15 @@ export interface BulkCreateBudgetItemRequest {
   attributionSplit: AttributionAllocationDto[];
 }
 
+export interface FillForwardBudgetItemRequest {
+  fromMonth: number;
+  budgetFlow: 'Income' | 'Expense';
+  amount: number;
+  currency: string;
+  payerSplit: PayerAllocationDto[];
+  attributionSplit: AttributionAllocationDto[];
+}
+
 export interface CreateBudgetItemRequest {
   month: number;
   budgetFlow: 'Income' | 'Expense';
@@ -86,6 +95,18 @@ export class BudgetItemApiService {
       .post<
         BudgetItemDto[]
       >(`${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/bulk`, request)
+      .pipe(toResult());
+  }
+
+  fillForward(
+    budgetId: string,
+    categoryId: string,
+    request: FillForwardBudgetItemRequest,
+  ): Observable<Result<BudgetItemDto[], ApiError>> {
+    return this.http
+      .post<
+        BudgetItemDto[]
+      >(`${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/fill-forward`, request)
       .pipe(toResult());
   }
 

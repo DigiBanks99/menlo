@@ -117,6 +117,18 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static readonly HouseholdId BulkCreateNonLeafHousehold =
         new(Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4"));
 
+    private static readonly HouseholdId FillForwardHousehold =
+        new(Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"));
+
+    private static readonly HouseholdId FillForwardFromMonth6Household =
+        new(Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"));
+
+    private static readonly HouseholdId FillForwardInvalidMonthHousehold =
+        new(Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3"));
+
+    private static readonly HouseholdId FillForwardUpdatesExistingHousehold =
+        new(Guid.Parse("c4c4c4c4-c4c4-c4c4-c4c4-c4c4c4c4c4c4"));
+
     // =========================================================================
     // CREATE BUDGET ITEM
     // =========================================================================
@@ -977,6 +989,103 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     // =========================================================================
+    // FILL FORWARD BUDGET ITEMS
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenValidRequest_WhenFillForwardFromMonth1_ThenReturns200With12Items()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+        FillForwardBudgetItemRequest request = CreateValidFillForwardRequest(fromMonth: 1);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveItemCount(items, 12);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenFillForwardFromMonth6_ThenReturns200With7Items()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardFromMonth6Household);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+        FillForwardBudgetItemRequest request = CreateValidFillForwardRequest(fromMonth: 6);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveItemCount(items, 7);
+    }
+
+    [Fact]
+    public async Task GivenInvalidMonth_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardInvalidMonthHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+        FillForwardBudgetItemRequest request = CreateValidFillForwardRequest(fromMonth: 0);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenExistingItem_WhenFillForward_ThenUpdatesExistingItemAmount()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardUpdatesExistingHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        CreateBudgetItemRequest existingItemRequest = CreateValidItemRequest() with { Month = 3, PlannedAmount = 1500.00m };
+        await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            existingItemRequest,
+            TestContext.Current.CancellationToken);
+
+        FillForwardBudgetItemRequest fillRequest = CreateValidFillForwardRequest(fromMonth: 1, amount: 2000.00m);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            fillRequest,
+            TestContext.Current.CancellationToken);
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveItemCount(items, 12);
+        ItShouldHaveAllItemsWithAmount(items, 2000.00m);
+    }
+
+    // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
 
@@ -1023,8 +1132,9 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static async Task<Guid> CreateLeafCategoryAsync(
         HttpClient client, Guid budgetId, string budgetFlow = "Expense")
     {
-        // Create root category
-        var rootRequest = new CreateCategoryRequest("Expenses", budgetFlow);
+        // Create root category with unique name to avoid collisions in parallel tests
+        string suffix = Guid.NewGuid().ToString("N")[..8];
+        var rootRequest = new CreateCategoryRequest($"Expenses-{suffix}", budgetFlow);
         HttpResponseMessage rootResponse = await client.PostAsJsonAsync(
             $"/api/budgets/{budgetId}/categories", rootRequest, TestContext.Current.CancellationToken);
         rootResponse.IsSuccessStatusCode.ShouldBeTrue(
@@ -1033,7 +1143,7 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         Guid rootId = JsonDocument.Parse(rootContent).RootElement.GetProperty("id").GetGuid();
 
         // Create child (leaf) category
-        var childRequest = new CreateCategoryRequest("Electricity", budgetFlow, ParentId: rootId);
+        var childRequest = new CreateCategoryRequest($"Electricity-{suffix}", budgetFlow, ParentId: rootId);
         HttpResponseMessage childResponse = await client.PostAsJsonAsync(
             $"/api/budgets/{budgetId}/categories", childRequest, TestContext.Current.CancellationToken);
         childResponse.IsSuccessStatusCode.ShouldBeTrue(
@@ -1077,6 +1187,15 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         new(
             BudgetFlow: "Expense",
             Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+    private static FillForwardBudgetItemRequest CreateValidFillForwardRequest(int fromMonth = 1, decimal amount = 1500.00m) =>
+        new(
+            FromMonth: fromMonth,
+            BudgetFlow: "Expense",
+            Amount: amount,
             Currency: "ZAR",
             PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
             AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
@@ -1229,5 +1348,11 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         dto.ShouldNotBeNull();
         dto.SpentAmount.ShouldBe(expectedAmount);
         dto.SpentCurrency.ShouldBe(expectedCurrency);
+    }
+
+    private static void ItShouldHaveAllItemsWithAmount(List<BudgetItemDto>? items, decimal expectedAmount)
+    {
+        items.ShouldNotBeNull();
+        items.ShouldAllBe(i => i.PlannedAmount == expectedAmount);
     }
 }

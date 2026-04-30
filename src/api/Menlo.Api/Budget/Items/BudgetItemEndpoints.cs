@@ -19,6 +19,12 @@ public static class BudgetItemEndpoints
             .RequireAuthorization(MenloPolicies.CanEditBudget);
 
         group
+            .MapPost("/fill-forward", FillForwardHandler.Handle)
+            .WithName("FillForwardBudgetItems")
+            .WithSummary("Fills forward an amount from a start month through December.")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
+        group
             .MapGet("/", ListBudgetItemsHandler.Handle)
             .WithName("ListBudgetItems")
             .WithSummary("Lists budget items for a category, optionally filtered by month.")
