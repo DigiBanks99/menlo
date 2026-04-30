@@ -43,3 +43,13 @@ public sealed record UpdateBudgetItemRequest(
     string? SpentCurrency = null,
     IReadOnlyList<PayerAllocationDto>? PayerSplit = null,
     IReadOnlyList<AttributionAllocationDto>? AttributionSplit = null);
+
+/// <summary>
+/// Request to realize a budget item (record actual bill/payslip amount).
+/// </summary>
+public sealed record RealizeBudgetItemRequest(decimal Amount, string Currency = "ZAR");
+
+/// <summary>
+/// Request to record a budget item as spent (payment made).
+/// </summary>
+public sealed record RecordBudgetItemSpentRequest(decimal Amount, string Currency = "ZAR");

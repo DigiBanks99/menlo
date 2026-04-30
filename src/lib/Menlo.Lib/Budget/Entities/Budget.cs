@@ -657,6 +657,47 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Records the realized amount for a budget item (bill/payslip has arrived).
+    /// </summary>
+    /// <param name="itemId">The ID of the item to realize.</param>
+    /// <param name="amount">The realized monetary amount.</param>
+    /// <returns>Success with the updated BudgetItem; Failure with BudgetError.</returns>
+    public Result<BudgetItem, BudgetError> RealizeItem(BudgetItemId itemId, Money amount)
+    {
+        BudgetItem? item = _items.FirstOrDefault(i => i.Id == itemId && !i.IsDeleted);
+        if (item is null)
+        {
+            return new BudgetItemNotFoundError(itemId.ToString());
+        }
+
+        item.SetRealizedAmount(amount);
+        AddDomainEvent(new BudgetItemRealizedEvent(Id, itemId, amount));
+
+        return item;
+    }
+
+    /// <summary>
+    /// Records the spent amount for a budget item (money has moved).
+    /// Can skip Realized — Planned → Spent is a valid transition.
+    /// </summary>
+    /// <param name="itemId">The ID of the item to record as spent.</param>
+    /// <param name="amount">The spent monetary amount.</param>
+    /// <returns>Success with the updated BudgetItem; Failure with BudgetError.</returns>
+    public Result<BudgetItem, BudgetError> RecordItemSpent(BudgetItemId itemId, Money amount)
+    {
+        BudgetItem? item = _items.FirstOrDefault(i => i.Id == itemId && !i.IsDeleted);
+        if (item is null)
+        {
+            return new BudgetItemNotFoundError(itemId.ToString());
+        }
+
+        item.SetSpentAmount(amount);
+        AddDomainEvent(new BudgetItemSpentEvent(Id, itemId, amount));
+
+        return item;
+    }
+
+    /// <summary>
     /// Activates this budget, making it the live plan for the year.
     /// Budget must be in Draft status.
     /// </summary>
