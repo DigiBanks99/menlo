@@ -21,6 +21,7 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
     public DbSet<BudgetAggregate> Budgets => Set<BudgetAggregate>();
     public DbSet<CategoryNode> BudgetCategories => Set<CategoryNode>();
     public DbSet<CanonicalCategory> CanonicalCategories => Set<CanonicalCategory>();
+    public DbSet<BudgetItem> BudgetItems => Set<BudgetItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +64,10 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<CanonicalCategoryId>()
             .HaveConversion<CanonicalCategoryIdValueConverter>();
+
+        configurationBuilder
+            .Properties<BudgetItemId>()
+            .HaveConversion<BudgetItemIdValueConverter>();
     }
 }
 

@@ -93,3 +93,77 @@ public class CategoryDepthError(string reason)
 /// </summary>
 public class DeletedParentError()
     : BudgetError("Budget.DeletedParent", "Cannot add a child to a soft-deleted parent category.");
+
+/// <summary>
+/// Error indicating an item was attempted on a non-leaf category.
+/// </summary>
+/// <param name="categoryId">The non-leaf category ID.</param>
+public class NonLeafCategoryError(string categoryId)
+    : BudgetError("Budget.NonLeafCategory", $"Category '{categoryId}' is not a leaf category. Budget items can only be added to leaf categories.")
+{
+    public string CategoryId { get; } = categoryId;
+}
+
+/// <summary>
+/// Error indicating an invalid payer split configuration.
+/// </summary>
+/// <param name="reason">The reason the payer split is invalid.</param>
+public class InvalidPayerSplitError(string reason)
+    : BudgetError("Budget.InvalidPayerSplit", $"Invalid payer split: {reason}")
+{
+    public string Reason { get; } = reason;
+}
+
+/// <summary>
+/// Error indicating an invalid attribution split configuration.
+/// </summary>
+/// <param name="reason">The reason the attribution split is invalid.</param>
+public class InvalidAttributionSplitError(string reason)
+    : BudgetError("Budget.InvalidAttributionSplit", $"Invalid attribution split: {reason}")
+{
+    public string Reason { get; } = reason;
+}
+
+/// <summary>
+/// Error indicating the budget flow of an item is incompatible with the category.
+/// </summary>
+/// <param name="categoryFlow">The category's allowed flow.</param>
+/// <param name="itemFlow">The item's flow.</param>
+public class InvalidBudgetFlowError(string categoryFlow, string itemFlow)
+    : BudgetError("Budget.InvalidBudgetFlow", $"Category allows '{categoryFlow}' items but got '{itemFlow}'.")
+{
+    public string CategoryFlow { get; } = categoryFlow;
+    public string ItemFlow { get; } = itemFlow;
+}
+
+/// <summary>
+/// Error indicating a duplicate budget item exists for the same category and month.
+/// </summary>
+/// <param name="categoryId">The category ID.</param>
+/// <param name="month">The month.</param>
+public class DuplicateBudgetItemError(string categoryId, int month)
+    : BudgetError("Budget.DuplicateBudgetItem", $"A budget item already exists for category '{categoryId}' in month {month}.")
+{
+    public string CategoryId { get; } = categoryId;
+    public int Month { get; } = month;
+}
+
+/// <summary>
+/// Error indicating an invalid month value.
+/// </summary>
+/// <param name="month">The invalid month value.</param>
+public class InvalidMonthError(int month)
+    : BudgetError("Budget.InvalidMonth", $"Month must be between 1 and 12, but got {month}.")
+{
+    public int Month { get; } = month;
+}
+
+/// <summary>
+/// Error indicating a budget item was not found.
+/// </summary>
+/// <param name="itemId">The item ID that was not found.</param>
+public class BudgetItemNotFoundError(string itemId)
+    : BudgetError("Budget.BudgetItemNotFound", $"Budget item '{itemId}' not found.")
+{
+    public string ItemId { get; } = itemId;
+}
