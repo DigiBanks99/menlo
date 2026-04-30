@@ -333,4 +333,296 @@ describe('BudgetItemFormComponent', () => {
       expect(btn.textContent?.trim()).toContain('Saving...');
     });
   });
+
+  describe('split management', () => {
+    it('removePayerSplit removes the split at given index', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      expect(component.form.controls.payerSplit.length).toBe(2);
+
+      component.removePayerSplit(0);
+      expect(component.form.controls.payerSplit.length).toBe(1);
+      expect(component.form.controls.payerSplit.at(0).controls.userId.value).toBe('user-2');
+    });
+
+    it('removeAttributionSplit removes the split at given index', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      expect(component.form.controls.attributionSplit.length).toBe(2);
+
+      component.removeAttributionSplit(0);
+      expect(component.form.controls.attributionSplit.length).toBe(1);
+      expect(component.form.controls.attributionSplit.at(0).controls.attribution.value).toBe(
+        'Rental',
+      );
+    });
+
+    it('valueChanges subscription notifies split changes when item exists', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      const initialTotal = component.payerSplitTotal();
+
+      // Change a payer percent value — should trigger valueChanges subscription
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(80);
+      fixture.detectChanges();
+
+      expect(component.payerSplitTotal()).toBe(120); // 80 + 40
+      expect(component.payerSplitTotal()).not.toBe(initialTotal);
+    });
+  });
+
+  describe('buildUpdateRequest branches', () => {
+    it('includes realized changes in update request', () => {
+      const existing = mockBudgetItemDto({ realizedAmount: null, realizedCurrency: null });
+      const updatedDto = mockBudgetItemDto({ realizedAmount: 4500, realizedCurrency: 'ZAR' });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({ realizedAmount: 4500 });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          realizedAmount: 4500,
+          realizedCurrency: 'ZAR',
+        }),
+      );
+    });
+
+    it('includes spent changes in update request', () => {
+      const existing = mockBudgetItemDto({ spentAmount: null, spentCurrency: null });
+      const updatedDto = mockBudgetItemDto({ spentAmount: 3200, spentCurrency: 'ZAR' });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({ spentAmount: 3200 });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          spentAmount: 3200,
+          spentCurrency: 'ZAR',
+        }),
+      );
+    });
+
+    it('clears realized when set to null', () => {
+      const existing = mockBudgetItemDto({ realizedAmount: 4000, realizedCurrency: 'ZAR' });
+      const updatedDto = mockBudgetItemDto({ realizedAmount: null, realizedCurrency: null });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({ realizedAmount: null });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          realizedAmount: undefined,
+          realizedCurrency: undefined,
+        }),
+      );
+    });
+
+    it('includes payer split changes in update request', () => {
+      const existing = mockBudgetItemDto();
+      const updatedDto = mockBudgetItemDto({
+        payerSplit: [{ userId: 'user-1', percent: 100 }],
+      });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Remove second payer and set first to 100%
+      component.removePayerSplit(1);
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(100);
+      component.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          payerSplit: [{ userId: 'user-1', percent: 100 }],
+        }),
+      );
+    });
+
+    it('includes attribution split changes in update request', () => {
+      const existing = mockBudgetItemDto();
+      const updatedDto = mockBudgetItemDto({
+        attributionSplit: [{ attribution: 'Main', percent: 100 }],
+      });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Remove second attribution and set first to 100%
+      component.removeAttributionSplit(1);
+      component.form.controls.attributionSplit.at(0).controls.percent.setValue(100);
+      component.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          attributionSplit: [{ attribution: 'Main', percent: 100 }],
+        }),
+      );
+    });
+
+    it('clears spent when set to null', () => {
+      const existing = mockBudgetItemDto({ spentAmount: 3000, spentCurrency: 'ZAR' });
+      const updatedDto = mockBudgetItemDto({ spentAmount: null, spentCurrency: null });
+      mockBudgetItemApi.updateItem.mockReturnValue(of(success(updatedDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.patchValue({ spentAmount: null });
+      fixture.componentInstance.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        'item-1',
+        expect.objectContaining({
+          spentAmount: undefined,
+          spentCurrency: undefined,
+        }),
+      );
+    });
+
+    it('does not call API when form valid but no item provided', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Add valid splits so the form passes validation
+      component.addPayerSplit('user-1', 100);
+      component.addAttributionSplit('Main', 100);
+      component.form.patchValue({ plannedAmount: 5000 });
+
+      component.onSubmit();
+
+      expect(mockBudgetItemApi.updateItem).not.toHaveBeenCalled();
+    });
+
+    it('splitSumValidator handles null percent values in form', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Set a percent to null to exercise the ?? 0 branch in splitSumValidator
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(
+        null as unknown as number,
+        { emitEvent: false },
+      );
+      component.form.controls.payerSplit.updateValueAndValidity({ emitEvent: false });
+
+      expect(component.form.controls.payerSplit.errors).toBeTruthy();
+      expect(component.form.controls.payerSplit.errors!['splitSum'].actual).toBe(40);
+    });
+
+    it('payerSplitTotal computed handles null percent values', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Set percent to null to trigger ?? 0
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(
+        null as unknown as number,
+      );
+
+      expect(component.payerSplitTotal()).toBe(40); // 0 + 40
+    });
+
+    it('attributionSplitTotal computed handles null percent values', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      // Set percent to null to trigger ?? 0
+      component.form.controls.attributionSplit.at(0).controls.percent.setValue(
+        null as unknown as number,
+      );
+
+      expect(component.attributionSplitTotal()).toBe(30); // 0 + 30
+    });
+  });
 });

@@ -152,6 +152,22 @@ describe('BudgetItemFillForwardComponent', () => {
     expect(errorEl.textContent).toBeTruthy();
   });
 
+  it('does not call API when form is invalid (empty amount)', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    // Clear the amount to make form invalid
+    component.form.controls.amount.setValue(null as unknown as number);
+    fixture.detectChanges();
+
+    expect(component.form.invalid).toBe(true);
+
+    component.onSubmit();
+
+    expect(mockBudgetItemApi.fillForward).not.toHaveBeenCalled();
+    expect(component.form.controls.amount.touched).toBe(true);
+  });
+
   it('amount can be edited before submitting', () => {
     const filledItems: BudgetItemDto[] = [mockBudgetItemDto({ month: 3 })];
     mockBudgetItemApi.fillForward.mockReturnValue(of(success(filledItems)));

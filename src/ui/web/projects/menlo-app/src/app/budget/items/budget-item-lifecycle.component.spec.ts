@@ -192,6 +192,22 @@ describe('BudgetItemLifecycleComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="btn-realize"]')).toBeTruthy();
   });
 
+  it('does not call API when form is invalid (empty amount)', () => {
+    const fixture = createComponent();
+    fixture.nativeElement.querySelector('[data-testid="btn-realize"]').click();
+    fixture.detectChanges();
+
+    // Leave amount empty - form is invalid
+    const component = fixture.componentInstance;
+    expect(component.amountForm.invalid).toBe(true);
+
+    fixture.nativeElement.querySelector('[data-testid="btn-submit"]').click();
+    fixture.detectChanges();
+
+    expect(mockBudgetItemApi.realizeItem).not.toHaveBeenCalled();
+    expect(component.amountForm.controls.amount.touched).toBe(true);
+  });
+
   it('shows error message on API failure', () => {
     const apiError = networkError(500, 'Server error');
     mockBudgetItemApi.realizeItem.mockReturnValue(of(failure(apiError)));

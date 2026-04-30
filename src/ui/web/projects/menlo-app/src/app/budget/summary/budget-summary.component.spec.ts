@@ -342,4 +342,25 @@ describe('BudgetSummaryComponent', () => {
     const label = fixture.nativeElement.querySelector('.current-month');
     expect(label.textContent).toContain('April');
   });
+
+  it('monthLabel returns empty string for out-of-range month', () => {
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(0);
+    expect(fixture.componentInstance.monthLabel()).toBe('');
+
+    fixture.componentInstance.currentMonth.set(13);
+    expect(fixture.componentInstance.monthLabel()).toBe('');
+  });
+
+  it('hasRealized returns false when summary is null', () => {
+    const fixture = createComponent();
+    // summary is initially null (no API call made)
+    expect(fixture.componentInstance.hasRealized()).toBe(false);
+  });
+
+  it('hasSpent returns false when summary is null', () => {
+    const fixture = createComponent();
+    // summary is initially null (no API call made)
+    expect(fixture.componentInstance.hasSpent()).toBe(false);
+  });
 });
