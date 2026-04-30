@@ -247,6 +247,32 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
             }
         }
 
+        // Clone budget items with mapped category IDs
+        foreach (BudgetItem sourceItem in sourceBudget._items.Where(i => !i.IsDeleted))
+        {
+            if (!idMap.TryGetValue(sourceItem.CategoryId, out BudgetCategoryId newCategoryId))
+            {
+                continue; // Category was deleted, skip item
+            }
+
+            BudgetItemId newItemId = BudgetItemId.NewId();
+            var clonedItem = new BudgetItem(
+                id: newItemId,
+                budgetId: newBudget.Id,
+                categoryId: newCategoryId,
+                month: sourceItem.Month,
+                budgetFlow: sourceItem.BudgetFlow,
+                plannedAmount: sourceItem.PlannedAmount,
+                payerSplit: sourceItem.PayerSplit,
+                attributionSplit: sourceItem.AttributionSplit,
+                adjustmentRuleId: null,
+                isManualOverride: true);
+
+            newBudget._items.Add(clonedItem);
+            newBudget._domainEvents.Add(new BudgetItemPlannedEvent(
+                newBudget.Id, newItemId, newCategoryId, sourceItem.Month, sourceItem.PlannedAmount));
+        }
+
         return newBudget;
     }
 
