@@ -81,6 +81,26 @@ export interface RecordBudgetItemSpentRequest {
   currency?: string;
 }
 
+export interface CategorySummary {
+  id: string;
+  name: string;
+  plannedTotal: number;
+  realizedTotal: number | null;
+  spentTotal: number | null;
+  children: CategorySummary[];
+}
+
+export interface BudgetSummary {
+  budgetId: string;
+  year: number;
+  month: number;
+  income: CategorySummary[];
+  expenses: CategorySummary[];
+  netPlanned: number;
+  netRealized: number | null;
+  netSpent: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BudgetItemApiService {
   private readonly http = inject(HttpClient);
@@ -190,6 +210,14 @@ export class BudgetItemApiService {
       .delete<void>(
         `${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/${itemId}`,
       )
+      .pipe(toResult());
+  }
+
+  getSummary(budgetId: string, month: number): Observable<Result<BudgetSummary, ApiError>> {
+    return this.http
+      .get<BudgetSummary>(`${this.apiBaseUrl}/api/budgets/${budgetId}/summary`, {
+        params: { month: month.toString() },
+      })
       .pipe(toResult());
   }
 }

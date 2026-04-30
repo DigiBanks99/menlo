@@ -1,6 +1,7 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget.Categories;
 using Menlo.Api.Budget.Items;
+using Menlo.Api.Budget.Summary;
 
 namespace Menlo.Api.Budget;
 
@@ -37,6 +38,12 @@ public static class BudgetEndpoints
             .WithName("ActivateBudget")
             .WithSummary("Activates a budget. Auto-closes the previous year's active budget.")
             .RequireAuthorization(MenloPolicies.CanEditBudget);
+
+        budgets
+            .MapGet("/{budgetId:guid}/summary", GetBudgetSummaryHandler.Handle)
+            .WithName("GetBudgetSummary")
+            .WithSummary("Returns the aggregated balance-sheet summary for a budget month.")
+            .RequireAuthorization(MenloPolicies.CanViewBudget);
 
         budgets.MapGroup("/{budgetId:guid}/categories")
             .WithTags("Budget Categories")
