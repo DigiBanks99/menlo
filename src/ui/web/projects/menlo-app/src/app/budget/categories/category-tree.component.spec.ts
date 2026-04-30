@@ -335,7 +335,9 @@ describe('CategoryTreeComponent', () => {
     });
 
     it('opens edit form with category data', () => {
-      const nodes = [makeNode('n1', 'Groceries', [], { budgetFlow: 'Expense', attribution: 'Main' })];
+      const nodes = [
+        makeNode('n1', 'Groceries', [], { budgetFlow: 'Expense', attribution: 'Main' }),
+      ];
       mockCategoryApi.listCategories.mockReturnValue(of(success(nodes)));
 
       const fixture = TestBed.createComponent(CategoryTreeComponent);

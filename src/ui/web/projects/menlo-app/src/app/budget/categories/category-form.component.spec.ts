@@ -434,11 +434,10 @@ describe('CategoryFormComponent', () => {
       });
       fixture.componentInstance.onSubmit();
 
-      expect(mockCategoryApi.updateCategory).toHaveBeenCalledWith(
-        mockBudgetId,
-        'cat-1',
-        { name: 'Minimal', budgetFlow: 'Expense' },
-      );
+      expect(mockCategoryApi.updateCategory).toHaveBeenCalledWith(mockBudgetId, 'cat-1', {
+        name: 'Minimal',
+        budgetFlow: 'Expense',
+      });
     });
   });
 });

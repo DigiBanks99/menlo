@@ -18,6 +18,12 @@ public static class BudgetItemEndpoints
             .WithSummary("Lists budget items for a category, optionally filtered by month.")
             .RequireAuthorization(MenloPolicies.CanViewBudget);
 
+        group
+            .MapPut("/{itemId:guid}", UpdateBudgetItemHandler.Handle)
+            .WithName("UpdateBudgetItem")
+            .WithSummary("Updates an existing budget item's amounts and/or splits.")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
         return group;
     }
 }

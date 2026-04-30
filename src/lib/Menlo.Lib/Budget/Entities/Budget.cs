@@ -596,6 +596,67 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Updates an existing budget item's fields. Only provided (non-null) parameters are changed.
+    /// Emits BudgetItemCorrectedEvent for each amount field that changes.
+    /// </summary>
+    /// <param name="itemId">The ID of the item to update.</param>
+    /// <param name="plannedAmount">New planned amount, or null to leave unchanged.</param>
+    /// <param name="realizedAmount">New realized amount, or null to leave unchanged.</param>
+    /// <param name="spentAmount">New spent amount, or null to leave unchanged.</param>
+    /// <param name="payerSplit">New payer split, or null to leave unchanged.</param>
+    /// <param name="attributionSplit">New attribution split, or null to leave unchanged.</param>
+    /// <returns>Success with the updated BudgetItem; Failure with BudgetError.</returns>
+    public Result<BudgetItem, BudgetError> UpdateItem(
+        BudgetItemId itemId,
+        Money? plannedAmount = null,
+        Money? realizedAmount = null,
+        Money? spentAmount = null,
+        PayerSplit? payerSplit = null,
+        AttributionSplit? attributionSplit = null)
+    {
+        BudgetItem? item = _items.FirstOrDefault(i => i.Id == itemId && !i.IsDeleted);
+        if (item is null)
+        {
+            return new BudgetItemNotFoundError(itemId.ToString());
+        }
+
+        // Update amounts and emit correction events
+        if (plannedAmount.HasValue && plannedAmount.Value != item.PlannedAmount)
+        {
+            Money oldAmount = item.PlannedAmount;
+            item.SetPlannedAmount(plannedAmount.Value);
+            AddDomainEvent(new BudgetItemCorrectedEvent(Id, itemId, "PlannedAmount", oldAmount, plannedAmount.Value));
+        }
+
+        if (realizedAmount.HasValue && realizedAmount.Value != item.RealizedAmount)
+        {
+            Money oldAmount = item.RealizedAmount ?? Money.Zero(BudgetCurrency.Zar);
+            item.SetRealizedAmount(realizedAmount.Value);
+            AddDomainEvent(new BudgetItemCorrectedEvent(Id, itemId, "RealizedAmount", oldAmount, realizedAmount.Value));
+        }
+
+        if (spentAmount.HasValue && spentAmount.Value != item.SpentAmount)
+        {
+            Money oldAmount = item.SpentAmount ?? Money.Zero(BudgetCurrency.Zar);
+            item.SetSpentAmount(spentAmount.Value);
+            AddDomainEvent(new BudgetItemCorrectedEvent(Id, itemId, "SpentAmount", oldAmount, spentAmount.Value));
+        }
+
+        // Update splits
+        if (payerSplit is not null)
+        {
+            item.SetPayerSplit(payerSplit);
+        }
+
+        if (attributionSplit is not null)
+        {
+            item.SetAttributionSplit(attributionSplit);
+        }
+
+        return item;
+    }
+
+    /// <summary>
     /// Activates this budget, making it the live plan for the year.
     /// Budget must be in Draft status.
     /// </summary>

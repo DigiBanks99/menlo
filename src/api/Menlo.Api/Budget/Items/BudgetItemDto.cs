@@ -30,3 +30,16 @@ public sealed record CreateBudgetItemRequest(
     IReadOnlyList<AttributionAllocationDto> AttributionSplit,
     Guid? AdjustmentRuleId = null,
     bool IsManualOverride = true);
+
+/// <summary>
+/// Request to update an existing budget item. All fields are optional; only provided fields are changed.
+/// </summary>
+public sealed record UpdateBudgetItemRequest(
+    decimal? PlannedAmount = null,
+    string? PlannedCurrency = null,
+    decimal? RealizedAmount = null,
+    string? RealizedCurrency = null,
+    decimal? SpentAmount = null,
+    string? SpentCurrency = null,
+    IReadOnlyList<PayerAllocationDto>? PayerSplit = null,
+    IReadOnlyList<AttributionAllocationDto>? AttributionSplit = null);

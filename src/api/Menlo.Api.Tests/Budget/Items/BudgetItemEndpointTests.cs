@@ -45,6 +45,33 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static readonly HouseholdId ListItemsFilterHousehold =
         new(Guid.Parse("dadadada-dada-dada-dada-dadadadadada"));
 
+    private static readonly HouseholdId UpdatePlannedAmountHousehold =
+        new(Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1"));
+
+    private static readonly HouseholdId UpdatePayerSplitHousehold =
+        new(Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2"));
+
+    private static readonly HouseholdId UpdateAttributionSplitHousehold =
+        new(Guid.Parse("e3e3e3e3-e3e3-e3e3-e3e3-e3e3e3e3e3e3"));
+
+    private static readonly HouseholdId UpdatePartialHousehold =
+        new(Guid.Parse("e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4"));
+
+    private static readonly HouseholdId UpdateInvalidPayerSplitHousehold =
+        new(Guid.Parse("e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5"));
+
+    private static readonly HouseholdId UpdateInvalidAttributionSplitHousehold =
+        new(Guid.Parse("e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"));
+
+    private static readonly HouseholdId UpdateNonExistentItemHousehold =
+        new(Guid.Parse("e7e7e7e7-e7e7-e7e7-e7e7-e7e7e7e7e7e7"));
+
+    private static readonly HouseholdId UpdateFeatureOffHousehold =
+        new(Guid.Parse("e8e8e8e8-e8e8-e8e8-e8e8-e8e8e8e8e8e8"));
+
+    private static readonly HouseholdId UpdateEmptyBodyHousehold =
+        new(Guid.Parse("e9e9e9e9-e9e9-e9e9-e9e9-e9e9e9e9e9e9"));
+
     // =========================================================================
     // CREATE BUDGET ITEM
     // =========================================================================
@@ -303,6 +330,215 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     // =========================================================================
+    // UPDATE BUDGET ITEM
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenExistingItem_WhenUpdatePlannedAmount_ThenReturns200WithUpdatedAmount()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdatePlannedAmountHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(PlannedAmount: 2500.00m, PlannedCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHavePlannedAmount(dto, 2500.00m, "ZAR");
+        ItShouldHavePayerSplitCount(dto, 1);
+        ItShouldHaveAttributionSplitCount(dto, 1);
+    }
+
+    [Fact]
+    public async Task GivenExistingItem_WhenUpdatePayerSplit_ThenReturns200WithUpdatedSplit()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdatePayerSplitHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        Guid payer1 = Guid.NewGuid();
+        Guid payer2 = Guid.NewGuid();
+        UpdateBudgetItemRequest updateRequest = new(
+            PayerSplit: [new PayerAllocationDto(payer1, 60), new PayerAllocationDto(payer2, 40)]);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHavePayerSplitCount(dto, 2);
+        ItShouldHavePlannedAmount(dto, createdItem.PlannedAmount, createdItem.PlannedCurrency);
+        ItShouldHaveAttributionSplitCount(dto, 1);
+    }
+
+    [Fact]
+    public async Task GivenExistingItem_WhenUpdateAttributionSplit_ThenReturns200WithUpdatedAttribution()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateAttributionSplitHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(
+            AttributionSplit: [new AttributionAllocationDto("Main", 70), new AttributionAllocationDto("Rental", 30)]);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveAttributionSplitCount(dto, 2);
+        ItShouldHavePlannedAmount(dto, createdItem.PlannedAmount, createdItem.PlannedCurrency);
+        ItShouldHavePayerSplitCount(dto, 1);
+    }
+
+    [Fact]
+    public async Task GivenExistingItem_WhenPartialUpdate_ThenLeavesOtherFieldsUnchanged()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdatePartialHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(PlannedAmount: 3000.00m, PlannedCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHavePlannedAmount(dto, 3000.00m, "ZAR");
+        ItShouldHavePayerSplitMatchingOriginal(dto, createdItem);
+        ItShouldHaveAttributionSplitMatchingOriginal(dto, createdItem);
+        ItShouldHaveMonth(dto, createdItem.Month);
+        ItShouldHaveBudgetFlow(dto, createdItem.BudgetFlow);
+    }
+
+    [Fact]
+    public async Task GivenInvalidPayerSplit_WhenUpdateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateInvalidPayerSplitHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 60), new PayerAllocationDto(Guid.NewGuid(), 30)]);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidAttributionSplit_WhenUpdateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateInvalidAttributionSplitHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(
+            AttributionSplit: [new AttributionAllocationDto("Main", 50), new AttributionAllocationDto("Rental", 30)]);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentItem_WhenUpdateBudgetItem_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateNonExistentItemHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        UpdateBudgetItemRequest updateRequest = new(PlannedAmount: 2000.00m, PlannedCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{Guid.NewGuid()}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenUpdateBudgetItem_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(UpdateFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(PlannedAmount: 2000.00m, PlannedCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenExistingItem_WhenUpdateWithEmptyBody_ThenReturns200Unchanged()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateEmptyBodyHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new();
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHavePlannedAmount(dto, createdItem.PlannedAmount, createdItem.PlannedCurrency);
+        ItShouldHavePayerSplitMatchingOriginal(dto, createdItem);
+        ItShouldHaveAttributionSplitMatchingOriginal(dto, createdItem);
+    }
+
+    // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
 
@@ -399,6 +635,25 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
             AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
 
+    private static async Task<(Guid BudgetId, Guid CategoryId, BudgetItemDto Item)> CreateItemForUpdateAsync(HttpClient client)
+    {
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+        CreateBudgetItemRequest request = CreateValidItemRequest();
+
+        HttpResponseMessage createResponse = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+        createResponse.IsSuccessStatusCode.ShouldBeTrue(
+            $"Item creation failed: {await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+
+        BudgetItemDto? item = await DeserializeBudgetItemDto(createResponse);
+        item.ShouldNotBeNull();
+
+        return (budgetId, categoryId, item);
+    }
+
     // =========================================================================
     // DESERIALIZATION HELPERS
     // =========================================================================
@@ -493,5 +748,17 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     {
         items.ShouldNotBeNull();
         items.ShouldContain(i => i.Month == expectedMonth);
+    }
+
+    private static void ItShouldHavePayerSplitMatchingOriginal(BudgetItemDto? dto, BudgetItemDto original)
+    {
+        dto.ShouldNotBeNull();
+        dto.PayerSplit.Count.ShouldBe(original.PayerSplit.Count);
+    }
+
+    private static void ItShouldHaveAttributionSplitMatchingOriginal(BudgetItemDto? dto, BudgetItemDto original)
+    {
+        dto.ShouldNotBeNull();
+        dto.AttributionSplit.Count.ShouldBe(original.AttributionSplit.Count);
     }
 }
