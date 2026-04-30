@@ -292,11 +292,9 @@ export class CategoryFormComponent {
 
   private handleError(error: ApiError): void {
     if (error.kind === 'problem' && error.status === 409) {
-      const nameControl = this.form.get('name');
-      if (nameControl) {
-        nameControl.setErrors({ api: getErrorMessage(error) });
-        nameControl.markAsTouched();
-      }
+      const nameControl = this.form.get('name')!;
+      nameControl.setErrors({ api: getErrorMessage(error) });
+      nameControl.markAsTouched();
     } else if (hasValidationErrors(error)) {
       mapValidationErrorsToForm(error, this.form);
     } else {

@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => ({
       ],
       all: true,
       include: ['src/**/*.ts'],
+      exclude: ['src/**/*.stories.ts', 'src/test-setup.ts'],
       thresholds: {
         lines: 100,
         functions: 100,
