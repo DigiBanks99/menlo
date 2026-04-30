@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BudgetItemApiService, BudgetSummary } from 'data-access-menlo-api';
+import { getErrorMessage } from 'shared-util';
 
 const MONTH_NAMES = [
   'January',
@@ -286,7 +287,7 @@ export class BudgetSummaryComponent {
       if (result.isSuccess) {
         this.summary.set(result.value);
       } else {
-        this.error.set(result.error.detail ?? 'Failed to load summary');
+        this.error.set(getErrorMessage(result.error, 'Failed to load summary'));
       }
       this.loading.set(false);
     });

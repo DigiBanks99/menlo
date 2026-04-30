@@ -238,4 +238,90 @@ describe('BudgetItemBulkCreateComponent', () => {
     expect(btn.disabled).toBe(true);
     expect(btn.textContent?.trim()).toContain('Creating...');
   });
+
+  it('handles validation errors by mapping to form fields', () => {
+    mockBudgetItemApi.bulkCreateItems.mockReturnValue(
+      of(
+        failure(
+          problemError(
+            {
+              title: 'Validation failed',
+              status: 422,
+              errors: { amount: ['Amount must be positive'] },
+            },
+            422,
+          ),
+        ),
+      ),
+    );
+
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.patchValue({ budgetFlow: 'Expense', amount: 5000 });
+    component.addPayerSplit('user-1', 100);
+    component.addAttributionSplit('Main', 100);
+
+    component.onSubmit();
+    fixture.detectChanges();
+
+    const amountControl = component.form.get('amount');
+    expect(amountControl?.errors).toBeTruthy();
+  });
+
+  it('splitSumValidator handles null percent values', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    // Add a payer split — the validator runs on the FormArray
+    component.addPayerSplit('user-1', 0);
+
+    // Set to null without emitting events (avoids change detection issues)
+    const group = component.form.controls.payerSplit.at(0);
+    group.controls.percent.setValue(null as unknown as number, { emitEvent: false });
+
+    // Manually trigger validation
+    component.form.controls.payerSplit.updateValueAndValidity({ emitEvent: false });
+
+    // The validator should treat null as 0
+    expect(component.form.controls.payerSplit.errors).toBeTruthy();
+    expect(component.form.controls.payerSplit.errors!['splitSum']).toEqual({
+      actual: 0,
+      required: 100,
+    });
+  });
+
+  it('payerSplitTotal computed handles null percent values', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.addPayerSplit('user-1', 50);
+    component.addPayerSplit('user-2', 50);
+    fixture.detectChanges();
+
+    // Set one percent to null to trigger ?? 0 branch in computed
+    component.form.controls.payerSplit.at(1).controls.percent.setValue(
+      null as unknown as number,
+    );
+    fixture.detectChanges();
+
+    expect(component.payerSplitTotal()).toBe(50);
+  });
+
+  it('attributionSplitTotal computed handles null percent values', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.addAttributionSplit('Main', 70);
+    component.addAttributionSplit('Rental', 30);
+    fixture.detectChanges();
+
+    // Set one percent to null to trigger ?? 0 branch in computed
+    component.form.controls.attributionSplit.at(1).controls.percent.setValue(
+      null as unknown as number,
+    );
+    fixture.detectChanges();
+
+    expect(component.attributionSplitTotal()).toBe(70);
+  });
 });

@@ -26,27 +26,49 @@ jobs:
           fetch-depth: 0
 
       - name: Detect changes
-        uses: dorny/paths-filter@v4
         id: changes
-        with:
-          filters: |
-            backend:
-              - 'src/api/**'
-              - 'src/lib/**'
-              - 'Menlo.slnx'
-              - 'Directory.Build.props'
-              - 'Directory.Packages.props'
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/cd-backend.yml'
-            frontend:
-              - 'src/ui/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/cd-frontend.yml'
-            docs:
-              - 'docs/**'
-              - 'README.md'
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            # Fallback when base sha is not available (e.g. in act)
+            if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "" ]; then
+              BASE_SHA="origin/${{ github.event.pull_request.base.ref || 'main' }}"
+            fi
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+            if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA="HEAD~1"
+            fi
+          fi
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || git diff --name-only HEAD~1 HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Backend detection
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|\.github/workflows/ci\.yml|\.github/workflows/cd-backend\.yml)'; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Frontend detection
+          if echo "$CHANGED_FILES" | grep -qE '^(src/ui/|package\.json|pnpm-lock\.yaml|\.github/workflows/ci\.yml|\.github/workflows/cd-frontend\.yml)'; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Docs detection
+          if echo "$CHANGED_FILES" | grep -qE '^(docs/|README\.md)'; then
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs=false" >> "$GITHUB_OUTPUT"
+          fi
 
   backend-tests:
     name: Backend - Build and Test

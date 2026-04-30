@@ -96,19 +96,19 @@ function splitSumValidator(control: AbstractControl): ValidationErrors | null {
             <input
               placeholder="User ID"
               formControlName="userId"
-              data-testid="input-payer-userId-{{ $index }}"
+              [attr.data-testid]="'input-payer-userId-' + $index"
             />
             <input
               type="number"
               placeholder="%"
               formControlName="percent"
-              data-testid="input-payer-percent-{{ $index }}"
+              [attr.data-testid]="'input-payer-percent-' + $index"
             />
             <button
               type="button"
               class="btn-remove"
               (click)="removePayerSplit($index)"
-              data-testid="btn-remove-payer-{{ $index }}"
+              [attr.data-testid]="'btn-remove-payer-' + $index"
             >
               Remove
             </button>
@@ -137,7 +137,7 @@ function splitSumValidator(control: AbstractControl): ValidationErrors | null {
         </legend>
         @for (attr of attributionSplitControls; track $index) {
           <div class="split-row" [formGroupName]="$index">
-            <select formControlName="attribution" data-testid="select-attribution-{{ $index }}">
+            <select formControlName="attribution" [attr.data-testid]="'select-attribution-' + $index">
               <option value="">-- Select --</option>
               <option value="Main">Main</option>
               <option value="Rental">Rental</option>
@@ -147,13 +147,13 @@ function splitSumValidator(control: AbstractControl): ValidationErrors | null {
               type="number"
               placeholder="%"
               formControlName="percent"
-              data-testid="input-attribution-percent-{{ $index }}"
+              [attr.data-testid]="'input-attribution-percent-' + $index"
             />
             <button
               type="button"
               class="btn-remove"
               (click)="removeAttributionSplit($index)"
-              data-testid="btn-remove-attribution-{{ $index }}"
+              [attr.data-testid]="'btn-remove-attribution-' + $index"
             >
               Remove
             </button>
