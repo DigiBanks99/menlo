@@ -13,6 +13,12 @@ public static class BudgetItemEndpoints
             .RequireAuthorization(MenloPolicies.CanEditBudget);
 
         group
+            .MapPost("/bulk", BulkCreateBudgetItemHandler.Handle)
+            .WithName("BulkCreateBudgetItems")
+            .WithSummary("Creates budget items for all 12 months of a category with a default amount.")
+            .RequireAuthorization(MenloPolicies.CanEditBudget);
+
+        group
             .MapGet("/", ListBudgetItemsHandler.Handle)
             .WithName("ListBudgetItems")
             .WithSummary("Lists budget items for a category, optionally filtered by month.")

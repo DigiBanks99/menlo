@@ -53,3 +53,13 @@ public sealed record RealizeBudgetItemRequest(decimal Amount, string Currency = 
 /// Request to record a budget item as spent (payment made).
 /// </summary>
 public sealed record RecordBudgetItemSpentRequest(decimal Amount, string Currency = "ZAR");
+
+/// <summary>
+/// Request to bulk-create budget items for all 12 months of a category.
+/// </summary>
+public sealed record BulkCreateBudgetItemRequest(
+    string BudgetFlow,
+    decimal Amount,
+    string Currency,
+    IReadOnlyList<PayerAllocationDto> PayerSplit,
+    IReadOnlyList<AttributionAllocationDto> AttributionSplit);

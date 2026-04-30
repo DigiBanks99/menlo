@@ -716,6 +716,81 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
+    /// Creates budget items for all 12 months (or only months that don't already have items)
+    /// for a specified leaf category with a default amount and splits.
+    /// </summary>
+    /// <param name="categoryId">The leaf category to add items to.</param>
+    /// <param name="budgetFlow">Whether items are income or expense.</param>
+    /// <param name="defaultAmount">The default planned amount for each month.</param>
+    /// <param name="payerSplit">How payment responsibility is split.</param>
+    /// <param name="attributionSplit">How the cost is attributed.</param>
+    /// <returns>Success with the list of created items; Failure with BudgetError.</returns>
+    public Result<IReadOnlyList<BudgetItem>, BudgetError> BulkCreateItems(
+        BudgetCategoryId categoryId,
+        BudgetFlow budgetFlow,
+        Money defaultAmount,
+        PayerSplit payerSplit,
+        AttributionSplit attributionSplit)
+    {
+        // Validate category exists
+        CategoryNode? category = _categories.FirstOrDefault(c => c.Id == categoryId && !c.IsDeleted);
+        if (category is null)
+        {
+            return new CategoryNotFoundError(categoryId.ToString());
+        }
+
+        // Validate leaf-only
+        bool hasChildren = _categories.Any(c => c.ParentId == categoryId && !c.IsDeleted);
+        if (hasChildren)
+        {
+            return new NonLeafCategoryError(categoryId.ToString());
+        }
+
+        // Validate BudgetFlow compatibility
+        if (category.BudgetFlow != BudgetFlow.Both && category.BudgetFlow != budgetFlow)
+        {
+            return new InvalidBudgetFlowError(category.BudgetFlow.ToString(), budgetFlow.ToString());
+        }
+
+        if (budgetFlow == BudgetFlow.Both)
+        {
+            return new InvalidBudgetFlowError("Income or Expense", "Both");
+        }
+
+        // Determine which months already have items
+        HashSet<int> existingMonths = _items
+            .Where(i => i.CategoryId == categoryId && !i.IsDeleted)
+            .Select(i => i.Month)
+            .ToHashSet();
+
+        List<BudgetItem> createdItems = [];
+
+        for (int month = 1; month <= 12; month++)
+        {
+            if (existingMonths.Contains(month))
+            {
+                continue;
+            }
+
+            BudgetItem item = new(
+                id: BudgetItemId.NewId(),
+                budgetId: Id,
+                categoryId: categoryId,
+                month: month,
+                budgetFlow: budgetFlow,
+                plannedAmount: defaultAmount,
+                payerSplit: payerSplit,
+                attributionSplit: attributionSplit);
+
+            _items.Add(item);
+            createdItems.Add(item);
+            AddDomainEvent(new BudgetItemPlannedEvent(Id, item.Id, categoryId, month, defaultAmount));
+        }
+
+        return createdItems;
+    }
+
+    /// <summary>
     /// Activates this budget, making it the live plan for the year.
     /// Budget must be in Draft status.
     /// </summary>

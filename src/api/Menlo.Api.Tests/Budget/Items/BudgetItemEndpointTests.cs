@@ -105,6 +105,18 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     private static readonly HouseholdId DeleteRecreateHousehold =
         new(Guid.Parse("a4a4a4a4-a4a4-a4a4-a4a4-a4a4a4a4a4a4"));
 
+    private static readonly HouseholdId BulkCreateHousehold =
+        new(Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"));
+
+    private static readonly HouseholdId BulkCreateWithExistingHousehold =
+        new(Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"));
+
+    private static readonly HouseholdId BulkCreateInvalidSplitHousehold =
+        new(Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"));
+
+    private static readonly HouseholdId BulkCreateNonLeafHousehold =
+        new(Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4"));
+
     // =========================================================================
     // CREATE BUDGET ITEM
     // =========================================================================
@@ -857,6 +869,114 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     // =========================================================================
+    // BULK CREATE BUDGET ITEMS
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenValidRequest_WhenBulkCreateItems_ThenReturns201With12Items()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+        BulkCreateBudgetItemRequest request = CreateValidBulkItemRequest();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+
+        ItShouldHaveReturned201Created(response);
+        ItShouldHaveItemCount(items, 12);
+        for (int month = 1; month <= 12; month++)
+        {
+            ItShouldContainItemForMonth(items, month);
+        }
+    }
+
+    [Fact]
+    public async Task GivenExistingItemForMonth1_WhenBulkCreate_ThenReturns201With11Items()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateWithExistingHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        // Create item for month 1 first
+        CreateBudgetItemRequest singleRequest = CreateValidItemRequest(month: 1);
+        HttpResponseMessage singleResponse = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            singleRequest,
+            TestContext.Current.CancellationToken);
+        singleResponse.IsSuccessStatusCode.ShouldBeTrue(
+            $"Single item creation failed: {await singleResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+
+        // Bulk create
+        BulkCreateBudgetItemRequest bulkRequest = CreateValidBulkItemRequest();
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            bulkRequest,
+            TestContext.Current.CancellationToken);
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+
+        ItShouldHaveReturned201Created(response);
+        ItShouldHaveItemCount(items, 11);
+        ItShouldNotContainItemForMonth(items, 1);
+    }
+
+    [Fact]
+    public async Task GivenInvalidPayerSplit_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateInvalidSplitHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        // Payer split that doesn't sum to 100%
+        BulkCreateBudgetItemRequest request = new(
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 60), new PayerAllocationDto(Guid.NewGuid(), 30)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNonLeafCategory_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateNonLeafHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid rootCategoryId = await CreateRootWithChildCategoryAsync(client, budgetId);
+        BulkCreateBudgetItemRequest request = CreateValidBulkItemRequest();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{rootCategoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
 
@@ -950,6 +1070,14 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             BudgetFlow: "Expense",
             PlannedAmount: 1500.00m,
             PlannedCurrency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+    private static BulkCreateBudgetItemRequest CreateValidBulkItemRequest() =>
+        new(
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
             PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
             AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
 
@@ -1069,6 +1197,12 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     {
         items.ShouldNotBeNull();
         items.ShouldContain(i => i.Month == expectedMonth);
+    }
+
+    private static void ItShouldNotContainItemForMonth(List<BudgetItemDto>? items, int month)
+    {
+        items.ShouldNotBeNull();
+        items.ShouldNotContain(i => i.Month == month);
     }
 
     private static void ItShouldHavePayerSplitMatchingOriginal(BudgetItemDto? dto, BudgetItemDto original)

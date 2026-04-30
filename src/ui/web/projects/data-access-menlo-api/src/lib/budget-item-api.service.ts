@@ -32,6 +32,14 @@ export interface BudgetItemDto {
   isManualOverride: boolean;
 }
 
+export interface BulkCreateBudgetItemRequest {
+  budgetFlow: 'Income' | 'Expense';
+  amount: number;
+  currency: string;
+  payerSplit: PayerAllocationDto[];
+  attributionSplit: AttributionAllocationDto[];
+}
+
 export interface CreateBudgetItemRequest {
   month: number;
   budgetFlow: 'Income' | 'Expense';
@@ -68,6 +76,18 @@ export interface RecordBudgetItemSpentRequest {
 export class BudgetItemApiService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+
+  bulkCreateItems(
+    budgetId: string,
+    categoryId: string,
+    request: BulkCreateBudgetItemRequest,
+  ): Observable<Result<BudgetItemDto[], ApiError>> {
+    return this.http
+      .post<
+        BudgetItemDto[]
+      >(`${this.apiBaseUrl}/api/budgets/${budgetId}/categories/${categoryId}/items/bulk`, request)
+      .pipe(toResult());
+  }
 
   createItem(
     budgetId: string,
