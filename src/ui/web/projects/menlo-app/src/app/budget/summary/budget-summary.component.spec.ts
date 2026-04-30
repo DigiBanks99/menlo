@@ -71,7 +71,6 @@ describe('BudgetSummaryComponent', () => {
   function createComponent() {
     const fixture = TestBed.createComponent(BudgetSummaryComponent);
     fixture.componentRef.setInput('budgetId', 'budget-1');
-    fixture.componentRef.setInput('month', 1);
     fixture.detectChanges();
     return fixture;
   }
@@ -250,5 +249,97 @@ describe('BudgetSummaryComponent', () => {
 
     const spentCells = fixture.nativeElement.querySelectorAll('.spent');
     expect(spentCells.length).toBeGreaterThan(0);
+  });
+
+  it('should display yearly/monthly toggle buttons', () => {
+    const fixture = createComponent();
+    const buttons = fixture.nativeElement.querySelectorAll('.toggle-btn');
+    expect(buttons.length).toBe(2);
+    expect(buttons[0].textContent).toContain('Yearly');
+    expect(buttons[1].textContent).toContain('Monthly');
+  });
+
+  it('should default to monthly view mode', () => {
+    const fixture = createComponent();
+    expect(fixture.componentInstance.viewMode()).toBe('monthly');
+    const monthlyBtn = fixture.nativeElement.querySelectorAll('.toggle-btn')[1];
+    expect(monthlyBtn.classList.contains('active')).toBe(true);
+  });
+
+  it('should switch to yearly mode and call API without month', () => {
+    mockApi.getSummary.mockReturnValue(of(success(mockBudgetSummary({ month: null }))));
+
+    const fixture = createComponent();
+    fixture.componentInstance.setViewMode('yearly');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.viewMode()).toBe('yearly');
+    expect(mockApi.getSummary).toHaveBeenCalledWith('budget-1', undefined);
+  });
+
+  it('should show month navigation in monthly mode', () => {
+    const fixture = createComponent();
+    const nav = fixture.nativeElement.querySelector('.month-nav');
+    expect(nav).toBeTruthy();
+    expect(nav.textContent).toContain('Previous Month');
+    expect(nav.textContent).toContain('Next Month');
+  });
+
+  it('should hide month navigation in yearly mode', () => {
+    mockApi.getSummary.mockReturnValue(of(success(mockBudgetSummary({ month: null }))));
+
+    const fixture = createComponent();
+    fixture.componentInstance.setViewMode('yearly');
+    fixture.detectChanges();
+
+    const nav = fixture.nativeElement.querySelector('.month-nav');
+    expect(nav).toBeNull();
+  });
+
+  it('should navigate to next month', () => {
+    mockApi.getSummary.mockReturnValue(of(success(mockBudgetSummary())));
+
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(5);
+    fixture.componentInstance.nextMonth();
+
+    expect(fixture.componentInstance.currentMonth()).toBe(6);
+    expect(mockApi.getSummary).toHaveBeenCalledWith('budget-1', 6);
+  });
+
+  it('should navigate to previous month', () => {
+    mockApi.getSummary.mockReturnValue(of(success(mockBudgetSummary())));
+
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(5);
+    fixture.componentInstance.previousMonth();
+
+    expect(fixture.componentInstance.currentMonth()).toBe(4);
+    expect(mockApi.getSummary).toHaveBeenCalledWith('budget-1', 4);
+  });
+
+  it('should not go below month 1', () => {
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(1);
+    fixture.componentInstance.previousMonth();
+
+    expect(fixture.componentInstance.currentMonth()).toBe(1);
+  });
+
+  it('should not go above month 12', () => {
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(12);
+    fixture.componentInstance.nextMonth();
+
+    expect(fixture.componentInstance.currentMonth()).toBe(12);
+  });
+
+  it('should display correct month label', () => {
+    const fixture = createComponent();
+    fixture.componentInstance.currentMonth.set(4);
+    fixture.detectChanges();
+
+    const label = fixture.nativeElement.querySelector('.current-month');
+    expect(label.textContent).toContain('April');
   });
 });
