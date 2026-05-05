@@ -99,6 +99,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -171,7 +173,7 @@ jobs:
             --configuration Release \
             --verbosity normal \
             --collect:"XPlat Code Coverage" \
-            --results-directory ./coverage \
+            --results-directory ./coverage/api-baseline \
             --logger trx \
             --logger "console;verbosity=detailed"
 
@@ -197,11 +199,24 @@ jobs:
             **/*.trx
             coverage/**/*
 
+      - name: API coverage baseline check
+        shell: pwsh
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        run: |
+          ./scripts/check-api-coverage-baseline.ps1 \
+            -CoverageDir coverage/api-baseline \
+            -Threshold 70 \
+            -HeadSha "${{ github.sha }}"
+
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v6
         if: always()
         with:
-          directory: ./coverage
+          directory: ./coverage/api-baseline
           flags: backend
           name: backend-coverage
           token: ${{ secrets.CODECOV_TOKEN }}

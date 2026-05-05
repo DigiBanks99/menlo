@@ -1,0 +1,37 @@
+codecov:
+  token: ${{ CODECOV_TOKEN }}
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+      api:
+        target: 70%
+        threshold: 2%
+        paths:
+          - "src/api/Menlo.Api/**"
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
+        only_pulls: true
+
+flags:
+  backend:
+    paths:
+      - src/api/
+      - src/lib/
+    carryforward: true
+  frontend:
+    paths:
+      - src/ui/
+    carryforward: true
+
+ignore:
+  - "src/api/Menlo.AppHost/**"
+  - "src/api/**/*.Tests/**"
+  - "src/api/**/obj/**"
+  - "**/*.g.cs"
+  - "**/*.generated.cs"
