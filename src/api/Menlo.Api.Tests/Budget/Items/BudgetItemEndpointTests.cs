@@ -1,6 +1,7 @@
 using Menlo.Api.Budget.Categories;
 using Menlo.Api.Budget.Items;
 using Menlo.Lib.Common.ValueObjects;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Shouldly;
 using System.Net;
 using System.Net.Http.Json;
@@ -128,6 +129,99 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
 
     private static readonly HouseholdId FillForwardUpdatesExistingHousehold =
         new(Guid.Parse("c4c4c4c4-c4c4-c4c4-c4c4-c4c4c4c4c4c4"));
+
+    // Shared for unauthenticated / antiforgery tests (no DB writes reach these)
+    private static readonly HouseholdId UnauthHousehold =
+        new(Guid.Parse("00000001-0001-0001-0001-000000010000"));
+
+    private static readonly HouseholdId AntiforgeryHousehold =
+        new(Guid.Parse("00000002-0002-0002-0002-000000020000"));
+
+    // FillForward gap tests
+    private static readonly HouseholdId FillForwardFeatureOffHousehold =
+        new(Guid.Parse("c5c5c5c5-c5c5-c5c5-c5c5-c5c5c5c5c5c5"));
+
+    private static readonly HouseholdId FillForwardNonExistentBudgetHousehold =
+        new(Guid.Parse("c6c6c6c6-c6c6-c6c6-c6c6-c6c6c6c6c6c6"));
+
+    private static readonly HouseholdId FillForwardInvalidFlowHousehold =
+        new(Guid.Parse("c7c7c7c7-c7c7-c7c7-c7c7-c7c7c7c7c7c7"));
+
+    private static readonly HouseholdId FillForwardEmptyPayerHousehold =
+        new(Guid.Parse("c8c8c8c8-c8c8-c8c8-c8c8-c8c8c8c8c8c8"));
+
+    private static readonly HouseholdId FillForwardInvalidPayerPercentHousehold =
+        new(Guid.Parse("cbcbcbcb-cbcb-cbcb-cbcb-cbcbcbcbcbcb"));
+
+    private static readonly HouseholdId FillForwardEmptyAttributionHousehold =
+        new(Guid.Parse("c9c9c9c9-c9c9-c9c9-c9c9-c9c9c9c9c9c9"));
+
+    private static readonly HouseholdId FillForwardInvalidAttributionHousehold =
+        new(Guid.Parse("cacacaca-caca-caca-caca-cacacacacaca"));
+
+    // BulkCreate gap tests
+    private static readonly HouseholdId BulkCreateFeatureOffHousehold =
+        new(Guid.Parse("b5b5b5b5-b5b5-b5b5-b5b5-b5b5b5b5b5b5"));
+
+    private static readonly HouseholdId BulkCreateNonExistentBudgetHousehold =
+        new(Guid.Parse("b6b6b6b6-b6b6-b6b6-b6b6-b6b6b6b6b6b6"));
+
+    private static readonly HouseholdId BulkCreateInvalidFlowHousehold =
+        new(Guid.Parse("b7b7b7b7-b7b7-b7b7-b7b7-b7b7b7b7b7b7"));
+
+    private static readonly HouseholdId BulkCreateEmptyPayerHousehold =
+        new(Guid.Parse("b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8"));
+
+    private static readonly HouseholdId BulkCreateEmptyAttributionHousehold =
+        new(Guid.Parse("b9b9b9b9-b9b9-b9b9-b9b9-b9b9b9b9b9b9"));
+
+    private static readonly HouseholdId BulkCreateInvalidAttributionHousehold =
+        new(Guid.Parse("babababa-baba-baba-baba-babababababa"));
+
+    // CreateBudgetItem gap tests
+    private static readonly HouseholdId CreateItemInvalidFlowHousehold =
+        new(Guid.Parse("dbdbdbdb-dbdb-dbdb-dbdb-dbdbdbdbdbdb"));
+
+    private static readonly HouseholdId CreateItemEmptyPayerHousehold =
+        new(Guid.Parse("dcdcdcdc-dcdc-dcdc-dcdc-dcdcdcdcdcdc"));
+
+    private static readonly HouseholdId CreateItemEmptyAttributionHousehold =
+        new(Guid.Parse("dededede-dede-dede-dede-dededededede"));
+
+    private static readonly HouseholdId CreateItemInvalidAttributionHousehold =
+        new(Guid.Parse("dfdfdfdf-dfdf-dfdf-dfdf-dfdfdfdfdfdf"));
+
+    // UpdateBudgetItem gap tests
+    private static readonly HouseholdId UpdateInvalidAttributionEnumHousehold =
+        new(Guid.Parse("eaeaeaea-eaea-eaea-eaea-eaeaeaeaeaea"));
+
+    private static readonly HouseholdId UpdateNonExistentBudgetHousehold =
+        new(Guid.Parse("ebebebeb-ebeb-ebeb-ebeb-ebebebebebeb"));
+
+    // RecordItemSpent gap tests
+    private static readonly HouseholdId RecordSpentFeatureOffHousehold =
+        new(Guid.Parse("f8f8f8f8-f8f8-f8f8-f8f8-f8f8f8f8f8f8"));
+
+    private static readonly HouseholdId RecordSpentNonExistentBudgetHousehold =
+        new(Guid.Parse("f9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9"));
+
+    // DeleteBudgetItem gap tests
+    private static readonly HouseholdId DeleteFeatureOffHousehold =
+        new(Guid.Parse("a5a5a5a5-a5a5-a5a5-a5a5-a5a5a5a5a5a5"));
+
+    private static readonly HouseholdId DeleteNonExistentBudgetHousehold =
+        new(Guid.Parse("a6a6a6a6-a6a6-a6a6-a6a6-a6a6a6a6a6a6"));
+
+    // ListBudgetItems gap tests
+    private static readonly HouseholdId ListItemsFeatureOffHousehold =
+        new(Guid.Parse("ecececec-ecec-ecec-ecec-ecececececec"));
+
+    private static readonly HouseholdId ListItemsNonExistentBudgetHousehold =
+        new(Guid.Parse("edededed-eded-eded-eded-edededededed"));
+
+    // RealizeItem gap tests
+    private static readonly HouseholdId RealizeNonExistentBudgetHousehold =
+        new(Guid.Parse("fafafafa-fafa-fafa-fafa-fafafafafafa"));
 
     // =========================================================================
     // CREATE BUDGET ITEM
@@ -276,6 +370,110 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldHaveReturned400BadRequest(response);
     }
 
+    [Fact]
+    public async Task GivenInvalidBudgetFlow_WhenCreateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CreateItemInvalidFlowHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        CreateBudgetItemRequest request = new(
+            Month: 1,
+            BudgetFlow: "INVALID_FLOW",
+            PlannedAmount: 1500.00m,
+            PlannedCurrency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyPayerSplit_WhenCreateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CreateItemEmptyPayerHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        CreateBudgetItemRequest request = new(
+            Month: 1,
+            BudgetFlow: "Expense",
+            PlannedAmount: 1500.00m,
+            PlannedCurrency: "ZAR",
+            PayerSplit: [],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyAttributionSplit_WhenCreateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CreateItemEmptyAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        CreateBudgetItemRequest request = new(
+            Month: 1,
+            BudgetFlow: "Expense",
+            PlannedAmount: 1500.00m,
+            PlannedCurrency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: []);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidAttributionValue_WhenCreateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CreateItemInvalidAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        CreateBudgetItemRequest request = new(
+            Month: 1,
+            BudgetFlow: "Expense",
+            PlannedAmount: 1500.00m,
+            PlannedCurrency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("INVALID_ATTRIBUTION", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
     // =========================================================================
     // LIST BUDGET ITEMS
     // =========================================================================
@@ -346,6 +544,34 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldContainItemForMonth(items, 2);
     }
 
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenListBudgetItems_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(ListItemsFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenListBudgetItems_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(ListItemsNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
     // =========================================================================
     // FEATURE FLAG & NOT FOUND
     // =========================================================================
@@ -384,6 +610,121 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             TestContext.Current.CancellationToken);
 
         ItShouldHaveReturned404NotFound(response);
+    }
+
+    // =========================================================================
+    // AUTHENTICATION AND ANTIFORGERY
+    // =========================================================================
+
+    [Fact]
+    public async Task GivenUnauthenticatedUser_WhenListBudgetItems_ThenReturns401()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateUnauthenticatedFactory(UnauthHousehold);
+        using HttpClient client = factory.CreateClient(
+            new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveBeenUnauthorised(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenCreateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items",
+            CreateValidItemRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenBulkCreateBudgetItems_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/bulk",
+            CreateValidBulkItemRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenFillForwardBudgetItems_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/fill-forward",
+            CreateValidFillForwardRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenUpdateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            new UpdateBudgetItemRequest(PlannedAmount: 1000.00m, PlannedCurrency: "ZAR"),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenRealizeBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/realize",
+            new RealizeBudgetItemRequest(Amount: 1000.00m, Currency: "ZAR"),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenRecordItemSpent_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/spent",
+            new RecordBudgetItemSpentRequest(Amount: 1000.00m, Currency: "ZAR"),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNoAntiforgeryToken_WhenDeleteBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(AntiforgeryHousehold);
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
     }
 
     // =========================================================================
@@ -595,6 +936,43 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldHaveAttributionSplitMatchingOriginal(dto, createdItem);
     }
 
+    [Fact]
+    public async Task GivenInvalidAttributionValue_WhenUpdateBudgetItem_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateInvalidAttributionEnumHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+
+        UpdateBudgetItemRequest updateRequest = new(
+            AttributionSplit: [new AttributionAllocationDto("INVALID_ATTRIBUTION", 100)]);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenUpdateBudgetItem_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(UpdateNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        UpdateBudgetItemRequest updateRequest = new(PlannedAmount: 2000.00m, PlannedCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            updateRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
     // =========================================================================
     // REALIZE BUDGET ITEM
     // =========================================================================
@@ -655,6 +1033,23 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
 
         HttpResponseMessage response = await client.PutAsJsonAsync(
             $"/api/budgets/{budgetId}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/realize",
+            realizeRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenRealize_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RealizeNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        RealizeBudgetItemRequest realizeRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/realize",
             realizeRequest,
             TestContext.Current.CancellationToken);
 
@@ -725,6 +1120,40 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
 
         HttpResponseMessage response = await client.PutAsJsonAsync(
             $"/api/budgets/{budgetId}/categories/{categoryId}/items/{Guid.NewGuid()}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenRecordItemSpent_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(RecordSpentFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/spent",
+            spentRequest,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenRecordItemSpent_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(RecordSpentNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        RecordBudgetItemSpentRequest spentRequest = new(Amount: 1000.00m, Currency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}/spent",
             spentRequest,
             TestContext.Current.CancellationToken);
 
@@ -880,6 +1309,34 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldHaveReturned201Created(recreateResponse);
     }
 
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenDeleteBudgetItem_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(DeleteFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenDeleteBudgetItem_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(DeleteNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/{Guid.NewGuid()}",
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
     // =========================================================================
     // BULK CREATE BUDGET ITEMS
     // =========================================================================
@@ -988,6 +1445,136 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldHaveReturned400BadRequest(response);
     }
 
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenBulkCreateBudgetItems_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(BulkCreateFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/bulk",
+            CreateValidBulkItemRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenBulkCreate_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/bulk",
+            CreateValidBulkItemRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidBudgetFlow_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateInvalidFlowHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        BulkCreateBudgetItemRequest request = new(
+            BudgetFlow: "INVALID_FLOW",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyPayerSplit_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateEmptyPayerHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        BulkCreateBudgetItemRequest request = new(
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyAttributionSplit_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateEmptyAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        BulkCreateBudgetItemRequest request = new(
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: []);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidAttributionValue_WhenBulkCreate_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(BulkCreateInvalidAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        BulkCreateBudgetItemRequest request = new(
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("INVALID_ATTRIBUTION", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/bulk",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
     // =========================================================================
     // FILL FORWARD BUDGET ITEMS
     // =========================================================================
@@ -1085,6 +1672,166 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         ItShouldHaveAllItemsWithAmount(items, 2000.00m);
     }
 
+    [Fact]
+    public async Task GivenFeatureFlagOff_WhenFillForward_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactoryWithoutBudgetItemsFeature(FillForwardFeatureOffHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/fill-forward",
+            CreateValidFillForwardRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentBudget_WhenFillForward_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardNonExistentBudgetHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}/items/fill-forward",
+            CreateValidFillForwardRequest(),
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidBudgetFlow_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardInvalidFlowHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        FillForwardBudgetItemRequest request = new(
+            FromMonth: 1,
+            BudgetFlow: "INVALID_FLOW",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyPayerSplit_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardEmptyPayerHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        FillForwardBudgetItemRequest request = new(
+            FromMonth: 1,
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenPayerSplitNotSummingTo100_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardInvalidPayerPercentHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        FillForwardBudgetItemRequest request = new(
+            FromMonth: 1,
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 60), new PayerAllocationDto(Guid.NewGuid(), 30)],
+            AttributionSplit: [new AttributionAllocationDto("Main", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenEmptyAttributionSplit_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardEmptyAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        FillForwardBudgetItemRequest request = new(
+            FromMonth: 1,
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: []);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
+    [Fact]
+    public async Task GivenInvalidAttributionValue_WhenFillForward_ThenReturns400()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(FillForwardInvalidAttributionHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+        Guid categoryId = await CreateLeafCategoryAsync(client, budgetId);
+
+        FillForwardBudgetItemRequest request = new(
+            FromMonth: 1,
+            BudgetFlow: "Expense",
+            Amount: 1500.00m,
+            Currency: "ZAR",
+            PayerSplit: [new PayerAllocationDto(Guid.NewGuid(), 100)],
+            AttributionSplit: [new AttributionAllocationDto("INVALID_ATTRIBUTION", 100)]);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/fill-forward",
+            request,
+            TestContext.Current.CancellationToken);
+
+        ItShouldHaveReturned400BadRequest(response);
+    }
+
     // =========================================================================
     // FACTORY HELPERS
     // =========================================================================
@@ -1109,6 +1856,19 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             ConfigurationOverrides = new Dictionary<string, string?>
             {
                 ["Features:Budget"] = "true"
+            }
+        };
+
+    private BudgetTestWebApplicationFactory CreateUnauthenticatedFactory(HouseholdId householdId) =>
+        new(householdId)
+        {
+            MenloConnectionString = fixture.ConnectionString,
+            SkipMigration = true,
+            SimulateUnauthenticated = true,
+            ConfigurationOverrides = new Dictionary<string, string?>
+            {
+                ["Features:Budget"] = "true",
+                ["Features:BudgetItems"] = "true"
             }
         };
 
