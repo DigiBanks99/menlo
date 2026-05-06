@@ -340,6 +340,21 @@ jobs:
         env:
           NODE_ENV: test
 
+      - name: Install Playwright browsers
+        working-directory: src/ui/web
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        working-directory: src/ui/web
+        run: |
+          if find e2e -name '*.spec.ts' -o -name '*.test.ts' 2>/dev/null | grep -q .; then
+            pnpm run test:e2e
+          else
+            echo "No E2E test files found, skipping."
+          fi
+        env:
+          CI: true
+
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()

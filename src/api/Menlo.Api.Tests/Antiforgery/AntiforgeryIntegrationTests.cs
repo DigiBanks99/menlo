@@ -15,7 +15,7 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private static readonly HouseholdId MissingTokenHousehold = new(Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0"));
+    private static readonly HouseholdId MissingTokenHousehold = new(Guid.Parse("af01af01-af01-af01-af01-af01af01af01"));
 
     private static readonly HouseholdId ValidTokenHousehold = new(Guid.Parse("c1c1c1c1-a1a1-a1a1-a1a1-c1c1c1c1c1c1"));
 

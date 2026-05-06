@@ -133,13 +133,9 @@ foreach ($changedFile in $changedFiles) {
     $xmlKey = $changedFile -replace '^src/', ''
 
     if (-not $fileCoverage.ContainsKey($xmlKey)) {
-        Write-Warning "⚠️  $changedFile — not found in coverage report (may be untestable infrastructure file)"
+        Write-Warning "⚠️  $changedFile — not found in coverage report"
         $results += [pscustomobject]@{ File = $changedFile; Coverage = 'N/A'; Status = 'MISSING' }
-        # Treat missing files that are *.cs but only contain type declarations / infra as a warning.
-        # Treat missing files that look like handler/endpoint logic as a failure.
-        if ($changedFile -match '(Handler|Endpoint|Service|Controller)\.cs$') {
-            $failed = $true
-        }
+        $failed = $true
         continue
     }
 

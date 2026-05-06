@@ -1,5 +1,6 @@
 codecov:
   token: ${{ CODECOV_TOKEN }}
+  require_ci_to_pass: true
 
 coverage:
   status:
@@ -10,12 +11,22 @@ coverage:
       api:
         target: 70%
         threshold: 2%
+        flags:
+          - backend
         paths:
           - "src/api/Menlo.Api/**"
     patch:
       default:
         target: 70%
         threshold: 5%
+        only_pulls: true
+      api:
+        target: 70%
+        threshold: 2%
+        flags:
+          - backend
+        paths:
+          - "src/api/Menlo.Api/**"
         only_pulls: true
 
 flags:

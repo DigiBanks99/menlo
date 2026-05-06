@@ -52,3 +52,8 @@ storybook-static
 .github/instructions/nx.instructions.md
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+
+# Playwright
+/test-results/playwright
+/test-results/playwright-report
+/playwright/.cache
