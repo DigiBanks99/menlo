@@ -7,13 +7,13 @@
     "test": "pushd src/ui/web && pnpm test && popd"
   },
   "devDependencies": {
-    "@vitest/mocker": "^4.0.18",
-    "corepack": "^0.34.6",
-    "pnpm": "^10.30.3",
-    "vite": "^7.3.1"
+    "@vitest/mocker": "^4.1.5",
+    "corepack": "^0.34.7",
+    "pnpm": "^10.33.3",
+    "vite": "^8.0.10"
   },
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "optionalDependencies": {
-    "@esbuild/linux-x64": "^0.27.3"
+    "@esbuild/linux-x64": "^0.28.0"
   }
 }
