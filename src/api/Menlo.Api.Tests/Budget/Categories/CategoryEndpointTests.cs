@@ -43,6 +43,9 @@ public sealed class CategoryEndpointTests(BudgetApiFixture fixture) : TestFixtur
     private static readonly HouseholdId ListDeletedHousehold =
         new(Guid.Parse("c9c9c9c9-c9c9-c9c9-c9c9-c9c9c9c9c9c9"));
 
+    private static readonly HouseholdId ListIncludeDeletedHousehold =
+        new(Guid.Parse("c9c9c9c9-c9c9-c9c9-c9c9-c9c9c9c9c9ca"));
+
     private static readonly HouseholdId GetCategoryHousehold =
         new(Guid.Parse("cacacacc-caca-caca-caca-cacacacacaca"));
 
@@ -280,12 +283,13 @@ public sealed class CategoryEndpointTests(BudgetApiFixture fixture) : TestFixtur
     [Fact]
     public async Task GivenDeletedCategory_WhenListCategoriesWithIncludeDeleted_ThenIncludesDeleted()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(ListDeletedHousehold);
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(ListIncludeDeletedHousehold);
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-        // Uses the same household as above – the deleted category from the previous test
-        // We need to get the budget that already exists or create fresh
         Guid budgetId = await CreateBudgetAsync(client);
+        await CreateCategoryAndDeserializeAsync(client, budgetId, new("Active", "Expense"));
+        CategoryDto? toDelete = await CreateCategoryAndDeserializeAsync(client, budgetId, new("ToDelete", "Expense"));
+        await client.DeleteAsync($"/api/budgets/{budgetId}/categories/{toDelete!.Id}", TestContext.Current.CancellationToken);
 
         HttpResponseMessage response = await client.GetAsync(
             $"/api/budgets/{budgetId}/categories?includeDeleted=true", TestContext.Current.CancellationToken);

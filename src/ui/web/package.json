@@ -24,6 +24,7 @@
     "storybook": "nx storybook menlo-app",
     "test:affected": "nx affected --target=test",
     "test:all": "nx run-many --target=test --all -- --coverage",
+    "test:e2e": "playwright test --pass-with-no-tests",
     "test": "nx run-many --target=test --all",
     "watch": "nx build menlo-app --watch"
   },
@@ -98,6 +99,7 @@
     "storybook": "10.3.6",
     "typescript": "~5.9.3",
     "vite-plugin-dts": "~4.5.4",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "@playwright/test": "^1.50.0"
   }
 }

@@ -74,16 +74,16 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         new(Guid.Parse("e9e9e9e9-e9e9-e9e9-e9e9-e9e9e9e9e9e9"));
 
     private static readonly HouseholdId RealizeItemHousehold =
-        new(Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1"));
+        new(Guid.Parse("1f011f01-1f01-1f01-1f01-1f011f011f01"));
 
     private static readonly HouseholdId RealizeNonExistentHousehold =
-        new(Guid.Parse("f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2"));
+        new(Guid.Parse("1f021f02-1f02-1f02-1f02-1f021f021f02"));
 
     private static readonly HouseholdId RealizeFeatureOffHousehold =
-        new(Guid.Parse("f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3"));
+        new(Guid.Parse("1f031f03-1f03-1f03-1f03-1f031f031f03"));
 
     private static readonly HouseholdId RecordSpentHousehold =
-        new(Guid.Parse("f4f4f4f4-f4f4-f4f4-f4f4-f4f4f4f4f4f4"));
+        new(Guid.Parse("1f041f04-1f04-1f04-1f04-1f041f041f04"));
 
     private static readonly HouseholdId RecordSpentSkipRealizeHousehold =
         new(Guid.Parse("f5f5f5f5-f5f5-f5f5-f5f5-f5f5f5f5f5f5"));
@@ -107,28 +107,28 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         new(Guid.Parse("a4a4a4a4-a4a4-a4a4-a4a4-a4a4a4a4a4a4"));
 
     private static readonly HouseholdId BulkCreateHousehold =
-        new(Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"));
+        new(Guid.Parse("1b011b01-1b01-1b01-1b01-1b011b011b01"));
 
     private static readonly HouseholdId BulkCreateWithExistingHousehold =
-        new(Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"));
+        new(Guid.Parse("1b021b02-1b02-1b02-1b02-1b021b021b02"));
 
     private static readonly HouseholdId BulkCreateInvalidSplitHousehold =
-        new(Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"));
+        new(Guid.Parse("1b031b03-1b03-1b03-1b03-1b031b031b03"));
 
     private static readonly HouseholdId BulkCreateNonLeafHousehold =
-        new(Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4"));
+        new(Guid.Parse("1b041b04-1b04-1b04-1b04-1b041b041b04"));
 
     private static readonly HouseholdId FillForwardHousehold =
-        new(Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"));
+        new(Guid.Parse("1c011c01-1c01-1c01-1c01-1c011c011c01"));
 
     private static readonly HouseholdId FillForwardFromMonth6Household =
-        new(Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"));
+        new(Guid.Parse("1c021c02-1c02-1c02-1c02-1c021c021c02"));
 
     private static readonly HouseholdId FillForwardInvalidMonthHousehold =
-        new(Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3"));
+        new(Guid.Parse("1c031c03-1c03-1c03-1c03-1c031c031c03"));
 
     private static readonly HouseholdId FillForwardUpdatesExistingHousehold =
-        new(Guid.Parse("c4c4c4c4-c4c4-c4c4-c4c4-c4c4c4c4c4c4"));
+        new(Guid.Parse("1c041c04-1c04-1c04-1c04-1c041c041c04"));
 
     // Shared for unauthenticated / antiforgery tests (no DB writes reach these)
     private static readonly HouseholdId UnauthHousehold =
@@ -139,22 +139,22 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
 
     // FillForward gap tests
     private static readonly HouseholdId FillForwardFeatureOffHousehold =
-        new(Guid.Parse("c5c5c5c5-c5c5-c5c5-c5c5-c5c5c5c5c5c5"));
+        new(Guid.Parse("1c051c05-1c05-1c05-1c05-1c051c051c05"));
 
     private static readonly HouseholdId FillForwardNonExistentBudgetHousehold =
-        new(Guid.Parse("c6c6c6c6-c6c6-c6c6-c6c6-c6c6c6c6c6c6"));
+        new(Guid.Parse("1c061c06-1c06-1c06-1c06-1c061c061c06"));
 
     private static readonly HouseholdId FillForwardInvalidFlowHousehold =
-        new(Guid.Parse("c7c7c7c7-c7c7-c7c7-c7c7-c7c7c7c7c7c7"));
+        new(Guid.Parse("1c071c07-1c07-1c07-1c07-1c071c071c07"));
 
     private static readonly HouseholdId FillForwardEmptyPayerHousehold =
-        new(Guid.Parse("c8c8c8c8-c8c8-c8c8-c8c8-c8c8c8c8c8c8"));
+        new(Guid.Parse("1c081c08-1c08-1c08-1c08-1c081c081c08"));
 
     private static readonly HouseholdId FillForwardInvalidPayerPercentHousehold =
-        new(Guid.Parse("cbcbcbcb-cbcb-cbcb-cbcb-cbcbcbcbcbcb"));
+        new(Guid.Parse("1ccb1ccb-1ccb-1ccb-1ccb-1ccb1ccb1ccb"));
 
     private static readonly HouseholdId FillForwardEmptyAttributionHousehold =
-        new(Guid.Parse("c9c9c9c9-c9c9-c9c9-c9c9-c9c9c9c9c9c9"));
+        new(Guid.Parse("1c091c09-1c09-1c09-1c09-1c091c091c09"));
 
     private static readonly HouseholdId FillForwardInvalidAttributionHousehold =
         new(Guid.Parse("cacacaca-caca-caca-caca-cacacacacaca"));
