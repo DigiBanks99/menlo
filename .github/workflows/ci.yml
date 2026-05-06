@@ -206,11 +206,11 @@ jobs:
           GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-        run: |
-          ./scripts/check-api-coverage-baseline.ps1 \
-            -CoverageDir coverage/api-baseline \
-            -Threshold 70 \
-            -HeadSha "${{ github.sha }}"
+        run: >
+          ./scripts/check-api-coverage-baseline.ps1
+          -CoverageDir coverage/api-baseline
+          -Threshold 70
+          -HeadSha "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v6
