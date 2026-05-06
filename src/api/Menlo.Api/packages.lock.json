@@ -81,9 +81,9 @@
       },
       "Scalar.AspNetCore": {
         "type": "Direct",
-        "requested": "[2.14.9, )",
-        "resolved": "2.14.9",
-        "contentHash": "bDc8NjI2JSIAX0C1+02WO11zCJ1SJQhWdMC0s7yi2Nh2atoNRpNRPiYeyIhWSerkc1SkDdJVOeU9QSY6jb0/zQ=="
+        "requested": "[2.14.11, )",
+        "resolved": "2.14.11",
+        "contentHash": "EthfC0++GjWX5JB84OUTsNlzRMr8v6zGinx8i2msKWitAkvGbvjBz7ET9XoUis4Z3M+iH6jIJ66uUGzZqmrSGg=="
       },
       "Yarp.ReverseProxy": {
         "type": "Direct",
@@ -239,8 +239,8 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "Transitive",
-        "resolved": "10.5.1",
-        "contentHash": "nB0l3IlsVbNeUxsE7nZNb9GY8rP1OSeqpj0pseORPejt474HNKEauTWTLdSJPkSvPlRMxowZNMo6nyp7APAiSg=="
+        "resolved": "10.5.2",
+        "contentHash": "Ei+YWV9Ybnps7pR1dgjlG29gelXEwZkhLVAcWmKe6HvXS6LNBYgSdWiY3Hk9OZXYtK34rv/NtLWBQYQGOBQYPQ=="
       },
       "Microsoft.Extensions.AI.OpenAI": {
         "type": "Transitive",
@@ -697,9 +697,9 @@
         "dependencies": {
           "CommunityToolkit.Aspire.OllamaSharp": "[13.1.1, )",
           "Menlo.Lib": "[1.0.0, )",
-          "Microsoft.Extensions.AI": "[10.5.1, )",
+          "Microsoft.Extensions.AI": "[10.5.2, )",
           "Microsoft.SemanticKernel": "[1.75.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.74.0-alpha, )"
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )"
         }
       },
       "menlo.application": {
@@ -756,11 +756,11 @@
       },
       "Microsoft.Extensions.AI": {
         "type": "CentralTransitive",
-        "requested": "[10.5.1, )",
-        "resolved": "10.5.1",
-        "contentHash": "/PFiinNc+z8bOcDHak5uxC7l44HheG/cFaI5AAOKQ9Naf1+3O6sKXwvtRSXVz5TVb0A9rU+DVR7M8xqOzBoJNA==",
+        "requested": "[10.5.2, )",
+        "resolved": "10.5.2",
+        "contentHash": "nmhzep22lJmDvv15wDlM+bwhr3o4G+hTTrIL9veNmXqtsJdpNkh2JAz1UMy72AqVPuysSDMLajuOLsLqSuyH4A==",
         "dependencies": {
-          "Microsoft.Extensions.AI.Abstractions": "10.5.1",
+          "Microsoft.Extensions.AI.Abstractions": "10.5.2",
           "System.Numerics.Tensors": "10.0.6"
         }
       },
@@ -795,13 +795,13 @@
       },
       "Microsoft.SemanticKernel.Connectors.Ollama": {
         "type": "CentralTransitive",
-        "requested": "[1.74.0-alpha, )",
-        "resolved": "1.74.0-alpha",
-        "contentHash": "vFuGSEJNY3TUOxPFmMe4tY8oIsc0qtj+UI1XaaQ6I6ioRIUolBja/VsjRG0s9eTqSUUfFslM9Fh7uA4FsabEyg==",
+        "requested": "[1.75.0-alpha, )",
+        "resolved": "1.75.0-alpha",
+        "contentHash": "saTsB7IBET+FFfyUIf7k+cfQfUd8jWeVam0Rsa1FV3ej2NS0JpJZfwcA7S2ncO75+hSXCUG3gIe1K9M4XoWYsg==",
         "dependencies": {
           "Microsoft.Net.Compilers.Toolset": "4.14.0",
-          "Microsoft.SemanticKernel.Abstractions": "1.74.0",
-          "Microsoft.SemanticKernel.Core": "1.74.0",
+          "Microsoft.SemanticKernel.Abstractions": "1.75.0",
+          "Microsoft.SemanticKernel.Core": "1.75.0",
           "OllamaSharp": "5.4.12"
         }
       },

@@ -4,17 +4,17 @@
     "net10.0": {
       "coverlet.collector": {
         "type": "Direct",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "heVQl5tKYnnIDYlR1QMVGueYH6iriZTcZB6AjDczQNwZzxkjDIt9C84Pt4cCiZYrbo7jkZOYGWbs6Lo9wAtVLg=="
+        "requested": "[10.0.0, )",
+        "resolved": "10.0.0",
+        "contentHash": "WFejCcOUR6k8UYyDnnR6Gk+obFYMsWrZuNqPJnsVFGVhpPSN0y20D4qbdKJnXinYGx9PQ397Hf9TnU1NBST8vA=="
       },
       "Microsoft.Extensions.AI": {
         "type": "Direct",
-        "requested": "[10.5.1, )",
-        "resolved": "10.5.1",
-        "contentHash": "/PFiinNc+z8bOcDHak5uxC7l44HheG/cFaI5AAOKQ9Naf1+3O6sKXwvtRSXVz5TVb0A9rU+DVR7M8xqOzBoJNA==",
+        "requested": "[10.5.2, )",
+        "resolved": "10.5.2",
+        "contentHash": "nmhzep22lJmDvv15wDlM+bwhr3o4G+hTTrIL9veNmXqtsJdpNkh2JAz1UMy72AqVPuysSDMLajuOLsLqSuyH4A==",
         "dependencies": {
-          "Microsoft.Extensions.AI.Abstractions": "10.5.1",
+          "Microsoft.Extensions.AI.Abstractions": "10.5.2",
           "Microsoft.Extensions.Caching.Abstractions": "10.0.6",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.6",
           "Microsoft.Extensions.Logging.Abstractions": "10.0.6",
@@ -138,8 +138,8 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "Transitive",
-        "resolved": "10.5.1",
-        "contentHash": "nB0l3IlsVbNeUxsE7nZNb9GY8rP1OSeqpj0pseORPejt474HNKEauTWTLdSJPkSvPlRMxowZNMo6nyp7APAiSg=="
+        "resolved": "10.5.2",
+        "contentHash": "Ei+YWV9Ybnps7pR1dgjlG29gelXEwZkhLVAcWmKe6HvXS6LNBYgSdWiY3Hk9OZXYtK34rv/NtLWBQYQGOBQYPQ=="
       },
       "Microsoft.Extensions.AI.OpenAI": {
         "type": "Transitive",
@@ -536,13 +536,13 @@
         "dependencies": {
           "CommunityToolkit.Aspire.OllamaSharp": "[13.1.1, )",
           "Menlo.Lib": "[1.0.0, )",
-          "Microsoft.Extensions.AI": "[10.5.1, )",
+          "Microsoft.Extensions.AI": "[10.5.2, )",
           "Microsoft.Extensions.Configuration.Abstractions": "[10.0.7, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.7, )",
           "Microsoft.Extensions.Hosting.Abstractions": "[10.0.7, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.7, )",
           "Microsoft.SemanticKernel": "[1.75.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.74.0-alpha, )"
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )"
         }
       },
       "menlo.lib": {
@@ -625,13 +625,13 @@
       },
       "Microsoft.SemanticKernel.Connectors.Ollama": {
         "type": "CentralTransitive",
-        "requested": "[1.74.0-alpha, )",
-        "resolved": "1.74.0-alpha",
-        "contentHash": "vFuGSEJNY3TUOxPFmMe4tY8oIsc0qtj+UI1XaaQ6I6ioRIUolBja/VsjRG0s9eTqSUUfFslM9Fh7uA4FsabEyg==",
+        "requested": "[1.75.0-alpha, )",
+        "resolved": "1.75.0-alpha",
+        "contentHash": "saTsB7IBET+FFfyUIf7k+cfQfUd8jWeVam0Rsa1FV3ej2NS0JpJZfwcA7S2ncO75+hSXCUG3gIe1K9M4XoWYsg==",
         "dependencies": {
           "Microsoft.Net.Compilers.Toolset": "4.14.0",
-          "Microsoft.SemanticKernel.Abstractions": "1.74.0",
-          "Microsoft.SemanticKernel.Core": "1.74.0",
+          "Microsoft.SemanticKernel.Abstractions": "1.75.0",
+          "Microsoft.SemanticKernel.Core": "1.75.0",
           "OllamaSharp": "5.4.12"
         }
       },
