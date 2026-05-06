@@ -5,7 +5,7 @@ import { Subject, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, Result, failure, success, unknownError } from 'shared-util';
-import { BudgetApiService, BudgetCategoryResponse, BudgetResponse } from 'data-access-menlo-api';
+import { BudgetApiService, BudgetCategoryResponse, BudgetItemApiService, BudgetResponse } from 'data-access-menlo-api';
 import { BudgetDetailComponent } from './budget-detail.component';
 
 const currentYear = new Date().getFullYear();
@@ -43,6 +43,10 @@ describe('BudgetDetailComponent', () => {
     getBudget: ReturnType<typeof vi.fn>;
     createOrEnsureBudget: ReturnType<typeof vi.fn>;
   };
+  let mockBudgetItemApiService: {
+    getSummary: ReturnType<typeof vi.fn>;
+    listItems: ReturnType<typeof vi.fn>;
+  };
   let mockRouter: { navigate: ReturnType<typeof vi.fn> };
   let routeBudgetId: string | null;
 
@@ -50,6 +54,11 @@ describe('BudgetDetailComponent', () => {
     mockBudgetApiService = {
       getBudget: vi.fn(),
       createOrEnsureBudget: vi.fn(),
+    };
+    // Provide a never-resolving observable so the summary component doesn't interfere
+    mockBudgetItemApiService = {
+      getSummary: vi.fn().mockReturnValue(new Subject().asObservable()),
+      listItems: vi.fn().mockReturnValue(new Subject().asObservable()),
     };
     mockRouter = { navigate: vi.fn() };
     routeBudgetId = 'budget-current';
@@ -63,6 +72,7 @@ describe('BudgetDetailComponent', () => {
           useValue: { snapshot: { paramMap: { get: () => routeBudgetId } } },
         },
         { provide: BudgetApiService, useValue: mockBudgetApiService },
+        { provide: BudgetItemApiService, useValue: mockBudgetItemApiService },
         { provide: Router, useValue: mockRouter },
       ],
     }).compileComponents();
@@ -149,6 +159,16 @@ describe('BudgetDetailComponent', () => {
       ) as HTMLElement;
       expect(totalEl).toBeTruthy();
       expect(totalEl.textContent?.trim()).not.toBe('');
+    });
+
+    it('renders the budget summary component when budget loads', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(of(success(mockBudgetCurrentYear)));
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      const summaryEl = fixture.nativeElement.querySelector('[data-testid="budget-summary"]');
+      expect(summaryEl).toBeTruthy();
     });
   });
 
@@ -394,6 +414,164 @@ describe('BudgetDetailComponent', () => {
 
       // depth should stop at 1 attempt since parent not found
       expect(component.getDepth(orphan, [orphan])).toBe(0);
+    });
+  });
+
+  describe('budget items workspace', () => {
+    it('does not render workspace section by default', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories: [makeCat('cat-1', 'Housing')] })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeNull();
+    });
+
+    it('renders a View Items button for leaf categories', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories: [makeCat('cat-1', 'Housing')] })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      const btn = fixture.nativeElement.querySelector('[data-testid="btn-view-items-cat-1"]');
+      expect(btn).toBeTruthy();
+    });
+
+    it('does not render a View Items button for parent (non-leaf) categories', () => {
+      const categories = [makeCat('parent', 'Parent'), makeCat('child', 'Child', 'parent')];
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="btn-view-items-parent"]'),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="btn-view-items-child"]'),
+      ).toBeTruthy();
+    });
+
+    it('does not open workspace when selectCategory is called for a non-leaf category', () => {
+      const categories = [makeCat('parent', 'Parent'), makeCat('child', 'Child', 'parent')];
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      fixture.componentInstance.selectCategory('parent', 'Parent');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.selectedCategoryId()).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeNull();
+    });
+
+    it('renders the workspace when selectCategory is called for a leaf category', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories: [makeCat('cat-1', 'Housing')] })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      fixture.componentInstance.selectCategory('cat-1', 'Housing');
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeTruthy();
+    });
+
+    it('hides the workspace when the same category is selected again (toggle off)', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories: [makeCat('cat-1', 'Housing')] })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      fixture.componentInstance.selectCategory('cat-1', 'Housing');
+      fixture.detectChanges();
+      fixture.componentInstance.selectCategory('cat-1', 'Housing');
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeNull();
+    });
+
+    it('clicking View Items button in the DOM shows the workspace', () => {
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories: [makeCat('cat-1', 'Housing')] })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      const btn = fixture.nativeElement.querySelector(
+        '[data-testid="btn-view-items-cat-1"]',
+      ) as HTMLButtonElement;
+      btn.click();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeTruthy();
+    });
+
+    it('switches workspace to a different category without hiding it', () => {
+      const categories = [makeCat('cat-1', 'Housing'), makeCat('cat-2', 'Food')];
+      mockBudgetApiService.getBudget.mockReturnValue(
+        of(success({ ...mockBudgetCurrentYear, categories })),
+      );
+
+      const fixture = TestBed.createComponent(BudgetDetailComponent);
+      fixture.detectChanges();
+
+      fixture.componentInstance.selectCategory('cat-1', 'Housing');
+      fixture.detectChanges();
+      fixture.componentInstance.selectCategory('cat-2', 'Food');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.selectedCategoryId()).toBe('cat-2');
+      expect(fixture.componentInstance.selectedCategoryName()).toBe('Food');
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="items-workspace-section"]'),
+      ).toBeTruthy();
+    });
+  });
+
+  describe('isLeafCategory', () => {
+    it('returns true for a category with no children', () => {
+      const component = TestBed.createComponent(BudgetDetailComponent).componentInstance;
+      const cats = [makeCat('root', 'Root'), makeCat('leaf', 'Leaf', 'root')];
+
+      expect(component.isLeafCategory('leaf', cats)).toBe(true);
+    });
+
+    it('returns false for a category that is a parent of another', () => {
+      const component = TestBed.createComponent(BudgetDetailComponent).componentInstance;
+      const cats = [makeCat('root', 'Root'), makeCat('leaf', 'Leaf', 'root')];
+
+      expect(component.isLeafCategory('root', cats)).toBe(false);
+    });
+
+    it('returns true when the category list is empty', () => {
+      const component = TestBed.createComponent(BudgetDetailComponent).componentInstance;
+
+      expect(component.isLeafCategory('any-id', [])).toBe(true);
     });
   });
 });

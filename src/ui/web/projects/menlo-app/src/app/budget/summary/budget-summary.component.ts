@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BudgetItemApiService, BudgetSummary } from 'data-access-menlo-api';
 import { getErrorMessage } from 'shared-util';
@@ -216,6 +216,13 @@ export class BudgetSummaryComponent {
   private readonly api = inject(BudgetItemApiService);
 
   budgetId = input.required<string>();
+
+  constructor() {
+    effect(() => {
+      this.budgetId(); // track — re-run when budgetId changes
+      untracked(() => this.loadSummary());
+    });
+  }
   month = input<number | undefined>(undefined);
 
   summary = signal<BudgetSummary | null>(null);

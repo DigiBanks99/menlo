@@ -40,11 +40,13 @@ function mockBudgetItemDto(overrides: Partial<BudgetItemDto> = {}): BudgetItemDt
 describe('BudgetItemFormComponent', () => {
   let mockBudgetItemApi: {
     updateItem: ReturnType<typeof vi.fn>;
+    createItem: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     mockBudgetItemApi = {
       updateItem: vi.fn(),
+      createItem: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -551,20 +553,32 @@ describe('BudgetItemFormComponent', () => {
       );
     });
 
-    it('does not call API when form valid but no item provided', () => {
+    it('calls createItem when no item provided and form is valid', () => {
+      const createdDto = mockBudgetItemDto({ id: 'new-1' });
+      mockBudgetItemApi.createItem.mockReturnValue(of(success(createdDto)));
+
       const fixture = TestBed.createComponent(BudgetItemFormComponent);
       fixture.componentRef.setInput('budgetId', mockBudgetId);
       fixture.componentRef.setInput('categoryId', mockCategoryId);
       fixture.detectChanges();
 
       const component = fixture.componentInstance;
-      // Add valid splits so the form passes validation
       component.addPayerSplit('user-1', 100);
       component.addAttributionSplit('Main', 100);
-      component.form.patchValue({ plannedAmount: 5000 });
+      component.form.patchValue({ plannedAmount: 5000, month: 3, budgetFlow: 'Expense' });
 
       component.onSubmit();
 
+      expect(mockBudgetItemApi.createItem).toHaveBeenCalledWith(
+        mockBudgetId,
+        mockCategoryId,
+        expect.objectContaining({
+          month: 3,
+          budgetFlow: 'Expense',
+          plannedAmount: 5000,
+          plannedCurrency: 'ZAR',
+        }),
+      );
       expect(mockBudgetItemApi.updateItem).not.toHaveBeenCalled();
     });
 
@@ -623,6 +637,116 @@ describe('BudgetItemFormComponent', () => {
       );
 
       expect(component.attributionSplitTotal()).toBe(30); // 0 + 30
+    });
+  });
+
+  describe('create mode', () => {
+    it('shows month and budgetFlow fields when no item is provided', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeTruthy();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
+      ).toBeTruthy();
+    });
+
+    it('does not show month and budgetFlow fields in edit mode', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
+      ).toBeNull();
+    });
+
+    it('shows Create button label in create mode', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      expect(btn.textContent?.trim()).toBe('Create');
+    });
+
+    it('shows Update button label in edit mode', () => {
+      const existing = mockBudgetItemDto();
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.componentRef.setInput('item', existing);
+      fixture.detectChanges();
+
+      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      expect(btn.textContent?.trim()).toBe('Update');
+    });
+
+    it('emits saved with created item on successful create', () => {
+      const createdDto = mockBudgetItemDto({ id: 'new-1', month: 5, budgetFlow: 'Income' });
+      mockBudgetItemApi.createItem.mockReturnValue(of(success(createdDto)));
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const savedSpy = vi.fn();
+      fixture.componentInstance.saved.subscribe(savedSpy);
+
+      fixture.componentInstance.addPayerSplit('user-1', 100);
+      fixture.componentInstance.addAttributionSplit('Main', 100);
+      fixture.componentInstance.form.patchValue({ plannedAmount: 3000, month: 5, budgetFlow: 'Income' });
+      fixture.componentInstance.onSubmit();
+
+      expect(savedSpy).toHaveBeenCalledWith(createdDto);
+    });
+
+    it('shows error banner on create failure', () => {
+      mockBudgetItemApi.createItem.mockReturnValue(
+        of(failure(problemError({ title: 'Create failed', status: 500 }, 500))),
+      );
+
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      fixture.componentInstance.addPayerSplit('user-1', 100);
+      fixture.componentInstance.addAttributionSplit('Main', 100);
+      fixture.componentInstance.form.patchValue({ plannedAmount: 2000, month: 1, budgetFlow: 'Expense' });
+      fixture.componentInstance.onSubmit();
+      fixture.detectChanges();
+
+      const errorEl = fixture.nativeElement.querySelector('[data-testid="form-error"]');
+      expect(errorEl).toBeTruthy();
+      expect(errorEl.textContent).toContain('Create failed');
+    });
+
+    it('does not submit when budgetFlow is not selected', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      component.addPayerSplit('user-1', 100);
+      component.addAttributionSplit('Main', 100);
+      component.form.patchValue({ plannedAmount: 5000, month: 3 });
+      // budgetFlow left as '' (invalid)
+
+      component.onSubmit();
+
+      expect(mockBudgetItemApi.createItem).not.toHaveBeenCalled();
     });
   });
 });
