@@ -4,10 +4,12 @@ import { BudgetApiService, BudgetCategoryResponse, BudgetResponse } from 'data-a
 import { MoneyPipe } from 'menlo-lib';
 import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 import { CategoryTreeComponent } from './categories/category-tree.component';
+import { BudgetItemsWorkspaceComponent } from './items/budget-items-workspace.component';
+import { BudgetSummaryComponent } from './summary/budget-summary.component';
 
 @Component({
   selector: 'app-budget-detail',
-  imports: [MoneyPipe, CategoryTreeComponent],
+  imports: [MoneyPipe, CategoryTreeComponent, BudgetSummaryComponent, BudgetItemsWorkspaceComponent],
   template: `
     <div class="budget-detail">
       @if (loading()) {
@@ -64,9 +66,36 @@ import { CategoryTreeComponent } from './categories/category-tree.component';
                     ⚠️
                   </span>
                 }
+                @if (isLeafCategory(cat.id, b.categories)) {
+                  <button
+                    type="button"
+                    class="btn-view-items"
+                    (click)="selectCategory(cat.id, cat.name)"
+                    [class.active]="selectedCategoryId() === cat.id"
+                    [attr.data-testid]="'btn-view-items-' + cat.id"
+                  >
+                    {{ selectedCategoryId() === cat.id ? 'Close Items' : 'View Items' }}
+                  </button>
+                }
               </li>
             }
           </ul>
+        </section>
+
+        @if (selectedCategoryId()) {
+          <section class="items-workspace" data-testid="items-workspace-section">
+            <app-budget-items-workspace
+              [budgetId]="b.id"
+              [categoryId]="selectedCategoryId()!"
+              [categoryName]="selectedCategoryName()"
+              data-testid="items-workspace"
+            />
+          </section>
+        }
+
+        <section class="summary" data-testid="budget-summary-section">
+          <h2>Summary</h2>
+          <app-budget-summary [budgetId]="b.id" data-testid="budget-summary" />
         </section>
 
         <footer class="budget-footer">
@@ -189,6 +218,30 @@ import { CategoryTreeComponent } from './categories/category-tree.component';
         cursor: help;
       }
 
+      .btn-view-items {
+        margin-left: auto;
+        padding: 0.2rem 0.6rem;
+        background: transparent;
+        border: 1px solid #007bff;
+        color: #007bff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .btn-view-items:hover,
+      .btn-view-items.active {
+        background: #007bff;
+        color: white;
+      }
+
+      .items-workspace {
+        margin-top: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: #fafafa;
+      }
+
       .budget-footer {
         margin-top: 1.5rem;
         padding-top: 1rem;
@@ -215,6 +268,8 @@ export class BudgetDetailComponent implements OnInit {
   readonly budget = signal<BudgetResponse | null>(null);
   readonly creatingNextYear = signal(false);
   readonly createNextYearError = signal<string | null>(null);
+  readonly selectedCategoryId = signal<string | null>(null);
+  readonly selectedCategoryName = signal<string>('');
 
   readonly currentYear = computed(() => new Date().getFullYear());
   readonly nextYear = computed(() => this.currentYear() + 1);
@@ -255,6 +310,24 @@ export class BudgetDetailComponent implements OnInit {
           this.createNextYearError.set(getErrorMessage(result.error));
         }
       });
+  }
+
+  selectCategory(id: string, name: string): void {
+    const b = this.budget();
+    if (!b || !this.isLeafCategory(id, b.categories)) {
+      return;
+    }
+    if (this.selectedCategoryId() === id) {
+      this.selectedCategoryId.set(null);
+      this.selectedCategoryName.set('');
+    } else {
+      this.selectedCategoryId.set(id);
+      this.selectedCategoryName.set(name);
+    }
+  }
+
+  isLeafCategory(categoryId: string, categories: BudgetCategoryResponse[]): boolean {
+    return !categories.some((c) => c.parentId === categoryId);
   }
 
   getDepth(category: BudgetCategoryResponse, categories: BudgetCategoryResponse[]): number {

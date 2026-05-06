@@ -12,6 +12,7 @@ import {
   AttributionAllocationDto,
   BudgetItemApiService,
   BudgetItemDto,
+  CreateBudgetItemRequest,
   PayerAllocationDto,
   UpdateBudgetItemRequest,
 } from 'data-access-menlo-api';
@@ -52,6 +53,35 @@ function splitSumValidator(control: AbstractControl): ValidationErrors | null {
       class="budget-item-form"
       data-testid="budget-item-form"
     >
+      @if (isCreateMode()) {
+        <div class="form-field">
+          <label for="month">Month *</label>
+          <input
+            id="month"
+            type="number"
+            min="1"
+            max="12"
+            formControlName="month"
+            data-testid="input-month"
+          />
+          @if (form.controls.month.touched && form.controls.month.errors) {
+            <span class="field-error" data-testid="error-month">Month is required (1–12)</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="budgetFlow">Budget Flow *</label>
+          <select id="budgetFlow" formControlName="budgetFlow" data-testid="select-budgetFlow">
+            <option value="">-- Select --</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+          </select>
+          @if (form.controls.budgetFlow.touched && form.controls.budgetFlow.errors) {
+            <span class="field-error" data-testid="error-budgetFlow">Budget flow is required</span>
+          }
+        </div>
+      }
+
       <div class="form-field">
         <label for="plannedAmount">Planned Amount *</label>
         <input
@@ -191,7 +221,7 @@ function splitSumValidator(control: AbstractControl): ValidationErrors | null {
 
       <div class="form-actions">
         <button type="submit" class="btn-primary" [disabled]="saving()" data-testid="btn-save">
-          {{ saving() ? 'Saving...' : 'Update' }}
+          {{ saving() ? 'Saving...' : isCreateMode() ? 'Create' : 'Update' }}
         </button>
         <button type="button" class="btn-secondary" (click)="onCancel()" data-testid="btn-cancel">
           Cancel
@@ -350,7 +380,17 @@ export class BudgetItemFormComponent implements OnInit {
   readonly saving = signal(false);
   readonly formError = signal<string | null>(null);
 
+  readonly isCreateMode = computed(() => this.item() == null);
+
   readonly form = new FormGroup({
+    month: new FormControl<number>(1, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1), Validators.max(12)],
+    }),
+    budgetFlow: new FormControl<'Income' | 'Expense' | ''>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
     plannedAmount: new FormControl<number>(0, {
       nonNullable: true,
       validators: [Validators.required],
@@ -393,6 +433,8 @@ export class BudgetItemFormComponent implements OnInit {
     const existing = this.item();
     if (existing) {
       this.form.patchValue({
+        month: existing.month,
+        budgetFlow: existing.budgetFlow,
         plannedAmount: existing.plannedAmount,
         realizedAmount: existing.realizedAmount,
         spentAmount: existing.spentAmount,
@@ -455,11 +497,35 @@ export class BudgetItemFormComponent implements OnInit {
     const existing = this.item();
     if (existing) {
       this.doUpdate(existing);
+    } else {
+      this.doCreate();
     }
   }
 
   onCancel(): void {
     this.cancelled.emit();
+  }
+
+  private doCreate(): void {
+    const v = this.form.getRawValue();
+    const request: CreateBudgetItemRequest = {
+      month: v.month,
+      budgetFlow: v.budgetFlow as 'Income' | 'Expense',
+      plannedAmount: v.plannedAmount,
+      plannedCurrency: 'ZAR',
+      payerSplit: v.payerSplit as PayerAllocationDto[],
+      attributionSplit: v.attributionSplit as unknown as AttributionAllocationDto[],
+    };
+    this.budgetItemApi
+      .createItem(this.budgetId(), this.categoryId(), request)
+      .subscribe((result) => {
+        this.saving.set(false);
+        if (isSuccess(result)) {
+          this.saved.emit(result.value);
+        } else {
+          this.handleError(result.error);
+        }
+      });
   }
 
   private doUpdate(existing: BudgetItemDto): void {

@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BudgetItemApiService, BudgetSummary, CategorySummary } from 'data-access-menlo-api';
@@ -57,7 +57,8 @@ describe('BudgetSummaryComponent', () => {
   let mockApi: { getSummary: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    mockApi = { getSummary: vi.fn() };
+    // Default: never-resolving observable so auto-load doesn't interfere with unrelated tests
+    mockApi = { getSummary: vi.fn().mockReturnValue(new Subject().asObservable()) };
 
     await TestBed.configureTestingModule({
       imports: [BudgetSummaryComponent],
@@ -354,13 +355,26 @@ describe('BudgetSummaryComponent', () => {
 
   it('hasRealized returns false when summary is null', () => {
     const fixture = createComponent();
-    // summary is initially null (no API call made)
+    // summary is null while auto-load is in flight (never-resolving default mock)
     expect(fixture.componentInstance.hasRealized()).toBe(false);
   });
 
   it('hasSpent returns false when summary is null', () => {
     const fixture = createComponent();
-    // summary is initially null (no API call made)
+    // summary is null while auto-load is in flight (never-resolving default mock)
     expect(fixture.componentInstance.hasSpent()).toBe(false);
+  });
+
+  it('auto-loads summary when budgetId input is provided', () => {
+    mockApi.getSummary.mockReturnValue(of(success(mockBudgetSummary())));
+
+    const fixture = createComponent();
+    // effect fires on first detectChanges() — no manual loadSummary() needed
+    fixture.detectChanges();
+
+    expect(mockApi.getSummary).toHaveBeenCalledWith('budget-1', expect.any(Number));
+    const incomeSection = fixture.nativeElement.querySelector('.income-section');
+    expect(incomeSection).toBeTruthy();
+    expect(incomeSection.textContent).toContain('Employment');
   });
 });
