@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "windows": "pwsh -NoLogo -NoProfile -File .github/hooks/format-changed-files.ps1",
+        "linux": "bash .github/hooks/format-changed-files.sh",
+        "osx": "bash .github/hooks/format-changed-files.sh",
+        "timeout": 120
+      }
+    ]
+  }
+}
