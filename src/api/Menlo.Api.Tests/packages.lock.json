@@ -72,15 +72,6 @@
           "EmptyFiles": "4.4.0"
         }
       },
-      "System.Security.Cryptography.Xml": {
-        "type": "Direct",
-        "requested": "[10.0.7, )",
-        "resolved": "10.0.7",
-        "contentHash": "wG/+ospsC2oR6j7INYh2V5/CWR6Cpt1Zjkxbo0lfovoi/2RpIcGZPVXOPBNVrI5fmrrji0mdNgez+FClDsIuYA==",
-        "dependencies": {
-          "System.Security.Cryptography.Pkcs": "10.0.7"
-        }
-      },
       "Testcontainers.PostgreSql": {
         "type": "Direct",
         "requested": "[4.11.0, )",
@@ -932,11 +923,6 @@
           "OpenTelemetry.Api.ProviderBuilderExtensions": "1.15.3"
         }
       },
-      "OpenTelemetry.Api": {
-        "type": "Transitive",
-        "resolved": "1.15.3",
-        "contentHash": "fX+fkCysfPut+qCcT3bKqyX4QN9Saf4CgX8HLOHywEVD+Xr7sULtfuypITpoDysjx8R59dn/3mWhgimMH8cm/g=="
-      },
       "OpenTelemetry.Api.ProviderBuilderExtensions": {
         "type": "Transitive",
         "resolved": "1.15.3",
@@ -1047,6 +1033,14 @@
         "resolved": "4.5.0",
         "contentHash": "wLBKzFnDCxP12VL9ANydSYhk59fC4cvOr9ypYQLPnAj48NQIhqnjdD2yhP8yEKyBJEjERWS9DisKL7rX5eU25Q=="
       },
+      "System.Security.Cryptography.Xml": {
+        "type": "Transitive",
+        "resolved": "10.0.7",
+        "contentHash": "wG/+ospsC2oR6j7INYh2V5/CWR6Cpt1Zjkxbo0lfovoi/2RpIcGZPVXOPBNVrI5fmrrji0mdNgez+FClDsIuYA==",
+        "dependencies": {
+          "System.Security.Cryptography.Pkcs": "10.0.7"
+        }
+      },
       "System.Threading.RateLimiting": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -1142,7 +1136,8 @@
           "Microsoft.Extensions.Hosting.Abstractions": "[10.0.7, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.7, )",
           "Microsoft.SemanticKernel": "[1.75.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )"
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )",
+          "OpenTelemetry.Api": "[1.15.3, )"
         }
       },
       "menlo.api": {
@@ -1407,6 +1402,12 @@
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.4, 11.0.0)",
           "Npgsql": "10.0.2"
         }
+      },
+      "OpenTelemetry.Api": {
+        "type": "CentralTransitive",
+        "requested": "[1.15.3, )",
+        "resolved": "1.15.3",
+        "contentHash": "fX+fkCysfPut+qCcT3bKqyX4QN9Saf4CgX8HLOHywEVD+Xr7sULtfuypITpoDysjx8R59dn/3mWhgimMH8cm/g=="
       },
       "OpenTelemetry.Exporter.OpenTelemetryProtocol": {
         "type": "CentralTransitive",

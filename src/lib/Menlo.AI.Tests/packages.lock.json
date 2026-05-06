@@ -411,11 +411,6 @@
           "OpenTelemetry.Api.ProviderBuilderExtensions": "1.12.0"
         }
       },
-      "OpenTelemetry.Api": {
-        "type": "Transitive",
-        "resolved": "1.12.0",
-        "contentHash": "Xt0qldi+iE2szGrM3jAqzEMEJd48YBtqI6mge0+ArXTZg3aTpRmyhL6CKKl3bLioaFSSVbBpEbPin8u6Z46Yrw=="
-      },
       "OpenTelemetry.Api.ProviderBuilderExtensions": {
         "type": "Transitive",
         "resolved": "1.12.0",
@@ -542,7 +537,8 @@
           "Microsoft.Extensions.Hosting.Abstractions": "[10.0.7, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.7, )",
           "Microsoft.SemanticKernel": "[1.75.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )"
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )",
+          "OpenTelemetry.Api": "[1.15.3, )"
         }
       },
       "menlo.lib": {
@@ -634,6 +630,12 @@
           "Microsoft.SemanticKernel.Core": "1.75.0",
           "OllamaSharp": "5.4.12"
         }
+      },
+      "OpenTelemetry.Api": {
+        "type": "CentralTransitive",
+        "requested": "[1.15.3, )",
+        "resolved": "1.15.3",
+        "contentHash": "fX+fkCysfPut+qCcT3bKqyX4QN9Saf4CgX8HLOHywEVD+Xr7sULtfuypITpoDysjx8R59dn/3mWhgimMH8cm/g=="
       },
       "OpenTelemetry.Extensions.Hosting": {
         "type": "CentralTransitive",
