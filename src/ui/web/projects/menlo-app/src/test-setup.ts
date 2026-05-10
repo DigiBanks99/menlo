@@ -21,6 +21,7 @@ class MockIntersectionObserver implements IntersectionObserver {
   takeRecords(): IntersectionObserverEntry[] {
     return [];
   }
+  scrollMargin: string = '';
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {

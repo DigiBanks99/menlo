@@ -60,8 +60,5 @@
     "editor.colorDecorators": true
   },
   "nxConsole.nxWorkspacePath": "src\\ui\\web",
-  "terminal.integrated.shellIntegration.enabled": true,
-  "debug.javascript.defaultRuntimeExecutable": {
-    "pwa-node": "c:\\users\\wilco.boshoff\\appdata\\local\\mise\\shims\\node"
-  }
+  "terminal.integrated.shellIntegration.enabled": true
 }
