@@ -1,6 +1,26 @@
 packages:
   - src/ui/web
 
+allowBuilds:
+  '@compodoc/compodoc': true
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  less: true
+  lmdb: true
+  msgpackr-extract: true
+  nx: true
+
+minimumReleaseAgeExclude:
+  - ajv@8.18.0
+  - brace-expansion@5.0.5
+  - picomatch@4.0.4
+  - yaml@2.8.3
+  - follow-redirects@1.15.12
+  - axios@1.15.1
+  - axios@1.15.2
+  - uuid@11.1.1
+
 onlyBuiltDependencies:
   - '@compodoc/compodoc'
   - '@parcel/watcher'
@@ -10,3 +30,13 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
   - nx
+
+overrides:
+  ajv@>=7.0.0-alpha.0 <8.18.0: ^8.18.0
+  axios@>=1.0.0 <1.15.1: ^1.15.1
+  axios@>=1.0.0 <1.15.2: ^1.15.2
+  brace-expansion@>=4.0.0 <5.0.5: ^5.0.5
+  follow-redirects@<=1.15.11: ^1.15.12
+  picomatch@>=4.0.0 <4.0.4: ^4.0.4
+  uuid@>=11.0.0 <11.1.1: ^11.1.1
+  yaml@>=2.0.0 <2.8.3: ^2.8.3
