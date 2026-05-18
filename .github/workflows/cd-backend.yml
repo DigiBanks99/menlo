@@ -311,11 +311,11 @@ jobs:
 
           # Stop existing services
           Write-Host "⏸️ Stopping existing services..." -ForegroundColor Yellow
-          podman-compose -f docker-compose.prod.yml down 2>$null
+          podman compose -f docker-compose.prod.yml down 2>$null
 
           # Start services
           Write-Host "▶️ Starting services..." -ForegroundColor Yellow
-          podman-compose -f docker-compose.prod.yml up -d
+          podman compose -f docker-compose.prod.yml up -d
 
           # Wait for health checks
           Write-Host "🏥 Waiting for services..." -ForegroundColor Yellow
@@ -323,7 +323,7 @@ jobs:
 
           # Check service status
           Write-Host "📊 Service Status:" -ForegroundColor Cyan
-          podman-compose -f docker-compose.prod.yml ps
+          podman compose -f docker-compose.prod.yml ps
 
           Write-Host "✅ Deployment completed!" -ForegroundColor Green
 
