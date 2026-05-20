@@ -2,6 +2,14 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.6.
 
+## Design system infrastructure
+
+- Shared Tailwind CSS v4 entry: `tailwind.css`
+- Tailwind theme/config: `tailwind.config.ts`
+- Menlo app styles entry: `projects/menlo-app/src/styles.scss`
+- Menlo lib Storybook styles entry: `projects/menlo-lib/src/styles.scss`
+- Theme service export: `menlo-lib` → `ThemeService`
+
 ## Development server
 
 To start a local development server, run:
