@@ -694,7 +694,7 @@
           "Menlo.Lib": "[1.0.0, )",
           "Microsoft.Extensions.AI": "[10.6.0, )",
           "Microsoft.SemanticKernel": "[1.76.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )",
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.76.0-alpha, )",
           "OpenTelemetry.Api": "[1.15.3, )"
         }
       },
@@ -791,13 +791,13 @@
       },
       "Microsoft.SemanticKernel.Connectors.Ollama": {
         "type": "CentralTransitive",
-        "requested": "[1.75.0-alpha, )",
-        "resolved": "1.75.0-alpha",
-        "contentHash": "saTsB7IBET+FFfyUIf7k+cfQfUd8jWeVam0Rsa1FV3ej2NS0JpJZfwcA7S2ncO75+hSXCUG3gIe1K9M4XoWYsg==",
+        "requested": "[1.76.0-alpha, )",
+        "resolved": "1.76.0-alpha",
+        "contentHash": "B3UUXPLeHYtqSe03LrxcP9t4tmTAjjtx+nmV4CIDlpUGB+CTpfVyL0YBoEXVIZE31xsHKq4LCfYBV/IGr2ks/w==",
         "dependencies": {
           "Microsoft.Net.Compilers.Toolset": "4.14.0",
-          "Microsoft.SemanticKernel.Abstractions": "1.75.0",
-          "Microsoft.SemanticKernel.Core": "1.75.0",
+          "Microsoft.SemanticKernel.Abstractions": "1.76.0",
+          "Microsoft.SemanticKernel.Core": "1.76.0",
           "OllamaSharp": "5.4.12"
         }
       },

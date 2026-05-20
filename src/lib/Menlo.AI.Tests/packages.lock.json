@@ -4,9 +4,9 @@
     "net10.0": {
       "coverlet.collector": {
         "type": "Direct",
-        "requested": "[10.0.0, )",
-        "resolved": "10.0.0",
-        "contentHash": "WFejCcOUR6k8UYyDnnR6Gk+obFYMsWrZuNqPJnsVFGVhpPSN0y20D4qbdKJnXinYGx9PQ397Hf9TnU1NBST8vA=="
+        "requested": "[10.0.1, )",
+        "resolved": "10.0.1",
+        "contentHash": "27jXSV/0DbVqF5jDrAxuQFZ9oaz6gmG03p8ttxAFk+X0M4woFYj7MoWDLCna5EGLb0CE6OE7X6ZH3Wt5smTtaA=="
       },
       "Microsoft.Extensions.AI": {
         "type": "Direct",
@@ -537,7 +537,7 @@
           "Microsoft.Extensions.Hosting.Abstractions": "[10.0.8, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.8, )",
           "Microsoft.SemanticKernel": "[1.76.0, )",
-          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.75.0-alpha, )",
+          "Microsoft.SemanticKernel.Connectors.Ollama": "[1.76.0-alpha, )",
           "OpenTelemetry.Api": "[1.15.3, )"
         }
       },
@@ -621,13 +621,13 @@
       },
       "Microsoft.SemanticKernel.Connectors.Ollama": {
         "type": "CentralTransitive",
-        "requested": "[1.75.0-alpha, )",
-        "resolved": "1.75.0-alpha",
-        "contentHash": "saTsB7IBET+FFfyUIf7k+cfQfUd8jWeVam0Rsa1FV3ej2NS0JpJZfwcA7S2ncO75+hSXCUG3gIe1K9M4XoWYsg==",
+        "requested": "[1.76.0-alpha, )",
+        "resolved": "1.76.0-alpha",
+        "contentHash": "B3UUXPLeHYtqSe03LrxcP9t4tmTAjjtx+nmV4CIDlpUGB+CTpfVyL0YBoEXVIZE31xsHKq4LCfYBV/IGr2ks/w==",
         "dependencies": {
           "Microsoft.Net.Compilers.Toolset": "4.14.0",
-          "Microsoft.SemanticKernel.Abstractions": "1.75.0",
-          "Microsoft.SemanticKernel.Core": "1.75.0",
+          "Microsoft.SemanticKernel.Abstractions": "1.76.0",
+          "Microsoft.SemanticKernel.Core": "1.76.0",
           "OllamaSharp": "5.4.12"
         }
       },
