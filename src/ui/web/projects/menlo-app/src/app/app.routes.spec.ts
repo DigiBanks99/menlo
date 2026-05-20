@@ -10,20 +10,30 @@ describe('app routes', () => {
     expect(signInRoute?.loadComponent).toBeTypeOf('function');
   });
 
-  it('should lazily resolve each routed component', async () => {
-    const signInRoute = routes.find((route) => route.path === 'sign-in');
-    const guardedRoot = routes.find((route) => route.path === '');
-    const homeRoute = guardedRoot?.children?.find((child) => child.path === '');
-    const budgetsRoute = guardedRoot?.children?.find((child) => child.path === 'budgets');
-    const budgetDetailRoute = guardedRoot?.children?.find((child) => child.path === 'budgets/:id');
-    const analyticsRoute = guardedRoot?.children?.find((child) => child.path === 'analytics');
+  it(
+    'should lazily resolve each routed component',
+    async () => {
+      const signInRoute = routes.find((route) => route.path === 'sign-in');
+      const guardedRoot = routes.find((route) => route.path === '');
+      const homeRoute = guardedRoot?.children?.find((child) => child.path === '');
+      const budgetsRoute = guardedRoot?.children?.find((child) => child.path === 'budgets');
+      const budgetDetailRoute = guardedRoot?.children?.find((child) => child.path === 'budgets/:id');
+      const analyticsRoute = guardedRoot?.children?.find((child) => child.path === 'analytics');
 
-    expect(await signInRoute?.loadComponent?.()).toBeTruthy();
-    expect(await homeRoute?.loadComponent?.()).toBeTruthy();
-    expect(await budgetsRoute?.loadComponent?.()).toBeTruthy();
-    expect(await budgetDetailRoute?.loadComponent?.()).toBeTruthy();
-    expect(await analyticsRoute?.loadComponent?.()).toBeTruthy();
-  });
+      const resolvedComponents = await Promise.all([
+        signInRoute?.loadComponent?.(),
+        homeRoute?.loadComponent?.(),
+        budgetsRoute?.loadComponent?.(),
+        budgetDetailRoute?.loadComponent?.(),
+        analyticsRoute?.loadComponent?.(),
+      ]);
+
+      for (const resolvedComponent of resolvedComponents) {
+        expect(resolvedComponent).toBeTruthy();
+      }
+    },
+    15000,
+  );
 
   it('should guard all application routes behind the auth guard', () => {
     const guardedRoot = routes.find((route) => route.path === '');

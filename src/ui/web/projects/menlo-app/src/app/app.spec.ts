@@ -1,28 +1,33 @@
 import { Component, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
+
 import { App } from './app';
 
-// Mock the MenloLib component to avoid injection issues
 @Component({
-  selector: 'lib-menlo-lib',
-  template: '<p>Mock MenloLib component</p>',
-  standalone: true
+  standalone: true,
+  template: '<p>Home page</p>',
 })
-class MockMenloLib {}
+class HomeRouteComponent {}
+
+@Component({
+  standalone: true,
+  template: '<p>Sign in page</p>',
+})
+class SignInRouteComponent {}
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App, MockMenloLib],
+      imports: [App],
       providers: [
-        provideZonelessChangeDetection()
-      ]
-    })
-    .overrideComponent(App, {
-      set: {
-        imports: [MockMenloLib]
-      }
+        provideRouter([
+          { path: '', component: HomeRouteComponent },
+          { path: 'sign-in', component: SignInRouteComponent },
+        ]),
+        provideZonelessChangeDetection(),
+      ],
     })
     .compileComponents();
   });
@@ -33,10 +38,28 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it('should render the page shell for authenticated routes', async () => {
     const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/');
     fixture.detectChanges();
+
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Menlo');
+
+    expect(compiled.querySelector('[data-testid="mnl-page-shell"]')).toBeTruthy();
+  });
+
+  it('should hide the page shell on the sign-in route', async () => {
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/sign-in');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('[data-testid="mnl-page-shell"]')).toBeNull();
+    expect(compiled.textContent).toContain('Sign in page');
   });
 });

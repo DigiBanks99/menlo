@@ -9,3 +9,5 @@ export * from './lib/atoms/input';
 export * from './lib/atoms/select';
 export * from './lib/molecules/form-field';
 export * from './lib/molecules/amount-input';
+export * from './lib/molecules/tab-bar';
+export * from './lib/organisms/page-shell';
