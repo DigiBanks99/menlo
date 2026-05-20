@@ -19,6 +19,7 @@ export * from './lib/atoms/select';
 export * from './lib/molecules/form-field';
 export * from './lib/molecules/amount-input';
 export * from './lib/molecules/tab-bar';
+export * from './lib/molecules/panel';
 
 // Organisms
 export * from './lib/organisms/page-shell';
