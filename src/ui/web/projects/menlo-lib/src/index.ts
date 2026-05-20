@@ -20,3 +20,4 @@ export * from './lib/molecules/tab-bar';
 export * from './lib/molecules/panel';
 export * from './lib/molecules/stat';
 export * from './lib/organisms/page-shell';
+export * from './lib/organisms/form-layout';

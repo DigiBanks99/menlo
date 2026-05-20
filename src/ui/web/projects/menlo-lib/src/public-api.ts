@@ -30,4 +30,5 @@ export * from './lib/molecules/panel';
 export * from './lib/molecules/stat';
 
 // Organisms
+export * from './lib/organisms/form-layout';
 export * from './lib/organisms/page-shell';

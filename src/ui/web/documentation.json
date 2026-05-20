@@ -1942,6 +1942,278 @@
             "extends": []
         },
         {
+            "name": "FormLayoutStoryPreviewComponent",
+            "id": "component-FormLayoutStoryPreviewComponent-3d88b9571d5bc4246a518bdc6ad974a753da78923a003d5d5c3a265279ce20e72c420c74d25aee50933218a3128634d9dc21f421d7ebb2e9e0abefa9b7e791d3",
+            "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-form-layout-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-4xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Organisms\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Form Layout</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        The layout keeps projected sections readable, lets consumers opt into desktop grids, and\n        pins the action bar to the panel edge while the form body scrolls.\n      </p>\n\n      <div class=\"mt-5 flex flex-wrap gap-3\">\n        <mnl-button (pressed)=\"open.set(true)\">Open form</mnl-button>\n        <mnl-button variant=\"secondary\" (pressed)=\"toggleTheme()\">\n          Toggle {{ activeTheme() === 'light' ? 'dark' : 'light' }} mode\n        </mnl-button>\n      </div>\n    </section>\n  </div>\n\n  <mnl-panel [mode]=\"mode()\" [open]=\"open()\" (closed)=\"open.set(false)\">\n    <div mnlPanelHeader>\n      <div class=\"space-y-1\">\n        <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n          Budget details\n        </p>\n        <h2 class=\"m-0 text-2xl font-bold tracking-tight\">Create budget item</h2>\n        <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n          Preview the shared form structure inside a responsive panel.\n        </p>\n      </div>\n    </div>\n\n    <form class=\"min-h-full\" (submit)=\"handleSubmit($event)\">\n      <mnl-form-layout>\n        <div class=\"space-y-2\" mnlFormTitle>\n          <h3 class=\"m-0 text-xl font-semibold\">Monthly household expense</h3>\n          <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n            Validation copy, grouped amount entry, and sticky actions stay consistent across\n            both themes.\n          </p>\n        </div>\n\n        <section class=\"space-y-4\">\n          <mnl-form-field inputId=\"story-budget-item-title\" label=\"Title\" [required]=\"true\">\n            <mnl-input id=\"story-budget-item-title\" placeholder=\"School fees\"></mnl-input>\n          </mnl-form-field>\n\n          <mnl-form-field\n            inputId=\"story-budget-item-notes\"\n            label=\"Notes\"\n            hint=\"Optional family context for the monthly plan.\"\n          >\n            <mnl-input\n              id=\"story-budget-item-notes\"\n              placeholder=\"Uniform payment due before term starts\"\n            ></mnl-input>\n          </mnl-form-field>\n        </section>\n\n        <section class=\"space-y-4\">\n          <div class=\"space-y-1\">\n            <h4 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Finance details\n            </h4>\n            <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n              Consumers can opt into a responsive two-column grid for shorter fields.\n            </p>\n          </div>\n\n          <div class=\"grid gap-4 md:grid-cols-2\">\n            <mnl-form-field\n              inputId=\"story-budget-item-amount\"\n              label=\"Planned amount\"\n              [required]=\"true\"\n            >\n              <mnl-amount-input\n                id=\"story-budget-item-amount\"\n                error=\"Enter a valid monthly amount\"\n                placeholder=\"0.00\"\n              ></mnl-amount-input>\n            </mnl-form-field>\n\n            <mnl-form-field\n              inputId=\"story-budget-item-category\"\n              label=\"Category\"\n              [required]=\"true\"\n            >\n              <mnl-select\n                id=\"story-budget-item-category\"\n                [options]=\"categoryOptions\"\n                placeholder=\"Choose a category\"\n              ></mnl-select>\n            </mnl-form-field>\n          </div>\n        </section>\n\n        <section class=\"space-y-4\">\n          <div class=\"space-y-1\">\n            <h4 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Allocation\n            </h4>\n            <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n              Additional projected sections stack with consistent spacing on mobile and desktop.\n            </p>\n          </div>\n\n          <div class=\"grid gap-4 md:grid-cols-2\">\n            <mnl-form-field inputId=\"story-budget-item-frequency\" label=\"Frequency\">\n              <mnl-select\n                id=\"story-budget-item-frequency\"\n                [options]=\"frequencyOptions\"\n              ></mnl-select>\n            </mnl-form-field>\n\n            <mnl-form-field\n              inputId=\"story-budget-item-owner\"\n              label=\"Household owner\"\n              hint=\"Used for attribution and reminders.\"\n            >\n              <mnl-input id=\"story-budget-item-owner\" placeholder=\"Mom\"></mnl-input>\n            </mnl-form-field>\n          </div>\n        </section>\n\n        <div mnlFormActions>\n          <mnl-button variant=\"ghost\" type=\"button\" (pressed)=\"handleClear()\">\n            Clear\n          </mnl-button>\n          <mnl-button type=\"submit\">Save item</mnl-button>\n        </div>\n      </mnl-form-layout>\n    </form>\n  </mnl-panel>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "mode",
+                    "defaultValue": "'dialog'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlPanelMode",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 193,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "themeMode",
+                    "defaultValue": "'light'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "\"light\" | \"dark\"",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 194,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "activeTheme",
+                    "defaultValue": "signal<'light' | 'dark'>('light')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 196,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "categoryOptions",
+                    "defaultValue": "[\n    { value: 'school', label: 'School' },\n    { value: 'groceries', label: 'Groceries' },\n    { value: 'transport', label: 'Transport' },\n  ] as const",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 198,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 210,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "document",
+                    "defaultValue": "inject(DOCUMENT)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 209,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "frequencyOptions",
+                    "defaultValue": "[\n    { value: 'monthly', label: 'Monthly' },\n    { value: 'quarterly', label: 'Quarterly' },\n    { value: 'annual', label: 'Annual' },\n  ] as const",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 203,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "open",
+                    "defaultValue": "signal(true)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 197,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "previousDarkMode",
+                    "defaultValue": "this.document.documentElement.classList.contains('dark')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 211,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleClear",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 230,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleSubmit",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 234,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toggleTheme",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 239,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlAmountInputComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlButtonComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlFormFieldComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlFormLayoutComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlInputComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlPanelComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlSelectComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { DOCUMENT } from '@angular/common';\nimport {\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  effect,\n  inject,\n  input,\n  signal,\n} from '@angular/core';\nimport { type Meta, type StoryObj } from '@storybook/angular';\n\nimport { MnlButtonComponent } from '../../atoms/button';\nimport { MnlInputComponent } from '../../atoms/input';\nimport { MnlSelectComponent } from '../../atoms/select';\nimport { MnlAmountInputComponent } from '../../molecules/amount-input';\nimport { MnlFormFieldComponent } from '../../molecules/form-field';\nimport { MnlPanelComponent, type MnlPanelMode } from '../../molecules/panel';\nimport { MnlFormLayoutComponent } from './form-layout.component';\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  selector: 'lib-form-layout-story-preview',\n  standalone: true,\n  imports: [\n    MnlAmountInputComponent,\n    MnlButtonComponent,\n    MnlFormFieldComponent,\n    MnlFormLayoutComponent,\n    MnlInputComponent,\n    MnlPanelComponent,\n    MnlSelectComponent,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-4xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Form Layout</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The layout keeps projected sections readable, lets consumers opt into desktop grids, and\n            pins the action bar to the panel edge while the form body scrolls.\n          </p>\n\n          <div class=\"mt-5 flex flex-wrap gap-3\">\n            <mnl-button (pressed)=\"open.set(true)\">Open form</mnl-button>\n            <mnl-button variant=\"secondary\" (pressed)=\"toggleTheme()\">\n              Toggle {{ activeTheme() === 'light' ? 'dark' : 'light' }} mode\n            </mnl-button>\n          </div>\n        </section>\n      </div>\n\n      <mnl-panel [mode]=\"mode()\" [open]=\"open()\" (closed)=\"open.set(false)\">\n        <div mnlPanelHeader>\n          <div class=\"space-y-1\">\n            <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n              Budget details\n            </p>\n            <h2 class=\"m-0 text-2xl font-bold tracking-tight\">Create budget item</h2>\n            <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n              Preview the shared form structure inside a responsive panel.\n            </p>\n          </div>\n        </div>\n\n        <form class=\"min-h-full\" (submit)=\"handleSubmit($event)\">\n          <mnl-form-layout>\n            <div class=\"space-y-2\" mnlFormTitle>\n              <h3 class=\"m-0 text-xl font-semibold\">Monthly household expense</h3>\n              <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n                Validation copy, grouped amount entry, and sticky actions stay consistent across\n                both themes.\n              </p>\n            </div>\n\n            <section class=\"space-y-4\">\n              <mnl-form-field inputId=\"story-budget-item-title\" label=\"Title\" [required]=\"true\">\n                <mnl-input id=\"story-budget-item-title\" placeholder=\"School fees\"></mnl-input>\n              </mnl-form-field>\n\n              <mnl-form-field\n                inputId=\"story-budget-item-notes\"\n                label=\"Notes\"\n                hint=\"Optional family context for the monthly plan.\"\n              >\n                <mnl-input\n                  id=\"story-budget-item-notes\"\n                  placeholder=\"Uniform payment due before term starts\"\n                ></mnl-input>\n              </mnl-form-field>\n            </section>\n\n            <section class=\"space-y-4\">\n              <div class=\"space-y-1\">\n                <h4 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Finance details\n                </h4>\n                <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n                  Consumers can opt into a responsive two-column grid for shorter fields.\n                </p>\n              </div>\n\n              <div class=\"grid gap-4 md:grid-cols-2\">\n                <mnl-form-field\n                  inputId=\"story-budget-item-amount\"\n                  label=\"Planned amount\"\n                  [required]=\"true\"\n                >\n                  <mnl-amount-input\n                    id=\"story-budget-item-amount\"\n                    error=\"Enter a valid monthly amount\"\n                    placeholder=\"0.00\"\n                  ></mnl-amount-input>\n                </mnl-form-field>\n\n                <mnl-form-field\n                  inputId=\"story-budget-item-category\"\n                  label=\"Category\"\n                  [required]=\"true\"\n                >\n                  <mnl-select\n                    id=\"story-budget-item-category\"\n                    [options]=\"categoryOptions\"\n                    placeholder=\"Choose a category\"\n                  ></mnl-select>\n                </mnl-form-field>\n              </div>\n            </section>\n\n            <section class=\"space-y-4\">\n              <div class=\"space-y-1\">\n                <h4 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Allocation\n                </h4>\n                <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n                  Additional projected sections stack with consistent spacing on mobile and desktop.\n                </p>\n              </div>\n\n              <div class=\"grid gap-4 md:grid-cols-2\">\n                <mnl-form-field inputId=\"story-budget-item-frequency\" label=\"Frequency\">\n                  <mnl-select\n                    id=\"story-budget-item-frequency\"\n                    [options]=\"frequencyOptions\"\n                  ></mnl-select>\n                </mnl-form-field>\n\n                <mnl-form-field\n                  inputId=\"story-budget-item-owner\"\n                  label=\"Household owner\"\n                  hint=\"Used for attribution and reminders.\"\n                >\n                  <mnl-input id=\"story-budget-item-owner\" placeholder=\"Mom\"></mnl-input>\n                </mnl-form-field>\n              </div>\n            </section>\n\n            <div mnlFormActions>\n              <mnl-button variant=\"ghost\" type=\"button\" (pressed)=\"handleClear()\">\n                Clear\n              </mnl-button>\n              <mnl-button type=\"submit\">Save item</mnl-button>\n            </div>\n          </mnl-form-layout>\n        </form>\n      </mnl-panel>\n    </div>\n  `,\n})\nclass FormLayoutStoryPreviewComponent {\n  readonly mode = input<MnlPanelMode>('dialog');\n  readonly themeMode = input<'light' | 'dark'>('light');\n\n  protected readonly activeTheme = signal<'light' | 'dark'>('light');\n  protected readonly open = signal(true);\n  protected readonly categoryOptions = [\n    { value: 'school', label: 'School' },\n    { value: 'groceries', label: 'Groceries' },\n    { value: 'transport', label: 'Transport' },\n  ] as const;\n  protected readonly frequencyOptions = [\n    { value: 'monthly', label: 'Monthly' },\n    { value: 'quarterly', label: 'Quarterly' },\n    { value: 'annual', label: 'Annual' },\n  ] as const;\n\n  private readonly document = inject(DOCUMENT);\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly previousDarkMode = this.document.documentElement.classList.contains('dark');\n\n  constructor() {\n    effect(\n      () => {\n        this.activeTheme.set(this.themeMode());\n      },\n      { allowSignalWrites: true },\n    );\n\n    effect(() => {\n      this.document.documentElement.classList.toggle('dark', this.activeTheme() === 'dark');\n    });\n\n    this.destroyRef.onDestroy(() => {\n      this.document.documentElement.classList.toggle('dark', this.previousDarkMode);\n    });\n  }\n\n  protected handleClear(): void {\n    this.open.set(true);\n  }\n\n  protected handleSubmit(event: Event): void {\n    event.preventDefault();\n    this.open.set(false);\n  }\n\n  protected toggleTheme(): void {\n    this.activeTheme.update((theme) => (theme === 'light' ? 'dark' : 'light'));\n  }\n}\n\nconst meta: Meta<FormLayoutStoryPreviewComponent> = {\n  title: 'Organisms/Form Layout',\n  component: FormLayoutStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<FormLayoutStoryPreviewComponent>;\n\nexport const DialogLight: Story = {\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n\nexport const DialogDark: Story = {\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n\nexport const SheetMobile: Story = {\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 211
+            },
+            "extends": []
+        },
+        {
             "name": "FoundationsColoursStoryComponent",
             "id": "component-FoundationsColoursStoryComponent-576c7604e1e8d047c590c0e61cc50af6fd935f617c2efc596a694228753cbd5f3d1b4e8fd8883035c2ccaeea77ddf89fadfa3ef28bc95832f9bccad9b9171bab",
             "file": "projects/menlo-lib/src/lib/foundations/colours.stories.ts",
@@ -4093,6 +4365,43 @@
             "rawdescription": "\n",
             "type": "component",
             "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\n\n@Component({\n  selector: 'mnl-form-field',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <div [attr.data-has-error]=\"hasError()\" class=\"space-y-2\" data-testid=\"mnl-form-field\">\n      <label\n        [attr.for]=\"inputId() || null\"\n        class=\"block text-xs font-semibold text-mnl-text\"\n        data-testid=\"mnl-form-field-label\"\n      >\n        <span>{{ label() }}</span>\n\n        @if (required()) {\n          <span aria-hidden=\"true\" class=\"text-mnl-red\"> *</span>\n        }\n      </label>\n\n      <div class=\"w-full\">\n        <ng-content></ng-content>\n      </div>\n\n      @if (hint()) {\n        <p class=\"m-0 text-xs leading-5 text-mnl-subtext\" data-testid=\"mnl-form-field-hint\">\n          {{ hint() }}\n        </p>\n      }\n\n      @if (error()) {\n        <p\n          class=\"m-0 text-xs font-medium leading-5 text-mnl-red\"\n          data-testid=\"mnl-form-field-error\"\n        >\n          {{ error() }}\n        </p>\n      }\n    </div>\n  `,\n})\nexport class MnlFormFieldComponent {\n  readonly error = input<string | null>(null);\n  readonly hint = input('');\n  readonly inputId = input('');\n  readonly label = input.required<string>();\n  readonly required = input(false);\n\n  protected readonly hasError = computed(() => Boolean(this.error()));\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "MnlFormLayoutComponent",
+            "id": "component-MnlFormLayoutComponent-a613fdf4e2f569603d9e427eeb37420c0fdeefb177c2e4224047f9c7c16e457dea880b4eb25f296e6d831907ecb4e969c5b5c6913b7ebbaf792d791d82324433",
+            "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-form-layout",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"flex min-h-full flex-col\" data-testid=\"mnl-form-layout\">\n  <div class=\"contents\" data-testid=\"mnl-form-layout-title\">\n    <ng-content select=\"[mnlFormTitle]\"></ng-content>\n  </div>\n\n  <div class=\"flex-1 space-y-6\" data-testid=\"mnl-form-layout-sections\">\n    <ng-content select=\":not([mnlFormTitle]):not([mnlFormActions])\"></ng-content>\n  </div>\n\n  <footer\n    class=\"sticky bottom-0 z-10 mt-6 border-t border-mnl-border/80 bg-mnl-surface/95 pt-4 supports-[backdrop-filter]:bg-mnl-surface/90 supports-[backdrop-filter]:backdrop-blur\"\n    data-testid=\"mnl-form-layout-actions\"\n  >\n    <div class=\"flex flex-col gap-3 sm:flex-row sm:justify-end\">\n      <ng-content select=\"[mnlFormActions]\"></ng-content>\n    </div>\n  </footer>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n  selector: 'mnl-form-layout',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'block min-h-full text-mnl-text',\n  },\n  template: `\n    <div class=\"flex min-h-full flex-col\" data-testid=\"mnl-form-layout\">\n      <div class=\"contents\" data-testid=\"mnl-form-layout-title\">\n        <ng-content select=\"[mnlFormTitle]\"></ng-content>\n      </div>\n\n      <div class=\"flex-1 space-y-6\" data-testid=\"mnl-form-layout-sections\">\n        <ng-content select=\":not([mnlFormTitle]):not([mnlFormActions])\"></ng-content>\n      </div>\n\n      <footer\n        class=\"sticky bottom-0 z-10 mt-6 border-t border-mnl-border/80 bg-mnl-surface/95 pt-4 supports-[backdrop-filter]:bg-mnl-surface/90 supports-[backdrop-filter]:backdrop-blur\"\n        data-testid=\"mnl-form-layout-actions\"\n      >\n        <div class=\"flex flex-col gap-3 sm:flex-row sm:justify-end\">\n          <ng-content select=\"[mnlFormActions]\"></ng-content>\n        </div>\n      </footer>\n    </div>\n  `,\n})\nexport class MnlFormLayoutComponent {}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -8651,6 +8960,26 @@
                 "defaultValue": "'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
             },
             {
+                "name": "DialogDark",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+            },
+            {
+                "name": "DialogLight",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+            },
+            {
                 "name": "directionIcons",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -8984,21 +9313,21 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Meta<PageHeaderStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Molecules/Page Header',\n  component: PageHeaderStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
-            },
-            {
-                "name": "meta",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<ListItemStoryPreviewComponent>",
                 "defaultValue": "{\n  title: 'Molecules/List Item',\n  component: ListItemStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<PageHeaderStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Page Header',\n  component: PageHeaderStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
                 "name": "meta",
@@ -9029,6 +9358,16 @@
                 "deprecationMessage": "",
                 "type": "Meta<TabBarStoryPreviewComponent>",
                 "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<FormLayoutStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Organisms/Form Layout',\n  component: FormLayoutStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
             },
             {
                 "name": "meta",
@@ -9274,7 +9613,7 @@
                 "name": "Overview",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -9284,7 +9623,7 @@
                 "name": "Overview",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -9499,6 +9838,16 @@
                 "deprecationMessage": "",
                 "type": "TokenExample[]",
                 "defaultValue": "[\n  {\n    label: 'Card shadow',\n    classes: 'rounded-2xl bg-mnl-surface shadow-sm ring-1 ring-mnl-border',\n    note: 'Default container elevation',\n  },\n  {\n    label: 'Elevated shadow',\n    classes: 'rounded-2xl bg-mnl-surface shadow-md ring-1 ring-mnl-border',\n    note: 'Dialogs, menus, and lifted interactions',\n  },\n]"
+            },
+            {
+                "name": "SheetMobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
             },
             {
                 "name": "sizeClasses",
@@ -9775,6 +10124,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+            },
+            {
+                "name": "viewportOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "unknown",
@@ -10464,8 +10823,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<PageHeaderStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
+                "rawtype": "StoryObj<ListItemStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -10475,8 +10834,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<ListItemStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
+                "rawtype": "StoryObj<PageHeaderStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -10510,6 +10869,17 @@
                 "subtype": "typealias",
                 "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<FormLayoutStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -11298,6 +11668,58 @@
                     "defaultValue": "'relative inline-flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
                 }
             ],
+            "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts": [
+                {
+                    "name": "DialogDark",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "DialogLight",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<FormLayoutStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Organisms/Form Layout',\n  component: FormLayoutStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "SheetMobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
             "projects/menlo-lib/src/lib/molecules/stat/stat.component.ts": [
                 {
                     "name": "directionIcons",
@@ -11948,6 +12370,28 @@
                     "defaultValue": "{}"
                 }
             ],
+            "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<ListItemStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/List Item',\n  component: ListItemStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                }
+            ],
             "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts": [
                 {
                     "name": "meta",
@@ -11978,28 +12422,6 @@
                     "deprecationMessage": "",
                     "type": "string",
                     "defaultValue": "'linear-gradient(135deg, var(--mnl-color-warning) 0%, var(--mnl-color-accent) 55%, var(--mnl-color-gradient-end) 100%)'"
-                }
-            ],
-            "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts": [
-                {
-                    "name": "meta",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<ListItemStoryPreviewComponent>",
-                    "defaultValue": "{\n  title: 'Molecules/List Item',\n  component: ListItemStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
-                },
-                {
-                    "name": "Overview",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{}"
                 }
             ],
             "projects/menlo-lib/src/lib/molecules/stat/stat.stories.ts": [
@@ -12803,19 +13225,6 @@
                     "kind": 184
                 }
             ],
-            "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts": [
-                {
-                    "name": "Story",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "StoryObj<PageHeaderStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 184
-                }
-            ],
             "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts": [
                 {
                     "name": "Story",
@@ -12823,6 +13232,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<ListItemStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/molecules/list-item/list-item.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<PageHeaderStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/page-header/page-header.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -12862,6 +13284,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<FormLayoutStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -15206,6 +15641,84 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlFormLayoutComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "FormLayoutStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/14",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "DialogDark",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "DialogLight",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "SheetMobile",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "viewportOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/form-layout/form-layout.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
