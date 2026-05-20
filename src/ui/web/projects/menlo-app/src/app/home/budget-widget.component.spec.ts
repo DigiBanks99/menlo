@@ -128,7 +128,7 @@ describe('BudgetWidgetComponent', () => {
       '[data-testid="widget-error"]',
     ) as HTMLElement;
     expect(errorBanner).toBeTruthy();
-    expect(errorBanner.textContent?.trim()).toBe('Something went wrong');
+    expect(errorBanner.textContent?.trim()).toContain('Something went wrong');
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 
@@ -140,7 +140,7 @@ describe('BudgetWidgetComponent', () => {
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector(
-      '[data-testid="view-budget-btn"]',
+      '[data-testid="view-budget-button"] [data-testid="mnl-button"]',
     ) as HTMLButtonElement;
     const loadingEl = fixture.nativeElement.querySelector(
       '[data-testid="widget-loading"]',

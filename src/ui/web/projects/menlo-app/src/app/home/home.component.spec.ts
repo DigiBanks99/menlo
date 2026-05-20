@@ -40,9 +40,15 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const navLinks = compiled.querySelectorAll('.nav-button');
+    const actions = compiled.querySelectorAll(
+      '[data-testid="home-primary-action"], [data-testid="home-secondary-action"]',
+    );
+    const featureCards = compiled.querySelectorAll('[data-testid="home-feature-card"]');
 
+    expect(compiled.querySelector('[data-testid="mnl-page-header"]')).toBeTruthy();
     expect(compiled.querySelector('h1')?.textContent).toContain('Menlo Home Management');
-    expect(navLinks).toHaveLength(2);
+    expect(actions).toHaveLength(2);
+    expect(featureCards).toHaveLength(3);
+    expect(compiled.querySelector('[data-testid="home-overview-placeholder"]')).toBeTruthy();
   });
 });
