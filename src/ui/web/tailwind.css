@@ -7,6 +7,7 @@
 @plugin "@tailwindcss/forms" {
   strategy: 'class';
 }
+@plugin "@tailwindcss/container-queries";
 
 :root {
   --mnl-color-bg: #eff1f5;
