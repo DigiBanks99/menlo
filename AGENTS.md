@@ -72,3 +72,5 @@ Update your learnings as you progress but keep them brief.
 - `mnl-page-shell` should own the router-driven scroll reset while `mnl-tab-bar` keeps both mobile and desktop nav DOM trees mounted so CSS alone controls the responsive switch.
 - Angular partial-compilation builds for `menlo-lib` can only bind to protected/public component members from templates; private signals break `ng-packagr` builds.
 - `pnpm test:e2e` reuses any existing dev server on port 4200; kill stale `nx serve menlo-app` listeners before rerunning Playwright if a Vite overlay appears from old type-resolution errors.
+- `src/ui/web/projects/menlo-lib/src/index.ts` and `src/public-api.ts` need to stay aligned when adding new exported molecules, or Storybook/dev imports drift from the packaged surface.
+- Design-system gradients that must work in app runtime, Storybook previews, and Vitest are safest when driven by shared theme CSS variables instead of `light-dark()`.

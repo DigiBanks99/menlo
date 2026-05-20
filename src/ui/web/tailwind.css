@@ -19,6 +19,9 @@
   --mnl-color-subtext: #6c6f85;
   --mnl-color-accent: #ea76cb;
   --mnl-color-accent-strong: #8839ef;
+  --mnl-color-gradient-start: #ea76cb;
+  --mnl-color-gradient-mid: #8839ef;
+  --mnl-color-gradient-end: #7287fd;
   --mnl-color-success: #40a02b;
   --mnl-color-warning: #df8e1d;
   --mnl-color-error: #d20f39;
@@ -35,6 +38,9 @@ html.dark {
   --mnl-color-subtext: #a6adc8;
   --mnl-color-accent: #f5c2e7;
   --mnl-color-accent-strong: #cba6f7;
+  --mnl-color-gradient-start: #f5c2e7;
+  --mnl-color-gradient-mid: #cba6f7;
+  --mnl-color-gradient-end: #b4befe;
   --mnl-color-success: #a6e3a1;
   --mnl-color-warning: #f9e2af;
   --mnl-color-error: #f38ba8;
