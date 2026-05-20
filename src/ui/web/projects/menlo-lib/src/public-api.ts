@@ -9,3 +9,6 @@ export * from './lib/pipes/money.pipe';
 
 // Theme
 export * from './lib/theme';
+
+// Atoms
+export * from './lib/atoms/button';
