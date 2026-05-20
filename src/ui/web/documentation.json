@@ -780,6 +780,63 @@
     "directives": [],
     "components": [
         {
+            "name": "AmountInputStoryPreviewComponent",
+            "id": "component-AmountInputStoryPreviewComponent-9c7fffefdd4b8fd9e0a246fb04ad7a8485845190868e22cb65b77413e4b5a0cfcfdbfd42093896d92bc1ebf04a7ff1c6d03b1ffb53b7344f53d63f0abd4a38ea",
+            "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-amount-input-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Molecules\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Amount Input</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-amount-input adds a compound currency prefix, grouped number formatting, and\n        ControlValueAccessor support for Menlo's budget forms.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                The grouped value, accent focus ring, and error treatment stay consistent across\n                themes.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              States\n            </h3>\n\n            <div class=\"space-y-3\">\n              <mnl-amount-input placeholder=\"0.00\"></mnl-amount-input>\n              <mnl-amount-input error=\"Planned amount is required\" placeholder=\"Error state\">\n              </mnl-amount-input>\n              <mnl-amount-input\n                currency=\"USD\"\n                placeholder=\"Custom currency prefix\"\n              ></mnl-amount-input>\n              <mnl-amount-input\n                [disabled]=\"true\"\n                placeholder=\"Disabled amount\"\n              ></mnl-amount-input>\n            </div>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 75,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlAmountInputComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlAmountInputComponent } from './amount-input.component';\n\n@Component({\n  selector: 'lib-amount-input-story-preview',\n  standalone: true,\n  imports: [MnlAmountInputComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Amount Input</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-amount-input adds a compound currency prefix, grouped number formatting, and\n            ControlValueAccessor support for Menlo's budget forms.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    The grouped value, accent focus ring, and error treatment stay consistent across\n                    themes.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  States\n                </h3>\n\n                <div class=\"space-y-3\">\n                  <mnl-amount-input placeholder=\"0.00\"></mnl-amount-input>\n                  <mnl-amount-input error=\"Planned amount is required\" placeholder=\"Error state\">\n                  </mnl-amount-input>\n                  <mnl-amount-input\n                    currency=\"USD\"\n                    placeholder=\"Custom currency prefix\"\n                  ></mnl-amount-input>\n                  <mnl-amount-input\n                    [disabled]=\"true\"\n                    placeholder=\"Disabled amount\"\n                  ></mnl-amount-input>\n                </div>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass AmountInputStoryPreviewComponent {\n  protected readonly themes = foundationThemes;\n}\n\nconst meta: Meta<AmountInputStoryPreviewComponent> = {\n  title: 'Molecules/Amount Input',\n  component: AmountInputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<AmountInputStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
             "name": "ButtonStoryPreviewComponent",
             "id": "component-ButtonStoryPreviewComponent-c64baf1879e01b47e505e22d8b4bd9bc99dd94258ea2e2df8c8f307ae6a333f91f77ac3adf1d23ae78bb4f34663f37a6ede913a4e05ca179eb61fb21aa596824",
             "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
@@ -1056,6 +1113,120 @@
             "rawdescription": "\n",
             "type": "component",
             "sourceCode": "import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\nimport { LucideAngularModule, MoonStar, Palette, Sun } from 'lucide-angular';\n\nimport { ThemeService } from './theme';\n\n@Component({\n  selector: 'lib-design-system-infrastructure-preview',\n  standalone: true,\n  imports: [LucideAngularModule],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <section\n        class=\"mx-auto max-w-2xl space-y-6 rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n      >\n        <div class=\"flex items-start justify-between gap-4\">\n          <div class=\"space-y-2\">\n            <div class=\"inline-flex items-center gap-2 text-sm font-semibold text-mnl-accent\">\n              <lucide-icon [img]=\"paletteIcon\" class=\"size-5\"></lucide-icon>\n              Tailwind + Theme infrastructure\n            </div>\n            <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Issue #321 foundation smoke test</h2>\n            <p class=\"m-0 max-w-xl text-sm leading-6 text-mnl-subtext\">\n              This story verifies Catppuccin tokens, Nunito Sans, semantic theme colors, and the\n              root ThemeService toggle inside Storybook.\n            </p>\n          </div>\n\n          <button\n            type=\"button\"\n            class=\"inline-flex items-center gap-2 rounded-xl bg-mnl-accent px-4 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-mnl-accent-strong focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent\"\n            (click)=\"toggleTheme()\"\n          >\n            <lucide-icon [img]=\"isDarkTheme() ? sunIcon : moonIcon\" class=\"size-4\"></lucide-icon>\n            {{ isDarkTheme() ? 'Switch to light' : 'Switch to dark' }}\n          </button>\n        </div>\n\n        <div class=\"grid gap-4 md:grid-cols-3\">\n          <div class=\"rounded-xl bg-mnl-surface-alt p-4 ring-1 ring-mnl-border\">\n            <div class=\"text-xs font-medium uppercase tracking-wide text-mnl-subtext\">Surface</div>\n            <div class=\"mt-2 text-lg font-semibold\">Rounded 16px cards</div>\n            <div class=\"mt-1 text-sm text-mnl-subtext\">shadow-sm / ring border tokens</div>\n          </div>\n\n          <div class=\"rounded-xl bg-mnl-surface-alt p-4 ring-1 ring-mnl-border\">\n            <div class=\"text-xs font-medium uppercase tracking-wide text-mnl-subtext\">Theme</div>\n            <div class=\"mt-2 text-lg font-semibold capitalize\">{{ currentTheme() }}</div>\n            <div class=\"mt-1 text-sm text-mnl-subtext\">html.dark switches semantic tokens</div>\n          </div>\n\n          <div class=\"rounded-xl bg-mnl-surface-alt p-4 ring-1 ring-mnl-border\">\n            <div class=\"text-xs font-medium uppercase tracking-wide text-mnl-subtext\">Font</div>\n            <div class=\"mt-2 text-lg font-semibold\">Nunito Sans 400–700</div>\n            <div class=\"mt-1 text-sm text-mnl-subtext\">Self-hosted via @fontsource</div>\n          </div>\n        </div>\n\n        <div class=\"grid gap-3 sm:grid-cols-2\">\n          <div class=\"rounded-xl bg-mnl-latte-pink/15 p-4 text-sm ring-1 ring-mnl-latte-pink/20\">\n            Latte pink token available\n          </div>\n          <div\n            class=\"rounded-xl bg-mnl-mocha-lavender/20 p-4 text-sm ring-1 ring-mnl-mocha-lavender/30\"\n          >\n            Mocha lavender token available\n          </div>\n        </div>\n      </section>\n    </div>\n  `,\n})\nclass DesignSystemInfrastructurePreviewComponent {\n  private readonly themeService = inject(ThemeService);\n\n  protected readonly paletteIcon = Palette;\n  protected readonly moonIcon = MoonStar;\n  protected readonly sunIcon = Sun;\n  protected readonly currentTheme = this.themeService.currentTheme;\n  protected readonly isDarkTheme = computed(() => this.currentTheme() === 'dark');\n\n  protected toggleTheme(): void {\n    this.themeService.toggle();\n  }\n}\n\nconst meta: Meta<DesignSystemInfrastructurePreviewComponent> = {\n  title: 'Foundations/Infrastructure',\n  component: DesignSystemInfrastructurePreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<DesignSystemInfrastructurePreviewComponent>;\n\nexport const Playground: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "FormFieldStoryPreviewComponent",
+            "id": "component-FormFieldStoryPreviewComponent-f29c123c12c2d7607be739b3844037eacd1b3283d4e4bcc63094b3df7a1343301f864c4f6ed8a62cf030b035c38a97338bdd38c335993f3d3096bcddf169bc35",
+            "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-form-field-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Molecules\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Form Field</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-form-field standardizes labels, hints, and validation messaging around projected\n        inputs while keeping the atoms responsible for their own interaction behavior.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                Labels stay compact, help text stays subtle, and validation stays visible in\n                both themes.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <mnl-form-field\n              hint=\"Shown on the budget overview cards.\"\n              inputId=\"form-field-name\"\n              label=\"Budget name\"\n              [required]=\"true\"\n            >\n              <mnl-input id=\"form-field-name\" placeholder=\"Groceries\"></mnl-input>\n            </mnl-form-field>\n\n            <mnl-form-field\n              error=\"Choose the budget flow before saving.\"\n              inputId=\"form-field-flow\"\n              label=\"Budget flow\"\n              [required]=\"true\"\n            >\n              <mnl-select\n                id=\"form-field-flow\"\n                [options]=\"flowOptions\"\n                placeholder=\"Choose a flow\"\n              >\n                <lucide-icon\n                  [img]=\"currencyIcon\"\n                  class=\"size-4 text-mnl-subtext\"\n                  mnlSelectLeadingIcon\n                ></lucide-icon>\n              </mnl-select>\n            </mnl-form-field>\n\n            <mnl-form-field\n              hint=\"Optional context that appears below the control.\"\n              inputId=\"form-field-note\"\n              label=\"Notes\"\n            >\n              <mnl-input id=\"form-field-note\" placeholder=\"Income contributor details\">\n                <lucide-icon\n                  [img]=\"alertIcon\"\n                  class=\"size-4 text-mnl-subtext\"\n                  mnlInputTrailingIcon\n                ></lucide-icon>\n              </mnl-input>\n            </mnl-form-field>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "alertIcon",
+                    "defaultValue": "CircleAlert",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 102,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currencyIcon",
+                    "defaultValue": "CircleDollarSign",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 103,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "flowOptions",
+                    "defaultValue": "[\n    { value: 'Income', label: 'Income' },\n    { value: 'Expense', label: 'Expense' },\n  ] as const",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 104,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 108,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                },
+                {
+                    "name": "MnlFormFieldComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlInputComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlSelectComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\nimport { CircleAlert, CircleDollarSign, LucideAngularModule } from 'lucide-angular';\n\nimport { MnlInputComponent } from '../../atoms/input';\nimport { MnlSelectComponent } from '../../atoms/select';\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlFormFieldComponent } from './form-field.component';\n\n@Component({\n  selector: 'lib-form-field-story-preview',\n  standalone: true,\n  imports: [LucideAngularModule, MnlFormFieldComponent, MnlInputComponent, MnlSelectComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Form Field</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-form-field standardizes labels, hints, and validation messaging around projected\n            inputs while keeping the atoms responsible for their own interaction behavior.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    Labels stay compact, help text stays subtle, and validation stays visible in\n                    both themes.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <mnl-form-field\n                  hint=\"Shown on the budget overview cards.\"\n                  inputId=\"form-field-name\"\n                  label=\"Budget name\"\n                  [required]=\"true\"\n                >\n                  <mnl-input id=\"form-field-name\" placeholder=\"Groceries\"></mnl-input>\n                </mnl-form-field>\n\n                <mnl-form-field\n                  error=\"Choose the budget flow before saving.\"\n                  inputId=\"form-field-flow\"\n                  label=\"Budget flow\"\n                  [required]=\"true\"\n                >\n                  <mnl-select\n                    id=\"form-field-flow\"\n                    [options]=\"flowOptions\"\n                    placeholder=\"Choose a flow\"\n                  >\n                    <lucide-icon\n                      [img]=\"currencyIcon\"\n                      class=\"size-4 text-mnl-subtext\"\n                      mnlSelectLeadingIcon\n                    ></lucide-icon>\n                  </mnl-select>\n                </mnl-form-field>\n\n                <mnl-form-field\n                  hint=\"Optional context that appears below the control.\"\n                  inputId=\"form-field-note\"\n                  label=\"Notes\"\n                >\n                  <mnl-input id=\"form-field-note\" placeholder=\"Income contributor details\">\n                    <lucide-icon\n                      [img]=\"alertIcon\"\n                      class=\"size-4 text-mnl-subtext\"\n                      mnlInputTrailingIcon\n                    ></lucide-icon>\n                  </mnl-input>\n                </mnl-form-field>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass FormFieldStoryPreviewComponent {\n  protected readonly alertIcon = CircleAlert;\n  protected readonly currencyIcon = CircleDollarSign;\n  protected readonly flowOptions = [\n    { value: 'Income', label: 'Income' },\n    { value: 'Expense', label: 'Expense' },\n  ] as const;\n  protected readonly themes = foundationThemes;\n}\n\nconst meta: Meta<FormFieldStoryPreviewComponent> = {\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<FormFieldStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -1580,6 +1751,682 @@
             "extends": []
         },
         {
+            "name": "MnlAmountInputComponent",
+            "id": "component-MnlAmountInputComponent-a2f40c91a689543e71cc336115bbda57c9930c7636ced7ff31e6db26166b0acb3b770f9edb96f42ff41de669bc5ff3585060d680576d937ad5f564dd2d26fa2a",
+            "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "mnl-amount-input",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<label\n  [attr.data-has-error]=\"hasError()\"\n  [class]=\"containerClasses()\"\n  data-testid=\"mnl-amount-input-field\"\n>\n  <span\n    aria-hidden=\"true\"\n    class=\"inline-flex min-h-8 shrink-0 items-center rounded-md bg-mnl-surface-alt px-2.5 text-sm font-semibold text-mnl-subtext ring-1 ring-inset ring-mnl-border\"\n    data-testid=\"mnl-amount-input-prefix\"\n  >\n    {{ currencyPrefix() }}\n  </span>\n\n  <input\n    [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n    [attr.id]=\"id() || null\"\n    [attr.name]=\"name() || null\"\n    [attr.placeholder]=\"placeholder() || null\"\n    [class]=\"controlClasses()\"\n    [disabled]=\"isDisabled()\"\n    [value]=\"displayValue()\"\n    data-testid=\"mnl-amount-input\"\n    inputmode=\"decimal\"\n    type=\"text\"\n    (blur)=\"handleBlur()\"\n    (focus)=\"handleFocus()\"\n    (input)=\"handleInput($event)\"\n  />\n</label>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "currency",
+                    "defaultValue": "'ZAR'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 72,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 73,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "error",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean | string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 74,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "id",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 75,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "name",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 76,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "placeholder",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 77,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "valueChange",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlAmountInputValue",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 79,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "containerClasses",
+                    "defaultValue": "computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 95,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "controlClasses",
+                    "defaultValue": "computed(() => inputClasses)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 88,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currencyPrefix",
+                    "defaultValue": "computed(() =>\n    this.currency() === 'ZAR' ? 'R' : this.currency(),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 89,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currentValue",
+                    "defaultValue": "signal<MnlAmountInputValue>(null)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 82,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "cvaDisabled",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 81,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "displayText",
+                    "defaultValue": "signal('')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 83,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "displayValue",
+                    "defaultValue": "computed(() => this.displayText())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 92,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "focused",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 84,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "hasError",
+                    "defaultValue": "computed(() => Boolean(this.error()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 93,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isDisabled",
+                    "defaultValue": "computed(() => this.disabled() || this.cvaDisabled())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 94,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 85,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 86,
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "formatAmount",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 182,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleBlur",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 125,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleFocus",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 131,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleInput",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 140,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "normalizeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlAmountInputValue",
+                    "typeParameters": [],
+                    "line": 154,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "parseValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlAmountInputValue",
+                    "typeParameters": [],
+                    "line": 163,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlAmountInputValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 113,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlAmountInputValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 117,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 121,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toEditableValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 178,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 105,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlAmountInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  forwardRef,\n  input,\n  output,\n  signal,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nexport type MnlAmountInputValue = number | null;\n\nconst containerBaseClasses =\n  'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none';\nconst containerDefaultClasses =\n  'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink';\nconst containerErrorClasses =\n  'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red';\nconst containerDisabledClasses =\n  'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none';\nconst inputClasses =\n  'w-full min-w-0 border-0 bg-transparent px-0 py-0 text-right text-sm tabular-nums text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext';\n\n@Component({\n  selector: 'mnl-amount-input',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => MnlAmountInputComponent),\n      multi: true,\n    },\n  ],\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <label\n      [attr.data-has-error]=\"hasError()\"\n      [class]=\"containerClasses()\"\n      data-testid=\"mnl-amount-input-field\"\n    >\n      <span\n        aria-hidden=\"true\"\n        class=\"inline-flex min-h-8 shrink-0 items-center rounded-md bg-mnl-surface-alt px-2.5 text-sm font-semibold text-mnl-subtext ring-1 ring-inset ring-mnl-border\"\n        data-testid=\"mnl-amount-input-prefix\"\n      >\n        {{ currencyPrefix() }}\n      </span>\n\n      <input\n        [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n        [attr.id]=\"id() || null\"\n        [attr.name]=\"name() || null\"\n        [attr.placeholder]=\"placeholder() || null\"\n        [class]=\"controlClasses()\"\n        [disabled]=\"isDisabled()\"\n        [value]=\"displayValue()\"\n        data-testid=\"mnl-amount-input\"\n        inputmode=\"decimal\"\n        type=\"text\"\n        (blur)=\"handleBlur()\"\n        (focus)=\"handleFocus()\"\n        (input)=\"handleInput($event)\"\n      />\n    </label>\n  `,\n})\nexport class MnlAmountInputComponent implements ControlValueAccessor {\n  readonly currency = input('ZAR');\n  readonly disabled = input(false);\n  readonly error = input<boolean | string | null>(null);\n  readonly id = input('');\n  readonly name = input('');\n  readonly placeholder = input('');\n\n  readonly valueChange = output<MnlAmountInputValue>();\n\n  private readonly cvaDisabled = signal(false);\n  private readonly currentValue = signal<MnlAmountInputValue>(null);\n  private readonly displayText = signal('');\n  private readonly focused = signal(false);\n  private onChange: (value: MnlAmountInputValue) => void = () => undefined;\n  private onTouched: () => void = () => undefined;\n\n  protected readonly controlClasses = computed(() => inputClasses);\n  protected readonly currencyPrefix = computed(() =>\n    this.currency() === 'ZAR' ? 'R' : this.currency(),\n  );\n  protected readonly displayValue = computed(() => this.displayText());\n  protected readonly hasError = computed(() => Boolean(this.error()));\n  protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());\n  protected readonly containerClasses = computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  );\n\n  writeValue(value: MnlAmountInputValue): void {\n    const normalizedValue = this.normalizeValue(value);\n    this.currentValue.set(normalizedValue);\n    this.displayText.set(\n      this.focused() ? this.toEditableValue(normalizedValue) : this.formatAmount(normalizedValue),\n    );\n  }\n\n  registerOnChange(fn: (value: MnlAmountInputValue) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.cvaDisabled.set(isDisabled);\n  }\n\n  protected handleBlur(): void {\n    this.focused.set(false);\n    this.displayText.set(this.formatAmount(this.currentValue()));\n    this.onTouched();\n  }\n\n  protected handleFocus(): void {\n    if (this.isDisabled()) {\n      return;\n    }\n\n    this.focused.set(true);\n    this.displayText.set(this.toEditableValue(this.currentValue()));\n  }\n\n  protected handleInput(event: Event): void {\n    if (this.isDisabled()) {\n      return;\n    }\n\n    const nextDisplayValue = (event.target as HTMLInputElement).value;\n    const nextValue = this.parseValue(nextDisplayValue);\n\n    this.displayText.set(nextDisplayValue);\n    this.currentValue.set(nextValue);\n    this.onChange(nextValue);\n    this.valueChange.emit(nextValue);\n  }\n\n  private normalizeValue(value: MnlAmountInputValue): MnlAmountInputValue {\n    if (value == null) {\n      return null;\n    }\n\n    const numericValue = typeof value === 'number' ? value : Number(value);\n    return Number.isFinite(numericValue) ? numericValue : null;\n  }\n\n  private parseValue(value: string): MnlAmountInputValue {\n    const normalizedValue = value.replace(/[^0-9.-]/g, '');\n    if (\n      normalizedValue === '' ||\n      normalizedValue === '-' ||\n      normalizedValue === '.' ||\n      normalizedValue === '-.'\n    ) {\n      return null;\n    }\n\n    const numericValue = Number(normalizedValue);\n    return Number.isFinite(numericValue) ? numericValue : null;\n  }\n\n  private toEditableValue(value: MnlAmountInputValue): string {\n    return value == null ? '' : `${value}`;\n  }\n\n  private formatAmount(value: MnlAmountInputValue): string {\n    if (value == null) {\n      return '';\n    }\n\n    return new Intl.NumberFormat('en-ZA', {\n      minimumFractionDigits: 2,\n      maximumFractionDigits: 2,\n    }).format(value);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ]
+        },
+        {
             "name": "MnlButtonComponent",
             "id": "component-MnlButtonComponent-ee4e74b77a0c950b261c5b7439589e3e170e87258d21b3a003dc387ed4f9ed7d329a0196ac7ecd1757cce2c5a9fd3d2b77085027569b5417744287f3b5510148",
             "file": "projects/menlo-lib/src/lib/atoms/button/button.component.ts",
@@ -1767,6 +2614,131 @@
             "rawdescription": "\n",
             "type": "component",
             "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';\n\nexport type MnlButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';\nexport type MnlButtonSize = 'sm' | 'md' | 'lg';\nexport type MnlButtonType = 'button' | 'submit' | 'reset';\n\nconst baseClasses =\n  'inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border text-sm font-semibold transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none';\n\nconst sizeClasses: Record<MnlButtonSize, string> = {\n  sm: 'min-h-9 px-3 py-2 text-sm',\n  md: 'min-h-11 px-4 py-2.5 text-sm',\n  lg: 'min-h-12 px-5 py-3 text-base',\n};\n\nconst variantClasses: Record<MnlButtonVariant, string> = {\n  primary:\n    'border-mnl-accent bg-mnl-accent text-mnl-mocha-crust shadow-sm hover:border-mnl-accent-strong hover:bg-mnl-accent-strong focus-visible:ring-mnl-accent',\n  secondary:\n    'border-mnl-border bg-mnl-surface text-mnl-text shadow-sm hover:bg-mnl-surface-alt focus-visible:ring-mnl-accent',\n  ghost:\n    'border-transparent bg-transparent text-mnl-text hover:bg-mnl-surface-alt/80 focus-visible:ring-mnl-accent',\n  destructive:\n    'border-mnl-error bg-mnl-error text-mnl-mocha-crust shadow-sm hover:opacity-90 focus-visible:ring-mnl-error',\n};\n\n@Component({\n  selector: 'mnl-button',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'inline-flex align-middle',\n  },\n  template: `\n    <button\n      [attr.aria-busy]=\"loading() ? 'true' : null\"\n      [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n      [attr.data-size]=\"size()\"\n      [attr.data-variant]=\"variant()\"\n      [attr.type]=\"type()\"\n      [class]=\"buttonClasses()\"\n      [disabled]=\"isDisabled()\"\n      data-testid=\"mnl-button\"\n      (click)=\"handleClick($event)\"\n    >\n      @if (loading()) {\n        <span\n          aria-hidden=\"true\"\n          class=\"inline-flex size-4 shrink-0 items-center justify-center\"\n          data-testid=\"mnl-button-spinner\"\n        >\n          <span\n            class=\"size-4 rounded-full border-2 border-current border-r-transparent animate-spin motion-reduce:animate-none\"\n          ></span>\n        </span>\n      }\n\n      <span\n        [class.hidden]=\"loading()\"\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center empty:hidden\"\n      >\n        <ng-content select=\"[mnlButtonLeadingIcon]\"></ng-content>\n      </span>\n\n      <span class=\"inline-flex min-w-0 items-center justify-center\">\n        <ng-content></ng-content>\n      </span>\n\n      <span\n        [class.hidden]=\"loading()\"\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center empty:hidden\"\n      >\n        <ng-content select=\"[mnlButtonTrailingIcon]\"></ng-content>\n      </span>\n    </button>\n  `,\n})\nexport class MnlButtonComponent {\n  readonly variant = input<MnlButtonVariant>('primary');\n  readonly size = input<MnlButtonSize>('md');\n  readonly disabled = input(false);\n  readonly loading = input(false);\n  readonly type = input<MnlButtonType>('button');\n\n  readonly pressed = output<MouseEvent>();\n\n  protected readonly isDisabled = computed(() => this.disabled() || this.loading());\n  protected readonly buttonClasses = computed(() =>\n    [baseClasses, sizeClasses[this.size()], variantClasses[this.variant()]].join(' '),\n  );\n\n  protected handleClick(event: MouseEvent): void {\n    if (this.isDisabled()) {\n      event.preventDefault();\n      event.stopImmediatePropagation();\n      return;\n    }\n\n    this.pressed.emit(event);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "MnlFormFieldComponent",
+            "id": "component-MnlFormFieldComponent-70855b7a736688881b8af7d1c34e395b6fa149ed86eb6059039d8d43d6d7033fe31264388c64dffcc48c2c32148ae8dbbcf1bb5fac8a843b690b9a0b9370b367",
+            "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-form-field",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div [attr.data-has-error]=\"hasError()\" class=\"space-y-2\" data-testid=\"mnl-form-field\">\n  <label\n    [attr.for]=\"inputId() || null\"\n    class=\"block text-xs font-semibold text-mnl-text\"\n    data-testid=\"mnl-form-field-label\"\n  >\n    <span>{{ label() }}</span>\n\n    @if (required()) {\n      <span aria-hidden=\"true\" class=\"text-mnl-red\"> *</span>\n    }\n  </label>\n\n  <div class=\"w-full\">\n    <ng-content></ng-content>\n  </div>\n\n  @if (hint()) {\n    <p class=\"m-0 text-xs leading-5 text-mnl-subtext\" data-testid=\"mnl-form-field-hint\">\n      {{ hint() }}\n    </p>\n  }\n\n  @if (error()) {\n    <p\n      class=\"m-0 text-xs font-medium leading-5 text-mnl-red\"\n      data-testid=\"mnl-form-field-error\"\n    >\n      {{ error() }}\n    </p>\n  }\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "error",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 46,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "hint",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 47,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "inputId",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 48,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "label",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 49,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "required",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 50,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "hasError",
+                    "defaultValue": "computed(() => Boolean(this.error()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 52,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\n\n@Component({\n  selector: 'mnl-form-field',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <div [attr.data-has-error]=\"hasError()\" class=\"space-y-2\" data-testid=\"mnl-form-field\">\n      <label\n        [attr.for]=\"inputId() || null\"\n        class=\"block text-xs font-semibold text-mnl-text\"\n        data-testid=\"mnl-form-field-label\"\n      >\n        <span>{{ label() }}</span>\n\n        @if (required()) {\n          <span aria-hidden=\"true\" class=\"text-mnl-red\"> *</span>\n        }\n      </label>\n\n      <div class=\"w-full\">\n        <ng-content></ng-content>\n      </div>\n\n      @if (hint()) {\n        <p class=\"m-0 text-xs leading-5 text-mnl-subtext\" data-testid=\"mnl-form-field-hint\">\n          {{ hint() }}\n        </p>\n      }\n\n      @if (error()) {\n        <p\n          class=\"m-0 text-xs font-medium leading-5 text-mnl-red\"\n          data-testid=\"mnl-form-field-error\"\n        >\n          {{ error() }}\n        </p>\n      }\n    </div>\n  `,\n})\nexport class MnlFormFieldComponent {\n  readonly error = input<string | null>(null);\n  readonly hint = input('');\n  readonly inputId = input('');\n  readonly label = input.required<string>();\n  readonly required = input(false);\n\n  protected readonly hasError = computed(() => Boolean(this.error()));\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -3036,6 +4008,16 @@
                 "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
             },
             {
+                "name": "containerBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+            },
+            {
                 "name": "containerDefaultClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -3050,6 +4032,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+            },
+            {
+                "name": "containerDefaultClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "string",
@@ -3070,6 +4062,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+            },
+            {
+                "name": "containerDisabledClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "string",
@@ -3090,6 +4092,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+            },
+            {
+                "name": "containerErrorClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "string",
@@ -3134,6 +4146,16 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'form-input w-full min-w-0 border-0 bg-transparent px-0 py-0 text-sm text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
+            },
+            {
+                "name": "inputClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'w-full min-w-0 border-0 bg-transparent px-0 py-0 text-right text-sm tabular-nums text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
             },
             {
                 "name": "latteBackground",
@@ -3246,6 +4268,26 @@
                 "defaultValue": "{\n  title: 'Atoms/Select',\n  component: SelectStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<AmountInputStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Amount Input',\n  component: AmountInputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<FormFieldStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
                 "name": "mochaBackground",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -3330,6 +4372,26 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -3685,6 +4747,17 @@
         ],
         "typealiases": [
             {
+                "name": "MnlAmountInputValue",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "number | null",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
                 "name": "MnlButtonSize",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -3861,6 +4934,28 @@
                 "kind": 184
             },
             {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
                 "name": "Theme",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -4008,6 +5103,58 @@
                     "deprecationMessage": "",
                     "type": "string",
                     "defaultValue": "'form-select w-full min-w-0 appearance-none border-0 bg-transparent px-0 py-0 pr-7 text-sm text-inherit shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts": [
+                {
+                    "name": "containerBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "containerDefaultClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+                },
+                {
+                    "name": "containerDisabledClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+                },
+                {
+                    "name": "containerErrorClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+                },
+                {
+                    "name": "inputClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'w-full min-w-0 border-0 bg-transparent px-0 py-0 text-right text-sm tabular-nums text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
                 }
             ],
             "projects/menlo-lib/src/lib/menlo-lib.stories.ts": [
@@ -4382,6 +5529,50 @@
                     "defaultValue": "[\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n]"
                 }
             ],
+            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<AmountInputStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/Amount Input',\n  component: AmountInputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<FormFieldStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                }
+            ],
             "projects/menlo-lib/src/lib/theme/theme.service.ts": [
                 {
                     "name": "STORAGE_KEY",
@@ -4586,6 +5777,19 @@
         },
         "groupedEnumerations": {},
         "groupedTypeAliases": {
+            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts": [
+                {
+                    "name": "MnlAmountInputValue",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "number | null",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/button/button.component.ts": [
                 {
                     "name": "MnlButtonSize",
@@ -4788,6 +5992,32 @@
                     "kind": 184
                 }
             ],
+            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
             "projects/menlo-lib/src/lib/theme/theme.service.ts": [
                 {
                     "name": "Theme",
@@ -4809,7 +6039,7 @@
         "children": []
     },
     "coverage": {
-        "count": 1,
+        "count": 0,
         "status": "low",
         "files": [
             {
@@ -5680,6 +6910,162 @@
                 "name": "WeatherForecast",
                 "coveragePercent": 0,
                 "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlAmountInputComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/31",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDefaultClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDisabledClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerErrorClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "inputClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlAmountInputValue",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AmountInputStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlFormFieldComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "FormFieldStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {
