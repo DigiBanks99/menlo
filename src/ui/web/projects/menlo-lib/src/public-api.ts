@@ -6,3 +6,6 @@ export * from './lib/menlo-lib';
 
 // Pipes
 export * from './lib/pipes/money.pipe';
+
+// Theme
+export * from './lib/theme';
