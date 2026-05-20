@@ -1187,41 +1187,7 @@
         },
         {
             "name": "DummyStoryRouteComponent",
-            "id": "component-DummyStoryRouteComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e",
-            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "styleUrls": [],
-            "styles": [],
-            "template": "",
-            "templateUrl": [],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [],
-            "methodsClass": [],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlTabBarComponent, type MnlTabBarItem } from './tab-bar.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-tab-bar-story-preview',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-6xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n            sidebar while keeping the same router-aware navigation model.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"absolute inset-0 bg-mnl-bg\">\n                <mnl-tab-bar [items]=\"items\" />\n\n                <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n                  <div class=\"mx-auto max-w-5xl space-y-4\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        Active state, badges, and navigation positioning stay consistent across\n                        viewports.\n                      </p>\n                    </article>\n\n                    <div class=\"grid gap-4 md:grid-cols-2\">\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Due this week\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                      </article>\n\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Variance\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                          +R 850\n                        </p>\n                      </article>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass TabBarStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/budgets');\n  }\n}\n\nconst meta: Meta<TabBarStoryPreviewComponent> = {\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<TabBarStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": []
-        },
-        {
-            "name": "DummyStoryRouteComponent",
-            "id": "component-DummyStoryRouteComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d-1",
+            "id": "component-DummyStoryRouteComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d",
             "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1248,6 +1214,40 @@
             "rawdescription": "\n",
             "type": "component",
             "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { type MnlTabBarItem } from '../../molecules/tab-bar';\nimport { MnlPageShellComponent } from './page-shell.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-page-shell-story-preview',\n  standalone: true,\n  imports: [MnlPageShellComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The page shell composes the responsive navigation scaffold with a padded, max-width\n            content column that stays scrollable across route changes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <mnl-page-shell [items]=\"items\">\n                <div class=\"space-y-6\">\n                  <header class=\"space-y-3\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n                    <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                    <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                      Page content remains centered, padded, and scrollable while navigation adapts\n                      to the current viewport.\n                    </p>\n                  </header>\n\n                  <div class=\"grid gap-4 xl:grid-cols-3\">\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Planned\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Spent\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Remaining\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                        R 6 260\n                      </p>\n                    </article>\n                  </div>\n\n                  @for (section of [1, 2, 3, 4]; track section) {\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                      <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        This placeholder content makes the shell scrollable so viewport padding,\n                        max-width constraints, and route-reset behavior are easy to review.\n                      </p>\n                    </article>\n                  }\n                </div>\n              </mnl-page-shell>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass PageShellStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/analytics');\n  }\n}\n\nconst meta: Meta<PageShellStoryPreviewComponent> = {\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PageShellStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "DummyStoryRouteComponent",
+            "id": "component-DummyStoryRouteComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e-1",
+            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "styleUrls": [],
+            "styles": [],
+            "template": "",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlTabBarComponent, type MnlTabBarItem } from './tab-bar.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-tab-bar-story-preview',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-6xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n            sidebar while keeping the same router-aware navigation model.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"absolute inset-0 bg-mnl-bg\">\n                <mnl-tab-bar [items]=\"items\" />\n\n                <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n                  <div class=\"mx-auto max-w-5xl space-y-4\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        Active state, badges, and navigation positioning stay consistent across\n                        viewports.\n                      </p>\n                    </article>\n\n                    <div class=\"grid gap-4 md:grid-cols-2\">\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Due this week\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                      </article>\n\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Variance\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                          +R 850\n                        </p>\n                      </article>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass TabBarStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/budgets');\n  }\n}\n\nconst meta: Meta<TabBarStoryPreviewComponent> = {\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<TabBarStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -3562,6 +3562,739 @@
             "extends": []
         },
         {
+            "name": "MnlPanelComponent",
+            "id": "component-MnlPanelComponent-36d67d2e291707660e3d1b59d2227b94c34ef19ae8cbf1167383d104adc4add28264f443bc307af3d4cd4c097af4e9a9a22510e063e83a41d25573beb4f7eb02",
+            "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-panel",
+            "styleUrls": [],
+            "styles": [],
+            "template": "@if (isRendered()) {\n  <div class=\"fixed inset-0 z-50\" data-testid=\"mnl-panel-root\">\n    <div\n      aria-hidden=\"true\"\n      [class]=\"backdropClasses()\"\n      data-testid=\"mnl-panel-backdrop\"\n      (click)=\"requestClose()\"\n    ></div>\n\n    <div [class]=\"containerClasses()\">\n      <section\n        #panelElement\n        [attr.aria-labelledby]=\"headerId\"\n        [attr.data-layout]=\"resolvedMode()\"\n        [class]=\"panelClasses()\"\n        aria-modal=\"true\"\n        data-testid=\"mnl-panel\"\n        role=\"dialog\"\n        tabindex=\"-1\"\n      >\n        @if (isSheetMode()) {\n          <div class=\"flex justify-center px-5 pt-4 sm:px-6\" data-testid=\"mnl-panel-handle\">\n            <span\n              aria-hidden=\"true\"\n              class=\"block h-1.5 w-12 rounded-full bg-mnl-border/90\"\n            ></span>\n          </div>\n        }\n\n        <header\n          [attr.id]=\"headerId\"\n          class=\"flex items-start gap-4 border-b border-mnl-border/80 px-5 py-4 sm:px-6\"\n          data-testid=\"mnl-panel-header\"\n        >\n          <div class=\"min-w-0 flex-1\">\n            <ng-content select=\"[mnlPanelHeader]\"></ng-content>\n          </div>\n\n          <button\n            aria-label=\"Close panel\"\n            class=\"inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-mnl-border bg-mnl-surface-alt text-mnl-subtext transition-colors duration-200 hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-surface motion-reduce:transition-none\"\n            data-testid=\"mnl-panel-close\"\n            type=\"button\"\n            (click)=\"requestClose()\"\n          >\n            <lucide-icon [img]=\"closeIcon\" aria-hidden=\"true\" class=\"size-5\"></lucide-icon>\n          </button>\n        </header>\n\n        <div\n          class=\"flex-1 overflow-y-auto px-5 pb-5 pt-4 sm:px-6 sm:pb-6\"\n          data-testid=\"mnl-panel-body\"\n        >\n          <ng-content></ng-content>\n        </div>\n      </section>\n    </div>\n  </div>\n}\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "mode",
+                    "defaultValue": "'auto'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlPanelMode",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 110,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "open",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 109,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "closed",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "void",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 112,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "backdropClasses",
+                    "defaultValue": "computed(() =>\n    [backdropBaseClasses, this.isActive() ? backdropVisibleClasses : backdropHiddenClasses].join(\n      ' ',\n    ),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 128,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "bodyScrollLocked",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 165,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "closeIcon",
+                    "defaultValue": "X",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 114,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "closeTimer",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ReturnType<unknown> | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 163,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "containerClasses",
+                    "defaultValue": "computed(() =>\n    [\n      containerBaseClasses,\n      this.isSheetMode() ? containerSheetClasses : containerDialogClasses,\n    ].join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 133,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 156,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "document",
+                    "defaultValue": "inject(DOCUMENT)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 155,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "focusableSelector",
+                    "defaultValue": "'button:not([disabled]), [href], input:not([disabled]):not([type=\"hidden\"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 160,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "headerId",
+                    "defaultValue": "`mnl-panel-header-${Math.random().toString(36).slice(2, 10)}`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 115,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isActive",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 117,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isDesktopViewport",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 158,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "isRendered",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 116,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isSheetMode",
+                    "defaultValue": "computed(() => this.resolvedMode() === 'sheet')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 118,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "panelClasses",
+                    "defaultValue": "computed(() => {\n    const layout = this.resolvedMode();\n\n    return [\n      panelBaseClasses,\n      layout === 'sheet' ? panelSheetClasses : panelDialogClasses,\n      layout === 'sheet'\n        ? this.isActive()\n          ? panelSheetOpenClasses\n          : panelSheetClosedClasses\n        : this.isActive()\n          ? panelDialogOpenClasses\n          : panelDialogClosedClasses,\n    ].join(' ');\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 139,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "panelElement",
+                    "defaultValue": "viewChild<ElementRef<HTMLElement>>('panelElement')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 157,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "prefersReducedMotion",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 159,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "resolvedMode",
+                    "defaultValue": "computed<MnlPanelMode>(() => {\n    const mode = this.mode();\n\n    if (mode === 'sheet' || mode === 'dialog') {\n      return mode;\n    }\n\n    return this.isDesktopViewport() ? 'dialog' : 'sheet';\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 119,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "restoreBodyOverflow",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 164,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "restoreFocusTarget",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "HTMLElement | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 166,
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "beginClose",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 240,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "captureRestoreFocusTarget",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 257,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "clearCloseTimer",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 262,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "finishClose",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 271,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "focusInitialElement",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 277,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "getFocusableElements",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "HTMLElement[]",
+                    "typeParameters": [],
+                    "line": 288,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "handleDocumentFocusIn",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "FocusEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 201,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'document:focusin', ['$event']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "FocusEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleDocumentKeydown",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 217,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'document:keydown', ['$event']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "lockBodyScroll",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 303,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "mountPanel",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 313,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "registerMediaQuery",
+                    "args": [
+                        {
+                            "name": "query",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "targetSignal",
+                            "type": "WritableSignal<boolean>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 331,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "query",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "targetSignal",
+                            "type": "WritableSignal<boolean>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "requestClose",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 236,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "restoreFocus",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 345,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "trapFocus",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 357,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "unlockBodyScroll",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 391,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [
+                {
+                    "name": "document:focusin",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "FocusEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "argsDecorator": [
+                        "$event"
+                    ],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 201
+                },
+                {
+                    "name": "document:keydown",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "argsDecorator": [
+                        "$event"
+                    ],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 217
+                }
+            ],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { DOCUMENT } from '@angular/common';\nimport {\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  ElementRef,\n  HostListener,\n  computed,\n  effect,\n  inject,\n  input,\n  output,\n  signal,\n  viewChild,\n  type WritableSignal,\n} from '@angular/core';\nimport { LucideAngularModule, X } from 'lucide-angular';\n\nexport type MnlPanelMode = 'auto' | 'sheet' | 'dialog';\n\nconst transitionDurationMs = 300;\nconst backdropBaseClasses =\n  'absolute inset-0 bg-black/45 transition-opacity duration-300 ease-out motion-reduce:transition-none';\nconst backdropHiddenClasses = 'opacity-0';\nconst backdropVisibleClasses = 'opacity-100';\nconst containerBaseClasses = 'absolute inset-0 flex p-4 sm:p-6';\nconst containerSheetClasses = 'items-end justify-center';\nconst containerDialogClasses = 'items-center justify-center';\nconst panelBaseClasses =\n  'pointer-events-auto relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface text-mnl-text shadow-md shadow-black/15 ring-1 ring-mnl-border/80 transition-[transform,opacity] duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none';\nconst panelSheetClasses = 'max-w-2xl';\nconst panelSheetClosedClasses = 'translate-y-full opacity-100';\nconst panelSheetOpenClasses = 'translate-y-0 opacity-100';\nconst panelDialogClasses = 'max-w-lg';\nconst panelDialogClosedClasses = 'scale-95 opacity-0';\nconst panelDialogOpenClasses = 'scale-100 opacity-100';\n\n@Component({\n  selector: 'mnl-panel',\n  standalone: true,\n  imports: [LucideAngularModule],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'contents',\n  },\n  template: `\n    @if (isRendered()) {\n      <div class=\"fixed inset-0 z-50\" data-testid=\"mnl-panel-root\">\n        <div\n          aria-hidden=\"true\"\n          [class]=\"backdropClasses()\"\n          data-testid=\"mnl-panel-backdrop\"\n          (click)=\"requestClose()\"\n        ></div>\n\n        <div [class]=\"containerClasses()\">\n          <section\n            #panelElement\n            [attr.aria-labelledby]=\"headerId\"\n            [attr.data-layout]=\"resolvedMode()\"\n            [class]=\"panelClasses()\"\n            aria-modal=\"true\"\n            data-testid=\"mnl-panel\"\n            role=\"dialog\"\n            tabindex=\"-1\"\n          >\n            @if (isSheetMode()) {\n              <div class=\"flex justify-center px-5 pt-4 sm:px-6\" data-testid=\"mnl-panel-handle\">\n                <span\n                  aria-hidden=\"true\"\n                  class=\"block h-1.5 w-12 rounded-full bg-mnl-border/90\"\n                ></span>\n              </div>\n            }\n\n            <header\n              [attr.id]=\"headerId\"\n              class=\"flex items-start gap-4 border-b border-mnl-border/80 px-5 py-4 sm:px-6\"\n              data-testid=\"mnl-panel-header\"\n            >\n              <div class=\"min-w-0 flex-1\">\n                <ng-content select=\"[mnlPanelHeader]\"></ng-content>\n              </div>\n\n              <button\n                aria-label=\"Close panel\"\n                class=\"inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-mnl-border bg-mnl-surface-alt text-mnl-subtext transition-colors duration-200 hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-surface motion-reduce:transition-none\"\n                data-testid=\"mnl-panel-close\"\n                type=\"button\"\n                (click)=\"requestClose()\"\n              >\n                <lucide-icon [img]=\"closeIcon\" aria-hidden=\"true\" class=\"size-5\"></lucide-icon>\n              </button>\n            </header>\n\n            <div\n              class=\"flex-1 overflow-y-auto px-5 pb-5 pt-4 sm:px-6 sm:pb-6\"\n              data-testid=\"mnl-panel-body\"\n            >\n              <ng-content></ng-content>\n            </div>\n          </section>\n        </div>\n      </div>\n    }\n  `,\n})\nexport class MnlPanelComponent {\n  readonly open = input(false);\n  readonly mode = input<MnlPanelMode>('auto');\n\n  readonly closed = output<void>();\n\n  protected readonly closeIcon = X;\n  protected readonly headerId = `mnl-panel-header-${Math.random().toString(36).slice(2, 10)}`;\n  protected readonly isRendered = signal(false);\n  protected readonly isActive = signal(false);\n  protected readonly isSheetMode = computed(() => this.resolvedMode() === 'sheet');\n  protected readonly resolvedMode = computed<MnlPanelMode>(() => {\n    const mode = this.mode();\n\n    if (mode === 'sheet' || mode === 'dialog') {\n      return mode;\n    }\n\n    return this.isDesktopViewport() ? 'dialog' : 'sheet';\n  });\n  protected readonly backdropClasses = computed(() =>\n    [backdropBaseClasses, this.isActive() ? backdropVisibleClasses : backdropHiddenClasses].join(\n      ' ',\n    ),\n  );\n  protected readonly containerClasses = computed(() =>\n    [\n      containerBaseClasses,\n      this.isSheetMode() ? containerSheetClasses : containerDialogClasses,\n    ].join(' '),\n  );\n  protected readonly panelClasses = computed(() => {\n    const layout = this.resolvedMode();\n\n    return [\n      panelBaseClasses,\n      layout === 'sheet' ? panelSheetClasses : panelDialogClasses,\n      layout === 'sheet'\n        ? this.isActive()\n          ? panelSheetOpenClasses\n          : panelSheetClosedClasses\n        : this.isActive()\n          ? panelDialogOpenClasses\n          : panelDialogClosedClasses,\n    ].join(' ');\n  });\n\n  private readonly document = inject(DOCUMENT);\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly panelElement = viewChild<ElementRef<HTMLElement>>('panelElement');\n  private readonly isDesktopViewport = signal(false);\n  private readonly prefersReducedMotion = signal(false);\n  private readonly focusableSelector =\n    'button:not([disabled]), [href], input:not([disabled]):not([type=\"hidden\"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])';\n\n  private closeTimer: ReturnType<typeof setTimeout> | null = null;\n  private restoreBodyOverflow = '';\n  private bodyScrollLocked = false;\n  private restoreFocusTarget: HTMLElement | null = null;\n\n  constructor() {\n    this.registerMediaQuery('(min-width: 1024px)', this.isDesktopViewport);\n    this.registerMediaQuery('(prefers-reduced-motion: reduce)', this.prefersReducedMotion);\n\n    effect(\n      () => {\n        if (this.open()) {\n          this.mountPanel();\n          return;\n        }\n\n        this.beginClose();\n      },\n      { allowSignalWrites: true },\n    );\n\n    effect(() => {\n      if (this.isRendered()) {\n        this.lockBodyScroll();\n        return;\n      }\n\n      this.unlockBodyScroll();\n    });\n\n    this.destroyRef.onDestroy(() => {\n      this.clearCloseTimer();\n      this.unlockBodyScroll();\n      this.restoreFocus();\n    });\n  }\n\n  @HostListener('document:focusin', ['$event'])\n  protected handleDocumentFocusIn(event: FocusEvent): void {\n    if (!this.isActive()) {\n      return;\n    }\n\n    const panel = this.panelElement()?.nativeElement;\n    const target = event.target as Node | null;\n\n    if (!panel || !target || panel.contains(target)) {\n      return;\n    }\n\n    this.focusInitialElement();\n  }\n\n  @HostListener('document:keydown', ['$event'])\n  protected handleDocumentKeydown(event: KeyboardEvent): void {\n    if (!this.isActive()) {\n      return;\n    }\n\n    if (event.key === 'Escape') {\n      event.preventDefault();\n      event.stopPropagation();\n      this.requestClose();\n      return;\n    }\n\n    if (event.key !== 'Tab') {\n      return;\n    }\n\n    this.trapFocus(event);\n  }\n\n  protected requestClose(): void {\n    this.closed.emit();\n  }\n\n  private beginClose(): void {\n    this.isActive.set(false);\n\n    if (!this.isRendered()) {\n      return;\n    }\n\n    this.clearCloseTimer();\n\n    if (this.prefersReducedMotion()) {\n      this.finishClose();\n      return;\n    }\n\n    this.closeTimer = setTimeout(() => this.finishClose(), transitionDurationMs);\n  }\n\n  private captureRestoreFocusTarget(): void {\n    const activeElement = this.document.activeElement;\n    this.restoreFocusTarget = activeElement instanceof HTMLElement ? activeElement : null;\n  }\n\n  private clearCloseTimer(): void {\n    if (this.closeTimer == null) {\n      return;\n    }\n\n    clearTimeout(this.closeTimer);\n    this.closeTimer = null;\n  }\n\n  private finishClose(): void {\n    this.isRendered.set(false);\n    this.clearCloseTimer();\n    this.restoreFocus();\n  }\n\n  private focusInitialElement(): void {\n    const panel = this.panelElement()?.nativeElement;\n\n    if (!panel) {\n      return;\n    }\n\n    const focusableElements = this.getFocusableElements();\n    (focusableElements[0] ?? panel).focus();\n  }\n\n  private getFocusableElements(): HTMLElement[] {\n    const panel = this.panelElement()?.nativeElement;\n\n    if (!panel) {\n      return [];\n    }\n\n    return Array.from(panel.querySelectorAll<HTMLElement>(this.focusableSelector)).filter(\n      (element) =>\n        !element.hasAttribute('disabled') &&\n        element.tabIndex !== -1 &&\n        element.getAttribute('aria-hidden') !== 'true',\n    );\n  }\n\n  private lockBodyScroll(): void {\n    if (this.bodyScrollLocked) {\n      return;\n    }\n\n    this.restoreBodyOverflow = this.document.body.style.overflow;\n    this.document.body.style.overflow = 'hidden';\n    this.bodyScrollLocked = true;\n  }\n\n  private mountPanel(): void {\n    this.clearCloseTimer();\n\n    if (!this.isRendered()) {\n      this.captureRestoreFocusTarget();\n      this.isRendered.set(true);\n    }\n\n    queueMicrotask(() => {\n      if (!this.open()) {\n        return;\n      }\n\n      this.isActive.set(true);\n      this.focusInitialElement();\n    });\n  }\n\n  private registerMediaQuery(query: string, targetSignal: WritableSignal<boolean>): void {\n    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {\n      return;\n    }\n\n    const mediaQuery = window.matchMedia(query);\n    targetSignal.set(mediaQuery.matches);\n\n    const listener = (event: MediaQueryListEvent) => targetSignal.set(event.matches);\n\n    mediaQuery.addEventListener('change', listener);\n    this.destroyRef.onDestroy(() => mediaQuery.removeEventListener('change', listener));\n  }\n\n  private restoreFocus(): void {\n    if (!this.restoreFocusTarget) {\n      return;\n    }\n\n    if (this.document.contains(this.restoreFocusTarget)) {\n      this.restoreFocusTarget.focus();\n    }\n\n    this.restoreFocusTarget = null;\n  }\n\n  private trapFocus(event: KeyboardEvent): void {\n    const panel = this.panelElement()?.nativeElement;\n\n    if (!panel) {\n      return;\n    }\n\n    const focusableElements = this.getFocusableElements();\n\n    if (focusableElements.length === 0) {\n      event.preventDefault();\n      panel.focus();\n      return;\n    }\n\n    const activeElement = this.document.activeElement as HTMLElement | null;\n    const firstElement = focusableElements[0];\n    const lastElement = focusableElements.at(-1) ?? firstElement;\n\n    if (event.shiftKey) {\n      if (!activeElement || !panel.contains(activeElement) || activeElement === firstElement) {\n        event.preventDefault();\n        lastElement.focus();\n      }\n\n      return;\n    }\n\n    if (!activeElement || !panel.contains(activeElement) || activeElement === lastElement) {\n      event.preventDefault();\n      firstElement.focus();\n    }\n  }\n\n  private unlockBodyScroll(): void {\n    if (!this.bodyScrollLocked) {\n      return;\n    }\n\n    this.document.body.style.overflow = this.restoreBodyOverflow;\n    this.restoreBodyOverflow = '';\n    this.bodyScrollLocked = false;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 166
+            },
+            "extends": []
+        },
+        {
             "name": "MnlSelectComponent",
             "id": "component-MnlSelectComponent-298dd9825abf13206a7f0503b768dc56bba006c748bb0d18fd6e84bdd416fb2dac43525f324d09548abcc5aa9d1c269106ee615aa3612b9e271367627b848d1b",
             "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
@@ -4529,6 +5262,227 @@
             "extends": []
         },
         {
+            "name": "PanelStoryPreviewComponent",
+            "id": "component-PanelStoryPreviewComponent-32c114d99a035d5a00e3b1460374b1855a2d4d1149a83ca4a2ca6124f110e8dbf188fbcb790093fa9c6486d24cdff91a0d9676f4dd387f64a1f0d23d453174f5",
+            "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-panel-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-4xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Molecules\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Panel</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        The panel adapts between a mobile bottom sheet and a desktop dialog while keeping the\n        same accessible, form-friendly API.\n      </p>\n\n      <div class=\"mt-5 flex flex-wrap gap-3\">\n        <mnl-button (pressed)=\"open.set(true)\">Open panel</mnl-button>\n        <mnl-button variant=\"secondary\" (pressed)=\"toggleTheme()\">\n          Toggle {{ activeTheme() === 'light' ? 'dark' : 'light' }} mode\n        </mnl-button>\n      </div>\n    </section>\n\n    <section class=\"rounded-2xl bg-mnl-surface-alt/60 p-6 ring-1 ring-mnl-border\">\n      <div class=\"grid gap-4 md:grid-cols-2\">\n        <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-subtext\">\n            Mode\n          </p>\n          <p class=\"mt-3 mb-0 text-2xl font-bold tracking-tight capitalize\">\n            {{ mode() }}\n          </p>\n        </article>\n\n        <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-subtext\">\n            Theme\n          </p>\n          <p class=\"mt-3 mb-0 text-2xl font-bold tracking-tight capitalize\">\n            {{ activeTheme() }}\n          </p>\n        </article>\n      </div>\n    </section>\n  </div>\n\n  <mnl-panel [mode]=\"mode()\" [open]=\"open()\" (closed)=\"open.set(false)\">\n    <div mnlPanelHeader>\n      <div class=\"space-y-1\">\n        <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n          Budget form\n        </p>\n        <h2 class=\"m-0 text-2xl font-bold tracking-tight\">Create line item</h2>\n        <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n          Use the same projected form content in sheet, dialog, or viewport-driven auto mode.\n        </p>\n      </div>\n    </div>\n\n    <form class=\"space-y-4\" (submit)=\"handleSubmit($event)\">\n      <mnl-form-field inputId=\"story-panel-title\" label=\"Title\" required>\n        <mnl-input id=\"story-panel-title\" placeholder=\"School fees\"></mnl-input>\n      </mnl-form-field>\n\n      <mnl-form-field inputId=\"story-panel-amount\" label=\"Planned amount\" required>\n        <mnl-amount-input id=\"story-panel-amount\" placeholder=\"0.00\"></mnl-amount-input>\n      </mnl-form-field>\n\n      <mnl-form-field\n        inputId=\"story-panel-notes\"\n        label=\"Notes\"\n        hint=\"Projected content stays scrollable when the sheet grows taller than the viewport.\"\n      >\n        <mnl-input id=\"story-panel-notes\" placeholder=\"Optional household context\"></mnl-input>\n      </mnl-form-field>\n\n      <div class=\"flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end\">\n        <mnl-button variant=\"ghost\" (pressed)=\"open.set(false)\">Cancel</mnl-button>\n        <mnl-button type=\"submit\">Save item</mnl-button>\n      </div>\n    </form>\n  </mnl-panel>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "mode",
+                    "defaultValue": "'auto'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlPanelMode",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 133,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "themeMode",
+                    "defaultValue": "'light'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "\"light\" | \"dark\"",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 134,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "activeTheme",
+                    "defaultValue": "signal<'light' | 'dark'>('light')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 136,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 140,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "document",
+                    "defaultValue": "inject(DOCUMENT)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 139,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "open",
+                    "defaultValue": "signal(true)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 137,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "previousDarkMode",
+                    "defaultValue": "this.document.documentElement.classList.contains('dark')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 141,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleSubmit",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 160,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toggleTheme",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 165,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlAmountInputComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlButtonComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlFormFieldComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlInputComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlPanelComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { DOCUMENT } from '@angular/common';\nimport {\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  effect,\n  inject,\n  input,\n  signal,\n} from '@angular/core';\nimport { type Meta, type StoryObj } from '@storybook/angular';\n\nimport { MnlButtonComponent } from '../../atoms/button';\nimport { MnlInputComponent } from '../../atoms/input';\nimport { MnlAmountInputComponent } from '../amount-input';\nimport { MnlFormFieldComponent } from '../form-field';\nimport { MnlPanelComponent, type MnlPanelMode } from './panel.component';\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  selector: 'lib-panel-story-preview',\n  standalone: true,\n  imports: [\n    MnlAmountInputComponent,\n    MnlButtonComponent,\n    MnlFormFieldComponent,\n    MnlInputComponent,\n    MnlPanelComponent,\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-4xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Panel</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The panel adapts between a mobile bottom sheet and a desktop dialog while keeping the\n            same accessible, form-friendly API.\n          </p>\n\n          <div class=\"mt-5 flex flex-wrap gap-3\">\n            <mnl-button (pressed)=\"open.set(true)\">Open panel</mnl-button>\n            <mnl-button variant=\"secondary\" (pressed)=\"toggleTheme()\">\n              Toggle {{ activeTheme() === 'light' ? 'dark' : 'light' }} mode\n            </mnl-button>\n          </div>\n        </section>\n\n        <section class=\"rounded-2xl bg-mnl-surface-alt/60 p-6 ring-1 ring-mnl-border\">\n          <div class=\"grid gap-4 md:grid-cols-2\">\n            <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n              <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-subtext\">\n                Mode\n              </p>\n              <p class=\"mt-3 mb-0 text-2xl font-bold tracking-tight capitalize\">\n                {{ mode() }}\n              </p>\n            </article>\n\n            <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n              <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-subtext\">\n                Theme\n              </p>\n              <p class=\"mt-3 mb-0 text-2xl font-bold tracking-tight capitalize\">\n                {{ activeTheme() }}\n              </p>\n            </article>\n          </div>\n        </section>\n      </div>\n\n      <mnl-panel [mode]=\"mode()\" [open]=\"open()\" (closed)=\"open.set(false)\">\n        <div mnlPanelHeader>\n          <div class=\"space-y-1\">\n            <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n              Budget form\n            </p>\n            <h2 class=\"m-0 text-2xl font-bold tracking-tight\">Create line item</h2>\n            <p class=\"m-0 text-sm leading-6 text-mnl-subtext\">\n              Use the same projected form content in sheet, dialog, or viewport-driven auto mode.\n            </p>\n          </div>\n        </div>\n\n        <form class=\"space-y-4\" (submit)=\"handleSubmit($event)\">\n          <mnl-form-field inputId=\"story-panel-title\" label=\"Title\" required>\n            <mnl-input id=\"story-panel-title\" placeholder=\"School fees\"></mnl-input>\n          </mnl-form-field>\n\n          <mnl-form-field inputId=\"story-panel-amount\" label=\"Planned amount\" required>\n            <mnl-amount-input id=\"story-panel-amount\" placeholder=\"0.00\"></mnl-amount-input>\n          </mnl-form-field>\n\n          <mnl-form-field\n            inputId=\"story-panel-notes\"\n            label=\"Notes\"\n            hint=\"Projected content stays scrollable when the sheet grows taller than the viewport.\"\n          >\n            <mnl-input id=\"story-panel-notes\" placeholder=\"Optional household context\"></mnl-input>\n          </mnl-form-field>\n\n          <div class=\"flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end\">\n            <mnl-button variant=\"ghost\" (pressed)=\"open.set(false)\">Cancel</mnl-button>\n            <mnl-button type=\"submit\">Save item</mnl-button>\n          </div>\n        </form>\n      </mnl-panel>\n    </div>\n  `,\n})\nclass PanelStoryPreviewComponent {\n  readonly mode = input<MnlPanelMode>('auto');\n  readonly themeMode = input<'light' | 'dark'>('light');\n\n  protected readonly activeTheme = signal<'light' | 'dark'>('light');\n  protected readonly open = signal(true);\n\n  private readonly document = inject(DOCUMENT);\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly previousDarkMode = this.document.documentElement.classList.contains('dark');\n\n  constructor() {\n    effect(\n      () => {\n        this.activeTheme.set(this.themeMode());\n      },\n      { allowSignalWrites: true },\n    );\n\n    effect(() => {\n      this.document.documentElement.classList.toggle('dark', this.activeTheme() === 'dark');\n    });\n\n    this.destroyRef.onDestroy(() => {\n      this.document.documentElement.classList.toggle('dark', this.previousDarkMode);\n    });\n  }\n\n  protected handleSubmit(event: Event): void {\n    event.preventDefault();\n    this.open.set(false);\n  }\n\n  protected toggleTheme(): void {\n    this.activeTheme.update((theme) => (theme === 'light' ? 'dark' : 'light'));\n  }\n}\n\nconst meta: Meta<PanelStoryPreviewComponent> = {\n  title: 'Molecules/Panel',\n  component: PanelStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PanelStoryPreviewComponent>;\n\nexport const AutoMobile: Story = {\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const AutoDesktop: Story = {\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n\nexport const ForcedSheet: Story = {\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n\nexport const ForcedDialog: Story = {\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const DarkModeDialog: Story = {\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 141
+            },
+            "extends": []
+        },
+        {
             "name": "SelectStoryPreviewComponent",
             "id": "component-SelectStoryPreviewComponent-2a82cbdff8004c0aa253a5e16c24f84d7d483c6138501f86f0de87f2d189235168dabb1ab2a25a12a29050a54e27cc4bf7eca3259f6f6f09d38084a5ec9c8fcb",
             "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
@@ -4719,6 +5673,56 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "AutoDesktop",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+            },
+            {
+                "name": "AutoMobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+            },
+            {
+                "name": "backdropBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'absolute inset-0 bg-black/45 transition-opacity duration-300 ease-out motion-reduce:transition-none'"
+            },
+            {
+                "name": "backdropHiddenClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'opacity-0'"
+            },
+            {
+                "name": "backdropVisibleClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'opacity-100'"
+            },
+            {
                 "name": "baseClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -4759,6 +5763,16 @@
                 "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
             },
             {
+                "name": "containerBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'absolute inset-0 flex p-4 sm:p-6'"
+            },
+            {
                 "name": "containerDefaultClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -4787,6 +5801,16 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+            },
+            {
+                "name": "containerDialogClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'items-center justify-center'"
             },
             {
                 "name": "containerDisabledClasses",
@@ -4847,6 +5871,26 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+            },
+            {
+                "name": "containerSheetClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'items-end justify-center'"
+            },
+            {
+                "name": "DarkModeDialog",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
             },
             {
                 "name": "Default",
@@ -4862,7 +5906,7 @@
                 "name": "Desktop",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -4872,7 +5916,7 @@
                 "name": "Desktop",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -4897,6 +5941,26 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
+            },
+            {
+                "name": "ForcedDialog",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+            },
+            {
+                "name": "ForcedSheet",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
             },
             {
                 "name": "foundationThemes",
@@ -5082,11 +6146,11 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<TabBarStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                "type": "Meta<PanelStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Panel',\n  component: PanelStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
             },
             {
                 "name": "meta",
@@ -5099,10 +6163,20 @@
                 "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
             },
             {
-                "name": "Mobile",
+                "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<TabBarStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+            },
+            {
+                "name": "Mobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -5112,7 +6186,7 @@
                 "name": "Mobile",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -5152,21 +6226,21 @@
                 "name": "navigationItems",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "MnlTabBarItem[]",
-                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
-            },
-            {
-                "name": "navigationItems",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "MnlTabBarItem[]",
                 "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+            },
+            {
+                "name": "navigationItems",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlTabBarItem[]",
+                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
             },
             {
                 "name": "Overview",
@@ -5289,6 +6363,76 @@
                 "defaultValue": "[\n  ['rosewater', '#dc8a78', '#f5e0dc'],\n  ['flamingo', '#dd7878', '#f2cdcd'],\n  ['pink', '#ea76cb', '#f5c2e7'],\n  ['mauve', '#8839ef', '#cba6f7'],\n  ['red', '#d20f39', '#f38ba8'],\n  ['maroon', '#e64553', '#eba0ac'],\n  ['peach', '#fe640b', '#fab387'],\n  ['yellow', '#df8e1d', '#f9e2af'],\n  ['green', '#40a02b', '#a6e3a1'],\n  ['teal', '#179299', '#94e2d5'],\n  ['sky', '#04a5e5', '#89dceb'],\n  ['sapphire', '#209fb5', '#74c7ec'],\n  ['blue', '#1e66f5', '#89b4fa'],\n  ['lavender', '#7287fd', '#b4befe'],\n  ['text', '#4c4f69', '#cdd6f4'],\n  ['subtext1', '#5c5f77', '#bac2de'],\n  ['subtext0', '#6c6f85', '#a6adc8'],\n  ['overlay2', '#7c7f93', '#9399b2'],\n  ['overlay1', '#8c8fa1', '#7f849c'],\n  ['overlay0', '#9ca0b0', '#6c7086'],\n  ['surface2', '#acb0be', '#585b70'],\n  ['surface1', '#bcc0cc', '#45475a'],\n  ['surface0', '#ccd0da', '#313244'],\n  ['base', '#eff1f5', '#1e1e2e'],\n  ['mantle', '#e6e9ef', '#181825'],\n  ['crust', '#dce0e8', '#11111b'],\n] as const"
             },
             {
+                "name": "panelBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'pointer-events-auto relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface text-mnl-text shadow-md shadow-black/15 ring-1 ring-mnl-border/80 transition-[transform,opacity] duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none'"
+            },
+            {
+                "name": "panelDialogClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'max-w-lg'"
+            },
+            {
+                "name": "panelDialogClosedClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'scale-95 opacity-0'"
+            },
+            {
+                "name": "panelDialogOpenClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'scale-100 opacity-100'"
+            },
+            {
+                "name": "panelSheetClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'max-w-2xl'"
+            },
+            {
+                "name": "panelSheetClosedClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'translate-y-full opacity-100'"
+            },
+            {
+                "name": "panelSheetOpenClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'translate-y-0 opacity-100'"
+            },
+            {
                 "name": "Playground",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5409,6 +6553,16 @@
                 "defaultValue": "'(prefers-color-scheme: dark)'"
             },
             {
+                "name": "transitionDurationMs",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "300"
+            },
+            {
                 "name": "typographyRoles",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -5442,7 +6596,7 @@
                 "name": "viewportOptions",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "unknown",
@@ -5453,6 +6607,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+            },
+            {
+                "name": "viewportOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "unknown",
@@ -5704,6 +6868,17 @@
                 "kind": 193
             },
             {
+                "name": "MnlPanelMode",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "\"auto\" | \"sheet\" | \"dialog\"",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
                 "name": "MnlSelectValue",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -5850,8 +7025,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "rawtype": "StoryObj<PanelStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -5863,6 +7038,17 @@
                 "subtype": "typealias",
                 "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -5882,6 +7068,220 @@
         ],
         "enumerations": [],
         "groupedVariables": {
+            "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts": [
+                {
+                    "name": "AutoDesktop",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "AutoMobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'auto',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "DarkModeDialog",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'dark',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "ForcedDialog",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'dialog',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "ForcedSheet",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: {\n    mode: 'sheet',\n    themeMode: 'light',\n  },\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<PanelStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/Panel',\n  component: PanelStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts": [
+                {
+                    "name": "backdropBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'absolute inset-0 bg-black/45 transition-opacity duration-300 ease-out motion-reduce:transition-none'"
+                },
+                {
+                    "name": "backdropHiddenClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'opacity-0'"
+                },
+                {
+                    "name": "backdropVisibleClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'opacity-100'"
+                },
+                {
+                    "name": "containerBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'absolute inset-0 flex p-4 sm:p-6'"
+                },
+                {
+                    "name": "containerDialogClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'items-center justify-center'"
+                },
+                {
+                    "name": "containerSheetClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'items-end justify-center'"
+                },
+                {
+                    "name": "panelBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'pointer-events-auto relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface text-mnl-text shadow-md shadow-black/15 ring-1 ring-mnl-border/80 transition-[transform,opacity] duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none'"
+                },
+                {
+                    "name": "panelDialogClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'max-w-lg'"
+                },
+                {
+                    "name": "panelDialogClosedClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'scale-95 opacity-0'"
+                },
+                {
+                    "name": "panelDialogOpenClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'scale-100 opacity-100'"
+                },
+                {
+                    "name": "panelSheetClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'max-w-2xl'"
+                },
+                {
+                    "name": "panelSheetClosedClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'translate-y-full opacity-100'"
+                },
+                {
+                    "name": "panelSheetOpenClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'translate-y-0 opacity-100'"
+                },
+                {
+                    "name": "transitionDurationMs",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "300"
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/button/button.component.ts": [
                 {
                     "name": "baseClasses",
@@ -6092,58 +7492,6 @@
                     "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
                 }
             ],
-            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
-                {
-                    "name": "Desktop",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
-                },
-                {
-                    "name": "meta",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<TabBarStoryPreviewComponent>",
-                    "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
-                },
-                {
-                    "name": "Mobile",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
-                },
-                {
-                    "name": "navigationItems",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "MnlTabBarItem[]",
-                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
-                },
-                {
-                    "name": "viewportOptions",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "unknown",
-                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
-                }
-            ],
             "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
                 {
                     "name": "Desktop",
@@ -6190,6 +7538,58 @@
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
+                {
+                    "name": "Desktop",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<TabBarStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "Mobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "navigationItems",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlTabBarItem[]",
+                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "unknown",
@@ -6918,6 +8318,19 @@
                     "kind": 193
                 }
             ],
+            "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts": [
+                {
+                    "name": "MnlPanelMode",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "\"auto\" | \"sheet\" | \"dialog\"",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/select/select.component.ts": [
                 {
                     "name": "MnlSelectValue",
@@ -7087,13 +8500,13 @@
                     "kind": 184
                 }
             ],
-            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
+            "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "rawtype": "StoryObj<PanelStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -7107,6 +8520,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -8155,6 +9581,254 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlPanelComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/41",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "backdropBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "backdropHiddenClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "backdropVisibleClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDialogClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerSheetClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelDialogClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelDialogClosedClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelDialogOpenClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelSheetClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelSheetClosedClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "panelSheetOpenClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "transitionDurationMs",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlPanelMode",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "PanelStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/11",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "AutoDesktop",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "AutoMobile",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "DarkModeDialog",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ForcedDialog",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ForcedSheet",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "viewportOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/panel/panel.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
