@@ -13,5 +13,7 @@ export * from './lib/atoms/select';
 export * from './lib/atoms/toggle';
 export * from './lib/molecules/form-field';
 export * from './lib/molecules/amount-input';
+export * from './lib/molecules/card';
 export * from './lib/molecules/tab-bar';
+export * from './lib/molecules/stat';
 export * from './lib/organisms/page-shell';
