@@ -74,3 +74,4 @@ Update your learnings as you progress but keep them brief.
 - `pnpm test:e2e` reuses any existing dev server on port 4200; kill stale `nx serve menlo-app` listeners before rerunning Playwright if a Vite overlay appears from old type-resolution errors.
 - `src/ui/web/projects/menlo-lib/src/index.ts` and `src/public-api.ts` need to stay aligned when adding new exported molecules, or Storybook/dev imports drift from the packaged surface.
 - Design-system gradients that must work in app runtime, Storybook previews, and Vitest are safest when driven by shared theme CSS variables instead of `light-dark()`.
+- `mnl-button` exposes routed CTA interactions through its `pressed` output, so components that need navigation should handle routing in the host component instead of trying to attach `routerLink` directly.

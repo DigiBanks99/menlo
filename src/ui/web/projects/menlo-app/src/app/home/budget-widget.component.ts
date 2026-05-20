@@ -1,133 +1,96 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BudgetApiService, BudgetResponse } from 'data-access-menlo-api';
-import { MoneyPipe } from 'menlo-lib';
+import {
+  MoneyPipe,
+  MnlBadgeComponent,
+  type MnlBadgeVariant,
+  MnlButtonComponent,
+  MnlCardComponent,
+  MnlStatComponent,
+} from 'menlo-lib';
 import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 
 @Component({
   selector: 'app-budget-widget',
-  imports: [MoneyPipe],
+  imports: [MoneyPipe, MnlBadgeComponent, MnlButtonComponent, MnlCardComponent, MnlStatComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="budget-widget">
-      <h3 data-testid="widget-title">Budget {{ currentYear }}</h3>
-
-      @if (loading()) {
-        <div class="loading" data-testid="widget-loading">Loading...</div>
-      }
-
-      @if (error()) {
-        <div class="error-banner" data-testid="widget-error">{{ error() }}</div>
-      }
-
-      @if (budget(); as b) {
-        <div class="budget-summary">
-          <span
-            class="status-badge status-{{ b.status.toLowerCase() }}"
-            data-testid="widget-status"
+    <mnl-card data-testid="budget-widget-card" padding="lg">
+      <div class="flex items-start justify-between gap-4" mnlCardHeader>
+        <div class="space-y-2">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-mnl-accent">
+            Current budget
+          </p>
+          <h2
+            class="m-0 text-2xl font-semibold tracking-tight text-mnl-text"
+            data-testid="widget-title"
           >
-            {{ b.status }}
-          </span>
-          <span class="total-amount" data-testid="widget-total">
-            {{ b.totalPlannedMonthlyAmount | money }}
-          </span>
+            Budget {{ currentYear }}
+          </h2>
         </div>
-      }
 
-      <button
-        class="btn-primary"
-        data-testid="view-budget-btn"
-        [disabled]="loading() || !budget()"
-        (click)="viewBudget()"
-      >
-        View Budget
-      </button>
-    </div>
+        @if (budget(); as currentBudget) {
+          <mnl-badge
+            [variant]="statusVariant(currentBudget.status)"
+            data-testid="widget-status"
+            size="sm"
+          >
+            {{ currentBudget.status }}
+          </mnl-badge>
+        } @else if (error()) {
+          <mnl-badge size="sm" variant="error">Needs attention</mnl-badge>
+        } @else {
+          <mnl-badge size="sm" variant="info">Syncing</mnl-badge>
+        }
+      </div>
+
+      <div class="space-y-4">
+        @if (loading()) {
+          <p class="m-0 text-sm font-medium text-mnl-subtext" data-testid="widget-loading">
+            Loading...
+          </p>
+        }
+
+        @if (error()) {
+          <div class="space-y-2" data-testid="widget-error">
+            <p class="m-0 text-sm font-semibold text-mnl-error">
+              We couldn&apos;t load this year&apos;s budget.
+            </p>
+            <p class="m-0 text-sm leading-6 text-mnl-subtext">{{ error() }}</p>
+          </div>
+        } @else if (budget(); as currentBudget) {
+          <div data-testid="widget-total">
+            <mnl-stat
+              label="Planned this month"
+              [value]="currentBudget.totalPlannedMonthlyAmount | money"
+            />
+          </div>
+
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Review status and jump straight into the household budget workspace when you are ready
+            to refine categories and items.
+          </p>
+        } @else {
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Preparing the latest household budget snapshot.
+          </p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row" mnlCardFooter>
+        <mnl-button
+          class="w-full sm:w-auto"
+          data-testid="view-budget-button"
+          size="sm"
+          [disabled]="loading() || !budget()"
+          (pressed)="viewBudget()"
+        >
+          View Budget
+        </mnl-button>
+      </div>
+    </mnl-card>
   `,
-  styles: [
-    `
-      .budget-widget {
-        padding: 1.5rem;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-
-      .budget-widget h3 {
-        margin: 0 0 1rem 0;
-        color: #2c3e50;
-      }
-
-      .budget-summary {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-      }
-
-      .status-badge {
-        padding: 0.2rem 0.6rem;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .status-draft {
-        background: #e9ecef;
-        color: #495057;
-      }
-      .status-active {
-        background: #d4edda;
-        color: #155724;
-      }
-      .status-closed {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .total-amount {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #28a745;
-      }
-
-      .loading {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin-bottom: 0.75rem;
-      }
-
-      .error-banner {
-        padding: 0.75rem;
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 6px;
-        color: #721c24;
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-      }
-
-      .btn-primary {
-        padding: 0.5rem 1.25rem;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .btn-primary:hover:not(:disabled) {
-        background: #0056b3;
-      }
-      .btn-primary:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-    `,
-  ],
 })
 export class BudgetWidgetComponent implements OnInit {
   private readonly router = inject(Router);
@@ -137,6 +100,17 @@ export class BudgetWidgetComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly budget = signal<BudgetResponse | null>(null);
   readonly currentYear = new Date().getFullYear();
+
+  protected statusVariant(status: BudgetResponse['status']): MnlBadgeVariant {
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'Closed':
+        return 'neutral';
+      default:
+        return 'warning';
+    }
+  }
 
   ngOnInit(): void {
     this.loading.set(true);
