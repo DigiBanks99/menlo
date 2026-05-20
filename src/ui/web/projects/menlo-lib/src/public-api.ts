@@ -11,9 +11,11 @@ export * from './lib/pipes/money.pipe';
 export * from './lib/theme';
 
 // Atoms
+export * from './lib/atoms/avatar';
 export * from './lib/atoms/badge';
 export * from './lib/atoms/button';
 export * from './lib/atoms/input';
+export * from './lib/atoms/progress';
 export * from './lib/atoms/select';
 export * from './lib/atoms/toggle';
 

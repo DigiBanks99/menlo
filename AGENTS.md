@@ -71,3 +71,4 @@ Update your learnings as you progress but keep them brief.
 - `src/ui/web/projects/menlo-lib/package.json` must point `types` to `types/menlo-lib.d.ts`; otherwise Vite dev overlays report `TS2307` for `menlo-lib` imports even when the dist package exists.
 - `mnl-page-shell` should own the router-driven scroll reset while `mnl-tab-bar` keeps both mobile and desktop nav DOM trees mounted so CSS alone controls the responsive switch.
 - Angular partial-compilation builds for `menlo-lib` can only bind to protected/public component members from templates; private signals break `ng-packagr` builds.
+- `pnpm test:e2e` reuses any existing dev server on port 4200; kill stale `nx serve menlo-app` listeners before rerunning Playwright if a Vite overlay appears from old type-resolution errors.
