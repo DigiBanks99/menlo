@@ -67,3 +67,4 @@ Update your learnings as you progress but keep them brief.
 - Local GitHub Actions reproduction already has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
 - Household IDs in shared-fixture API tests must be unique across test classes to avoid cross-test contamination.
 - Tailwind v4 in `src/ui/web` should be wired through PostCSS, and `@tailwindcss/forms` should use `strategy: "class"` to avoid reset regressions during the design-system rollout.
+- Storybook foundations can preview Latte and Mocha together by scoping Menlo's semantic CSS variables on per-story containers instead of relying on global `html.dark`.
