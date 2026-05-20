@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "./bundles/menlo-lib.umd.js",
   "type": "module",
-  "types": "index.d.ts",
+  "types": "types/menlo-lib.d.ts",
   "peerDependencies": {
     "@angular/common": "^20.1.0",
     "@angular/core": "^20.1.0",

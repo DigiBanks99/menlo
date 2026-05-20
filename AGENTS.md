@@ -68,3 +68,4 @@ Update your learnings as you progress but keep them brief.
 - Household IDs in shared-fixture API tests must be unique across test classes to avoid cross-test contamination.
 - Tailwind v4 in `src/ui/web` should be wired through PostCSS, and `@tailwindcss/forms` should use `strategy: "class"` to avoid reset regressions during the design-system rollout.
 - Storybook foundations can preview Latte and Mocha together by scoping Menlo's semantic CSS variables on per-story containers instead of relying on global `html.dark`.
+- `src/ui/web/projects/menlo-lib/package.json` must point `types` to `types/menlo-lib.d.ts`; otherwise Vite dev overlays report `TS2307` for `menlo-lib` imports even when the dist package exists.
