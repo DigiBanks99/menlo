@@ -433,6 +433,140 @@
             "extends": []
         },
         {
+            "name": "MnlToastEntry",
+            "id": "interface-MnlToastEntry-9c80eeab4ce881f99a9081fa0dfe0fddd68a8b810303b5f1563f28ca60a21555157dcd5c3bc1bd95f0f3feb4e65585299774fa5f9ba2a2b0041eeb7a43a49802",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export type MnlToastVariant = 'success' | 'warning' | 'error' | 'info';\n\nexport interface MnlToastOptions {\n  readonly dismissible?: boolean;\n  readonly duration?: number;\n  readonly variant?: MnlToastVariant;\n}\n\nexport interface MnlToastEntry {\n  readonly dismissible: boolean;\n  readonly duration: number;\n  readonly id: number;\n  readonly message: string;\n  readonly variant: MnlToastVariant;\n}\n",
+            "properties": [
+                {
+                    "name": "dismissible",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 10,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "duration",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "message",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "variant",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlToastVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "MnlToastOptions",
+            "id": "interface-MnlToastOptions-9c80eeab4ce881f99a9081fa0dfe0fddd68a8b810303b5f1563f28ca60a21555157dcd5c3bc1bd95f0f3feb4e65585299774fa5f9ba2a2b0041eeb7a43a49802",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export type MnlToastVariant = 'success' | 'warning' | 'error' | 'info';\n\nexport interface MnlToastOptions {\n  readonly dismissible?: boolean;\n  readonly duration?: number;\n  readonly variant?: MnlToastVariant;\n}\n\nexport interface MnlToastEntry {\n  readonly dismissible: boolean;\n  readonly duration: number;\n  readonly id: number;\n  readonly message: string;\n  readonly variant: MnlToastVariant;\n}\n",
+            "properties": [
+                {
+                    "name": "dismissible",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 4,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "duration",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 5,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "variant",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlToastVariant",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 6,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
             "name": "PaletteTokenRow",
             "id": "interface-PaletteTokenRow-87301a7ee6cd8d4ba57cf26431b6eb0390cb1b62911c89ef9dafaf2a6282d017ee4ad09e9477e5bac00a2a5b19fb738563b51a9edc3264e754dadd9064fb9656",
             "file": "projects/menlo-lib/src/lib/foundations/foundation-data.ts",
@@ -855,6 +989,309 @@
         }
     ],
     "injectables": [
+        {
+            "name": "MnlToastService",
+            "id": "injectable-MnlToastService-54f93f640a7022479a5efd03244a1224b33ac684ef2a3927d91efc4cefe27931b5c649a6130265c2a28ae3b66ea1a2e47ac576816c455aea7b4835dcd22a83a2",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+            "properties": [
+                {
+                    "name": "activeToasts",
+                    "defaultValue": "this.toasts.asReadonly()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 26,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "applicationRef",
+                    "defaultValue": "inject(ApplicationRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "document",
+                    "defaultValue": "inject(DOCUMENT)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 23,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "environmentInjector",
+                    "defaultValue": "inject(EnvironmentInjector)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 24,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "hostElement",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "HTMLElement | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 28,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "nextToastId",
+                    "defaultValue": "0",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 29,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "outletDismissSubscription",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "literal type | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 30,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "outletRef",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ComponentRef<MnlToastOutletComponent> | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "toasts",
+                    "defaultValue": "signal<readonly MnlToastEntry[]>([])",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 25,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "clear",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 37,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "destroyOutlet",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 75,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "dismiss",
+                    "args": [
+                        {
+                            "name": "toastId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 46,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "toastId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ensureOutlet",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 92,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "show",
+                    "args": [
+                        {
+                            "name": "message",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "options",
+                            "type": "MnlToastOptions",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "{}"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "number",
+                    "typeParameters": [],
+                    "line": 57,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "message",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "options",
+                            "type": "MnlToastOptions",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "{}",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "syncOutlet",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 114,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { DOCUMENT } from '@angular/common';\nimport {\n  ApplicationRef,\n  ComponentRef,\n  DestroyRef,\n  EnvironmentInjector,\n  Injectable,\n  createComponent,\n  inject,\n  signal,\n} from '@angular/core';\n\nimport { MnlToastOutletComponent } from './toast-outlet.component';\nimport type { MnlToastEntry, MnlToastOptions } from './toast.types';\n\nconst defaultDurationMs = 4000;\nconst maxVisibleToasts = 3;\n\n@Injectable({ providedIn: 'root' })\nexport class MnlToastService {\n  private readonly applicationRef = inject(ApplicationRef);\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly document = inject(DOCUMENT);\n  private readonly environmentInjector = inject(EnvironmentInjector);\n  private readonly toasts = signal<readonly MnlToastEntry[]>([]);\n  readonly activeToasts = this.toasts.asReadonly();\n\n  private hostElement: HTMLElement | null = null;\n  private nextToastId = 0;\n  private outletDismissSubscription: { unsubscribe(): void } | null = null;\n  private outletRef: ComponentRef<MnlToastOutletComponent> | null = null;\n\n  constructor() {\n    this.destroyRef.onDestroy(() => this.destroyOutlet());\n  }\n\n  clear(): void {\n    if (this.activeToasts().length === 0) {\n      return;\n    }\n\n    this.toasts.set([]);\n    this.syncOutlet();\n  }\n\n  dismiss(toastId: number): void {\n    const nextToasts = this.activeToasts().filter((toast) => toast.id !== toastId);\n\n    if (nextToasts.length === this.activeToasts().length) {\n      return;\n    }\n\n    this.toasts.set(nextToasts);\n    this.syncOutlet();\n  }\n\n  show(message: string, options: MnlToastOptions = {}): number {\n    this.ensureOutlet();\n\n    const toastId = ++this.nextToastId;\n    const toast: MnlToastEntry = {\n      dismissible: options.dismissible ?? true,\n      duration: options.duration ?? defaultDurationMs,\n      id: toastId,\n      message,\n      variant: options.variant ?? 'info',\n    };\n\n    this.toasts.update((currentToasts) => [...currentToasts, toast].slice(-maxVisibleToasts));\n    this.syncOutlet();\n\n    return toastId;\n  }\n\n  private destroyOutlet(): void {\n    this.outletDismissSubscription?.unsubscribe();\n    this.outletDismissSubscription = null;\n\n    if (this.outletRef) {\n      if (!this.applicationRef.destroyed) {\n        this.applicationRef.detachView(this.outletRef.hostView);\n      }\n\n      this.outletRef.destroy();\n      this.outletRef = null;\n    }\n\n    this.hostElement?.remove();\n    this.hostElement = null;\n  }\n\n  private ensureOutlet(): void {\n    if (this.outletRef || !this.document.body) {\n      return;\n    }\n\n    this.hostElement = this.document.createElement('div');\n    this.hostElement.setAttribute('data-mnl-toast-portal', 'true');\n    this.document.body.appendChild(this.hostElement);\n\n    this.outletRef = createComponent(MnlToastOutletComponent, {\n      environmentInjector: this.environmentInjector,\n      hostElement: this.hostElement,\n    });\n\n    this.applicationRef.attachView(this.outletRef.hostView);\n    this.outletDismissSubscription = this.outletRef.instance.dismissRequested.subscribe((toastId) =>\n      this.dismiss(toastId),\n    );\n\n    this.syncOutlet();\n  }\n\n  private syncOutlet(): void {\n    if (!this.outletRef) {\n      return;\n    }\n\n    this.outletRef.setInput('toasts', this.activeToasts());\n    this.outletRef.changeDetectorRef.detectChanges();\n  }\n}\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 31
+            },
+            "extends": [],
+            "type": "injectable"
+        },
         {
             "name": "ThemeService",
             "id": "injectable-ThemeService-77681f2eb878d09322c43e45f54cc48b0965b7e5c573bcc54d2f09487700cd8b3ef75b62c4658352b867cdad621c76e9120ea85ba86c3ac7b9c4f71dfbb5af99",
@@ -7278,6 +7715,482 @@
             "extends": []
         },
         {
+            "name": "MnlToastComponent",
+            "id": "component-MnlToastComponent-e370e345765de1904a4b3a4094165add0c638212240e2cb79c111b6e048484167c9ad25382e42545160efcfb7c1928f3e6ac8e93f4d3c07ea38fdca40da8ff49",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-toast",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<article\n  [attr.aria-atomic]=\"'true'\"\n  [attr.aria-live]=\"ariaLive()\"\n  [attr.data-variant]=\"variant()\"\n  [attr.role]=\"ariaRole()\"\n  [class]=\"toastClasses()\"\n  data-testid=\"mnl-toast\"\n>\n  <span [class]=\"leadingIconClasses()\" aria-hidden=\"true\" data-testid=\"mnl-toast-icon\">\n    <lucide-icon [img]=\"icon()\" class=\"size-4\"></lucide-icon>\n  </span>\n\n  <p class=\"m-0 min-w-0 flex-1 text-sm leading-6\">\n    {{ message() }}\n  </p>\n\n  @if (dismissible()) {\n    <button\n      aria-label=\"Dismiss notification\"\n      class=\"inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-transparent bg-transparent text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-surface motion-reduce:transition-none\"\n      data-testid=\"mnl-toast-dismiss\"\n      type=\"button\"\n      (click)=\"requestDismiss()\"\n    >\n      <lucide-icon [img]=\"dismissIcon\" aria-hidden=\"true\" class=\"size-4\"></lucide-icon>\n    </button>\n  }\n</article>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "dismissible",
+                    "defaultValue": "true",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 83,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "duration",
+                    "defaultValue": "4000",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 84,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "message",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 85,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "variant",
+                    "defaultValue": "'info'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlToastVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 86,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "dismissed",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "void",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 88,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "ariaLive",
+                    "defaultValue": "computed(() =>\n    this.variant() === 'error' ? 'assertive' : 'polite',\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 91,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "ariaRole",
+                    "defaultValue": "computed(() => (this.variant() === 'error' ? 'alert' : 'status'))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 94,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "autoDismissTimer",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ReturnType<unknown> | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 114,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 110,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "dismissIcon",
+                    "defaultValue": "X",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 90,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "dismissRequested",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 116,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "dismissTimer",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ReturnType<unknown> | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 115,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "icon",
+                    "defaultValue": "computed(() => iconMap[this.variant()])",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 95,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "leadingIconClasses",
+                    "defaultValue": "computed(() =>\n    [\n      'inline-flex size-10 shrink-0 items-center justify-center rounded-xl',\n      iconContainerClasses[this.variant()],\n    ].join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 96,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "prefersReducedMotion",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 111,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "toastClasses",
+                    "defaultValue": "computed(() =>\n    [\n      toastBaseClasses,\n      variantClasses[this.variant()],\n      this.visible() ? toastVisibleClasses : toastHiddenClasses,\n    ].join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 102,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "visible",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 112,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "clearAutoDismissTimer",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 152,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "clearDismissTimer",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 161,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "registerReducedMotionPreference",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 170,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "requestDismiss",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 134,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "restartAutoDismissTimer",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 184,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  computed,\n  effect,\n  inject,\n  input,\n  output,\n  signal,\n} from '@angular/core';\nimport { Check, CircleAlert, Info, LucideAngularModule, TriangleAlert, X } from 'lucide-angular';\n\nimport type { MnlToastVariant } from './toast.types';\n\nconst transitionDurationMs = 300;\nconst toastBaseClasses =\n  'pointer-events-auto flex w-full items-start gap-3 rounded-2xl border px-4 py-3 shadow-md transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none';\nconst toastHiddenClasses = '-translate-y-2 opacity-0';\nconst toastVisibleClasses = 'translate-y-0 opacity-100';\n\nconst variantClasses: Record<MnlToastVariant, string> = {\n  success: 'border-mnl-success/30 bg-mnl-surface text-mnl-text ring-1 ring-mnl-success/15',\n  warning: 'border-mnl-warning/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-warning/15',\n  error: 'border-mnl-error/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-error/15',\n  info: 'border-mnl-info/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-info/15',\n};\n\nconst iconContainerClasses: Record<MnlToastVariant, string> = {\n  success: 'bg-mnl-success/15 text-mnl-success',\n  warning: 'bg-mnl-warning/20 text-mnl-warning',\n  error: 'bg-mnl-error/15 text-mnl-error',\n  info: 'bg-mnl-info/15 text-mnl-info',\n};\n\nconst iconMap = {\n  success: Check,\n  warning: TriangleAlert,\n  error: CircleAlert,\n  info: Info,\n} as const satisfies Record<MnlToastVariant, unknown>;\n\n@Component({\n  selector: 'mnl-toast',\n  standalone: true,\n  imports: [LucideAngularModule],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'block w-full max-w-sm',\n  },\n  template: `\n    <article\n      [attr.aria-atomic]=\"'true'\"\n      [attr.aria-live]=\"ariaLive()\"\n      [attr.data-variant]=\"variant()\"\n      [attr.role]=\"ariaRole()\"\n      [class]=\"toastClasses()\"\n      data-testid=\"mnl-toast\"\n    >\n      <span [class]=\"leadingIconClasses()\" aria-hidden=\"true\" data-testid=\"mnl-toast-icon\">\n        <lucide-icon [img]=\"icon()\" class=\"size-4\"></lucide-icon>\n      </span>\n\n      <p class=\"m-0 min-w-0 flex-1 text-sm leading-6\">\n        {{ message() }}\n      </p>\n\n      @if (dismissible()) {\n        <button\n          aria-label=\"Dismiss notification\"\n          class=\"inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-transparent bg-transparent text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-surface motion-reduce:transition-none\"\n          data-testid=\"mnl-toast-dismiss\"\n          type=\"button\"\n          (click)=\"requestDismiss()\"\n        >\n          <lucide-icon [img]=\"dismissIcon\" aria-hidden=\"true\" class=\"size-4\"></lucide-icon>\n        </button>\n      }\n    </article>\n  `,\n})\nexport class MnlToastComponent {\n  readonly dismissible = input(true);\n  readonly duration = input(4000);\n  readonly message = input.required<string>();\n  readonly variant = input<MnlToastVariant>('info');\n\n  readonly dismissed = output<void>();\n\n  protected readonly dismissIcon = X;\n  protected readonly ariaLive = computed(() =>\n    this.variant() === 'error' ? 'assertive' : 'polite',\n  );\n  protected readonly ariaRole = computed(() => (this.variant() === 'error' ? 'alert' : 'status'));\n  protected readonly icon = computed(() => iconMap[this.variant()]);\n  protected readonly leadingIconClasses = computed(() =>\n    [\n      'inline-flex size-10 shrink-0 items-center justify-center rounded-xl',\n      iconContainerClasses[this.variant()],\n    ].join(' '),\n  );\n  protected readonly toastClasses = computed(() =>\n    [\n      toastBaseClasses,\n      variantClasses[this.variant()],\n      this.visible() ? toastVisibleClasses : toastHiddenClasses,\n    ].join(' '),\n  );\n\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly prefersReducedMotion = signal(false);\n  private readonly visible = signal(false);\n\n  private autoDismissTimer: ReturnType<typeof setTimeout> | null = null;\n  private dismissTimer: ReturnType<typeof setTimeout> | null = null;\n  private dismissRequested = false;\n\n  constructor() {\n    this.registerReducedMotionPreference();\n\n    effect(() => {\n      this.duration();\n      this.restartAutoDismissTimer();\n    });\n\n    queueMicrotask(() => this.visible.set(true));\n\n    this.destroyRef.onDestroy(() => {\n      this.clearAutoDismissTimer();\n      this.clearDismissTimer();\n    });\n  }\n\n  protected requestDismiss(): void {\n    if (this.dismissRequested) {\n      return;\n    }\n\n    this.dismissRequested = true;\n    this.clearAutoDismissTimer();\n\n    if (this.prefersReducedMotion()) {\n      this.dismissed.emit();\n      return;\n    }\n\n    this.visible.set(false);\n    this.clearDismissTimer();\n    this.dismissTimer = setTimeout(() => this.dismissed.emit(), transitionDurationMs);\n  }\n\n  private clearAutoDismissTimer(): void {\n    if (this.autoDismissTimer == null) {\n      return;\n    }\n\n    clearTimeout(this.autoDismissTimer);\n    this.autoDismissTimer = null;\n  }\n\n  private clearDismissTimer(): void {\n    if (this.dismissTimer == null) {\n      return;\n    }\n\n    clearTimeout(this.dismissTimer);\n    this.dismissTimer = null;\n  }\n\n  private registerReducedMotionPreference(): void {\n    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {\n      return;\n    }\n\n    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');\n    this.prefersReducedMotion.set(mediaQuery.matches);\n\n    const listener = (event: MediaQueryListEvent) => this.prefersReducedMotion.set(event.matches);\n\n    mediaQuery.addEventListener('change', listener);\n    this.destroyRef.onDestroy(() => mediaQuery.removeEventListener('change', listener));\n  }\n\n  private restartAutoDismissTimer(): void {\n    this.clearAutoDismissTimer();\n\n    if (this.dismissRequested || this.duration() <= 0) {\n      return;\n    }\n\n    this.autoDismissTimer = setTimeout(() => this.requestDismiss(), this.duration());\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 116
+            },
+            "extends": []
+        },
+        {
+            "name": "MnlToastOutletComponent",
+            "id": "component-MnlToastOutletComponent-33081c921f5848c68984dde5a5ca221e83b91fc26c6f2d1c94c6eb585288b3d5150e512c7d44624761f8415261559ad13eb3b5c729c2a42c2a29c12c87e75f4a",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast-outlet.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-toast-outlet",
+            "styleUrls": [],
+            "styles": [],
+            "template": "@if (toasts().length) {\n  <div\n    class=\"pointer-events-none fixed inset-x-0 top-0 z-[60] flex flex-col items-center gap-3 p-4 sm:items-end\"\n    data-testid=\"mnl-toast-outlet\"\n  >\n    @for (toast of toasts(); track toast.id) {\n      <mnl-toast\n        [dismissible]=\"toast.dismissible\"\n        [duration]=\"toast.duration\"\n        [message]=\"toast.message\"\n        [variant]=\"toast.variant\"\n        (dismissed)=\"handleDismiss(toast.id)\"\n      ></mnl-toast>\n    }\n  </div>\n}\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "toasts",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "readonly MnlToastEntry[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 34,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "dismissRequested",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 36,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "handleDismiss",
+                    "args": [
+                        {
+                            "name": "toastId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 38,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "toastId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlToastComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';\n\nimport { MnlToastComponent } from './toast.component';\nimport type { MnlToastEntry } from './toast.types';\n\n@Component({\n  selector: 'mnl-toast-outlet',\n  standalone: true,\n  imports: [MnlToastComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'contents',\n  },\n  template: `\n    @if (toasts().length) {\n      <div\n        class=\"pointer-events-none fixed inset-x-0 top-0 z-[60] flex flex-col items-center gap-3 p-4 sm:items-end\"\n        data-testid=\"mnl-toast-outlet\"\n      >\n        @for (toast of toasts(); track toast.id) {\n          <mnl-toast\n            [dismissible]=\"toast.dismissible\"\n            [duration]=\"toast.duration\"\n            [message]=\"toast.message\"\n            [variant]=\"toast.variant\"\n            (dismissed)=\"handleDismiss(toast.id)\"\n          ></mnl-toast>\n        }\n      </div>\n    }\n  `,\n})\nexport class MnlToastOutletComponent {\n  readonly toasts = input<readonly MnlToastEntry[]>([]);\n\n  readonly dismissRequested = output<number>();\n\n  protected handleDismiss(toastId: number): void {\n    this.dismissRequested.emit(toastId);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
             "name": "MnlToggleComponent",
             "id": "component-MnlToggleComponent-cf7a6230a188d78363b9d19633af9ae45945b9f47487456c51949643cd8db1ed3e79c60c2dc14f0398297961460b01cc5266a535ad47b07ed984bafdba129f6f",
             "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
@@ -8589,6 +9502,204 @@
             "extends": []
         },
         {
+            "name": "ToastStoryPreviewComponent",
+            "id": "component-ToastStoryPreviewComponent-5c3262410f613a90b55a258ed5443ff6eb95c275dfeda7eefe329c9aa11cf33b6c2ab47372a5a31feeaf8640ef15693d17fcee9a0783d2fa3255274ad6213d49",
+            "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-toast-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Toast</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-toast packages feedback into a stacked overlay primitive with semantic variants,\n        reduced-motion awareness, and a root-level service portal.\n      </p>\n    </section>\n\n    <section class=\"grid gap-4 rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <div class=\"space-y-2\">\n        <h2 class=\"m-0 text-xl font-semibold\">Service demo</h2>\n        <p class=\"m-0 text-sm text-mnl-subtext\">\n          These buttons trigger MnlToastService.show() so you can preview stacking and\n          auto-dismiss behaviour in the Storybook canvas.\n        </p>\n      </div>\n\n      <div class=\"flex flex-wrap gap-3\">\n        @for (variant of variants; track variant) {\n          <mnl-button (pressed)=\"showVariant(variant)\" size=\"sm\" variant=\"secondary\">\n            Show {{ variant }}\n          </mnl-button>\n        }\n\n        <mnl-button (pressed)=\"showStack()\" size=\"sm\">Stack three</mnl-button>\n      </div>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                Semantic notifications stay legible in both Latte and Mocha without hardcoded\n                page-specific styling.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Variants\n            </h3>\n\n            <div class=\"space-y-3\">\n              @for (variant of variants; track variant) {\n                <mnl-toast\n                  [dismissible]=\"variant !== 'success'\"\n                  [duration]=\"0\"\n                  [message]=\"messageFor(variant)\"\n                  [variant]=\"variant\"\n                ></mnl-toast>\n              }\n            </div>\n          </article>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Stacking\n            </h3>\n\n            <div class=\"space-y-3\">\n              <mnl-toast\n                [duration]=\"0\"\n                message=\"Budget saved successfully\"\n                variant=\"success\"\n              ></mnl-toast>\n              <mnl-toast\n                [duration]=\"0\"\n                message=\"Review overspent line items\"\n                variant=\"warning\"\n              ></mnl-toast>\n              <mnl-toast\n                [duration]=\"0\"\n                message=\"Failed to save category changes\"\n                variant=\"error\"\n              ></mnl-toast>\n            </div>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "destroyRef",
+                    "defaultValue": "inject(DestroyRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 122,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 119,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "toastService",
+                    "defaultValue": "inject(MnlToastService)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 123,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "variants",
+                    "defaultValue": "variants",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 120,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "messageFor",
+                    "args": [
+                        {
+                            "name": "variant",
+                            "type": "MnlToastVariant",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 129,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "variant",
+                            "type": "MnlToastVariant",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "showStack",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 140,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "showVariant",
+                    "args": [
+                        {
+                            "name": "variant",
+                            "type": "MnlToastVariant",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 146,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "variant",
+                            "type": "MnlToastVariant",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlButtonComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "MnlToastComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlButtonComponent } from '../button';\nimport { MnlToastComponent } from './toast.component';\nimport { MnlToastService } from './toast.service';\nimport type { MnlToastVariant } from './toast.types';\n\nconst variants: readonly MnlToastVariant[] = ['success', 'warning', 'error', 'info'];\n\n@Component({\n  selector: 'lib-toast-story-preview',\n  standalone: true,\n  imports: [MnlButtonComponent, MnlToastComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Toast</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-toast packages feedback into a stacked overlay primitive with semantic variants,\n            reduced-motion awareness, and a root-level service portal.\n          </p>\n        </section>\n\n        <section class=\"grid gap-4 rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <div class=\"space-y-2\">\n            <h2 class=\"m-0 text-xl font-semibold\">Service demo</h2>\n            <p class=\"m-0 text-sm text-mnl-subtext\">\n              These buttons trigger MnlToastService.show() so you can preview stacking and\n              auto-dismiss behaviour in the Storybook canvas.\n            </p>\n          </div>\n\n          <div class=\"flex flex-wrap gap-3\">\n            @for (variant of variants; track variant) {\n              <mnl-button (pressed)=\"showVariant(variant)\" size=\"sm\" variant=\"secondary\">\n                Show {{ variant }}\n              </mnl-button>\n            }\n\n            <mnl-button (pressed)=\"showStack()\" size=\"sm\">Stack three</mnl-button>\n          </div>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    Semantic notifications stay legible in both Latte and Mocha without hardcoded\n                    page-specific styling.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Variants\n                </h3>\n\n                <div class=\"space-y-3\">\n                  @for (variant of variants; track variant) {\n                    <mnl-toast\n                      [dismissible]=\"variant !== 'success'\"\n                      [duration]=\"0\"\n                      [message]=\"messageFor(variant)\"\n                      [variant]=\"variant\"\n                    ></mnl-toast>\n                  }\n                </div>\n              </article>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Stacking\n                </h3>\n\n                <div class=\"space-y-3\">\n                  <mnl-toast\n                    [duration]=\"0\"\n                    message=\"Budget saved successfully\"\n                    variant=\"success\"\n                  ></mnl-toast>\n                  <mnl-toast\n                    [duration]=\"0\"\n                    message=\"Review overspent line items\"\n                    variant=\"warning\"\n                  ></mnl-toast>\n                  <mnl-toast\n                    [duration]=\"0\"\n                    message=\"Failed to save category changes\"\n                    variant=\"error\"\n                  ></mnl-toast>\n                </div>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass ToastStoryPreviewComponent {\n  protected readonly themes = foundationThemes;\n  protected readonly variants = variants;\n\n  private readonly destroyRef = inject(DestroyRef);\n  private readonly toastService = inject(MnlToastService);\n\n  constructor() {\n    this.destroyRef.onDestroy(() => this.toastService.clear());\n  }\n\n  protected messageFor(variant: MnlToastVariant): string {\n    const messages: Record<MnlToastVariant, string> = {\n      success: 'Budget saved successfully',\n      warning: 'Review overspent line items',\n      error: 'Failed to save category changes',\n      info: 'Monthly summary is ready to review',\n    };\n\n    return messages[variant];\n  }\n\n  protected showStack(): void {\n    this.toastService.show(this.messageFor('success'), { duration: 1800, variant: 'success' });\n    this.toastService.show(this.messageFor('warning'), { duration: 2400, variant: 'warning' });\n    this.toastService.show(this.messageFor('info'), { duration: 3000, variant: 'info' });\n  }\n\n  protected showVariant(variant: MnlToastVariant): void {\n    this.toastService.show(this.messageFor(variant), {\n      dismissible: variant !== 'success',\n      duration: 2200,\n      variant,\n    });\n  }\n}\n\nconst meta: Meta<ToastStoryPreviewComponent> = {\n  title: 'Atoms/Toast',\n  component: ToastStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<ToastStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 123
+            },
+            "extends": []
+        },
+        {
             "name": "ToggleStoryPreviewComponent",
             "id": "component-ToggleStoryPreviewComponent-d02fb592f3a659853dad889666b196a87734f2b47a5b2d3f8c3dd698c3110e2a6ff94a107a401f205ff930397b18b42e7edf687e698fad2193fb33b85f0e5af2",
             "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
@@ -8920,6 +10031,16 @@
                 "defaultValue": "{\r\n  args: {},\r\n}"
             },
             {
+                "name": "defaultDurationMs",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "4000"
+            },
+            {
                 "name": "Desktop",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -9030,6 +10151,16 @@
                 "defaultValue": "previewThemes.map((theme) => ({\n  label: theme.label,\n  mode: theme.mode,\n  backgroundHex: theme.backgroundHex,\n  previewStyle: toInlineStyle({\n    ...theme.variables,\n    'background-color': 'var(--mnl-color-bg)',\n    color: 'var(--mnl-color-text)',\n    'color-scheme': theme.mode,\n  }),\n}))"
             },
             {
+                "name": "iconContainerClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<MnlToastVariant, string>",
+                "defaultValue": "{\n  success: 'bg-mnl-success/15 text-mnl-success',\n  warning: 'bg-mnl-warning/20 text-mnl-warning',\n  error: 'bg-mnl-error/15 text-mnl-error',\n  info: 'bg-mnl-info/15 text-mnl-info',\n}"
+            },
+            {
                 "name": "iconEntries",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -9038,6 +10169,16 @@
                 "deprecationMessage": "",
                 "type": "unknown",
                 "defaultValue": "[\n  { name: 'Home', icon: Home },\n  { name: 'House', icon: House },\n  { name: 'Wallet', icon: Wallet },\n  { name: 'PiggyBank', icon: PiggyBank },\n  { name: 'Landmark', icon: Landmark },\n  { name: 'DollarSign', icon: DollarSign },\n  { name: 'HandCoins', icon: HandCoins },\n  { name: 'Receipt', icon: Receipt },\n  { name: 'Calendar', icon: Calendar },\n  { name: 'Target', icon: Target },\n  { name: 'TrendingUp', icon: TrendingUp },\n  { name: 'TrendingDown', icon: TrendingDown },\n  { name: 'Bell', icon: Bell },\n  { name: 'CreditCard', icon: CreditCard },\n  { name: 'Search', icon: Search },\n  { name: 'Settings', icon: Settings },\n  { name: 'User', icon: User },\n  { name: 'Users', icon: Users },\n  { name: 'ListTodo', icon: ListTodo },\n  { name: 'CircleAlert', icon: CircleAlert },\n  { name: 'Check', icon: Check },\n  { name: 'X', icon: X },\n  { name: 'ArrowRight', icon: ArrowRight },\n] as const"
+            },
+            {
+                "name": "iconMap",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  success: Check,\n  warning: TriangleAlert,\n  error: CircleAlert,\n  info: Info,\n} as const satisfies Record<MnlToastVariant, unknown>"
             },
             {
                 "name": "iconMap",
@@ -9138,6 +10279,16 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'#eff1f5'"
+            },
+            {
+                "name": "maxVisibleToasts",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "3"
             },
             {
                 "name": "meta",
@@ -9243,16 +10394,6 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Meta<InputStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
-            },
-            {
-                "name": "meta",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/progress/progress.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -9263,11 +10404,31 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<InputStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<SelectStoryPreviewComponent>",
                 "defaultValue": "{\n  title: 'Atoms/Select',\n  component: SelectStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<ToastStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Toast',\n  component: ToastStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
                 "name": "meta",
@@ -9543,16 +10704,6 @@
                 "name": "Overview",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Story",
-                "defaultValue": "{}"
-            },
-            {
-                "name": "Overview",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/progress/progress.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -9563,7 +10714,27 @@
                 "name": "Overview",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -9990,6 +11161,36 @@
                 "defaultValue": "'translate-x-5'"
             },
             {
+                "name": "toastBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'pointer-events-auto flex w-full items-start gap-3 rounded-2xl border px-4 py-3 shadow-md transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none'"
+            },
+            {
+                "name": "toastHiddenClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'-translate-y-2 opacity-0'"
+            },
+            {
+                "name": "toastVisibleClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'translate-y-0 opacity-100'"
+            },
+            {
                 "name": "trackBaseClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -10043,6 +11244,16 @@
                 "name": "transitionDurationMs",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "300"
+            },
+            {
+                "name": "transitionDurationMs",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -10090,6 +11301,16 @@
                 "defaultValue": "{\n  accent: 'bg-mnl-accent',\n  success: 'bg-mnl-success',\n  warning: 'bg-mnl-warning',\n  error: 'bg-mnl-error',\n}"
             },
             {
+                "name": "variantClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<MnlToastVariant, string>",
+                "defaultValue": "{\n  success: 'border-mnl-success/30 bg-mnl-surface text-mnl-text ring-1 ring-mnl-success/15',\n  warning: 'border-mnl-warning/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-warning/15',\n  error: 'border-mnl-error/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-error/15',\n  info: 'border-mnl-info/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-info/15',\n}"
+            },
+            {
                 "name": "variants",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -10108,6 +11329,16 @@
                 "deprecationMessage": "",
                 "type": "MnlButtonVariant[]",
                 "defaultValue": "['primary', 'secondary', 'ghost', 'destructive']"
+            },
+            {
+                "name": "variants",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlToastVariant[]",
+                "defaultValue": "['success', 'warning', 'error', 'info']"
             },
             {
                 "name": "viewportOptions",
@@ -10633,6 +11864,17 @@
                 "kind": 184
             },
             {
+                "name": "MnlToastVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "\"success\" | \"warning\" | \"error\" | \"info\"",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -10746,17 +11988,6 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<InputStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "description": "",
-                "kind": 184
-            },
-            {
-                "name": "Story",
-                "ctype": "miscellaneous",
-                "subtype": "typealias",
                 "rawtype": "StoryObj<ProgressStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/atoms/progress/progress.stories.ts",
                 "deprecated": false,
@@ -10768,8 +11999,30 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
+                "rawtype": "StoryObj<InputStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
                 "rawtype": "StoryObj<SelectStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<ToastStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -11512,6 +12765,28 @@
                     "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts": [
+                {
+                    "name": "defaultDurationMs",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "4000"
+                },
+                {
+                    "name": "maxVisibleToasts",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "3"
+                }
+            ],
             "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
                 {
                     "name": "Desktop",
@@ -11876,6 +13151,78 @@
                     "defaultValue": "[\n  {\n    role: 'Page title',\n    classes: 'text-4xl font-bold tracking-tight',\n    sample: 'Household overview',\n    note: 'Top-level dashboard and feature headers',\n  },\n  {\n    role: 'Section heading',\n    classes: 'text-2xl font-semibold',\n    sample: 'Monthly budget',\n    note: 'Section and panel headers',\n  },\n  {\n    role: 'Card title',\n    classes: 'text-lg font-semibold',\n    sample: 'Emergency fund',\n    note: 'Reusable island component headings',\n  },\n  {\n    role: 'Body',\n    classes: 'text-base font-normal leading-7',\n    sample: 'Track spending, plan ahead, and keep the family aligned on financial priorities.',\n    note: 'Primary descriptive copy',\n  },\n  {\n    role: 'Caption',\n    classes: 'text-sm font-medium text-mnl-subtext',\n    sample: 'Last synced 5 minutes ago',\n    note: 'Secondary metadata and helper text',\n  },\n  {\n    role: 'Large value',\n    classes: 'text-5xl font-bold tracking-tight',\n    sample: 'R 28 450',\n    note: 'Prominent financial statistics',\n  },\n]"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts": [
+                {
+                    "name": "iconContainerClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<MnlToastVariant, string>",
+                    "defaultValue": "{\n  success: 'bg-mnl-success/15 text-mnl-success',\n  warning: 'bg-mnl-warning/20 text-mnl-warning',\n  error: 'bg-mnl-error/15 text-mnl-error',\n  info: 'bg-mnl-info/15 text-mnl-info',\n}"
+                },
+                {
+                    "name": "iconMap",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  success: Check,\n  warning: TriangleAlert,\n  error: CircleAlert,\n  info: Info,\n} as const satisfies Record<MnlToastVariant, unknown>"
+                },
+                {
+                    "name": "toastBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'pointer-events-auto flex w-full items-start gap-3 rounded-2xl border px-4 py-3 shadow-md transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none'"
+                },
+                {
+                    "name": "toastHiddenClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'-translate-y-2 opacity-0'"
+                },
+                {
+                    "name": "toastVisibleClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'translate-y-0 opacity-100'"
+                },
+                {
+                    "name": "transitionDurationMs",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "300"
+                },
+                {
+                    "name": "variantClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<MnlToastVariant, string>",
+                    "defaultValue": "{\n  success: 'border-mnl-success/30 bg-mnl-surface text-mnl-text ring-1 ring-mnl-success/15',\n  warning: 'border-mnl-warning/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-warning/15',\n  error: 'border-mnl-error/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-error/15',\n  info: 'border-mnl-info/35 bg-mnl-surface text-mnl-text ring-1 ring-mnl-info/15',\n}"
+                }
+            ],
             "projects/menlo-lib/src/lib/foundations/icons.stories.ts": [
                 {
                     "name": "iconEntries",
@@ -12186,28 +13533,6 @@
                     "defaultValue": "['primary', 'secondary', 'ghost', 'destructive']"
                 }
             ],
-            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
-                {
-                    "name": "meta",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<InputStoryPreviewComponent>",
-                    "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
-                },
-                {
-                    "name": "Overview",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{}"
-                }
-            ],
             "projects/menlo-lib/src/lib/atoms/progress/progress.stories.ts": [
                 {
                     "name": "meta",
@@ -12240,6 +13565,28 @@
                     "defaultValue": "[\n  { label: 'Emergency fund', value: 28, variant: 'accent' },\n  { label: 'Groceries', value: 54, variant: 'success' },\n  { label: 'School fees', value: 76, variant: 'warning' },\n  { label: 'Utilities', value: 94, variant: 'error' },\n]"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<InputStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/select/select.stories.ts": [
                 {
                     "name": "meta",
@@ -12270,6 +13617,38 @@
                     "deprecationMessage": "",
                     "type": "MnlSelectOption[]",
                     "defaultValue": "[\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n]"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<ToastStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Toast',\n  component: ToastStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "variants",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlToastVariant[]",
+                    "defaultValue": "['success', 'warning', 'error', 'info']"
                 }
             ],
             "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts": [
@@ -13004,6 +14383,19 @@
                     "kind": 184
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts": [
+                {
+                    "name": "MnlToastVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "\"success\" | \"warning\" | \"error\" | \"info\"",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/menlo-lib/src/lib/design-system-infrastructure.stories.ts": [
                 {
                     "name": "Story",
@@ -13134,19 +14526,6 @@
                     "kind": 184
                 }
             ],
-            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
-                {
-                    "name": "Story",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "StoryObj<InputStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 184
-                }
-            ],
             "projects/menlo-lib/src/lib/atoms/progress/progress.stories.ts": [
                 {
                     "name": "Story",
@@ -13160,6 +14539,19 @@
                     "kind": 184
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<InputStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/select/select.stories.ts": [
                 {
                     "name": "Story",
@@ -13167,6 +14559,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<SelectStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<ToastStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -14081,6 +15486,200 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
                 "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast-outlet.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlToastOutletComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlToastComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/24",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "iconContainerClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "iconMap",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "toastBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "toastHiddenClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "toastVisibleClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "transitionDurationMs",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "variantClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "MnlToastService",
+                "coveragePercent": 0,
+                "coverageCount": "0/18",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "defaultDurationMs",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.service.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "maxVisibleToasts",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ToastStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "variants",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "MnlToastEntry",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "MnlToastOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toast/toast.types.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlToastVariant",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"

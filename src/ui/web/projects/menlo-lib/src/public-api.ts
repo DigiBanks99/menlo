@@ -17,6 +17,7 @@ export * from './lib/atoms/button';
 export * from './lib/atoms/input';
 export * from './lib/atoms/progress';
 export * from './lib/atoms/select';
+export * from './lib/atoms/toast';
 export * from './lib/atoms/toggle';
 
 // Molecules
