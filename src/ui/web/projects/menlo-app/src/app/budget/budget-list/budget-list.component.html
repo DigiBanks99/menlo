@@ -1,46 +1,117 @@
-<div class="budget-list-container">
-  <header class="page-header">
-    <h1>Budget Management</h1>
-    <p>Track and manage your family budgets with AI-powered insights</p>
-    <button class="btn btn-primary">+ Create New Budget</button>
-  </header>
+<div class="space-y-8 pb-10" data-testid="budget-list-page">
+  <mnl-page-header>
+    <div class="max-w-3xl space-y-6" data-testid="budget-list-hero" mnlPageHeaderHero>
+      <mnl-badge size="sm" variant="neutral">Household budgets</mnl-badge>
 
-  <section class="budgets-section">
+      <div class="space-y-3">
+        <h1 class="m-0 text-4xl font-bold tracking-tight text-inherit sm:text-5xl">
+          Budget Management
+        </h1>
+        <p class="m-0 max-w-2xl text-base leading-7 text-black/70 sm:text-lg">
+          Track and manage your family budgets with AI-powered insights.
+        </p>
+      </div>
+
+      <div class="grid gap-3 sm:flex sm:flex-wrap" data-testid="budget-list-actions">
+        <mnl-button class="w-full sm:w-auto" data-testid="create-budget-button" variant="primary">
+          Create New Budget
+        </mnl-button>
+      </div>
+    </div>
+  </mnl-page-header>
+
+  <section class="space-y-6" data-testid="budget-list-section">
     @if (budgets().length > 0) {
-      <div class="budgets-grid">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         @for (budget of budgets(); track budget.id) {
-          <div class="budget-card">
-            <div class="budget-header">
-              <h3>{{ budget.name }}</h3>
-              <span class="budget-period">{{ budget.period }}</span>
-            </div>
-            <div class="budget-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="budget.spentPercentage"></div>
+          <mnl-card [interactive]="true" [attr.data-testid]="'budget-card-' + budget.id">
+            <div class="flex items-start justify-between gap-4" mnlCardHeader>
+              <div class="min-w-0 space-y-1.5">
+                <h2 class="m-0 text-xl font-semibold tracking-tight text-mnl-text">
+                  {{ budget.name }}
+                </h2>
+                <p class="m-0 text-sm text-mnl-subtext">{{ budget.period }}</p>
               </div>
-              <div class="progress-text">
-                <span>R{{ budget.spent | number:'1.0-0' }} of R{{ budget.total | number:'1.0-0' }}</span>
-                <span class="percentage">{{ budget.spentPercentage | number:'1.0-0' }}%</span>
+
+              <mnl-badge size="sm" variant="neutral">{{ budget.period }}</mnl-badge>
+            </div>
+
+            <div class="space-y-5">
+              <div class="space-y-3">
+                <mnl-progress
+                  [ariaLabel]="budget.name + ' utilization'"
+                  [attr.data-testid]="'budget-progress-' + budget.id"
+                  [value]="budget.spentPercentage"
+                  [variant]="progressVariantFor(budget.spentPercentage)"
+                />
+
+                <div class="flex items-center justify-between gap-3 text-sm text-mnl-subtext">
+                  <span
+                    >R{{ budget.spent | number: '1.0-0' }} of R{{
+                      budget.total | number: '1.0-0'
+                    }}</span
+                  >
+                  <span class="font-semibold text-mnl-text">
+                    {{ budget.spentPercentage | number: '1.0-0' }}%
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3">
+                <mnl-badge
+                  [attr.data-testid]="'budget-status-' + budget.id"
+                  [leadingDot]="true"
+                  [variant]="statusVariantFor(budget.status)"
+                  size="sm"
+                >
+                  {{ budget.statusText }}
+                </mnl-badge>
+                <span aria-hidden="true" class="text-lg">{{ budget.statusIcon }}</span>
               </div>
             </div>
-            <div class="budget-status" [class]="'status-' + budget.status">
-              <span class="status-indicator">{{ budget.statusIcon }}</span>
-              <span class="status-text">{{ budget.statusText }}</span>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-end" mnlCardFooter>
+              <mnl-button
+                class="w-full sm:w-auto"
+                [attr.data-testid]="'budget-view-' + budget.id"
+                size="sm"
+                variant="primary"
+                (pressed)="openBudget(budget.id)"
+              >
+                View Details
+              </mnl-button>
+              <mnl-button
+                class="w-full sm:w-auto"
+                [attr.data-testid]="'budget-edit-' + budget.id"
+                size="sm"
+                variant="secondary"
+                (pressed)="openBudget(budget.id)"
+              >
+                Edit
+              </mnl-button>
             </div>
-            <div class="budget-actions">
-              <button class="btn btn-small">View Details</button>
-              <button class="btn btn-small btn-secondary">Edit</button>
-            </div>
-          </div>
+          </mnl-card>
         }
       </div>
     } @else {
-      <div class="empty-state">
-        <div class="empty-icon">💰</div>
-        <h2>No budgets yet</h2>
-        <p>Create your first budget to start tracking your family's finances</p>
-        <button class="btn btn-primary">Create Your First Budget</button>
-      </div>
+      <mnl-card data-testid="budget-list-empty-state" padding="lg">
+        <div class="space-y-4 text-center">
+          <mnl-badge class="mx-auto" size="sm" variant="info">Ready when you are</mnl-badge>
+
+          <div class="space-y-2">
+            <h2 class="m-0 text-2xl font-semibold tracking-tight text-mnl-text">No budgets yet</h2>
+            <p class="m-0 text-sm leading-6 text-mnl-subtext">
+              Create your first budget to start tracking your family&apos;s finances.
+            </p>
+          </div>
+
+          <div class="mx-auto w-full max-w-xs">
+            <mnl-button data-testid="empty-create-budget-button" variant="primary">
+              Create Your First Budget
+            </mnl-button>
+          </div>
+        </div>
+      </mnl-card>
     }
   </section>
 </div>
