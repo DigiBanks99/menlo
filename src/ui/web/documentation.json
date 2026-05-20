@@ -904,6 +904,127 @@
             "extends": []
         },
         {
+            "name": "BadgeStoryPreviewComponent",
+            "id": "component-BadgeStoryPreviewComponent-d92a7000d68545c506bb33fd6d9135973707772869d81f07072414c027c840d864dd88a4ac64386eeb7189485356f640ed34fa51d16bf63daf86ce0e25610a62",
+            "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-badge-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Badge</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-badge packages status tokens into a compact pill that can show dot or icon\n        affordances across both Menlo themes.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                Semantic status pills keep their contrast while staying compact enough for\n                cards, lists, and dashboards.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Variant x size matrix\n            </h3>\n\n            <div class=\"space-y-3\">\n              @for (variant of variants; track variant) {\n                <div class=\"flex flex-wrap gap-3\">\n                  @for (size of sizes; track size) {\n                    <mnl-badge [size]=\"size\" [variant]=\"variant\">\n                      {{ variant }} {{ size }}\n                    </mnl-badge>\n                  }\n                </div>\n              }\n            </div>\n          </article>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Leading affordances\n            </h3>\n\n            <div class=\"flex flex-wrap gap-3\">\n              <mnl-badge [leadingDot]=\"true\" variant=\"success\">Synced</mnl-badge>\n              <mnl-badge variant=\"warning\">\n                <lucide-icon [img]=\"clockIcon\" class=\"size-3.5\" mnlBadgeLeading></lucide-icon>\n                Review soon\n              </mnl-badge>\n              <mnl-badge variant=\"info\">\n                <lucide-icon [img]=\"checkIcon\" class=\"size-3.5\" mnlBadgeLeading></lucide-icon>\n                Shared\n              </mnl-badge>\n            </div>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "checkIcon",
+                    "defaultValue": "Check",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 93,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "clockIcon",
+                    "defaultValue": "Clock3",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 94,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "sizes",
+                    "defaultValue": "sizes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 95,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 96,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "variants",
+                    "defaultValue": "variants",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 97,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                },
+                {
+                    "name": "MnlBadgeComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\nimport { Check, Clock3, LucideAngularModule } from 'lucide-angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlBadgeComponent, MnlBadgeSize, MnlBadgeVariant } from './badge.component';\n\nconst variants: readonly MnlBadgeVariant[] = ['success', 'warning', 'error', 'info', 'neutral'];\nconst sizes: readonly MnlBadgeSize[] = ['sm', 'md'];\n\n@Component({\n  selector: 'lib-badge-story-preview',\n  standalone: true,\n  imports: [LucideAngularModule, MnlBadgeComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Badge</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-badge packages status tokens into a compact pill that can show dot or icon\n            affordances across both Menlo themes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    Semantic status pills keep their contrast while staying compact enough for\n                    cards, lists, and dashboards.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Variant x size matrix\n                </h3>\n\n                <div class=\"space-y-3\">\n                  @for (variant of variants; track variant) {\n                    <div class=\"flex flex-wrap gap-3\">\n                      @for (size of sizes; track size) {\n                        <mnl-badge [size]=\"size\" [variant]=\"variant\">\n                          {{ variant }} {{ size }}\n                        </mnl-badge>\n                      }\n                    </div>\n                  }\n                </div>\n              </article>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Leading affordances\n                </h3>\n\n                <div class=\"flex flex-wrap gap-3\">\n                  <mnl-badge [leadingDot]=\"true\" variant=\"success\">Synced</mnl-badge>\n                  <mnl-badge variant=\"warning\">\n                    <lucide-icon [img]=\"clockIcon\" class=\"size-3.5\" mnlBadgeLeading></lucide-icon>\n                    Review soon\n                  </mnl-badge>\n                  <mnl-badge variant=\"info\">\n                    <lucide-icon [img]=\"checkIcon\" class=\"size-3.5\" mnlBadgeLeading></lucide-icon>\n                    Shared\n                  </mnl-badge>\n                </div>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass BadgeStoryPreviewComponent {\n  protected readonly checkIcon = Check;\n  protected readonly clockIcon = Clock3;\n  protected readonly sizes = sizes;\n  protected readonly themes = foundationThemes;\n  protected readonly variants = variants;\n}\n\nconst meta: Meta<BadgeStoryPreviewComponent> = {\n  title: 'Atoms/Badge',\n  component: BadgeStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<BadgeStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
             "name": "ButtonStoryPreviewComponent",
             "id": "component-ButtonStoryPreviewComponent-c64baf1879e01b47e505e22d8b4bd9bc99dd94258ea2e2df8c8f307ae6a333f91f77ac3adf1d23ae78bb4f34663f37a6ede913a4e05ca179eb61fb21aa596824",
             "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
@@ -1187,41 +1308,7 @@
         },
         {
             "name": "DummyStoryRouteComponent",
-            "id": "component-DummyStoryRouteComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d",
-            "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "styleUrls": [],
-            "styles": [],
-            "template": "",
-            "templateUrl": [],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [],
-            "methodsClass": [],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { type MnlTabBarItem } from '../../molecules/tab-bar';\nimport { MnlPageShellComponent } from './page-shell.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-page-shell-story-preview',\n  standalone: true,\n  imports: [MnlPageShellComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The page shell composes the responsive navigation scaffold with a padded, max-width\n            content column that stays scrollable across route changes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <mnl-page-shell [items]=\"items\">\n                <div class=\"space-y-6\">\n                  <header class=\"space-y-3\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n                    <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                    <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                      Page content remains centered, padded, and scrollable while navigation adapts\n                      to the current viewport.\n                    </p>\n                  </header>\n\n                  <div class=\"grid gap-4 xl:grid-cols-3\">\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Planned\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Spent\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Remaining\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                        R 6 260\n                      </p>\n                    </article>\n                  </div>\n\n                  @for (section of [1, 2, 3, 4]; track section) {\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                      <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        This placeholder content makes the shell scrollable so viewport padding,\n                        max-width constraints, and route-reset behavior are easy to review.\n                      </p>\n                    </article>\n                  }\n                </div>\n              </mnl-page-shell>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass PageShellStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/analytics');\n  }\n}\n\nconst meta: Meta<PageShellStoryPreviewComponent> = {\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PageShellStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": []
-        },
-        {
-            "name": "DummyStoryRouteComponent",
-            "id": "component-DummyStoryRouteComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e-1",
+            "id": "component-DummyStoryRouteComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e",
             "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1248,6 +1335,40 @@
             "rawdescription": "\n",
             "type": "component",
             "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlTabBarComponent, type MnlTabBarItem } from './tab-bar.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-tab-bar-story-preview',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-6xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n            sidebar while keeping the same router-aware navigation model.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"absolute inset-0 bg-mnl-bg\">\n                <mnl-tab-bar [items]=\"items\" />\n\n                <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n                  <div class=\"mx-auto max-w-5xl space-y-4\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        Active state, badges, and navigation positioning stay consistent across\n                        viewports.\n                      </p>\n                    </article>\n\n                    <div class=\"grid gap-4 md:grid-cols-2\">\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Due this week\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                      </article>\n\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Variance\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                          +R 850\n                        </p>\n                      </article>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass TabBarStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/budgets');\n  }\n}\n\nconst meta: Meta<TabBarStoryPreviewComponent> = {\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<TabBarStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "DummyStoryRouteComponent",
+            "id": "component-DummyStoryRouteComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d-1",
+            "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "styleUrls": [],
+            "styles": [],
+            "template": "",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { type MnlTabBarItem } from '../../molecules/tab-bar';\nimport { MnlPageShellComponent } from './page-shell.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-page-shell-story-preview',\n  standalone: true,\n  imports: [MnlPageShellComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The page shell composes the responsive navigation scaffold with a padded, max-width\n            content column that stays scrollable across route changes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <mnl-page-shell [items]=\"items\">\n                <div class=\"space-y-6\">\n                  <header class=\"space-y-3\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n                    <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                    <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                      Page content remains centered, padded, and scrollable while navigation adapts\n                      to the current viewport.\n                    </p>\n                  </header>\n\n                  <div class=\"grid gap-4 xl:grid-cols-3\">\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Planned\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Spent\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Remaining\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                        R 6 260\n                      </p>\n                    </article>\n                  </div>\n\n                  @for (section of [1, 2, 3, 4]; track section) {\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                      <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        This placeholder content makes the shell scrollable so viewport padding,\n                        max-width constraints, and route-reset behavior are easy to review.\n                      </p>\n                    </article>\n                  }\n                </div>\n              </mnl-page-shell>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass PageShellStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/analytics');\n  }\n}\n\nconst meta: Meta<PageShellStoryPreviewComponent> = {\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PageShellStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -2563,6 +2684,119 @@
             "implements": [
                 "ControlValueAccessor"
             ]
+        },
+        {
+            "name": "MnlBadgeComponent",
+            "id": "component-MnlBadgeComponent-7a8c0b003007b78e7e775f3237e0110a498ef41531b568714bceaa4c221400b11d36e6329bc4b7b006da2a9dd360b98a5ba24e5c586c6f322c072dbb33312e38",
+            "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-badge",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<span\n  [attr.data-size]=\"size()\"\n  [attr.data-variant]=\"variant()\"\n  [class]=\"badgeClasses()\"\n  data-testid=\"mnl-badge\"\n>\n  @if (leadingDot()) {\n    <span [class]=\"dotClasses()\" aria-hidden=\"true\" data-testid=\"mnl-badge-dot\"></span>\n  }\n\n  <span\n    aria-hidden=\"true\"\n    class=\"inline-flex shrink-0 items-center justify-center empty:hidden\"\n  >\n    <ng-content select=\"[mnlBadgeLeading]\"></ng-content>\n  </span>\n\n  <span class=\"inline-flex min-w-0 items-center justify-center\">\n    <ng-content></ng-content>\n  </span>\n</span>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "leadingDot",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 54,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "size",
+                    "defaultValue": "'md'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlBadgeSize",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 55,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "variant",
+                    "defaultValue": "'neutral'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlBadgeVariant",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 56,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "badgeClasses",
+                    "defaultValue": "computed(() =>\n    [baseClasses, sizeClasses[this.size()], variantClasses[this.variant()]].join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 58,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "dotClasses",
+                    "defaultValue": "computed(() =>\n    [\n      'inline-flex rounded-full bg-current opacity-70',\n      this.size() === 'sm' ? 'size-1.5' : 'size-2',\n    ].join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 61,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\n\nexport type MnlBadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral';\nexport type MnlBadgeSize = 'sm' | 'md';\n\nconst baseClasses =\n  'inline-flex max-w-fit items-center gap-1.5 rounded-full border font-semibold transition-colors duration-200 motion-reduce:transition-none';\n\nconst sizeClasses: Record<MnlBadgeSize, string> = {\n  sm: 'min-h-5 px-2 py-0.5 text-xs',\n  md: 'min-h-6 px-2.5 py-1 text-sm',\n};\n\nconst variantClasses: Record<MnlBadgeVariant, string> = {\n  success: 'border-transparent bg-mnl-success text-[#11111b]',\n  warning: 'border-transparent bg-mnl-warning text-[#11111b]',\n  error: 'border-transparent bg-mnl-error text-[#11111b]',\n  info: 'border-transparent bg-mnl-info text-[#11111b]',\n  neutral: 'border-mnl-border bg-mnl-surface-alt text-mnl-text',\n};\n\n@Component({\n  selector: 'mnl-badge',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'inline-flex align-middle',\n  },\n  template: `\n    <span\n      [attr.data-size]=\"size()\"\n      [attr.data-variant]=\"variant()\"\n      [class]=\"badgeClasses()\"\n      data-testid=\"mnl-badge\"\n    >\n      @if (leadingDot()) {\n        <span [class]=\"dotClasses()\" aria-hidden=\"true\" data-testid=\"mnl-badge-dot\"></span>\n      }\n\n      <span\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center empty:hidden\"\n      >\n        <ng-content select=\"[mnlBadgeLeading]\"></ng-content>\n      </span>\n\n      <span class=\"inline-flex min-w-0 items-center justify-center\">\n        <ng-content></ng-content>\n      </span>\n    </span>\n  `,\n})\nexport class MnlBadgeComponent {\n  readonly leadingDot = input(false);\n  readonly size = input<MnlBadgeSize>('md');\n  readonly variant = input<MnlBadgeVariant>('neutral');\n\n  protected readonly badgeClasses = computed(() =>\n    [baseClasses, sizeClasses[this.size()], variantClasses[this.variant()]].join(' '),\n  );\n  protected readonly dotClasses = computed(() =>\n    [\n      'inline-flex rounded-full bg-current opacity-70',\n      this.size() === 'sm' ? 'size-1.5' : 'size-2',\n    ].join(' '),\n  );\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
         },
         {
             "name": "MnlButtonComponent",
@@ -5167,6 +5401,519 @@
             "extends": []
         },
         {
+            "name": "MnlToggleComponent",
+            "id": "component-MnlToggleComponent-c59a8c6f8df4fc131fce81a4d9d8a23056e564c42d3b0a6197e476a504991ad6ebddd55ce206d4733db78d6dbc909241c95542319f2156b5f176d92ef3fe3b1b",
+            "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "mnl-toggle",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<button\n  [attr.aria-checked]=\"currentChecked() ? 'true' : 'false'\"\n  [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n  [attr.data-state]=\"currentChecked() ? 'on' : 'off'\"\n  [attr.type]=\"'button'\"\n  [class]=\"buttonClasses()\"\n  [disabled]=\"isDisabled()\"\n  data-testid=\"mnl-toggle\"\n  role=\"switch\"\n  (blur)=\"handleBlur()\"\n  (click)=\"handleClick($event)\"\n  (keydown)=\"handleKeydown($event)\"\n>\n  <span [class]=\"trackClasses()\" aria-hidden=\"true\">\n    <span [class]=\"thumbClasses()\" data-testid=\"mnl-toggle-thumb\"></span>\n  </span>\n\n  @if (label()) {\n    <span class=\"min-w-0\">{{ label() }}</span>\n  }\n\n  <span class=\"min-w-0 empty:hidden\">\n    <ng-content></ng-content>\n  </span>\n</button>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "checked",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 68,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 69,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "label",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 70,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "checkedChange",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 72,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "buttonClasses",
+                    "defaultValue": "computed(() => buttonBaseClasses)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 81,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currentChecked",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 75,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "cvaDisabled",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 74,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "isDisabled",
+                    "defaultValue": "computed(() => this.disabled() || this.cvaDisabled())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 80,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 77,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 78,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "suppressNextClick",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 76,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "thumbClasses",
+                    "defaultValue": "computed(() =>\r\n    [thumbBaseClasses, this.currentChecked() ? thumbOnClasses : thumbOffClasses].join(' '),\r\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 91,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "trackClasses",
+                    "defaultValue": "computed(() =>\r\n    [\r\n      trackBaseClasses,\r\n      this.currentChecked() ? trackOnClasses : trackOffClasses,\r\n      this.isDisabled() ? trackDisabledClasses : '',\r\n    ]\r\n      .filter(Boolean)\r\n      .join(' '),\r\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 82,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "commitValue",
+                    "args": [
+                        {
+                            "name": "nextChecked",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 149,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "nextChecked",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleBlur",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 120,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleClick",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 124,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "handleKeydown",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 139,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "KeyboardEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 108,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "boolean",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 112,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 116,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "boolean | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 104,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "boolean | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\r\n  ChangeDetectionStrategy,\r\n  Component,\r\n  computed,\r\n  effect,\r\n  forwardRef,\r\n  input,\r\n  output,\r\n  signal,\r\n} from '@angular/core';\r\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\r\n\r\nconst buttonBaseClasses =\r\n  'inline-flex max-w-fit items-center gap-3 rounded-full px-1 py-1 text-sm font-semibold text-mnl-text transition-[opacity] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-pink focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60';\r\nconst trackBaseClasses =\r\n  'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors duration-200 motion-reduce:transition-none';\r\nconst trackOffClasses = 'border-mnl-border bg-mnl-surface-alt';\r\nconst trackOnClasses = 'border-mnl-accent-strong bg-mnl-accent';\r\nconst trackDisabledClasses = 'opacity-80';\r\nconst thumbBaseClasses =\r\n  'inline-flex size-5 rounded-full bg-mnl-surface shadow-sm ring-1 ring-black/5 transition-transform duration-200 motion-reduce:transition-none';\r\nconst thumbOffClasses = 'translate-x-0';\r\nconst thumbOnClasses = 'translate-x-5';\r\n\r\n@Component({\r\n  selector: 'mnl-toggle',\r\n  standalone: true,\r\n  changeDetection: ChangeDetectionStrategy.OnPush,\r\n  providers: [\r\n    {\r\n      provide: NG_VALUE_ACCESSOR,\r\n      useExisting: forwardRef(() => MnlToggleComponent),\r\n      multi: true,\r\n    },\r\n  ],\r\n  host: {\r\n    class: 'inline-flex align-middle',\r\n  },\r\n  template: `\r\n    <button\r\n      [attr.aria-checked]=\"currentChecked() ? 'true' : 'false'\"\r\n      [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\r\n      [attr.data-state]=\"currentChecked() ? 'on' : 'off'\"\r\n      [attr.type]=\"'button'\"\r\n      [class]=\"buttonClasses()\"\r\n      [disabled]=\"isDisabled()\"\r\n      data-testid=\"mnl-toggle\"\r\n      role=\"switch\"\r\n      (blur)=\"handleBlur()\"\r\n      (click)=\"handleClick($event)\"\r\n      (keydown)=\"handleKeydown($event)\"\r\n    >\r\n      <span [class]=\"trackClasses()\" aria-hidden=\"true\">\r\n        <span [class]=\"thumbClasses()\" data-testid=\"mnl-toggle-thumb\"></span>\r\n      </span>\r\n\r\n      @if (label()) {\r\n        <span class=\"min-w-0\">{{ label() }}</span>\r\n      }\r\n\r\n      <span class=\"min-w-0 empty:hidden\">\r\n        <ng-content></ng-content>\r\n      </span>\r\n    </button>\r\n  `,\r\n})\r\nexport class MnlToggleComponent implements ControlValueAccessor {\r\n  readonly checked = input<boolean | null>(null);\r\n  readonly disabled = input(false);\r\n  readonly label = input('');\r\n\r\n  readonly checkedChange = output<boolean>();\r\n\r\n  private readonly cvaDisabled = signal(false);\r\n  protected readonly currentChecked = signal(false);\r\n  private suppressNextClick = false;\r\n  private onChange: (value: boolean) => void = () => undefined;\r\n  private onTouched: () => void = () => undefined;\r\n\r\n  protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());\r\n  protected readonly buttonClasses = computed(() => buttonBaseClasses);\r\n  protected readonly trackClasses = computed(() =>\r\n    [\r\n      trackBaseClasses,\r\n      this.currentChecked() ? trackOnClasses : trackOffClasses,\r\n      this.isDisabled() ? trackDisabledClasses : '',\r\n    ]\r\n      .filter(Boolean)\r\n      .join(' '),\r\n  );\r\n  protected readonly thumbClasses = computed(() =>\r\n    [thumbBaseClasses, this.currentChecked() ? thumbOnClasses : thumbOffClasses].join(' '),\r\n  );\r\n\r\n  constructor() {\r\n    effect(() => {\r\n      const nextChecked = this.checked();\r\n      if (nextChecked !== null) {\r\n        this.currentChecked.set(nextChecked);\r\n      }\r\n    });\r\n  }\r\n\r\n  writeValue(value: boolean | null): void {\r\n    this.currentChecked.set(Boolean(value));\r\n  }\r\n\r\n  registerOnChange(fn: (value: boolean) => void): void {\r\n    this.onChange = fn;\r\n  }\r\n\r\n  registerOnTouched(fn: () => void): void {\r\n    this.onTouched = fn;\r\n  }\r\n\r\n  setDisabledState(isDisabled: boolean): void {\r\n    this.cvaDisabled.set(isDisabled);\r\n  }\r\n\r\n  protected handleBlur(): void {\r\n    this.onTouched();\r\n  }\r\n\r\n  protected handleClick(event: MouseEvent): void {\r\n    if (this.isDisabled()) {\r\n      event.preventDefault();\r\n      event.stopImmediatePropagation();\r\n      return;\r\n    }\r\n\r\n    if (this.suppressNextClick) {\r\n      this.suppressNextClick = false;\r\n      return;\r\n    }\r\n\r\n    this.commitValue(!this.currentChecked());\r\n  }\r\n\r\n  protected handleKeydown(event: KeyboardEvent): void {\r\n    if (!isToggleKey(event.key) || this.isDisabled()) {\r\n      return;\r\n    }\r\n\r\n    event.preventDefault();\r\n    this.suppressNextClick = true;\r\n    this.commitValue(!this.currentChecked());\r\n  }\r\n\r\n  private commitValue(nextChecked: boolean): void {\r\n    this.currentChecked.set(nextChecked);\r\n    this.onChange(nextChecked);\r\n    this.checkedChange.emit(nextChecked);\r\n  }\r\n}\r\n\r\nfunction isToggleKey(key: string): boolean {\r\n  return key === ' ' || key === 'Enter';\r\n}\r\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 93
+            },
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ]
+        },
+        {
             "name": "PageShellStoryPreviewComponent",
             "id": "component-PageShellStoryPreviewComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d",
             "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
@@ -5667,6 +6414,63 @@
                 "line": 121
             },
             "extends": []
+        },
+        {
+            "name": "ToggleStoryPreviewComponent",
+            "id": "component-ToggleStoryPreviewComponent-d02fb592f3a659853dad889666b196a87734f2b47a5b2d3f8c3dd698c3110e2a6ff94a107a401f205ff930397b18b42e7edf687e698fad2193fb33b85f0e5af2",
+            "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-toggle-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Toggle</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-toggle provides an accessible switch primitive for Menlo settings and boolean\n        controls with smooth thumb motion and form integration.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                Keyboard-friendly switches that keep their motion subtle and readable in both\n                themes.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              States\n            </h3>\n\n            <div class=\"flex flex-col items-start gap-4\">\n              <mnl-toggle>Notifications</mnl-toggle>\n              <mnl-toggle [checked]=\"true\">Budget alerts</mnl-toggle>\n              <mnl-toggle [checked]=\"true\" [disabled]=\"true\">Autopay enabled</mnl-toggle>\n              <mnl-toggle label=\"Projected label optional\"></mnl-toggle>\n            </div>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 66,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlToggleComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlToggleComponent } from './toggle.component';\n\n@Component({\n  selector: 'lib-toggle-story-preview',\n  standalone: true,\n  imports: [MnlToggleComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Toggle</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-toggle provides an accessible switch primitive for Menlo settings and boolean\n            controls with smooth thumb motion and form integration.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    Keyboard-friendly switches that keep their motion subtle and readable in both\n                    themes.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-4 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  States\n                </h3>\n\n                <div class=\"flex flex-col items-start gap-4\">\n                  <mnl-toggle>Notifications</mnl-toggle>\n                  <mnl-toggle [checked]=\"true\">Budget alerts</mnl-toggle>\n                  <mnl-toggle [checked]=\"true\" [disabled]=\"true\">Autopay enabled</mnl-toggle>\n                  <mnl-toggle label=\"Projected label optional\"></mnl-toggle>\n                </div>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass ToggleStoryPreviewComponent {\n  protected readonly themes = foundationThemes;\n}\n\nconst meta: Meta<ToggleStoryPreviewComponent> = {\n  title: 'Atoms/Toggle',\n  component: ToggleStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<ToggleStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
         }
     ],
     "modules": [],
@@ -5726,11 +6530,31 @@
                 "name": "baseClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'inline-flex max-w-fit items-center gap-1.5 rounded-full border font-semibold transition-colors duration-200 motion-reduce:transition-none'"
+            },
+            {
+                "name": "baseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border text-sm font-semibold transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none'"
+            },
+            {
+                "name": "buttonBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'inline-flex max-w-fit items-center gap-3 rounded-full px-1 py-1 text-sm font-semibold text-mnl-text transition-[opacity] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-pink focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60'"
             },
             {
                 "name": "containerBaseClasses",
@@ -5756,21 +6580,21 @@
                 "name": "containerBaseClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "string",
-                "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
-            },
-            {
-                "name": "containerBaseClasses",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/panel/panel.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'absolute inset-0 flex p-4 sm:p-6'"
+            },
+            {
+                "name": "containerBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
             },
             {
                 "name": "containerDefaultClasses",
@@ -5906,7 +6730,7 @@
                 "name": "Desktop",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -5916,7 +6740,7 @@
                 "name": "Desktop",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -6096,6 +6920,16 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<BadgeStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Badge',\n  component: BadgeStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6126,21 +6960,11 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<AmountInputStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Molecules/Amount Input',\n  component: AmountInputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
-            },
-            {
-                "name": "meta",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Meta<FormFieldStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                "type": "Meta<ToggleStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Toggle',\n  component: ToggleStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
                 "name": "meta",
@@ -6156,11 +6980,11 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<PageShellStoryPreviewComponent>",
-                "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                "type": "Meta<AmountInputStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Amount Input',\n  component: AmountInputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
                 "name": "meta",
@@ -6173,10 +6997,30 @@
                 "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
             },
             {
-                "name": "Mobile",
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<FormFieldStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<PageShellStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+            },
+            {
+                "name": "Mobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -6186,7 +7030,7 @@
                 "name": "Mobile",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -6226,21 +7070,21 @@
                 "name": "navigationItems",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "MnlTabBarItem[]",
-                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
-            },
-            {
-                "name": "navigationItems",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "MnlTabBarItem[]",
                 "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+            },
+            {
+                "name": "navigationItems",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlTabBarItem[]",
+                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
             },
             {
                 "name": "Overview",
@@ -6296,6 +7140,16 @@
                 "name": "Overview",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -6317,6 +7171,16 @@
                 "ctype": "miscellaneous",
                 "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
@@ -6506,11 +7370,31 @@
                 "name": "sizeClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<MnlBadgeSize, string>",
+                "defaultValue": "{\n  sm: 'min-h-5 px-2 py-0.5 text-xs',\n  md: 'min-h-6 px-2.5 py-1 text-sm',\n}"
+            },
+            {
+                "name": "sizeClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Record<MnlButtonSize, string>",
                 "defaultValue": "{\n  sm: 'min-h-9 px-3 py-2 text-sm',\n  md: 'min-h-11 px-4 py-2.5 text-sm',\n  lg: 'min-h-12 px-5 py-3 text-base',\n}"
+            },
+            {
+                "name": "sizes",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlBadgeSize[]",
+                "defaultValue": "['sm', 'md']"
             },
             {
                 "name": "sizes",
@@ -6553,6 +7437,76 @@
                 "defaultValue": "'(prefers-color-scheme: dark)'"
             },
             {
+                "name": "thumbBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'inline-flex size-5 rounded-full bg-mnl-surface shadow-sm ring-1 ring-black/5 transition-transform duration-200 motion-reduce:transition-none'"
+            },
+            {
+                "name": "thumbOffClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'translate-x-0'"
+            },
+            {
+                "name": "thumbOnClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'translate-x-5'"
+            },
+            {
+                "name": "trackBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors duration-200 motion-reduce:transition-none'"
+            },
+            {
+                "name": "trackDisabledClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'opacity-80'"
+            },
+            {
+                "name": "trackOffClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-border bg-mnl-surface-alt'"
+            },
+            {
+                "name": "trackOnClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-accent-strong bg-mnl-accent'"
+            },
+            {
                 "name": "transitionDurationMs",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -6576,11 +7530,31 @@
                 "name": "variantClasses",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<MnlBadgeVariant, string>",
+                "defaultValue": "{\n  success: 'border-transparent bg-mnl-success text-[#11111b]',\n  warning: 'border-transparent bg-mnl-warning text-[#11111b]',\n  error: 'border-transparent bg-mnl-error text-[#11111b]',\n  info: 'border-transparent bg-mnl-info text-[#11111b]',\n  neutral: 'border-mnl-border bg-mnl-surface-alt text-mnl-text',\n}"
+            },
+            {
+                "name": "variantClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Record<MnlButtonVariant, string>",
                 "defaultValue": "{\n  primary:\n    'border-mnl-accent bg-mnl-accent text-mnl-mocha-crust shadow-sm hover:border-mnl-accent-strong hover:bg-mnl-accent-strong focus-visible:ring-mnl-accent',\n  secondary:\n    'border-mnl-border bg-mnl-surface text-mnl-text shadow-sm hover:bg-mnl-surface-alt focus-visible:ring-mnl-accent',\n  ghost:\n    'border-transparent bg-transparent text-mnl-text hover:bg-mnl-surface-alt/80 focus-visible:ring-mnl-accent',\n  destructive:\n    'border-mnl-error bg-mnl-error text-mnl-mocha-crust shadow-sm hover:opacity-90 focus-visible:ring-mnl-error',\n}"
+            },
+            {
+                "name": "variants",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlBadgeVariant[]",
+                "defaultValue": "['success', 'warning', 'error', 'info', 'neutral']"
             },
             {
                 "name": "variants",
@@ -6606,7 +7580,7 @@
                 "name": "viewportOptions",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "unknown",
@@ -6616,7 +7590,7 @@
                 "name": "viewportOptions",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "unknown",
@@ -6771,6 +7745,35 @@
                 ]
             },
             {
+                "name": "isToggleKey",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [
+                    {
+                        "name": "key",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "returnType": "boolean",
+                "jsdoctags": [
+                    {
+                        "name": "key",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "toInlineStyle",
                 "file": "projects/menlo-lib/src/lib/foundations/foundation-data.ts",
                 "ctype": "miscellaneous",
@@ -6807,6 +7810,28 @@
                 "subtype": "typealias",
                 "rawtype": "number | null",
                 "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "MnlBadgeSize",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "\"sm\" | \"md\"",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "MnlBadgeVariant",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "\"success\" | \"warning\" | \"error\" | \"info\" | \"neutral\"",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -6970,6 +7995,17 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
+                "rawtype": "StoryObj<BadgeStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
                 "rawtype": "StoryObj<ButtonStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
                 "deprecated": false,
@@ -7003,19 +8039,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "description": "",
-                "kind": 184
-            },
-            {
-                "name": "Story",
-                "ctype": "miscellaneous",
-                "subtype": "typealias",
-                "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "rawtype": "StoryObj<ToggleStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -7036,8 +8061,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
-                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -7049,6 +8074,28 @@
                 "subtype": "typealias",
                 "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
                 "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -7282,6 +8329,38 @@
                     "defaultValue": "300"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts": [
+                {
+                    "name": "baseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'inline-flex max-w-fit items-center gap-1.5 rounded-full border font-semibold transition-colors duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "sizeClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<MnlBadgeSize, string>",
+                    "defaultValue": "{\n  sm: 'min-h-5 px-2 py-0.5 text-xs',\n  md: 'min-h-6 px-2.5 py-1 text-sm',\n}"
+                },
+                {
+                    "name": "variantClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<MnlBadgeVariant, string>",
+                    "defaultValue": "{\n  success: 'border-transparent bg-mnl-success text-[#11111b]',\n  warning: 'border-transparent bg-mnl-warning text-[#11111b]',\n  error: 'border-transparent bg-mnl-error text-[#11111b]',\n  info: 'border-transparent bg-mnl-info text-[#11111b]',\n  neutral: 'border-mnl-border bg-mnl-surface-alt text-mnl-text',\n}"
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/button/button.component.ts": [
                 {
                     "name": "baseClasses",
@@ -7312,6 +8391,88 @@
                     "deprecationMessage": "",
                     "type": "Record<MnlButtonVariant, string>",
                     "defaultValue": "{\n  primary:\n    'border-mnl-accent bg-mnl-accent text-mnl-mocha-crust shadow-sm hover:border-mnl-accent-strong hover:bg-mnl-accent-strong focus-visible:ring-mnl-accent',\n  secondary:\n    'border-mnl-border bg-mnl-surface text-mnl-text shadow-sm hover:bg-mnl-surface-alt focus-visible:ring-mnl-accent',\n  ghost:\n    'border-transparent bg-transparent text-mnl-text hover:bg-mnl-surface-alt/80 focus-visible:ring-mnl-accent',\n  destructive:\n    'border-mnl-error bg-mnl-error text-mnl-mocha-crust shadow-sm hover:opacity-90 focus-visible:ring-mnl-error',\n}"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts": [
+                {
+                    "name": "buttonBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'inline-flex max-w-fit items-center gap-3 rounded-full px-1 py-1 text-sm font-semibold text-mnl-text transition-[opacity] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-pink focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60'"
+                },
+                {
+                    "name": "thumbBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'inline-flex size-5 rounded-full bg-mnl-surface shadow-sm ring-1 ring-black/5 transition-transform duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "thumbOffClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'translate-x-0'"
+                },
+                {
+                    "name": "thumbOnClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'translate-x-5'"
+                },
+                {
+                    "name": "trackBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "trackDisabledClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'opacity-80'"
+                },
+                {
+                    "name": "trackOffClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-border bg-mnl-surface-alt'"
+                },
+                {
+                    "name": "trackOnClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-accent-strong bg-mnl-accent'"
                 }
             ],
             "projects/menlo-lib/src/lib/atoms/input/input.component.ts": [
@@ -7492,58 +8653,6 @@
                     "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
                 }
             ],
-            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
-                {
-                    "name": "Desktop",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
-                },
-                {
-                    "name": "meta",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Meta<PageShellStoryPreviewComponent>",
-                    "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
-                },
-                {
-                    "name": "Mobile",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Story",
-                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
-                },
-                {
-                    "name": "navigationItems",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "MnlTabBarItem[]",
-                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
-                },
-                {
-                    "name": "viewportOptions",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "unknown",
-                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
-                }
-            ],
             "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
                 {
                     "name": "Desktop",
@@ -7590,6 +8699,58 @@
                     "ctype": "miscellaneous",
                     "subtype": "variable",
                     "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
+            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
+                {
+                    "name": "Desktop",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<PageShellStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "Mobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "navigationItems",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlTabBarItem[]",
+                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "unknown",
@@ -7902,6 +9063,48 @@
                     "defaultValue": "{}"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<BadgeStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Badge',\n  component: BadgeStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "sizes",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlBadgeSize[]",
+                    "defaultValue": "['sm', 'md']"
+                },
+                {
+                    "name": "variants",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlBadgeVariant[]",
+                    "defaultValue": "['success', 'warning', 'error', 'info', 'neutral']"
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/button/button.stories.ts": [
                 {
                     "name": "meta",
@@ -7996,6 +9199,28 @@
                     "deprecationMessage": "",
                     "type": "MnlSelectOption[]",
                     "defaultValue": "[\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n]"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<ToggleStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Toggle',\n  component: ToggleStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
                 }
             ],
             "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts": [
@@ -8242,6 +9467,37 @@
                         }
                     ]
                 }
+            ],
+            "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts": [
+                {
+                    "name": "isToggleKey",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "returnType": "boolean",
+                    "jsdoctags": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
             ]
         },
         "groupedEnumerations": {},
@@ -8253,6 +9509,30 @@
                     "subtype": "typealias",
                     "rawtype": "number | null",
                     "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts": [
+                {
+                    "name": "MnlBadgeSize",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "\"sm\" | \"md\"",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                },
+                {
+                    "name": "MnlBadgeVariant",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "\"success\" | \"warning\" | \"error\" | \"info\" | \"neutral\"",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -8435,6 +9715,19 @@
                     "kind": 184
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<BadgeStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
             "projects/menlo-lib/src/lib/atoms/button/button.stories.ts": [
                 {
                     "name": "Story",
@@ -8474,26 +9767,13 @@
                     "kind": 184
                 }
             ],
-            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts": [
+            "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 184
-                }
-            ],
-            "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts": [
-                {
-                    "name": "Story",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "rawtype": "StoryObj<ToggleStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -8513,13 +9793,13 @@
                     "kind": 184
                 }
             ],
-            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
+            "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
-                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "rawtype": "StoryObj<AmountInputStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/amount-input/amount-input.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -8533,6 +9813,32 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -8563,6 +9869,124 @@
         "count": 0,
         "status": "low",
         "files": [
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlBadgeComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "baseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "sizeClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "variantClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlBadgeSize",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlBadgeVariant",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BadgeStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "sizes",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "variants",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/badge/badge.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
             {
                 "filePath": "projects/menlo-lib/src/lib/atoms/button/button.component.ts",
                 "type": "component",
@@ -8928,6 +10352,144 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlToggleComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/23",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "isToggleKey",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "buttonBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "thumbBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "thumbOffClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "thumbOnClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "trackBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "trackDisabledClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "trackOffClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "trackOnClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ToggleStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/toggle/toggle.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
