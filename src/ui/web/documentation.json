@@ -191,6 +191,73 @@
             "extends": []
         },
         {
+            "name": "MnlTabBarItem",
+            "id": "interface-MnlTabBarItem-bbbcd631792400c179f48d3d67c29078aab7ef710f2a6a30552e06e466094bdab31df85b3320b8efe9fca1aff7867e12fa5b55a01c7324515d2903ba77b4d0b8",
+            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { IsActiveMatchOptions, NavigationEnd, Router, RouterLink } from '@angular/router';\nimport {\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  LucideAngularModule,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} from 'lucide-angular';\nimport { filter, map, startWith } from 'rxjs';\n\nexport interface MnlTabBarItem {\n  readonly icon: string;\n  readonly label: string;\n  readonly route: string;\n  readonly badge?: number;\n}\n\nconst iconMap = {\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} as const;\n\nconst mobileLinkBaseClasses =\n  'relative inline-flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none';\nconst mobileLinkActiveClasses =\n  'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40';\nconst desktopLinkBaseClasses =\n  'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none';\nconst desktopLinkActiveClasses =\n  'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40';\n\n@Component({\n  selector: 'mnl-tab-bar',\n  standalone: true,\n  imports: [LucideAngularModule, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'contents',\n  },\n  template: `\n    <nav\n      aria-label=\"Primary navigation\"\n      class=\"fixed inset-x-4 bottom-4 z-30 lg:hidden\"\n      data-layout=\"mobile\"\n      data-testid=\"mnl-tab-bar-mobile\"\n    >\n      <div\n        class=\"flex items-center gap-2 rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface/95 p-2 shadow-lg shadow-black/5 backdrop-blur supports-[backdrop-filter]:bg-mnl-surface/90\"\n      >\n        @for (item of items(); track item.route) {\n          <a\n            [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n            [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n            [attr.data-route]=\"item.route\"\n            [attr.data-testid]=\"'mnl-tab-bar-mobile-item-' + item.route\"\n            [class]=\"mobileLinkClasses(item.route)\"\n            [routerLink]=\"item.route\"\n          >\n            <span class=\"relative inline-flex\">\n              <lucide-icon\n                [img]=\"resolveIcon(item.icon)\"\n                aria-hidden=\"true\"\n                class=\"size-5\"\n                data-testid=\"mnl-tab-bar-icon\"\n              ></lucide-icon>\n\n              @if (item.badge != null) {\n                <span\n                  class=\"absolute -top-2 -right-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mnl-error px-1 text-[0.65rem] font-bold leading-none text-mnl-mocha-crust\"\n                  data-testid=\"mnl-tab-bar-badge\"\n                >\n                  {{ item.badge }}\n                </span>\n              }\n            </span>\n\n            <span class=\"truncate\">{{ item.label }}</span>\n          </a>\n        }\n      </div>\n    </nav>\n\n    <nav\n      aria-label=\"Primary navigation\"\n      class=\"hidden h-dvh w-72 shrink-0 lg:flex\"\n      data-layout=\"desktop\"\n      data-testid=\"mnl-tab-bar-desktop\"\n    >\n      <div class=\"flex w-full flex-col border-r border-mnl-border bg-mnl-surface/90 px-4 py-6\">\n        <div class=\"px-2\">\n          <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Menlo</p>\n          <h2 class=\"mt-3 mb-0 text-2xl font-bold tracking-tight text-mnl-text\">Household hub</h2>\n          <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n            Navigation adapts between a thumb-friendly tab bar and spacious desktop sidebar.\n          </p>\n        </div>\n\n        <div class=\"mt-8 flex flex-1 flex-col gap-2\">\n          @for (item of items(); track item.route) {\n            <a\n              [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n              [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n              [attr.data-route]=\"item.route\"\n              [attr.data-testid]=\"'mnl-tab-bar-desktop-item-' + item.route\"\n              [class]=\"desktopLinkClasses(item.route)\"\n              [routerLink]=\"item.route\"\n            >\n              <span\n                class=\"inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-mnl-surface-alt text-inherit ring-1 ring-mnl-border/70 transition-colors duration-200 motion-reduce:transition-none group-hover:bg-mnl-bg\"\n              >\n                <lucide-icon\n                  [img]=\"resolveIcon(item.icon)\"\n                  aria-hidden=\"true\"\n                  class=\"size-5\"\n                  data-testid=\"mnl-tab-bar-icon\"\n                ></lucide-icon>\n              </span>\n\n              <span class=\"min-w-0 flex-1 truncate\">{{ item.label }}</span>\n\n              @if (item.badge != null) {\n                <span\n                  class=\"inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-mnl-error px-2 text-xs font-bold leading-none text-mnl-mocha-crust\"\n                  data-testid=\"mnl-tab-bar-badge\"\n                >\n                  {{ item.badge }}\n                </span>\n              }\n            </a>\n          }\n        </div>\n      </div>\n    </nav>\n  `,\n})\nexport class MnlTabBarComponent {\n  readonly items = input.required<readonly MnlTabBarItem[]>();\n\n  private readonly router = inject(Router);\n  private readonly currentUrl = toSignal(\n    this.router.events.pipe(\n      filter((event): event is NavigationEnd => event instanceof NavigationEnd),\n      map(() => this.router.url),\n      startWith(this.router.url),\n    ),\n    { initialValue: this.router.url },\n  );\n\n  private readonly exactRouteOptions: IsActiveMatchOptions = {\n    paths: 'exact',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  };\n\n  private readonly nestedRouteOptions: IsActiveMatchOptions = {\n    paths: 'subset',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  };\n\n  protected resolveIcon(icon: string) {\n    return iconMap[icon as keyof typeof iconMap] ?? House;\n  }\n\n  protected desktopLinkClasses(route: string): string {\n    return this.isRouteActive(route)\n      ? `${desktopLinkBaseClasses} ${desktopLinkActiveClasses}`\n      : desktopLinkBaseClasses;\n  }\n\n  protected isRouteActive(route: string): boolean {\n    this.currentUrl();\n    return this.router.isActive(route, this.routeMatchOptions(route));\n  }\n\n  protected mobileLinkClasses(route: string): string {\n    return this.isRouteActive(route)\n      ? `${mobileLinkBaseClasses} ${mobileLinkActiveClasses}`\n      : mobileLinkBaseClasses;\n  }\n\n  protected routeMatchOptions(route: string): IsActiveMatchOptions {\n    return route === '/' ? this.exactRouteOptions : this.nestedRouteOptions;\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "badge",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 23,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "icon",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 20,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "label",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
             "name": "PaletteTokenRow",
             "id": "interface-PaletteTokenRow-7c9ceaf881a35fe642125d82fd3353bb7abdc340d3bc3434f8bdf00b9007cced98eb3c7b294b08c4404258fbe4829e5b55b8f996e2f64fa7f1cce648362b9c7d",
             "file": "projects/menlo-lib/src/lib/foundations/foundation-data.ts",
@@ -1117,6 +1184,77 @@
             "styleUrlsData": "",
             "stylesData": "",
             "extends": []
+        },
+        {
+            "name": "DummyStoryRouteComponent",
+            "id": "component-DummyStoryRouteComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e",
+            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "styleUrls": [],
+            "styles": [],
+            "template": "",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlTabBarComponent, type MnlTabBarItem } from './tab-bar.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-tab-bar-story-preview',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-6xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n            sidebar while keeping the same router-aware navigation model.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"absolute inset-0 bg-mnl-bg\">\n                <mnl-tab-bar [items]=\"items\" />\n\n                <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n                  <div class=\"mx-auto max-w-5xl space-y-4\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        Active state, badges, and navigation positioning stay consistent across\n                        viewports.\n                      </p>\n                    </article>\n\n                    <div class=\"grid gap-4 md:grid-cols-2\">\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Due this week\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                      </article>\n\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Variance\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                          +R 850\n                        </p>\n                      </article>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass TabBarStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/budgets');\n  }\n}\n\nconst meta: Meta<TabBarStoryPreviewComponent> = {\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<TabBarStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "DummyStoryRouteComponent",
+            "id": "component-DummyStoryRouteComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d-1",
+            "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "styleUrls": [],
+            "styles": [],
+            "template": "",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { type MnlTabBarItem } from '../../molecules/tab-bar';\nimport { MnlPageShellComponent } from './page-shell.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-page-shell-story-preview',\n  standalone: true,\n  imports: [MnlPageShellComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The page shell composes the responsive navigation scaffold with a padded, max-width\n            content column that stays scrollable across route changes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <mnl-page-shell [items]=\"items\">\n                <div class=\"space-y-6\">\n                  <header class=\"space-y-3\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n                    <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                    <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                      Page content remains centered, padded, and scrollable while navigation adapts\n                      to the current viewport.\n                    </p>\n                  </header>\n\n                  <div class=\"grid gap-4 xl:grid-cols-3\">\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Planned\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Spent\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Remaining\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                        R 6 260\n                      </p>\n                    </article>\n                  </div>\n\n                  @for (section of [1, 2, 3, 4]; track section) {\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                      <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        This placeholder content makes the shell scrollable so viewport padding,\n                        max-width constraints, and route-reset behavior are easy to review.\n                      </p>\n                    </article>\n                  }\n                </div>\n              </mnl-page-shell>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass PageShellStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/analytics');\n  }\n}\n\nconst meta: Meta<PageShellStoryPreviewComponent> = {\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PageShellStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "isDuplicate": true,
+            "duplicateId": 1,
+            "duplicateName": "DummyStoryRouteComponent-1"
         },
         {
             "name": "FormFieldStoryPreviewComponent",
@@ -3308,6 +3446,122 @@
             ]
         },
         {
+            "name": "MnlPageShellComponent",
+            "id": "component-MnlPageShellComponent-9ddcdb20ec418985f0a6bc2dc275a9e876e42776ece3264a7f5463cded55935bed7cfa9a3f0768f30d66225ff5edc8404cf3f2e763edfbb4dc5cec2828e742cf",
+            "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-page-shell",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"flex min-h-dvh bg-mnl-bg text-mnl-text\" data-testid=\"mnl-page-shell\">\n  <mnl-tab-bar [items]=\"items()\" />\n\n  <div class=\"flex min-h-dvh min-w-0 flex-1 flex-col\">\n    <div\n      #contentViewport\n      class=\"flex-1 overflow-y-auto pb-24 lg:pb-0\"\n      data-testid=\"mnl-page-shell-content\"\n    >\n      <div\n        class=\"mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8\"\n        data-testid=\"mnl-page-shell-container\"\n      >\n        <ng-content></ng-content>\n      </div>\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "items",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "readonly MnlTabBarItem[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 45,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "contentViewport",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ElementRef<HTMLElement>",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 48,
+                    "decorators": [
+                        {
+                            "name": "ViewChild",
+                            "stringifiedArguments": "'contentViewport', {static: true}"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "defaultValue": "inject(Router, { optional: true })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 50,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "scrollContentToTop",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 61,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlTabBarComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  ElementRef,\n  ViewChild,\n  inject,\n  input,\n} from '@angular/core';\nimport { takeUntilDestroyed } from '@angular/core/rxjs-interop';\nimport { NavigationEnd, Router } from '@angular/router';\nimport { filter } from 'rxjs';\n\nimport { MnlTabBarComponent, type MnlTabBarItem } from '../../molecules/tab-bar';\n\n@Component({\n  selector: 'mnl-page-shell',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'block min-h-dvh bg-mnl-bg text-mnl-text',\n  },\n  template: `\n    <div class=\"flex min-h-dvh bg-mnl-bg text-mnl-text\" data-testid=\"mnl-page-shell\">\n      <mnl-tab-bar [items]=\"items()\" />\n\n      <div class=\"flex min-h-dvh min-w-0 flex-1 flex-col\">\n        <div\n          #contentViewport\n          class=\"flex-1 overflow-y-auto pb-24 lg:pb-0\"\n          data-testid=\"mnl-page-shell-content\"\n        >\n          <div\n            class=\"mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8\"\n            data-testid=\"mnl-page-shell-container\"\n          >\n            <ng-content></ng-content>\n          </div>\n        </div>\n      </div>\n    </div>\n  `,\n})\nexport class MnlPageShellComponent {\n  readonly items = input.required<readonly MnlTabBarItem[]>();\n\n  @ViewChild('contentViewport', { static: true })\n  private readonly contentViewport?: ElementRef<HTMLElement>;\n\n  private readonly router = inject(Router, { optional: true });\n\n  constructor() {\n    this.router?.events\n      .pipe(\n        filter((event): event is NavigationEnd => event instanceof NavigationEnd),\n        takeUntilDestroyed(),\n      )\n      .subscribe(() => this.scrollContentToTop());\n  }\n\n  private scrollContentToTop(): void {\n    const viewport = this.contentViewport?.nativeElement;\n\n    if (!viewport) {\n      return;\n    }\n\n    if (typeof viewport.scrollTo === 'function') {\n      viewport.scrollTo({ top: 0, left: 0, behavior: 'auto' });\n      return;\n    }\n\n    viewport.scrollTop = 0;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 50
+            },
+            "extends": []
+        },
+        {
             "name": "MnlSelectComponent",
             "id": "component-MnlSelectComponent-298dd9825abf13206a7f0503b768dc56bba006c748bb0d18fd6e84bdd416fb2dac43525f324d09548abcc5aa9d1c269106ee615aa3612b9e271367627b848d1b",
             "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
@@ -3883,6 +4137,398 @@
             ]
         },
         {
+            "name": "MnlTabBarComponent",
+            "id": "component-MnlTabBarComponent-bbbcd631792400c179f48d3d67c29078aab7ef710f2a6a30552e06e466094bdab31df85b3320b8efe9fca1aff7867e12fa5b55a01c7324515d2903ba77b4d0b8",
+            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "mnl-tab-bar",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<nav\n  aria-label=\"Primary navigation\"\n  class=\"fixed inset-x-4 bottom-4 z-30 lg:hidden\"\n  data-layout=\"mobile\"\n  data-testid=\"mnl-tab-bar-mobile\"\n>\n  <div\n    class=\"flex items-center gap-2 rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface/95 p-2 shadow-lg shadow-black/5 backdrop-blur supports-[backdrop-filter]:bg-mnl-surface/90\"\n  >\n    @for (item of items(); track item.route) {\n      <a\n        [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n        [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n        [attr.data-route]=\"item.route\"\n        [attr.data-testid]=\"'mnl-tab-bar-mobile-item-' + item.route\"\n        [class]=\"mobileLinkClasses(item.route)\"\n        [routerLink]=\"item.route\"\n      >\n        <span class=\"relative inline-flex\">\n          <lucide-icon\n            [img]=\"resolveIcon(item.icon)\"\n            aria-hidden=\"true\"\n            class=\"size-5\"\n            data-testid=\"mnl-tab-bar-icon\"\n          ></lucide-icon>\n\n          @if (item.badge != null) {\n            <span\n              class=\"absolute -top-2 -right-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mnl-error px-1 text-[0.65rem] font-bold leading-none text-mnl-mocha-crust\"\n              data-testid=\"mnl-tab-bar-badge\"\n            >\n              {{ item.badge }}\n            </span>\n          }\n        </span>\n\n        <span class=\"truncate\">{{ item.label }}</span>\n      </a>\n    }\n  </div>\n</nav>\n\n<nav\n  aria-label=\"Primary navigation\"\n  class=\"hidden h-dvh w-72 shrink-0 lg:flex\"\n  data-layout=\"desktop\"\n  data-testid=\"mnl-tab-bar-desktop\"\n>\n  <div class=\"flex w-full flex-col border-r border-mnl-border bg-mnl-surface/90 px-4 py-6\">\n    <div class=\"px-2\">\n      <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Menlo</p>\n      <h2 class=\"mt-3 mb-0 text-2xl font-bold tracking-tight text-mnl-text\">Household hub</h2>\n      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n        Navigation adapts between a thumb-friendly tab bar and spacious desktop sidebar.\n      </p>\n    </div>\n\n    <div class=\"mt-8 flex flex-1 flex-col gap-2\">\n      @for (item of items(); track item.route) {\n        <a\n          [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n          [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n          [attr.data-route]=\"item.route\"\n          [attr.data-testid]=\"'mnl-tab-bar-desktop-item-' + item.route\"\n          [class]=\"desktopLinkClasses(item.route)\"\n          [routerLink]=\"item.route\"\n        >\n          <span\n            class=\"inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-mnl-surface-alt text-inherit ring-1 ring-mnl-border/70 transition-colors duration-200 motion-reduce:transition-none group-hover:bg-mnl-bg\"\n          >\n            <lucide-icon\n              [img]=\"resolveIcon(item.icon)\"\n              aria-hidden=\"true\"\n              class=\"size-5\"\n              data-testid=\"mnl-tab-bar-icon\"\n            ></lucide-icon>\n          </span>\n\n          <span class=\"min-w-0 flex-1 truncate\">{{ item.label }}</span>\n\n          @if (item.badge != null) {\n            <span\n              class=\"inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-mnl-error px-2 text-xs font-bold leading-none text-mnl-mocha-crust\"\n              data-testid=\"mnl-tab-bar-badge\"\n            >\n              {{ item.badge }}\n            </span>\n          }\n        </a>\n      }\n    </div>\n  </div>\n</nav>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "items",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "readonly MnlTabBarItem[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 153,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": true
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "currentUrl",
+                    "defaultValue": "toSignal(\n    this.router.events.pipe(\n      filter((event): event is NavigationEnd => event instanceof NavigationEnd),\n      map(() => this.router.url),\n      startWith(this.router.url),\n    ),\n    { initialValue: this.router.url },\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 156,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "exactRouteOptions",
+                    "defaultValue": "{\n    paths: 'exact',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  }",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IsActiveMatchOptions",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 165,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "nestedRouteOptions",
+                    "defaultValue": "{\n    paths: 'subset',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  }",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IsActiveMatchOptions",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 172,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "defaultValue": "inject(Router)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 155,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "desktopLinkClasses",
+                    "args": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 183,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "isRouteActive",
+                    "args": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 189,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "mobileLinkClasses",
+                    "args": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 194,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "resolveIcon",
+                    "args": [
+                        {
+                            "name": "icon",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 179,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "icon",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "routeMatchOptions",
+                    "args": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "IsActiveMatchOptions",
+                    "typeParameters": [],
+                    "line": 200,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "route",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                },
+                {
+                    "name": "RouterLink"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { IsActiveMatchOptions, NavigationEnd, Router, RouterLink } from '@angular/router';\nimport {\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  LucideAngularModule,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} from 'lucide-angular';\nimport { filter, map, startWith } from 'rxjs';\n\nexport interface MnlTabBarItem {\n  readonly icon: string;\n  readonly label: string;\n  readonly route: string;\n  readonly badge?: number;\n}\n\nconst iconMap = {\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} as const;\n\nconst mobileLinkBaseClasses =\n  'relative inline-flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none';\nconst mobileLinkActiveClasses =\n  'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40';\nconst desktopLinkBaseClasses =\n  'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none';\nconst desktopLinkActiveClasses =\n  'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40';\n\n@Component({\n  selector: 'mnl-tab-bar',\n  standalone: true,\n  imports: [LucideAngularModule, RouterLink],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  host: {\n    class: 'contents',\n  },\n  template: `\n    <nav\n      aria-label=\"Primary navigation\"\n      class=\"fixed inset-x-4 bottom-4 z-30 lg:hidden\"\n      data-layout=\"mobile\"\n      data-testid=\"mnl-tab-bar-mobile\"\n    >\n      <div\n        class=\"flex items-center gap-2 rounded-[1.75rem] border border-mnl-border/80 bg-mnl-surface/95 p-2 shadow-lg shadow-black/5 backdrop-blur supports-[backdrop-filter]:bg-mnl-surface/90\"\n      >\n        @for (item of items(); track item.route) {\n          <a\n            [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n            [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n            [attr.data-route]=\"item.route\"\n            [attr.data-testid]=\"'mnl-tab-bar-mobile-item-' + item.route\"\n            [class]=\"mobileLinkClasses(item.route)\"\n            [routerLink]=\"item.route\"\n          >\n            <span class=\"relative inline-flex\">\n              <lucide-icon\n                [img]=\"resolveIcon(item.icon)\"\n                aria-hidden=\"true\"\n                class=\"size-5\"\n                data-testid=\"mnl-tab-bar-icon\"\n              ></lucide-icon>\n\n              @if (item.badge != null) {\n                <span\n                  class=\"absolute -top-2 -right-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mnl-error px-1 text-[0.65rem] font-bold leading-none text-mnl-mocha-crust\"\n                  data-testid=\"mnl-tab-bar-badge\"\n                >\n                  {{ item.badge }}\n                </span>\n              }\n            </span>\n\n            <span class=\"truncate\">{{ item.label }}</span>\n          </a>\n        }\n      </div>\n    </nav>\n\n    <nav\n      aria-label=\"Primary navigation\"\n      class=\"hidden h-dvh w-72 shrink-0 lg:flex\"\n      data-layout=\"desktop\"\n      data-testid=\"mnl-tab-bar-desktop\"\n    >\n      <div class=\"flex w-full flex-col border-r border-mnl-border bg-mnl-surface/90 px-4 py-6\">\n        <div class=\"px-2\">\n          <p class=\"m-0 text-xs font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Menlo</p>\n          <h2 class=\"mt-3 mb-0 text-2xl font-bold tracking-tight text-mnl-text\">Household hub</h2>\n          <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n            Navigation adapts between a thumb-friendly tab bar and spacious desktop sidebar.\n          </p>\n        </div>\n\n        <div class=\"mt-8 flex flex-1 flex-col gap-2\">\n          @for (item of items(); track item.route) {\n            <a\n              [attr.aria-current]=\"isRouteActive(item.route) ? 'page' : null\"\n              [attr.data-active]=\"isRouteActive(item.route) ? 'true' : 'false'\"\n              [attr.data-route]=\"item.route\"\n              [attr.data-testid]=\"'mnl-tab-bar-desktop-item-' + item.route\"\n              [class]=\"desktopLinkClasses(item.route)\"\n              [routerLink]=\"item.route\"\n            >\n              <span\n                class=\"inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-mnl-surface-alt text-inherit ring-1 ring-mnl-border/70 transition-colors duration-200 motion-reduce:transition-none group-hover:bg-mnl-bg\"\n              >\n                <lucide-icon\n                  [img]=\"resolveIcon(item.icon)\"\n                  aria-hidden=\"true\"\n                  class=\"size-5\"\n                  data-testid=\"mnl-tab-bar-icon\"\n                ></lucide-icon>\n              </span>\n\n              <span class=\"min-w-0 flex-1 truncate\">{{ item.label }}</span>\n\n              @if (item.badge != null) {\n                <span\n                  class=\"inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-mnl-error px-2 text-xs font-bold leading-none text-mnl-mocha-crust\"\n                  data-testid=\"mnl-tab-bar-badge\"\n                >\n                  {{ item.badge }}\n                </span>\n              }\n            </a>\n          }\n        </div>\n      </div>\n    </nav>\n  `,\n})\nexport class MnlTabBarComponent {\n  readonly items = input.required<readonly MnlTabBarItem[]>();\n\n  private readonly router = inject(Router);\n  private readonly currentUrl = toSignal(\n    this.router.events.pipe(\n      filter((event): event is NavigationEnd => event instanceof NavigationEnd),\n      map(() => this.router.url),\n      startWith(this.router.url),\n    ),\n    { initialValue: this.router.url },\n  );\n\n  private readonly exactRouteOptions: IsActiveMatchOptions = {\n    paths: 'exact',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  };\n\n  private readonly nestedRouteOptions: IsActiveMatchOptions = {\n    paths: 'subset',\n    queryParams: 'ignored',\n    fragment: 'ignored',\n    matrixParams: 'ignored',\n  };\n\n  protected resolveIcon(icon: string) {\n    return iconMap[icon as keyof typeof iconMap] ?? House;\n  }\n\n  protected desktopLinkClasses(route: string): string {\n    return this.isRouteActive(route)\n      ? `${desktopLinkBaseClasses} ${desktopLinkActiveClasses}`\n      : desktopLinkBaseClasses;\n  }\n\n  protected isRouteActive(route: string): boolean {\n    this.currentUrl();\n    return this.router.isActive(route, this.routeMatchOptions(route));\n  }\n\n  protected mobileLinkClasses(route: string): string {\n    return this.isRouteActive(route)\n      ? `${mobileLinkBaseClasses} ${mobileLinkActiveClasses}`\n      : mobileLinkBaseClasses;\n  }\n\n  protected routeMatchOptions(route: string): IsActiveMatchOptions {\n    return route === '/' ? this.exactRouteOptions : this.nestedRouteOptions;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "PageShellStoryPreviewComponent",
+            "id": "component-PageShellStoryPreviewComponent-bc65dcffac5f6a3e193ca2a9390df8bc001364076bd2ecec4007d3a75335fa78430cdea3b5fe3e7ad526b0dd53249c3699961cb768d4b1504dd095f843158b4d",
+            "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-page-shell-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Organisms\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        The page shell composes the responsive navigation scaffold with a padded, max-width\n        content column that stays scrollable across route changes.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n        >\n          <mnl-page-shell [items]=\"items\">\n            <div class=\"space-y-6\">\n              <header class=\"space-y-3\">\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.label }}\n                </span>\n                <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                  Page content remains centered, padded, and scrollable while navigation adapts\n                  to the current viewport.\n                </p>\n              </header>\n\n              <div class=\"grid gap-4 xl:grid-cols-3\">\n                <article\n                  class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                >\n                  <p\n                    class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                  >\n                    Planned\n                  </p>\n                  <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                </article>\n\n                <article\n                  class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                >\n                  <p\n                    class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                  >\n                    Spent\n                  </p>\n                  <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                </article>\n\n                <article\n                  class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                >\n                  <p\n                    class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                  >\n                    Remaining\n                  </p>\n                  <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                    R 6 260\n                  </p>\n                </article>\n              </div>\n\n              @for (section of [1, 2, 3, 4]; track section) {\n                <article\n                  class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                >\n                  <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                  <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                    This placeholder content makes the shell scrollable so viewport padding,\n                    max-width constraints, and route-reset behavior are easy to review.\n                  </p>\n                </article>\n              }\n            </div>\n          </mnl-page-shell>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "items",
+                    "defaultValue": "navigationItems",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 139,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "defaultValue": "inject(Router)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 142,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 140,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlPageShellComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { type MnlTabBarItem } from '../../molecules/tab-bar';\nimport { MnlPageShellComponent } from './page-shell.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-page-shell-story-preview',\n  standalone: true,\n  imports: [MnlPageShellComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Organisms\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Page Shell</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            The page shell composes the responsive navigation scaffold with a padded, max-width\n            content column that stays scrollable across route changes.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <mnl-page-shell [items]=\"items\">\n                <div class=\"space-y-6\">\n                  <header class=\"space-y-3\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n                    <h2 class=\"m-0 text-3xl font-bold tracking-tight\">Household dashboard</h2>\n                    <p class=\"m-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n                      Page content remains centered, padded, and scrollable while navigation adapts\n                      to the current viewport.\n                    </p>\n                  </header>\n\n                  <div class=\"grid gap-4 xl:grid-cols-3\">\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Planned\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 24 900</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Spent\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight\">R 18 640</p>\n                    </article>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-5 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <p\n                        class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                      >\n                        Remaining\n                      </p>\n                      <p class=\"mt-3 mb-0 text-4xl font-bold tracking-tight text-mnl-success\">\n                        R 6 260\n                      </p>\n                    </article>\n                  </div>\n\n                  @for (section of [1, 2, 3, 4]; track section) {\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h3 class=\"m-0 text-xl font-semibold\">Section {{ section }}</h3>\n                      <p class=\"mt-3 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        This placeholder content makes the shell scrollable so viewport padding,\n                        max-width constraints, and route-reset behavior are easy to review.\n                      </p>\n                    </article>\n                  }\n                </div>\n              </mnl-page-shell>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass PageShellStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/analytics');\n  }\n}\n\nconst meta: Meta<PageShellStoryPreviewComponent> = {\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<PageShellStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 142
+            },
+            "extends": []
+        },
+        {
             "name": "SelectStoryPreviewComponent",
             "id": "component-SelectStoryPreviewComponent-2a82cbdff8004c0aa253a5e16c24f84d7d483c6138501f86f0de87f2d189235168dabb1ab2a25a12a29050a54e27cc4bf7eca3259f6f6f09d38084a5ec9c8fcb",
             "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
@@ -3971,6 +4617,101 @@
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "TabBarStoryPreviewComponent",
+            "id": "component-TabBarStoryPreviewComponent-00105da5736edf2a0b6b420dd28462944b99373025d2b9c0e1d0a9928d4df6c27ee90a301bc0bc9b33967411503673fefee909fe9c79196c1daee9810a201a7e",
+            "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-tab-bar-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-6xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n        Molecules\n      </p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n        sidebar while keeping the same router-aware navigation model.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"absolute inset-0 bg-mnl-bg\">\n            <mnl-tab-bar [items]=\"items\" />\n\n            <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n              <div class=\"mx-auto max-w-5xl space-y-4\">\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.label }}\n                </span>\n\n                <article\n                  class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                >\n                  <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                  <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                    Active state, badges, and navigation positioning stay consistent across\n                    viewports.\n                  </p>\n                </article>\n\n                <div class=\"grid gap-4 md:grid-cols-2\">\n                  <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                    <p\n                      class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                    >\n                      Due this week\n                    </p>\n                    <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                  </article>\n\n                  <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                    <p\n                      class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                    >\n                      Variance\n                    </p>\n                    <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                      +R 850\n                    </p>\n                  </article>\n                </div>\n              </div>\n            </div>\n          </div>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "items",
+                    "defaultValue": "navigationItems",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 118,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "defaultValue": "inject(Router)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 121,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 119,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MnlTabBarComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, inject } from '@angular/core';\nimport { provideRouter, Router } from '@angular/router';\nimport { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlTabBarComponent, type MnlTabBarItem } from './tab-bar.component';\n\nconst navigationItems: readonly MnlTabBarItem[] = [\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n];\n\nconst viewportOptions = {\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const;\n\n@Component({\n  standalone: true,\n  template: '',\n})\nclass DummyStoryRouteComponent {}\n\n@Component({\n  selector: 'lib-tab-bar-story-preview',\n  standalone: true,\n  imports: [MnlTabBarComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-6xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">\n            Molecules\n          </p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Tab Bar</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            Resize the Storybook viewport to switch between the fixed mobile tab bar and the desktop\n            sidebar while keeping the same router-aware navigation model.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"relative min-h-[44rem] overflow-hidden rounded-[2rem] shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"absolute inset-0 bg-mnl-bg\">\n                <mnl-tab-bar [items]=\"items\" />\n\n                <div class=\"px-4 pt-6 pb-28 lg:pb-6 lg:pl-84 lg:pr-8\">\n                  <div class=\"mx-auto max-w-5xl space-y-4\">\n                    <span\n                      class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                    >\n                      {{ theme.label }}\n                    </span>\n\n                    <article\n                      class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\"\n                    >\n                      <h2 class=\"m-0 text-2xl font-semibold\">Budget overview</h2>\n                      <p class=\"mt-2 mb-0 text-sm leading-6 text-mnl-subtext\">\n                        Active state, badges, and navigation positioning stay consistent across\n                        viewports.\n                      </p>\n                    </article>\n\n                    <div class=\"grid gap-4 md:grid-cols-2\">\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Due this week\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight\">2 categories</p>\n                      </article>\n\n                      <article class=\"rounded-2xl bg-mnl-surface p-5 ring-1 ring-mnl-border\">\n                        <p\n                          class=\"m-0 text-sm font-semibold uppercase tracking-[0.2em] text-mnl-subtext\"\n                        >\n                          Variance\n                        </p>\n                        <p class=\"mt-3 mb-0 text-3xl font-bold tracking-tight text-mnl-success\">\n                          +R 850\n                        </p>\n                      </article>\n                    </div>\n                  </div>\n                </div>\n              </div>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass TabBarStoryPreviewComponent {\n  protected readonly items = navigationItems;\n  protected readonly themes = foundationThemes;\n\n  private readonly router = inject(Router);\n\n  constructor() {\n    void this.router.navigateByUrl('/budgets');\n  }\n}\n\nconst meta: Meta<TabBarStoryPreviewComponent> = {\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<TabBarStoryPreviewComponent>;\n\nexport const Mobile: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n};\n\nexport const Desktop: Story = {\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 121
+            },
             "extends": []
         }
     ],
@@ -4118,6 +4859,46 @@
                 "defaultValue": "{\r\n  args: {},\r\n}"
             },
             {
+                "name": "Desktop",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+            },
+            {
+                "name": "Desktop",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+            },
+            {
+                "name": "desktopLinkActiveClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40'"
+            },
+            {
+                "name": "desktopLinkBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
+            },
+            {
                 "name": "foundationThemes",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -4136,6 +4917,16 @@
                 "deprecationMessage": "",
                 "type": "unknown",
                 "defaultValue": "[\n  { name: 'Home', icon: Home },\n  { name: 'House', icon: House },\n  { name: 'Wallet', icon: Wallet },\n  { name: 'PiggyBank', icon: PiggyBank },\n  { name: 'Landmark', icon: Landmark },\n  { name: 'DollarSign', icon: DollarSign },\n  { name: 'HandCoins', icon: HandCoins },\n  { name: 'Receipt', icon: Receipt },\n  { name: 'Calendar', icon: Calendar },\n  { name: 'Target', icon: Target },\n  { name: 'TrendingUp', icon: TrendingUp },\n  { name: 'TrendingDown', icon: TrendingDown },\n  { name: 'Bell', icon: Bell },\n  { name: 'CreditCard', icon: CreditCard },\n  { name: 'Search', icon: Search },\n  { name: 'Settings', icon: Settings },\n  { name: 'User', icon: User },\n  { name: 'Users', icon: Users },\n  { name: 'ListTodo', icon: ListTodo },\n  { name: 'CircleAlert', icon: CircleAlert },\n  { name: 'Check', icon: Check },\n  { name: 'X', icon: X },\n  { name: 'ArrowRight', icon: ArrowRight },\n] as const"
+            },
+            {
+                "name": "iconMap",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} as const"
             },
             {
                 "name": "inputClasses",
@@ -4288,6 +5079,66 @@
                 "defaultValue": "{\n  title: 'Molecules/Form Field',\n  component: FormFieldStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<TabBarStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<PageShellStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+            },
+            {
+                "name": "Mobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+            },
+            {
+                "name": "Mobile",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+            },
+            {
+                "name": "mobileLinkActiveClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40'"
+            },
+            {
+                "name": "mobileLinkBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'relative inline-flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
+            },
+            {
                 "name": "mochaBackground",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -4296,6 +5147,26 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'#1e1e2e'"
+            },
+            {
+                "name": "navigationItems",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlTabBarItem[]",
+                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+            },
+            {
+                "name": "navigationItems",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlTabBarItem[]",
+                "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
             },
             {
                 "name": "Overview",
@@ -4566,6 +5437,26 @@
                 "deprecationMessage": "",
                 "type": "MnlButtonVariant[]",
                 "defaultValue": "['primary', 'secondary', 'ghost', 'destructive']"
+            },
+            {
+                "name": "viewportOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+            },
+            {
+                "name": "viewportOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
             }
         ],
         "functions": [
@@ -4956,6 +5847,28 @@
                 "kind": 184
             },
             {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
                 "name": "Theme",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -5177,6 +6090,162 @@
                     "deprecationMessage": "",
                     "type": "Meta<MenloLib>",
                     "defaultValue": "{\r\n  title: 'Menlo Lib/MenloLib',\r\n  component: MenloLib,\r\n  parameters: {\r\n    layout: 'centered',\r\n  },\r\n  tags: ['autodocs'],\r\n  argTypes: {},\r\n}"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
+                {
+                    "name": "Desktop",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<TabBarStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Molecules/Tab Bar',\n  component: TabBarStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "Mobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "navigationItems",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlTabBarItem[]",
+                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 2 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
+            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
+                {
+                    "name": "Desktop",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'desktop1440',\n    },\n  },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<PageShellStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Organisms/Page Shell',\n  component: PageShellStoryPreviewComponent,\n  decorators: [\n    applicationConfig({\n      providers: [\n        provideRouter([\n          { path: '', component: DummyStoryRouteComponent },\n          { path: 'budgets', component: DummyStoryRouteComponent },\n          { path: 'analytics', component: DummyStoryRouteComponent },\n          { path: 'planning', component: DummyStoryRouteComponent },\n        ]),\n      ],\n    }),\n  ],\n  parameters: {\n    layout: 'fullscreen',\n    viewport: {\n      options: viewportOptions,\n    },\n  },\n}"
+                },
+                {
+                    "name": "Mobile",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  parameters: {\n    viewport: {\n      defaultViewport: 'mobile390',\n    },\n  },\n}"
+                },
+                {
+                    "name": "navigationItems",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlTabBarItem[]",
+                    "defaultValue": "[\n  { icon: 'House', label: 'Home', route: '/' },\n  { icon: 'Wallet', label: 'Budgets', route: '/budgets', badge: 4 },\n  { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },\n  { icon: 'Calendar', label: 'Planning', route: '/planning' },\n]"
+                },
+                {
+                    "name": "viewportOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  desktop1440: {\n    name: 'Desktop 1440',\n    styles: {\n      height: '1024px',\n      width: '1440px',\n    },\n    type: 'desktop',\n  },\n  mobile390: {\n    name: 'Mobile 390',\n    styles: {\n      height: '844px',\n      width: '390px',\n    },\n    type: 'mobile',\n  },\n} as const"
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts": [
+                {
+                    "name": "desktopLinkActiveClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40'"
+                },
+                {
+                    "name": "desktopLinkBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'group inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
+                },
+                {
+                    "name": "iconMap",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "{\n  Bell,\n  Calendar,\n  House,\n  Landmark,\n  ListTodo,\n  PiggyBank,\n  Settings,\n  TrendingUp,\n  User,\n  Wallet,\n} as const"
+                },
+                {
+                    "name": "mobileLinkActiveClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'bg-mnl-accent text-mnl-mocha-crust shadow-sm ring-1 ring-mnl-accent-strong/40'"
+                },
+                {
+                    "name": "mobileLinkBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'relative inline-flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-semibold text-mnl-subtext transition-colors duration-200 hover:bg-mnl-surface-alt hover:text-mnl-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-mnl-accent focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none'"
                 }
             ],
             "projects/menlo-lib/src/lib/foundations/foundation-data.ts": [
@@ -6012,6 +7081,32 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<FormFieldStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<TabBarStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<PageShellStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -7060,6 +8155,239 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/molecules/form-field/form-field.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlTabBarComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/11",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "MnlTabBarItem",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "desktopLinkActiveClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "desktopLinkBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "iconMap",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "mobileLinkActiveClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "mobileLinkBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "DummyStoryRouteComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TabBarStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Desktop",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Mobile",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "navigationItems",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "viewportOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/molecules/tab-bar/tab-bar.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlPageShellComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "DummyStoryRouteComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "PageShellStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Desktop",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Mobile",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "navigationItems",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "viewportOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/organisms/page-shell/page-shell.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",

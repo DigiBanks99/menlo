@@ -1,22 +1,9 @@
-<div class="app-container">
-  <nav class="app-nav">
-    <div class="nav-brand">
-      <h1>{{ title() }}</h1>
-    </div>
-    <div class="nav-links">
-      @if (showNavigation()) {
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-        <a routerLink="/budgets" routerLinkActive="active">Budgets</a>
-        <a routerLink="/analytics" routerLinkActive="active">Analytics</a>
-      }
-    </div>
-  </nav>
-
-  <main class="app-content">
+@if (showPageShell()) {
+  <mnl-page-shell [items]="navigationItems">
+    <router-outlet />
+  </mnl-page-shell>
+} @else {
+  <main class="min-h-dvh bg-mnl-bg text-mnl-text">
     <router-outlet />
   </main>
-
-  <footer class="app-footer">
-    <p>&copy; 2024 Menlo Home Management. All rights reserved.</p>
-  </footer>
-</div>
+}
