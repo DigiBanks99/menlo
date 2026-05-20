@@ -1,15 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  MnlBadgeComponent,
+  type MnlBadgeVariant,
+  MnlButtonComponent,
+  MnlCardComponent,
+  MnlPageHeaderComponent,
+  MnlProgressComponent,
+  type MnlProgressVariant,
+} from 'menlo-lib';
+
+type BudgetStatus = 'danger' | 'good' | 'warning';
+
+interface BudgetListItem {
+  readonly id: string;
+  readonly name: string;
+  readonly period: string;
+  readonly spent: number;
+  readonly spentPercentage: number;
+  readonly status: BudgetStatus;
+  readonly statusIcon: string;
+  readonly statusText: string;
+  readonly total: number;
+}
 
 @Component({
   selector: 'app-budget-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MnlBadgeComponent,
+    MnlButtonComponent,
+    MnlCardComponent,
+    MnlPageHeaderComponent,
+    MnlProgressComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './budget-list/budget-list.component.html',
-  styleUrl: './budget-list/budget-list.component.scss'
 })
 export class BudgetListComponent {
-  budgets = signal([
+  private readonly router = inject(Router);
+
+  readonly budgets = signal<readonly BudgetListItem[]>([
     {
       id: '1',
       name: 'Monthly Household Budget',
@@ -19,7 +52,7 @@ export class BudgetListComponent {
       spentPercentage: 73,
       status: 'good',
       statusIcon: '✅',
-      statusText: 'On track'
+      statusText: 'On track',
     },
     {
       id: '2',
@@ -30,7 +63,7 @@ export class BudgetListComponent {
       spentPercentage: 84,
       status: 'warning',
       statusIcon: '⚠️',
-      statusText: 'Watch spending'
+      statusText: 'Watch spending',
     },
     {
       id: '3',
@@ -41,7 +74,34 @@ export class BudgetListComponent {
       spentPercentage: 10,
       status: 'good',
       statusIcon: '💰',
-      statusText: 'Healthy reserve'
-    }
+      statusText: 'Healthy reserve',
+    },
   ]);
+
+  protected openBudget(budgetId: string): void {
+    void this.router.navigate(['/budgets', budgetId]);
+  }
+
+  protected progressVariantFor(spentPercentage: number): MnlProgressVariant {
+    if (spentPercentage >= 95) {
+      return 'error';
+    }
+
+    if (spentPercentage >= 80) {
+      return 'warning';
+    }
+
+    return 'success';
+  }
+
+  protected statusVariantFor(status: BudgetStatus): MnlBadgeVariant {
+    switch (status) {
+      case 'danger':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      default:
+        return 'success';
+    }
+  }
 }

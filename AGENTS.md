@@ -75,3 +75,5 @@ Update your learnings as you progress but keep them brief.
 - `src/ui/web/projects/menlo-lib/src/index.ts` and `src/public-api.ts` need to stay aligned when adding new exported molecules, or Storybook/dev imports drift from the packaged surface.
 - Design-system gradients that must work in app runtime, Storybook previews, and Vitest are safest when driven by shared theme CSS variables instead of `light-dark()`.
 - `mnl-button` exposes routed CTA interactions through its `pressed` output, so components that need navigation should handle routing in the host component instead of trying to attach `routerLink` directly.
+- `pnpm exec nx test menlo-app --coverage` can fully cover a migrated app slice while still failing branch-wide because `menlo-app` and `menlo-lib` both enforce 100% global coverage across pre-existing uncovered files.
+- A stray `Menlo.Api.exe` process locks backend build outputs and makes `dotnet test Menlo.slnx` fail even when the test suite itself is green; stop the specific PID before rerunning.
