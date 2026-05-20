@@ -74,9 +74,11 @@ const config: Config = {
         'mnl-subtext': 'var(--mnl-color-subtext)',
         'mnl-accent': 'var(--mnl-color-accent)',
         'mnl-accent-strong': 'var(--mnl-color-accent-strong)',
+        'mnl-pink': 'var(--mnl-color-accent)',
         'mnl-success': 'var(--mnl-color-success)',
         'mnl-warning': 'var(--mnl-color-warning)',
         'mnl-error': 'var(--mnl-color-error)',
+        'mnl-red': 'var(--mnl-color-error)',
         'mnl-info': 'var(--mnl-color-info)',
       },
       fontFamily: {

@@ -12,3 +12,5 @@ export * from './lib/theme';
 
 // Atoms
 export * from './lib/atoms/button';
+export * from './lib/atoms/input';
+export * from './lib/atoms/select';

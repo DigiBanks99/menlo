@@ -137,6 +137,60 @@
             "extends": []
         },
         {
+            "name": "MnlSelectOption",
+            "id": "interface-MnlSelectOption-298dd9825abf13206a7f0503b768dc56bba006c748bb0d18fd6e84bdd416fb2dac43525f324d09548abcc5aa9d1c269106ee615aa3612b9e271367627b848d1b",
+            "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import {\n  AfterViewChecked,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  input,\n  output,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nexport interface MnlSelectOption {\n  readonly value: string;\n  readonly label: string;\n  readonly disabled?: boolean;\n}\n\nexport type MnlSelectValue = string | null;\n\nconst containerBaseClasses =\n  'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none';\nconst containerDefaultClasses =\n  'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink';\nconst containerErrorClasses =\n  'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red';\nconst containerDisabledClasses =\n  'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none';\nconst selectClasses =\n  'form-select w-full min-w-0 appearance-none border-0 bg-transparent px-0 py-0 pr-7 text-sm text-inherit shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext';\n\n@Component({\n  selector: 'mnl-select',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => MnlSelectComponent),\n      multi: true,\n    },\n  ],\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <label\n      [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n      [attr.data-has-error]=\"hasError()\"\n      [class]=\"containerClasses()\"\n      data-testid=\"mnl-select-field\"\n    >\n      <span\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center text-mnl-subtext empty:hidden\"\n      >\n        <ng-content select=\"[mnlSelectLeadingIcon]\"></ng-content>\n      </span>\n\n      <div class=\"relative min-w-0 flex-1\">\n        <select\n          #selectElement\n          [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n          [attr.id]=\"id() || null\"\n          [attr.name]=\"name() || null\"\n          [class]=\"controlClasses()\"\n          [disabled]=\"isDisabled()\"\n          [value]=\"displayValue()\"\n          data-testid=\"mnl-select\"\n          (blur)=\"handleBlur()\"\n          (change)=\"handleChange($event)\"\n        >\n          @if (placeholder()) {\n            <option value=\"\">{{ placeholder() }}</option>\n          }\n\n          @for (option of options(); track option.value) {\n            <option [disabled]=\"option.disabled ?? false\" [value]=\"option.value\">\n              {{ option.label }}\n            </option>\n          }\n\n          <ng-content select=\"option,optgroup\"></ng-content>\n        </select>\n\n        <span\n          aria-hidden=\"true\"\n          class=\"pointer-events-none absolute inset-y-0 right-0 inline-flex items-center justify-center text-mnl-subtext\"\n        >\n          <svg\n            class=\"size-4\"\n            fill=\"none\"\n            stroke=\"currentColor\"\n            stroke-linecap=\"round\"\n            stroke-linejoin=\"round\"\n            stroke-width=\"1.75\"\n            viewBox=\"0 0 24 24\"\n          >\n            <path d=\"m6 9 6 6 6-6\" />\n          </svg>\n        </span>\n      </div>\n    </label>\n  `,\n})\nexport class MnlSelectComponent implements AfterViewChecked, ControlValueAccessor {\n  readonly disabled = input(false);\n  readonly error = input<boolean | string | null>(null);\n  readonly id = input('');\n  readonly name = input('');\n  readonly options = input<readonly MnlSelectOption[]>([]);\n  readonly placeholder = input('');\n\n  readonly valueChange = output<MnlSelectValue>();\n\n  private readonly selectElement = viewChild<ElementRef<HTMLSelectElement>>('selectElement');\n  private readonly cvaDisabled = signal(false);\n  private readonly currentValue = signal<MnlSelectValue>('');\n  private onChange: (value: MnlSelectValue) => void = () => undefined;\n  private onTouched: () => void = () => undefined;\n\n  protected readonly hasError = computed(() => Boolean(this.error()));\n  protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());\n  protected readonly containerClasses = computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  );\n  protected readonly controlClasses = computed(() => selectClasses);\n  protected readonly displayValue = computed(() => this.currentValue() ?? '');\n\n  writeValue(value: MnlSelectValue): void {\n    this.currentValue.set(this.normalizeValue(value));\n  }\n\n  registerOnChange(fn: (value: MnlSelectValue) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.cvaDisabled.set(isDisabled);\n  }\n\n  ngAfterViewChecked(): void {\n    const select = this.selectElement();\n    if (select) {\n      const value = this.displayValue();\n      if (select.nativeElement.value !== value) {\n        select.nativeElement.value = value;\n      }\n    }\n  }\n\n  protected handleBlur(): void {\n    this.onTouched();\n  }\n\n  protected handleChange(event: Event): void {\n    if (this.isDisabled()) {\n      return;\n    }\n\n    const nextValue = this.readValue(event);\n    this.currentValue.set(nextValue);\n    this.onChange(nextValue);\n    this.valueChange.emit(nextValue);\n  }\n\n  private normalizeValue(value: MnlSelectValue): MnlSelectValue {\n    return value === '' || value == null ? '' : value;\n  }\n\n  private readValue(event: Event): MnlSelectValue {\n    const element = event.target as HTMLSelectElement;\n    return element.value === '' ? null : element.value;\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "disabled",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": true,
+                    "description": "",
+                    "line": 18,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "label",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "value",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 16,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
             "name": "PaletteTokenRow",
             "id": "interface-PaletteTokenRow-7c9ceaf881a35fe642125d82fd3353bb7abdc340d3bc3434f8bdf00b9007cced98eb3c7b294b08c4404258fbe4829e5b55b8f996e2f64fa7f1cce648362b9c7d",
             "file": "projects/menlo-lib/src/lib/foundations/foundation-data.ts",
@@ -1378,6 +1432,97 @@
             "extends": []
         },
         {
+            "name": "InputStoryPreviewComponent",
+            "id": "component-InputStoryPreviewComponent-0999def406853d6bc28e83458fc76fef8ca68ba6777218a869828b3ad4c6aef5918633d65819fd4fe71a35960b095ca2e75f79238aa25a9dc3e97edf243d01c4",
+            "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-input-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Input</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-input provides a rounded-lg field primitive with signal-based value changes, error\n        styling, icon slots, and ControlValueAccessor support for Menlo forms.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                Accent rings stay pink, error states stay red, and the field remains legible in\n                both themes.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              Input types\n            </h3>\n\n            <div class=\"grid gap-3 md:grid-cols-2\">\n              <mnl-input placeholder=\"Household name\"></mnl-input>\n              <mnl-input placeholder=\"owner@menlo.home\" type=\"email\"></mnl-input>\n              <mnl-input placeholder=\"Secure password\" type=\"password\">\n                <lucide-icon\n                  [img]=\"alertIcon\"\n                  class=\"size-4 text-mnl-subtext\"\n                  mnlInputTrailingIcon\n                ></lucide-icon>\n              </mnl-input>\n              <mnl-input placeholder=\"Search budgets\" type=\"search\">\n                <lucide-icon\n                  [img]=\"searchIcon\"\n                  class=\"size-4 text-mnl-subtext\"\n                  mnlInputLeadingIcon\n                ></lucide-icon>\n              </mnl-input>\n              <mnl-input placeholder=\"Planned amount\" type=\"number\"></mnl-input>\n            </div>\n          </article>\n\n          <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              States\n            </h3>\n\n            <div class=\"space-y-3\">\n              <mnl-input placeholder=\"Default state\"></mnl-input>\n              <mnl-input error=\"Required field\" placeholder=\"Error state\"></mnl-input>\n              <mnl-input [disabled]=\"true\" placeholder=\"Disabled state\"></mnl-input>\n            </div>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "alertIcon",
+                    "defaultValue": "CircleAlert",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 93,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "searchIcon",
+                    "defaultValue": "Search",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 94,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 92,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                },
+                {
+                    "name": "MnlInputComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\nimport { CircleAlert, LucideAngularModule, Search } from 'lucide-angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlInputComponent } from './input.component';\n\n@Component({\n  selector: 'lib-input-story-preview',\n  standalone: true,\n  imports: [LucideAngularModule, MnlInputComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Input</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-input provides a rounded-lg field primitive with signal-based value changes, error\n            styling, icon slots, and ControlValueAccessor support for Menlo forms.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    Accent rings stay pink, error states stay red, and the field remains legible in\n                    both themes.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  Input types\n                </h3>\n\n                <div class=\"grid gap-3 md:grid-cols-2\">\n                  <mnl-input placeholder=\"Household name\"></mnl-input>\n                  <mnl-input placeholder=\"owner@menlo.home\" type=\"email\"></mnl-input>\n                  <mnl-input placeholder=\"Secure password\" type=\"password\">\n                    <lucide-icon\n                      [img]=\"alertIcon\"\n                      class=\"size-4 text-mnl-subtext\"\n                      mnlInputTrailingIcon\n                    ></lucide-icon>\n                  </mnl-input>\n                  <mnl-input placeholder=\"Search budgets\" type=\"search\">\n                    <lucide-icon\n                      [img]=\"searchIcon\"\n                      class=\"size-4 text-mnl-subtext\"\n                      mnlInputLeadingIcon\n                    ></lucide-icon>\n                  </mnl-input>\n                  <mnl-input placeholder=\"Planned amount\" type=\"number\"></mnl-input>\n                </div>\n              </article>\n\n              <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  States\n                </h3>\n\n                <div class=\"space-y-3\">\n                  <mnl-input placeholder=\"Default state\"></mnl-input>\n                  <mnl-input error=\"Required field\" placeholder=\"Error state\"></mnl-input>\n                  <mnl-input [disabled]=\"true\" placeholder=\"Disabled state\"></mnl-input>\n                </div>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass InputStoryPreviewComponent {\n  protected readonly themes = foundationThemes;\n  protected readonly alertIcon = CircleAlert;\n  protected readonly searchIcon = Search;\n}\n\nconst meta: Meta<InputStoryPreviewComponent> = {\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<InputStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
+        },
+        {
             "name": "MenloLib",
             "id": "component-MenloLib-9dd7a23deac513e6e1658c05c94046bf8be1fca43a7732821a8cd55479defe88b8ee4be43df3d8958dd4b28eb30d4e154273871d8261e593d8fc92e9ee803409",
             "file": "projects/menlo-lib/src/lib/menlo-lib.ts",
@@ -1626,6 +1771,1235 @@
             "styleUrlsData": "",
             "stylesData": "",
             "extends": []
+        },
+        {
+            "name": "MnlInputComponent",
+            "id": "component-MnlInputComponent-dafa7f0fc6e148e26e42e50fb57e09261509c5971b17038d2a6b1ed0552e5f487e2ac26b45ae6128f7a01e79f201c5fb60c9026407feefdfd1a24372476d935e",
+            "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "mnl-input",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<label\n  [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n  [attr.data-has-error]=\"hasError()\"\n  [class]=\"containerClasses()\"\n  data-testid=\"mnl-input-field\"\n>\n  <span\n    aria-hidden=\"true\"\n    class=\"inline-flex shrink-0 items-center justify-center text-mnl-subtext empty:hidden\"\n  >\n    <ng-content select=\"[mnlInputLeadingIcon]\"></ng-content>\n  </span>\n\n  <input\n    [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n    [attr.autocomplete]=\"autocomplete() || null\"\n    [attr.id]=\"id() || null\"\n    [attr.name]=\"name() || null\"\n    [attr.placeholder]=\"placeholder() || null\"\n    [attr.type]=\"type()\"\n    [class]=\"controlClasses()\"\n    [disabled]=\"isDisabled()\"\n    [value]=\"displayValue()\"\n    data-testid=\"mnl-input\"\n    (blur)=\"handleBlur()\"\n    (input)=\"handleInput($event)\"\n  />\n\n  <span class=\"inline-flex shrink-0 items-center justify-center empty:hidden\">\n    <ng-content select=\"[mnlInputTrailingIcon]\"></ng-content>\n  </span>\n</label>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "autocomplete",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 76,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 77,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "error",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean | string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 78,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "id",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 79,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "name",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 80,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "placeholder",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 81,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'text'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlInputType",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 82,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "valueChange",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlInputValue",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 84,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "containerClasses",
+                    "defaultValue": "computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 93,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "controlClasses",
+                    "defaultValue": "computed(() =>\n    [inputClasses, this.type() === 'number' ? 'text-right tabular-nums' : '']\n      .filter(Boolean)\n      .join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 102,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currentValue",
+                    "defaultValue": "signal<MnlInputValue>('')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 87,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "cvaDisabled",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 86,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "displayValue",
+                    "defaultValue": "computed(() => {\n    const value = this.currentValue();\n    return value == null ? '' : `${value}`;\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 107,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "hasError",
+                    "defaultValue": "computed(() => Boolean(this.error()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 91,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isDisabled",
+                    "defaultValue": "computed(() => this.disabled() || this.cvaDisabled())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 92,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 88,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 89,
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleBlur",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 128,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleInput",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 132,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "normalizeInputValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlInputValue",
+                    "typeParameters": [],
+                    "line": 143,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "readValue",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlInputValue",
+                    "typeParameters": [],
+                    "line": 156,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlInputValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 116,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlInputValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 120,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 124,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 112,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlInputValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  forwardRef,\n  input,\n  output,\n  signal,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nexport type MnlInputType = 'text' | 'number' | 'email' | 'password' | 'search';\nexport type MnlInputValue = string | number | null;\n\nconst containerBaseClasses =\n  'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none';\nconst containerDefaultClasses =\n  'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink';\nconst containerErrorClasses =\n  'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red';\nconst containerDisabledClasses =\n  'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none';\nconst inputClasses =\n  'form-input w-full min-w-0 border-0 bg-transparent px-0 py-0 text-sm text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext';\n\n@Component({\n  selector: 'mnl-input',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => MnlInputComponent),\n      multi: true,\n    },\n  ],\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <label\n      [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n      [attr.data-has-error]=\"hasError()\"\n      [class]=\"containerClasses()\"\n      data-testid=\"mnl-input-field\"\n    >\n      <span\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center text-mnl-subtext empty:hidden\"\n      >\n        <ng-content select=\"[mnlInputLeadingIcon]\"></ng-content>\n      </span>\n\n      <input\n        [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n        [attr.autocomplete]=\"autocomplete() || null\"\n        [attr.id]=\"id() || null\"\n        [attr.name]=\"name() || null\"\n        [attr.placeholder]=\"placeholder() || null\"\n        [attr.type]=\"type()\"\n        [class]=\"controlClasses()\"\n        [disabled]=\"isDisabled()\"\n        [value]=\"displayValue()\"\n        data-testid=\"mnl-input\"\n        (blur)=\"handleBlur()\"\n        (input)=\"handleInput($event)\"\n      />\n\n      <span class=\"inline-flex shrink-0 items-center justify-center empty:hidden\">\n        <ng-content select=\"[mnlInputTrailingIcon]\"></ng-content>\n      </span>\n    </label>\n  `,\n})\nexport class MnlInputComponent implements ControlValueAccessor {\n  readonly autocomplete = input('');\n  readonly disabled = input(false);\n  readonly error = input<boolean | string | null>(null);\n  readonly id = input('');\n  readonly name = input('');\n  readonly placeholder = input('');\n  readonly type = input<MnlInputType>('text');\n\n  readonly valueChange = output<MnlInputValue>();\n\n  private readonly cvaDisabled = signal(false);\n  private readonly currentValue = signal<MnlInputValue>('');\n  private onChange: (value: MnlInputValue) => void = () => undefined;\n  private onTouched: () => void = () => undefined;\n\n  protected readonly hasError = computed(() => Boolean(this.error()));\n  protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());\n  protected readonly containerClasses = computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  );\n  protected readonly controlClasses = computed(() =>\n    [inputClasses, this.type() === 'number' ? 'text-right tabular-nums' : '']\n      .filter(Boolean)\n      .join(' '),\n  );\n  protected readonly displayValue = computed(() => {\n    const value = this.currentValue();\n    return value == null ? '' : `${value}`;\n  });\n\n  writeValue(value: MnlInputValue): void {\n    this.currentValue.set(this.normalizeInputValue(value));\n  }\n\n  registerOnChange(fn: (value: MnlInputValue) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.cvaDisabled.set(isDisabled);\n  }\n\n  protected handleBlur(): void {\n    this.onTouched();\n  }\n\n  protected handleInput(event: Event): void {\n    if (this.isDisabled()) {\n      return;\n    }\n\n    const nextValue = this.readValue(event);\n    this.currentValue.set(nextValue);\n    this.onChange(nextValue);\n    this.valueChange.emit(nextValue);\n  }\n\n  private normalizeInputValue(value: MnlInputValue): MnlInputValue {\n    if (this.type() !== 'number') {\n      return value ?? '';\n    }\n\n    if (value == null || value === '') {\n      return null;\n    }\n\n    const numericValue = typeof value === 'number' ? value : Number(value);\n    return Number.isFinite(numericValue) ? numericValue : null;\n  }\n\n  private readValue(event: Event): MnlInputValue {\n    const element = event.target as HTMLInputElement;\n\n    if (this.type() !== 'number') {\n      return element.value;\n    }\n\n    return element.value === '' || Number.isNaN(element.valueAsNumber)\n      ? null\n      : element.valueAsNumber;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ]
+        },
+        {
+            "name": "MnlSelectComponent",
+            "id": "component-MnlSelectComponent-298dd9825abf13206a7f0503b768dc56bba006c748bb0d18fd6e84bdd416fb2dac43525f324d09548abcc5aa9d1c269106ee615aa3612b9e271367627b848d1b",
+            "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "host": {},
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "mnl-select",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<label\n  [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n  [attr.data-has-error]=\"hasError()\"\n  [class]=\"containerClasses()\"\n  data-testid=\"mnl-select-field\"\n>\n  <span\n    aria-hidden=\"true\"\n    class=\"inline-flex shrink-0 items-center justify-center text-mnl-subtext empty:hidden\"\n  >\n    <ng-content select=\"[mnlSelectLeadingIcon]\"></ng-content>\n  </span>\n\n  <div class=\"relative min-w-0 flex-1\">\n    <select\n      #selectElement\n      [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n      [attr.id]=\"id() || null\"\n      [attr.name]=\"name() || null\"\n      [class]=\"controlClasses()\"\n      [disabled]=\"isDisabled()\"\n      [value]=\"displayValue()\"\n      data-testid=\"mnl-select\"\n      (blur)=\"handleBlur()\"\n      (change)=\"handleChange($event)\"\n    >\n      @if (placeholder()) {\n        <option value=\"\">{{ placeholder() }}</option>\n      }\n\n      @for (option of options(); track option.value) {\n        <option [disabled]=\"option.disabled ?? false\" [value]=\"option.value\">\n          {{ option.label }}\n        </option>\n      }\n\n      <ng-content select=\"option,optgroup\"></ng-content>\n    </select>\n\n    <span\n      aria-hidden=\"true\"\n      class=\"pointer-events-none absolute inset-y-0 right-0 inline-flex items-center justify-center text-mnl-subtext\"\n    >\n      <svg\n        class=\"size-4\"\n        fill=\"none\"\n        stroke=\"currentColor\"\n        stroke-linecap=\"round\"\n        stroke-linejoin=\"round\"\n        stroke-width=\"1.75\"\n        viewBox=\"0 0 24 24\"\n      >\n        <path d=\"m6 9 6 6 6-6\" />\n      </svg>\n    </span>\n  </div>\n</label>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 109,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "error",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean | string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 110,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "id",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 111,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "name",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 112,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "options",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "readonly MnlSelectOption[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 113,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "placeholder",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 114,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "valueChange",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlSelectValue",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 116,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "containerClasses",
+                    "defaultValue": "computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 126,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "controlClasses",
+                    "defaultValue": "computed(() => selectClasses)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 135,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "currentValue",
+                    "defaultValue": "signal<MnlSelectValue>('')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 120,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "cvaDisabled",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 119,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "displayValue",
+                    "defaultValue": "computed(() => this.currentValue() ?? '')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 136,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "hasError",
+                    "defaultValue": "computed(() => Boolean(this.error()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 124,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "isDisabled",
+                    "defaultValue": "computed(() => this.disabled() || this.cvaDisabled())",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 125,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 121,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "onTouched",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 122,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "selectElement",
+                    "defaultValue": "viewChild<ElementRef<HTMLSelectElement>>('selectElement')",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 118,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleBlur",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 164,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ]
+                },
+                {
+                    "name": "handleChange",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 168,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngAfterViewChecked",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 154,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "normalizeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlSelectValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlSelectValue",
+                    "typeParameters": [],
+                    "line": 179,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlSelectValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "readValue",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "MnlSelectValue",
+                    "typeParameters": [],
+                    "line": 183,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlSelectValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 142,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "MnlSelectValue",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 146,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 150,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "MnlSelectValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 138,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "MnlSelectValue",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  AfterViewChecked,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  input,\n  output,\n  signal,\n  viewChild,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\n\nexport interface MnlSelectOption {\n  readonly value: string;\n  readonly label: string;\n  readonly disabled?: boolean;\n}\n\nexport type MnlSelectValue = string | null;\n\nconst containerBaseClasses =\n  'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none';\nconst containerDefaultClasses =\n  'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink';\nconst containerErrorClasses =\n  'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red';\nconst containerDisabledClasses =\n  'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none';\nconst selectClasses =\n  'form-select w-full min-w-0 appearance-none border-0 bg-transparent px-0 py-0 pr-7 text-sm text-inherit shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext';\n\n@Component({\n  selector: 'mnl-select',\n  standalone: true,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => MnlSelectComponent),\n      multi: true,\n    },\n  ],\n  host: {\n    class: 'block w-full',\n  },\n  template: `\n    <label\n      [attr.aria-disabled]=\"isDisabled() ? 'true' : null\"\n      [attr.data-has-error]=\"hasError()\"\n      [class]=\"containerClasses()\"\n      data-testid=\"mnl-select-field\"\n    >\n      <span\n        aria-hidden=\"true\"\n        class=\"inline-flex shrink-0 items-center justify-center text-mnl-subtext empty:hidden\"\n      >\n        <ng-content select=\"[mnlSelectLeadingIcon]\"></ng-content>\n      </span>\n\n      <div class=\"relative min-w-0 flex-1\">\n        <select\n          #selectElement\n          [attr.aria-invalid]=\"hasError() ? 'true' : null\"\n          [attr.id]=\"id() || null\"\n          [attr.name]=\"name() || null\"\n          [class]=\"controlClasses()\"\n          [disabled]=\"isDisabled()\"\n          [value]=\"displayValue()\"\n          data-testid=\"mnl-select\"\n          (blur)=\"handleBlur()\"\n          (change)=\"handleChange($event)\"\n        >\n          @if (placeholder()) {\n            <option value=\"\">{{ placeholder() }}</option>\n          }\n\n          @for (option of options(); track option.value) {\n            <option [disabled]=\"option.disabled ?? false\" [value]=\"option.value\">\n              {{ option.label }}\n            </option>\n          }\n\n          <ng-content select=\"option,optgroup\"></ng-content>\n        </select>\n\n        <span\n          aria-hidden=\"true\"\n          class=\"pointer-events-none absolute inset-y-0 right-0 inline-flex items-center justify-center text-mnl-subtext\"\n        >\n          <svg\n            class=\"size-4\"\n            fill=\"none\"\n            stroke=\"currentColor\"\n            stroke-linecap=\"round\"\n            stroke-linejoin=\"round\"\n            stroke-width=\"1.75\"\n            viewBox=\"0 0 24 24\"\n          >\n            <path d=\"m6 9 6 6 6-6\" />\n          </svg>\n        </span>\n      </div>\n    </label>\n  `,\n})\nexport class MnlSelectComponent implements AfterViewChecked, ControlValueAccessor {\n  readonly disabled = input(false);\n  readonly error = input<boolean | string | null>(null);\n  readonly id = input('');\n  readonly name = input('');\n  readonly options = input<readonly MnlSelectOption[]>([]);\n  readonly placeholder = input('');\n\n  readonly valueChange = output<MnlSelectValue>();\n\n  private readonly selectElement = viewChild<ElementRef<HTMLSelectElement>>('selectElement');\n  private readonly cvaDisabled = signal(false);\n  private readonly currentValue = signal<MnlSelectValue>('');\n  private onChange: (value: MnlSelectValue) => void = () => undefined;\n  private onTouched: () => void = () => undefined;\n\n  protected readonly hasError = computed(() => Boolean(this.error()));\n  protected readonly isDisabled = computed(() => this.disabled() || this.cvaDisabled());\n  protected readonly containerClasses = computed(() =>\n    [\n      containerBaseClasses,\n      this.hasError() ? containerErrorClasses : containerDefaultClasses,\n      this.isDisabled() ? containerDisabledClasses : '',\n    ]\n      .filter(Boolean)\n      .join(' '),\n  );\n  protected readonly controlClasses = computed(() => selectClasses);\n  protected readonly displayValue = computed(() => this.currentValue() ?? '');\n\n  writeValue(value: MnlSelectValue): void {\n    this.currentValue.set(this.normalizeValue(value));\n  }\n\n  registerOnChange(fn: (value: MnlSelectValue) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.cvaDisabled.set(isDisabled);\n  }\n\n  ngAfterViewChecked(): void {\n    const select = this.selectElement();\n    if (select) {\n      const value = this.displayValue();\n      if (select.nativeElement.value !== value) {\n        select.nativeElement.value = value;\n      }\n    }\n  }\n\n  protected handleBlur(): void {\n    this.onTouched();\n  }\n\n  protected handleChange(event: Event): void {\n    if (this.isDisabled()) {\n      return;\n    }\n\n    const nextValue = this.readValue(event);\n    this.currentValue.set(nextValue);\n    this.onChange(nextValue);\n    this.valueChange.emit(nextValue);\n  }\n\n  private normalizeValue(value: MnlSelectValue): MnlSelectValue {\n    return value === '' || value == null ? '' : value;\n  }\n\n  private readValue(event: Event): MnlSelectValue {\n    const element = event.target as HTMLSelectElement;\n    return element.value === '' ? null : element.value;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "AfterViewChecked",
+                "ControlValueAccessor"
+            ]
+        },
+        {
+            "name": "SelectStoryPreviewComponent",
+            "id": "component-SelectStoryPreviewComponent-2a82cbdff8004c0aa253a5e16c24f84d7d483c6138501f86f0de87f2d189235168dabb1ab2a25a12a29050a54e27cc4bf7eca3259f6f6f09d38084a5ec9c8fcb",
+            "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "lib-select-story-preview",
+            "styleUrls": [],
+            "styles": [],
+            "template": "<div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n  <div class=\"mx-auto max-w-7xl space-y-6\">\n    <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n      <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n      <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Select</h1>\n      <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n        mnl-select keeps Menlo dropdowns on the same rounded-lg visual language while supporting\n        placeholder states, signal-driven options, and ControlValueAccessor wiring.\n      </p>\n    </section>\n\n    <div class=\"grid gap-6 xl:grid-cols-2\">\n      @for (theme of themes; track theme.mode) {\n        <section\n          [attr.style]=\"theme.previewStyle\"\n          class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n        >\n          <div class=\"flex items-center justify-between gap-4\">\n            <div>\n              <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n              <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                The native select stays accessible while the wrapper provides the design-system\n                surface and ring treatment.\n              </p>\n            </div>\n\n            <span\n              class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n            >\n              {{ theme.mode }}\n            </span>\n          </div>\n\n          <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              States\n            </h3>\n\n            <div class=\"space-y-3\">\n              <mnl-select [options]=\"options\" placeholder=\"Choose a budget flow\"></mnl-select>\n              <mnl-select\n                [options]=\"options\"\n                error=\"Required field\"\n                placeholder=\"Error state\"\n              ></mnl-select>\n              <mnl-select\n                [disabled]=\"true\"\n                [options]=\"options\"\n                placeholder=\"Disabled state\"\n              ></mnl-select>\n            </div>\n          </article>\n\n          <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n            <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n              With icon slot\n            </h3>\n\n            <mnl-select [options]=\"options\" placeholder=\"Assign a category\">\n              <lucide-icon\n                [img]=\"currencyIcon\"\n                class=\"size-4 text-mnl-subtext\"\n                mnlSelectLeadingIcon\n              ></lucide-icon>\n            </mnl-select>\n          </article>\n        </section>\n      }\n    </div>\n  </div>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "currencyIcon",
+                    "defaultValue": "CircleDollarSign",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 94,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "options",
+                    "defaultValue": "selectOptions",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 95,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                },
+                {
+                    "name": "themes",
+                    "defaultValue": "foundationThemes",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 96,
+                    "modifierKind": [
+                        124,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "LucideAngularModule",
+                    "type": "module"
+                },
+                {
+                    "name": "MnlSelectComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport type { Meta, StoryObj } from '@storybook/angular';\nimport { CircleDollarSign, LucideAngularModule } from 'lucide-angular';\n\nimport { foundationThemes } from '../../foundations/foundation-data';\nimport { MnlSelectComponent, MnlSelectOption } from './select.component';\n\nconst selectOptions: readonly MnlSelectOption[] = [\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n];\n\n@Component({\n  selector: 'lib-select-story-preview',\n  standalone: true,\n  imports: [LucideAngularModule, MnlSelectComponent],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `\n    <div class=\"min-h-screen bg-mnl-bg p-6 text-mnl-text\">\n      <div class=\"mx-auto max-w-7xl space-y-6\">\n        <section class=\"rounded-2xl bg-mnl-surface p-6 shadow-sm ring-1 ring-mnl-border\">\n          <p class=\"m-0 text-sm font-semibold uppercase tracking-[0.24em] text-mnl-accent\">Atoms</p>\n          <h1 class=\"mt-2 mb-0 text-3xl font-bold tracking-tight\">Select</h1>\n          <p class=\"mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext\">\n            mnl-select keeps Menlo dropdowns on the same rounded-lg visual language while supporting\n            placeholder states, signal-driven options, and ControlValueAccessor wiring.\n          </p>\n        </section>\n\n        <div class=\"grid gap-6 xl:grid-cols-2\">\n          @for (theme of themes; track theme.mode) {\n            <section\n              [attr.style]=\"theme.previewStyle\"\n              class=\"space-y-6 rounded-2xl p-6 shadow-sm ring-1 ring-mnl-border\"\n            >\n              <div class=\"flex items-center justify-between gap-4\">\n                <div>\n                  <h2 class=\"m-0 text-2xl font-semibold\">{{ theme.label }}</h2>\n                  <p class=\"mt-2 mb-0 text-sm text-mnl-subtext\">\n                    The native select stays accessible while the wrapper provides the design-system\n                    surface and ring treatment.\n                  </p>\n                </div>\n\n                <span\n                  class=\"inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border\"\n                >\n                  {{ theme.mode }}\n                </span>\n              </div>\n\n              <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  States\n                </h3>\n\n                <div class=\"space-y-3\">\n                  <mnl-select [options]=\"options\" placeholder=\"Choose a budget flow\"></mnl-select>\n                  <mnl-select\n                    [options]=\"options\"\n                    error=\"Required field\"\n                    placeholder=\"Error state\"\n                  ></mnl-select>\n                  <mnl-select\n                    [disabled]=\"true\"\n                    [options]=\"options\"\n                    placeholder=\"Disabled state\"\n                  ></mnl-select>\n                </div>\n              </article>\n\n              <article class=\"space-y-3 rounded-2xl bg-mnl-surface p-4 ring-1 ring-mnl-border\">\n                <h3 class=\"m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext\">\n                  With icon slot\n                </h3>\n\n                <mnl-select [options]=\"options\" placeholder=\"Assign a category\">\n                  <lucide-icon\n                    [img]=\"currencyIcon\"\n                    class=\"size-4 text-mnl-subtext\"\n                    mnlSelectLeadingIcon\n                  ></lucide-icon>\n                </mnl-select>\n              </article>\n            </section>\n          }\n        </div>\n      </div>\n    </div>\n  `,\n})\nclass SelectStoryPreviewComponent {\n  protected readonly currencyIcon = CircleDollarSign;\n  protected readonly options = selectOptions;\n  protected readonly themes = foundationThemes;\n}\n\nconst meta: Meta<SelectStoryPreviewComponent> = {\n  title: 'Atoms/Select',\n  component: SelectStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n};\n\nexport default meta;\n\ntype Story = StoryObj<SelectStoryPreviewComponent>;\n\nexport const Overview: Story = {};\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": []
         }
     ],
     "modules": [],
@@ -1640,6 +3014,86 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border text-sm font-semibold transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-mnl-bg motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none'"
+            },
+            {
+                "name": "containerBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+            },
+            {
+                "name": "containerBaseClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+            },
+            {
+                "name": "containerDefaultClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+            },
+            {
+                "name": "containerDefaultClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+            },
+            {
+                "name": "containerDisabledClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+            },
+            {
+                "name": "containerDisabledClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+            },
+            {
+                "name": "containerErrorClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+            },
+            {
+                "name": "containerErrorClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
             },
             {
                 "name": "Default",
@@ -1670,6 +3124,16 @@
                 "deprecationMessage": "",
                 "type": "unknown",
                 "defaultValue": "[\n  { name: 'Home', icon: Home },\n  { name: 'House', icon: House },\n  { name: 'Wallet', icon: Wallet },\n  { name: 'PiggyBank', icon: PiggyBank },\n  { name: 'Landmark', icon: Landmark },\n  { name: 'DollarSign', icon: DollarSign },\n  { name: 'HandCoins', icon: HandCoins },\n  { name: 'Receipt', icon: Receipt },\n  { name: 'Calendar', icon: Calendar },\n  { name: 'Target', icon: Target },\n  { name: 'TrendingUp', icon: TrendingUp },\n  { name: 'TrendingDown', icon: TrendingDown },\n  { name: 'Bell', icon: Bell },\n  { name: 'CreditCard', icon: CreditCard },\n  { name: 'Search', icon: Search },\n  { name: 'Settings', icon: Settings },\n  { name: 'User', icon: User },\n  { name: 'Users', icon: Users },\n  { name: 'ListTodo', icon: ListTodo },\n  { name: 'CircleAlert', icon: CircleAlert },\n  { name: 'Check', icon: Check },\n  { name: 'X', icon: X },\n  { name: 'ArrowRight', icon: ArrowRight },\n] as const"
+            },
+            {
+                "name": "inputClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'form-input w-full min-w-0 border-0 bg-transparent px-0 py-0 text-sm text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
             },
             {
                 "name": "latteBackground",
@@ -1762,6 +3226,26 @@
                 "defaultValue": "{\n  title: 'Atoms/Button',\n  component: ButtonStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
             },
             {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<InputStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<SelectStoryPreviewComponent>",
+                "defaultValue": "{\n  title: 'Atoms/Select',\n  component: SelectStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+            },
+            {
                 "name": "mochaBackground",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -1832,6 +3316,26 @@
                 "defaultValue": "{}"
             },
             {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Overview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
                 "name": "paletteTokenRows",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -1880,6 +3384,26 @@
                 "deprecationMessage": "",
                 "type": "TokenExample[]",
                 "defaultValue": "[\n  {\n    label: 'Button radius',\n    classes: 'rounded-xl bg-mnl-surface-alt ring-1 ring-mnl-border',\n    note: '12px default for interactive controls',\n  },\n  {\n    label: 'Card radius',\n    classes: 'rounded-2xl bg-mnl-surface-alt ring-1 ring-mnl-border',\n    note: '16px default for cards and panels',\n  },\n  {\n    label: 'Pill radius',\n    classes: 'rounded-full bg-mnl-surface-alt ring-1 ring-mnl-border',\n    note: 'Badges, chips, and avatars',\n  },\n]"
+            },
+            {
+                "name": "selectClasses",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string",
+                "defaultValue": "'form-select w-full min-w-0 appearance-none border-0 bg-transparent px-0 py-0 pr-7 text-sm text-inherit shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
+            },
+            {
+                "name": "selectOptions",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "MnlSelectOption[]",
+                "defaultValue": "[\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n]"
             },
             {
                 "name": "semanticTokenExamples",
@@ -2194,6 +3718,39 @@
                 "kind": 193
             },
             {
+                "name": "MnlInputType",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "\"text\" | \"number\" | \"email\" | \"password\" | \"search\"",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "MnlInputValue",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "string | number | null",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
+                "name": "MnlSelectValue",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "string | null",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 193
+            },
+            {
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -2282,6 +3839,28 @@
                 "kind": 184
             },
             {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<InputStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<SelectStoryPreviewComponent>",
+                "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
                 "name": "Theme",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -2325,6 +3904,110 @@
                     "deprecationMessage": "",
                     "type": "Record<MnlButtonVariant, string>",
                     "defaultValue": "{\n  primary:\n    'border-mnl-accent bg-mnl-accent text-mnl-mocha-crust shadow-sm hover:border-mnl-accent-strong hover:bg-mnl-accent-strong focus-visible:ring-mnl-accent',\n  secondary:\n    'border-mnl-border bg-mnl-surface text-mnl-text shadow-sm hover:bg-mnl-surface-alt focus-visible:ring-mnl-accent',\n  ghost:\n    'border-transparent bg-transparent text-mnl-text hover:bg-mnl-surface-alt/80 focus-visible:ring-mnl-accent',\n  destructive:\n    'border-mnl-error bg-mnl-error text-mnl-mocha-crust shadow-sm hover:opacity-90 focus-visible:ring-mnl-error',\n}"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/input/input.component.ts": [
+                {
+                    "name": "containerBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "containerDefaultClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+                },
+                {
+                    "name": "containerDisabledClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+                },
+                {
+                    "name": "containerErrorClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+                },
+                {
+                    "name": "inputClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'form-input w-full min-w-0 border-0 bg-transparent px-0 py-0 text-sm text-inherit placeholder:text-mnl-subtext/80 shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/select/select.component.ts": [
+                {
+                    "name": "containerBaseClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'flex min-h-11 w-full items-center gap-3 rounded-lg border bg-mnl-surface px-3 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 motion-reduce:transition-none'"
+                },
+                {
+                    "name": "containerDefaultClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-border text-mnl-text focus-within:border-mnl-pink focus-within:ring-2 focus-within:ring-mnl-pink'"
+                },
+                {
+                    "name": "containerDisabledClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'pointer-events-none cursor-not-allowed bg-mnl-surface-alt text-mnl-subtext opacity-60 shadow-none'"
+                },
+                {
+                    "name": "containerErrorClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'border-mnl-red text-mnl-text ring-2 ring-mnl-red focus-within:border-mnl-red focus-within:ring-mnl-red'"
+                },
+                {
+                    "name": "selectClasses",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "defaultValue": "'form-select w-full min-w-0 appearance-none border-0 bg-transparent px-0 py-0 pr-7 text-sm text-inherit shadow-none ring-0 outline-hidden focus:border-0 focus:ring-0 disabled:cursor-not-allowed disabled:text-mnl-subtext'"
                 }
             ],
             "projects/menlo-lib/src/lib/menlo-lib.stories.ts": [
@@ -2645,6 +4328,60 @@
                     "defaultValue": "['primary', 'secondary', 'ghost', 'destructive']"
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<InputStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Input',\n  component: InputStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/select/select.stories.ts": [
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<SelectStoryPreviewComponent>",
+                    "defaultValue": "{\n  title: 'Atoms/Select',\n  component: SelectStoryPreviewComponent,\n  parameters: {\n    layout: 'fullscreen',\n  },\n}"
+                },
+                {
+                    "name": "Overview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "selectOptions",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MnlSelectOption[]",
+                    "defaultValue": "[\n  { value: 'income', label: 'Income' },\n  { value: 'expense', label: 'Expense' },\n  { value: 'transfer', label: 'Transfer' },\n]"
+                }
+            ],
             "projects/menlo-lib/src/lib/theme/theme.service.ts": [
                 {
                     "name": "STORAGE_KEY",
@@ -2884,6 +4621,43 @@
                     "kind": 193
                 }
             ],
+            "projects/menlo-lib/src/lib/atoms/input/input.component.ts": [
+                {
+                    "name": "MnlInputType",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "\"text\" | \"number\" | \"email\" | \"password\" | \"search\"",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                },
+                {
+                    "name": "MnlInputValue",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "string | number | null",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/select/select.component.ts": [
+                {
+                    "name": "MnlSelectValue",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "string | null",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 193
+                }
+            ],
             "projects/menlo-lib/src/lib/design-system-infrastructure.stories.ts": [
                 {
                     "name": "Story",
@@ -2982,6 +4756,32 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<ButtonStoryPreviewComponent>",
                     "file": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/input/input.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<InputStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/menlo-lib/src/lib/atoms/select/select.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<SelectStoryPreviewComponent>",
+                    "file": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -3132,6 +4932,251 @@
             },
             {
                 "filePath": "projects/menlo-lib/src/lib/atoms/button/button.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlInputComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/26",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDefaultClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDisabledClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerErrorClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "inputClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlInputType",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlInputValue",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "InputStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/input/input.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "MnlSelectComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/27",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "MnlSelectOption",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerBaseClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDefaultClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerDisabledClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "containerErrorClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "selectClasses",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.component.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "MnlSelectValue",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "SelectStoryPreviewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Overview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "selectOptions",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/menlo-lib/src/lib/atoms/select/select.stories.ts",
                 "type": "type alias",
                 "linktype": "miscellaneous",
                 "linksubtype": "typealias",
