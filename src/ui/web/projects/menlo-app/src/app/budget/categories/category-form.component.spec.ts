@@ -76,6 +76,43 @@ describe('CategoryFormComponent', () => {
       expect(flowError).toBeTruthy();
     });
 
+    it('returns the required validation message for the name field', () => {
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.detectChanges();
+
+      const control = fixture.componentInstance.form.controls.name;
+      control.markAsTouched();
+      control.setValue('');
+      control.updateValueAndValidity();
+
+      expect(
+        (
+          fixture.componentInstance as unknown as {
+            nameErrorMessage(): string | null;
+          }
+        ).nameErrorMessage(),
+      ).toBe('Name is required');
+    });
+
+    it('returns a generic invalid-value message for unknown name errors', () => {
+      const fixture = TestBed.createComponent(CategoryFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.detectChanges();
+
+      const control = fixture.componentInstance.form.controls.name;
+      control.markAsTouched();
+      control.setErrors({ maxlength: true });
+
+      expect(
+        (
+          fixture.componentInstance as unknown as {
+            nameErrorMessage(): string | null;
+          }
+        ).nameErrorMessage(),
+      ).toBe('Invalid value');
+    });
+
     it('calls createCategory on valid submit', () => {
       const createdDto = mockCategoryDto();
       mockCategoryApi.createCategory.mockReturnValue(of(success(createdDto)));

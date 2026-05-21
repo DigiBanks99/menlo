@@ -47,12 +47,28 @@ describe('MnlPageHeaderComponent', () => {
     expect(getGradient(fixture).style.backgroundImage).toContain('var(--mnl-color-gradient-end)');
   });
 
+  it('falls back to the default gradient when the configured value is blank', () => {
+    const fixture = TestBed.createComponent(PageHeaderHostComponent);
+    fixture.componentInstance.gradient = '   ';
+    fixture.detectChanges();
+
+    expect(getGradient(fixture).style.backgroundImage).toContain('var(--mnl-color-gradient-start)');
+  });
+
   it('provides an overlap container that can pull content below the gradient edge', () => {
     const fixture = TestBed.createComponent(PageHeaderHostComponent);
     fixture.detectChanges();
 
     expect(getOverlap(fixture).className).toContain('-mt-14');
     expect(getOverlap(fixture).textContent).toContain('Overlap content');
+  });
+
+  it('projects the hero slot content into the gradient shell', () => {
+    const fixture = TestBed.createComponent(PageHeaderHostComponent);
+    fixture.detectChanges();
+
+    expect(getGradient(fixture).textContent).toContain('Household overview');
+    expect(getGradient(fixture).textContent).toContain('Stay ahead of monthly spending');
   });
 });
 

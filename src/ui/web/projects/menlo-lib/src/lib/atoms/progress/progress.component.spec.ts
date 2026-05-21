@@ -60,6 +60,15 @@ describe('MnlProgressComponent', () => {
     expect(fill.style.width).toBe('100%');
   });
 
+  it('clamps negative values to zero', () => {
+    const fixture = TestBed.createComponent(ProgressHostComponent);
+    fixture.componentInstance.value = -25;
+    fixture.detectChanges();
+
+    expect(getProgress(fixture).getAttribute('aria-valuenow')).toBe('0');
+    expect(getFill(fixture).style.width).toBe('0%');
+  });
+
   it('supports the inline label layout while preserving the accessible name', () => {
     const fixture = TestBed.createComponent(ProgressHostComponent);
     fixture.componentInstance.labelPosition = 'inline';
@@ -68,6 +77,39 @@ describe('MnlProgressComponent', () => {
     expect(getProgress(fixture).getAttribute('aria-label')).toBe('Budget utilization');
     expect(fixture.nativeElement.textContent).toContain('Budget utilization');
   });
+
+  it('prefers the explicit aria label over the visible label', () => {
+    const fixture = TestBed.createComponent(ProgressHostComponent);
+    fixture.componentInstance.ariaLabel = 'Current utilization';
+    fixture.detectChanges();
+
+    expect(getProgress(fixture).getAttribute('aria-label')).toBe('Current utilization');
+  });
+
+  it('falls back to a default accessible label when no label text is provided', () => {
+    const fixture = TestBed.createComponent(ProgressHostComponent);
+    fixture.componentInstance.ariaLabel = ' ';
+    fixture.componentInstance.label = '';
+    fixture.detectChanges();
+
+    expect(getProgress(fixture).getAttribute('aria-label')).toBe('Progress');
+  });
+
+  it.each([
+    ['accent', 'bg-mnl-accent'],
+    ['success', 'bg-mnl-success'],
+    ['warning', 'bg-mnl-warning'],
+    ['error', 'bg-mnl-error'],
+  ] satisfies readonly [MnlProgressVariant, string][])(
+    'applies the %s fill variant classes',
+    (variant, expectedClass) => {
+      const fixture = TestBed.createComponent(ProgressHostComponent);
+      fixture.componentInstance.variant = variant;
+      fixture.detectChanges();
+
+      expect(getFill(fixture).className).toContain(expectedClass);
+    },
+  );
 });
 
 function getFill(fixture: { nativeElement: HTMLElement }): HTMLElement {

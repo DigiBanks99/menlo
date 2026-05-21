@@ -157,4 +157,22 @@ describe('BudgetWidgetComponent', () => {
     expect(button.disabled).toBe(false);
     expect(loadingElAfter).toBeNull();
   });
+
+  it.each([
+    ['Closed', 'neutral'],
+    ['Draft', 'warning'],
+  ] satisfies readonly [BudgetResponse['status'], string][])(
+    'maps %s budgets to the expected badge variant',
+    (status, variant) => {
+      const fixture = TestBed.createComponent(BudgetWidgetComponent);
+
+      expect(
+        (
+          fixture.componentInstance as unknown as {
+            statusVariant(status: BudgetResponse['status']): string;
+          }
+        ).statusVariant(status),
+      ).toBe(variant);
+    },
+  );
 });

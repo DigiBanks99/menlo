@@ -175,6 +175,32 @@ describe('BudgetItemFillForwardComponent', () => {
     expect(component.form.controls.amount.touched).toBe(true);
   });
 
+  it('returns the validation message only when the amount control is touched and invalid', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setValue(null);
+    component.form.controls.amount.updateValueAndValidity();
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBe('Amount is required and must be positive');
+  });
+
+  it('returns no validation message when the touched amount control is valid', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setValue(2500);
+    component.form.controls.amount.updateValueAndValidity();
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBeNull();
+  });
+
   it('amount can be edited before submitting', () => {
     const filledItems: BudgetItemDto[] = [mockBudgetItemDto({ month: 3 })];
     mockBudgetItemApi.fillForward.mockReturnValue(of(success(filledItems)));

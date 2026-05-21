@@ -269,6 +269,46 @@ describe('BudgetItemBulkCreateComponent', () => {
     expect(amountControl?.errors).toBeTruthy();
   });
 
+  it('surfaces API-specific amount errors through the amount helper', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setErrors({ api: 'Amount must be positive' });
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBe('Amount must be positive');
+  });
+
+  it('returns the default amount validation message for non-API amount errors', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setErrors({ min: true });
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBe('Amount must be positive');
+  });
+
+  it('surfaces required and API errors through the budget-flow helper', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.budgetFlow.markAsTouched();
+    component.form.controls.budgetFlow.setErrors({ required: true });
+    expect(
+      (component as unknown as { budgetFlowErrorMessage(): string | null }).budgetFlowErrorMessage(),
+    ).toBe('Required');
+
+    component.form.controls.budgetFlow.setErrors({ api: 'Choose a budget flow' });
+    expect(
+      (component as unknown as { budgetFlowErrorMessage(): string | null }).budgetFlowErrorMessage(),
+    ).toBe('Choose a budget flow');
+  });
+
   it('splitSumValidator handles null percent values', () => {
     const fixture = createComponent();
     const component = fixture.componentInstance;

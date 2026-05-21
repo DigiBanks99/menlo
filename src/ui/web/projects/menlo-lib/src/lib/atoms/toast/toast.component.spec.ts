@@ -32,16 +32,18 @@ class TestHostComponent {
 }
 
 describe('MnlToastComponent', () => {
+  let mediaQueryList: MediaQueryList & { setMatches(matches: boolean): void };
   let reducedMotion = false;
 
   beforeEach(async () => {
     reducedMotion = false;
     vi.useFakeTimers();
+    mediaQueryList = createMediaQueryList(reducedMotion);
 
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       writable: true,
-      value: vi.fn(() => createMediaQueryList(reducedMotion)),
+      value: vi.fn(() => mediaQueryList),
     });
 
     await TestBed.configureTestingModule({
@@ -129,6 +131,7 @@ describe('MnlToastComponent', () => {
 
   it('dismisses immediately when reduced motion is preferred', async () => {
     reducedMotion = true;
+    mediaQueryList = createMediaQueryList(reducedMotion);
 
     const fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
@@ -145,21 +148,169 @@ describe('MnlToastComponent', () => {
     expect(fixture.componentInstance.handleDismiss).toHaveBeenCalledTimes(1);
     expect(fixture.nativeElement.querySelector('[data-testid="mnl-toast"]')).toBeNull();
   });
+
+  it('does not schedule auto-dismiss when the duration is zero', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.componentInstance.duration = 0;
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(5000);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.handleDismiss).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('[data-testid="mnl-toast"]')).toBeTruthy();
+  });
+
+  it('waits for the transition duration before dismissing without reduced motion', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const dismissButton = fixture.nativeElement.querySelector(
+      '[data-testid="mnl-toast-dismiss"]',
+    ) as HTMLButtonElement;
+
+    dismissButton.click();
+    fixture.detectChanges();
+
+    expect(getToast(fixture).className).toContain('opacity-0');
+
+    vi.advanceTimersByTime(299);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.handleDismiss).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.handleDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores duplicate dismiss requests once dismissal has started', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const dismissButton = fixture.nativeElement.querySelector(
+      '[data-testid="mnl-toast-dismiss"]',
+    ) as HTMLButtonElement;
+
+    dismissButton.click();
+    dismissButton.click();
+    vi.advanceTimersByTime(transitionDuration());
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.handleDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('restarts the auto-dismiss timer when the duration input changes', async () => {
+    const fixture = TestBed.createComponent(MnlToastComponent);
+    const handleDismiss = vi.fn();
+    fixture.componentInstance.dismissed.subscribe(handleDismiss);
+    fixture.componentRef.setInput('message', 'Toast message');
+    fixture.componentRef.setInput('duration', 1000);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    fixture.componentRef.setInput('duration', 3000);
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(1000);
+    fixture.detectChanges();
+    expect(handleDismiss).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(2301);
+    fixture.detectChanges();
+    expect(handleDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes the reduced-motion listener on destroy', () => {
+    const removeEventListener = vi.spyOn(mediaQueryList, 'removeEventListener');
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+
+    fixture.destroy();
+
+    expect(removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+  });
+
+  it('skips reduced-motion registration when matchMedia is unavailable', async () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: undefined,
+    });
+
+    const fixture = TestBed.createComponent(MnlToastComponent);
+    const handleDismiss = vi.fn();
+    fixture.componentInstance.dismissed.subscribe(handleDismiss);
+    fixture.componentRef.setInput('message', 'Toast message');
+    fixture.componentRef.setInput('duration', 10);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(311);
+    fixture.detectChanges();
+
+    expect(handleDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('reacts to reduced-motion preference changes after creation', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    mediaQueryList.setMatches(true);
+
+    const dismissButton = fixture.nativeElement.querySelector(
+      '[data-testid="mnl-toast-dismiss"]',
+    ) as HTMLButtonElement;
+    dismissButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.handleDismiss).toHaveBeenCalledTimes(1);
+  });
 });
 
-function createMediaQueryList(reducedMotion: boolean): MediaQueryList {
-  return {
+function createMediaQueryList(reducedMotion: boolean): MediaQueryList & { setMatches(matches: boolean): void } {
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  const mediaQueryList = {
     matches: reducedMotion,
     media: '(prefers-reduced-motion: reduce)',
     onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
+    addEventListener: vi.fn((event: string, listener: (event: MediaQueryListEvent) => void) => {
+      if (event === 'change') {
+        listeners.add(listener);
+      }
+    }),
+    removeEventListener: vi.fn((event: string, listener: (event: MediaQueryListEvent) => void) => {
+      if (event === 'change') {
+        listeners.delete(listener);
+      }
+    }),
     addListener: vi.fn(),
     removeListener: vi.fn(),
     dispatchEvent: vi.fn(),
-  } as unknown as MediaQueryList;
+    setMatches(nextMatches: boolean) {
+      this.matches = nextMatches;
+      for (const listener of listeners) {
+        listener({ matches: nextMatches } as MediaQueryListEvent);
+      }
+    },
+  };
+
+  return mediaQueryList as MediaQueryList & { setMatches(matches: boolean): void };
 }
 
 function getToast(fixture: { nativeElement: HTMLElement }): HTMLElement {
   return fixture.nativeElement.querySelector('[data-testid="mnl-toast"]') as HTMLElement;
+}
+
+function transitionDuration(): number {
+  return 300;
 }

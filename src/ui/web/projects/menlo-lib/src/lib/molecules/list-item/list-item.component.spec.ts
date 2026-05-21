@@ -1,14 +1,22 @@
 import { Component, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MnlListItemComponent } from './list-item.component';
+import { MnlListItemButtonType, MnlListItemComponent } from './list-item.component';
 
 @Component({
   standalone: true,
   imports: [MnlListItemComponent],
   template: `
-    <mnl-list-item [href]="href" [interactive]="interactive" [selected]="selected">
+    <mnl-list-item
+      [href]="href"
+      [interactive]="interactive"
+      [rel]="rel"
+      [selected]="selected"
+      [target]="target"
+      [type]="type"
+      (pressed)="handlePressed($event)"
+    >
       <span mnlListItemLeading>AI</span>
       <div>
         <p class="title">Groceries</p>
@@ -21,7 +29,11 @@ import { MnlListItemComponent } from './list-item.component';
 class ListItemHostComponent {
   href: string | null = null;
   interactive = false;
+  rel: string | null = null;
   selected = false;
+  target: string | null = null;
+  type: MnlListItemButtonType = 'button';
+  readonly handlePressed = vi.fn();
 }
 
 describe('MnlListItemComponent', () => {
@@ -42,6 +54,15 @@ describe('MnlListItemComponent', () => {
     expect(getTrailing(fixture).textContent?.trim()).toBe('R 1 240');
   });
 
+  it('renders as a non-interactive div by default', () => {
+    const fixture = TestBed.createComponent(ListItemHostComponent);
+    fixture.detectChanges();
+
+    const item = getItem(fixture);
+    expect(item.tagName).toBe('DIV');
+    expect(item.dataset.interactive).toBe('false');
+  });
+
   it('renders as an accessible button with hover styling when interactive', () => {
     const fixture = TestBed.createComponent(ListItemHostComponent);
     fixture.componentInstance.interactive = true;
@@ -56,6 +77,19 @@ describe('MnlListItemComponent', () => {
     expect(item.className).toContain('cursor-pointer');
   });
 
+  it('emits the pressed event and applies the configured button type', () => {
+    const fixture = TestBed.createComponent(ListItemHostComponent);
+    fixture.componentInstance.interactive = true;
+    fixture.componentInstance.type = 'reset';
+    fixture.detectChanges();
+
+    const item = getItem(fixture) as HTMLButtonElement;
+    item.click();
+
+    expect(item.getAttribute('type')).toBe('reset');
+    expect(fixture.componentInstance.handlePressed).toHaveBeenCalledTimes(1);
+  });
+
   it('renders as a link when an href is supplied and highlights the selected state', () => {
     const fixture = TestBed.createComponent(ListItemHostComponent);
     fixture.componentInstance.href = '/budgets/current';
@@ -66,9 +100,29 @@ describe('MnlListItemComponent', () => {
 
     expect(item.tagName).toBe('A');
     expect(item.getAttribute('href')).toBe('/budgets/current');
+    expect(item.getAttribute('aria-current')).toBe('page');
     expect(item.dataset.selected).toBe('true');
     expect(item.className).toContain('bg-mnl-accent/10');
     expect(item.className).toContain('border-mnl-accent/25');
+  });
+
+  it('applies rel=\"noopener noreferrer\" for new-tab links by default', () => {
+    const fixture = TestBed.createComponent(ListItemHostComponent);
+    fixture.componentInstance.href = '/budgets/current';
+    fixture.componentInstance.target = '_blank';
+    fixture.detectChanges();
+
+    const item = getItem(fixture);
+    expect(item.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('preserves an explicit rel value for links', () => {
+    const fixture = TestBed.createComponent(ListItemHostComponent);
+    fixture.componentInstance.href = '/budgets/current';
+    fixture.componentInstance.rel = 'external';
+    fixture.detectChanges();
+
+    expect(getItem(fixture).getAttribute('rel')).toBe('external');
   });
 });
 
