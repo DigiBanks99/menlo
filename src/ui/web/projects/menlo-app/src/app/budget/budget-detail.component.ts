@@ -1,7 +1,23 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetApiService, BudgetCategoryResponse, BudgetResponse } from 'data-access-menlo-api';
-import { MoneyPipe } from 'menlo-lib';
+import {
+  MnlBadgeComponent,
+  type MnlBadgeVariant,
+  MnlButtonComponent,
+  MnlCardComponent,
+  MnlListItemComponent,
+  MnlPageHeaderComponent,
+  MnlToastService,
+  MoneyPipe,
+} from 'menlo-lib';
 import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 import { CategoryTreeComponent } from './categories/category-tree.component';
 import { BudgetItemsWorkspaceComponent } from './items/budget-items-workspace.component';
@@ -9,259 +25,214 @@ import { BudgetSummaryComponent } from './summary/budget-summary.component';
 
 @Component({
   selector: 'app-budget-detail',
-  imports: [MoneyPipe, CategoryTreeComponent, BudgetSummaryComponent, BudgetItemsWorkspaceComponent],
+  standalone: true,
+  imports: [
+    MoneyPipe,
+    MnlBadgeComponent,
+    MnlButtonComponent,
+    MnlCardComponent,
+    MnlListItemComponent,
+    MnlPageHeaderComponent,
+    CategoryTreeComponent,
+    BudgetSummaryComponent,
+    BudgetItemsWorkspaceComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="budget-detail">
+    <div class="mx-auto flex max-w-screen-2xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       @if (loading()) {
-        <div class="loading" data-testid="loading">Loading...</div>
+        <div
+          class="loading rounded-2xl border border-dashed border-mnl-border px-4 py-10 text-center text-sm text-mnl-subtext"
+          data-testid="loading"
+        >
+          Loading...
+        </div>
       }
 
       @if (error()) {
-        <div class="error-banner" data-testid="error-banner">{{ error() }}</div>
+        <div
+          class="error-banner rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+          data-testid="error-banner"
+        >
+          {{ error() }}
+        </div>
       }
 
-      @if (budget(); as b) {
-        <header class="budget-header">
-          <h1 data-testid="budget-year">{{ b.year }} Budget</h1>
-          <span class="status-badge status-{{ b.status.toLowerCase() }}" data-testid="status-badge">
-            {{ b.status }}
-          </span>
-        </header>
+      @if (budget(); as budget) {
+        <mnl-page-header>
+          <div
+            mnlPageHeaderHero
+            class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between"
+          >
+            <div class="space-y-3">
+              <p class="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+                Budget detail
+              </p>
+              <h1 class="m-0 text-4xl font-bold tracking-tight" data-testid="budget-year">
+                {{ budget.year }} Budget
+              </h1>
+              <p class="m-0 max-w-2xl text-sm leading-6 text-white/80">
+                Manage categories, line items, and year-over-year continuation from a single
+                responsive workspace.
+              </p>
+            </div>
 
-        @if (showCreateNextYear()) {
-          <div class="create-next-year">
-            <button
-              class="btn-primary"
-              data-testid="create-next-year-btn"
-              [disabled]="creatingNextYear()"
-              (click)="createNextYearBudget()"
-            >
-              {{ creatingNextYear() ? 'Creating...' : 'Create ' + nextYear() + ' Budget' }}
-            </button>
-            @if (createNextYearError()) {
-              <div class="error-banner" data-testid="create-next-year-error">
-                {{ createNextYearError() }}
+            <span data-testid="status-badge">
+              <mnl-badge [variant]="statusVariantFor(budget.status)">{{ budget.status }}</mnl-badge>
+            </span>
+          </div>
+
+          <mnl-card padding="lg">
+            <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div class="space-y-2">
+                <p class="m-0 text-sm font-semibold uppercase tracking-wide text-mnl-subtext">
+                  Total planned monthly
+                </p>
+                <div
+                  class="text-3xl font-bold tracking-tight text-mnl-text"
+                  data-testid="total-amount"
+                >
+                  {{ budget.totalPlannedMonthlyAmount | money }}
+                </div>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Review category allocations below and open a leaf category to manage its items.
+                </p>
               </div>
+
+              <div class="space-y-3">
+                @if (showCreateNextYear()) {
+                  <mnl-button
+                    testId="create-next-year-btn"
+                    type="button"
+                    [loading]="creatingNextYear()"
+                    (pressed)="createNextYearBudget()"
+                  >
+                    {{ creatingNextYear() ? 'Creating...' : 'Create ' + nextYear() + ' Budget' }}
+                  </mnl-button>
+                }
+
+                @if (createNextYearError()) {
+                  <div
+                    class="rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+                    data-testid="create-next-year-error"
+                  >
+                    {{ createNextYearError() }}
+                  </div>
+                }
+              </div>
+            </div>
+          </mnl-card>
+        </mnl-page-header>
+
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div class="space-y-6">
+            <mnl-card padding="lg">
+              <div mnlCardHeader class="space-y-1">
+                <h2 class="m-0 text-xl font-semibold text-mnl-text">Category management</h2>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Maintain the budget tree and choose a leaf category to work on its items.
+                </p>
+              </div>
+
+              <div data-testid="category-tree-section">
+                <app-category-tree [budgetId]="budget.id" />
+              </div>
+            </mnl-card>
+
+            <mnl-card padding="lg">
+              <div mnlCardHeader class="space-y-1">
+                <h2 class="m-0 text-xl font-semibold text-mnl-text">Leaf category items</h2>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Select a leaf category to open its line-item workspace.
+                </p>
+              </div>
+
+              <ul class="category-list space-y-3">
+                @for (cat of sortedCategories(); track cat.id) {
+                  <li
+                    class="category-item"
+                    [style.padding-left.rem]="getDepth(cat, budget.categories) * 1.5"
+                    [attr.data-testid]="'category-' + cat.id"
+                  >
+                    <mnl-list-item>
+                      <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="category-name text-sm font-semibold text-mnl-text">
+                            {{ cat.name }}
+                          </span>
+                          @if (getDepth(cat, budget.categories) >= 4) {
+                            <span
+                              class="depth-warning inline-flex items-center rounded-full bg-mnl-warning/20 px-2 py-0.5 text-xs font-semibold text-mnl-warning"
+                              title="Consider flattening this category structure"
+                              data-testid="depth-warning"
+                            >
+                              Deep branch
+                            </span>
+                          }
+                        </div>
+                        <p class="m-0 text-xs text-mnl-subtext">
+                          Depth {{ getDepth(cat, budget.categories) }} ·
+                          {{
+                            isLeafCategory(cat.id, budget.categories)
+                              ? 'Leaf category'
+                              : 'Parent category'
+                          }}
+                        </p>
+                      </div>
+
+                      <div mnlListItemTrailing>
+                        @if (isLeafCategory(cat.id, budget.categories)) {
+                          <mnl-button
+                            size="sm"
+                            type="button"
+                            [testId]="'btn-view-items-' + cat.id"
+                            [variant]="selectedCategoryId() === cat.id ? 'secondary' : 'ghost'"
+                            (pressed)="selectCategory(cat.id, cat.name)"
+                          >
+                            {{ selectedCategoryId() === cat.id ? 'Close items' : 'View items' }}
+                          </mnl-button>
+                        }
+                      </div>
+                    </mnl-list-item>
+                  </li>
+                }
+              </ul>
+            </mnl-card>
+
+            @if (selectedCategoryId()) {
+              <section class="items-workspace" data-testid="items-workspace-section">
+                <app-budget-items-workspace
+                  [budgetId]="budget.id"
+                  [categoryId]="selectedCategoryId()!"
+                  [categoryName]="selectedCategoryName()"
+                  data-testid="items-workspace"
+                />
+              </section>
             }
           </div>
-        }
 
-        <section class="categories">
-          <h2>Categories</h2>
-          <app-category-tree [budgetId]="b.id" data-testid="category-tree-section" />
-          <ul class="category-list">
-            @for (cat of sortedCategories(); track cat.id) {
-              <li
-                class="category-item"
-                [style.padding-left.rem]="getDepth(cat, b.categories) * 1.5"
-                [attr.data-testid]="'category-' + cat.id"
-              >
-                <span class="category-name">{{ cat.name }}</span>
-                @if (getDepth(cat, b.categories) >= 4) {
-                  <span
-                    class="depth-warning"
-                    title="Consider flattening this category structure"
-                    data-testid="depth-warning"
-                  >
-                    ⚠️
-                  </span>
-                }
-                @if (isLeafCategory(cat.id, b.categories)) {
-                  <button
-                    type="button"
-                    class="btn-view-items"
-                    (click)="selectCategory(cat.id, cat.name)"
-                    [class.active]="selectedCategoryId() === cat.id"
-                    [attr.data-testid]="'btn-view-items-' + cat.id"
-                  >
-                    {{ selectedCategoryId() === cat.id ? 'Close Items' : 'View Items' }}
-                  </button>
-                }
-              </li>
-            }
-          </ul>
-        </section>
+          <section class="summary" data-testid="budget-summary-section">
+            <mnl-card padding="lg">
+              <div mnlCardHeader class="space-y-1">
+                <h2 class="m-0 text-xl font-semibold text-mnl-text">Summary</h2>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Explore yearly or monthly rollups for the selected budget.
+                </p>
+              </div>
 
-        @if (selectedCategoryId()) {
-          <section class="items-workspace" data-testid="items-workspace-section">
-            <app-budget-items-workspace
-              [budgetId]="b.id"
-              [categoryId]="selectedCategoryId()!"
-              [categoryName]="selectedCategoryName()"
-              data-testid="items-workspace"
-            />
+              <app-budget-summary [budgetId]="budget.id" data-testid="budget-summary" />
+            </mnl-card>
           </section>
-        }
-
-        <section class="summary" data-testid="budget-summary-section">
-          <h2>Summary</h2>
-          <app-budget-summary [budgetId]="b.id" data-testid="budget-summary" />
-        </section>
-
-        <footer class="budget-footer">
-          <strong>Total planned monthly:</strong>
-          <span class="total-amount" data-testid="total-amount">
-            {{ b.totalPlannedMonthlyAmount | money }}
-          </span>
-        </footer>
+        </div>
       }
     </div>
   `,
-  styles: [
-    `
-      .budget-detail {
-        padding: 2rem;
-        max-width: 900px;
-        margin: 0 auto;
-      }
-
-      .budget-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .budget-header h1 {
-        margin: 0;
-        color: #2c3e50;
-      }
-
-      .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .status-draft {
-        background: #e9ecef;
-        color: #495057;
-      }
-      .status-active {
-        background: #d4edda;
-        color: #155724;
-      }
-      .status-closed {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .loading {
-        padding: 2rem;
-        text-align: center;
-        color: #6c757d;
-      }
-
-      .error-banner {
-        padding: 1rem;
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 6px;
-        color: #721c24;
-        margin-bottom: 1rem;
-      }
-
-      .create-next-year {
-        margin-bottom: 1.5rem;
-      }
-
-      .btn-primary {
-        padding: 0.5rem 1.25rem;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .btn-primary:hover:not(:disabled) {
-        background: #0056b3;
-      }
-      .btn-primary:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-
-      .category-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .category-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #f0f0f0;
-      }
-
-      .category-name {
-        flex: 1;
-        color: #333;
-      }
-
-      .category-amount {
-        font-weight: 500;
-        color: #495057;
-        min-width: 100px;
-        text-align: right;
-      }
-
-      .depth-warning {
-        font-size: 0.9rem;
-        cursor: help;
-      }
-
-      .btn-view-items {
-        margin-left: auto;
-        padding: 0.2rem 0.6rem;
-        background: transparent;
-        border: 1px solid #007bff;
-        color: #007bff;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-
-      .btn-view-items:hover,
-      .btn-view-items.active {
-        background: #007bff;
-        color: white;
-      }
-
-      .items-workspace {
-        margin-top: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        background: #fafafa;
-      }
-
-      .budget-footer {
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 2px solid #dee2e6;
-        display: flex;
-        gap: 0.75rem;
-        font-size: 1.1rem;
-      }
-
-      .total-amount {
-        color: #28a745;
-        font-weight: 600;
-      }
-    `,
-  ],
 })
 export class BudgetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly budgetApiService: BudgetApiService = inject(BudgetApiService);
+  private readonly budgetApiService = inject(BudgetApiService);
+  private readonly toastService = inject(MnlToastService);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -269,16 +240,19 @@ export class BudgetDetailComponent implements OnInit {
   readonly creatingNextYear = signal(false);
   readonly createNextYearError = signal<string | null>(null);
   readonly selectedCategoryId = signal<string | null>(null);
-  readonly selectedCategoryName = signal<string>('');
+  readonly selectedCategoryName = signal('');
 
   readonly currentYear = computed(() => new Date().getFullYear());
   readonly nextYear = computed(() => this.currentYear() + 1);
   readonly showCreateNextYear = computed(() => this.budget()?.year === this.currentYear());
 
   readonly sortedCategories = computed(() => {
-    const b = this.budget();
-    if (!b) return [];
-    return this.topologicalSort(b.categories);
+    const budget = this.budget();
+    if (!budget) {
+      return [];
+    }
+
+    return this.topologicalSort(budget.categories);
   });
 
   ngOnInit(): void {
@@ -305,56 +279,82 @@ export class BudgetDetailComponent implements OnInit {
       .subscribe((result: Result<BudgetResponse, ApiError>) => {
         this.creatingNextYear.set(false);
         if (isSuccess(result)) {
+          this.toastService.show(`Budget ${this.nextYear()} created.`, { variant: 'success' });
           this.router.navigate(['/budgets', result.value.id]);
         } else {
-          this.createNextYearError.set(getErrorMessage(result.error));
+          const message = getErrorMessage(result.error);
+          this.createNextYearError.set(message);
+          this.toastService.show(message, { variant: 'error' });
         }
       });
   }
 
   selectCategory(id: string, name: string): void {
-    const b = this.budget();
-    if (!b || !this.isLeafCategory(id, b.categories)) {
+    const budget = this.budget();
+    if (!budget || !this.isLeafCategory(id, budget.categories)) {
       return;
     }
+
     if (this.selectedCategoryId() === id) {
       this.selectedCategoryId.set(null);
       this.selectedCategoryName.set('');
-    } else {
-      this.selectedCategoryId.set(id);
-      this.selectedCategoryName.set(name);
+      return;
     }
+
+    this.selectedCategoryId.set(id);
+    this.selectedCategoryName.set(name);
   }
 
   isLeafCategory(categoryId: string, categories: BudgetCategoryResponse[]): boolean {
-    return !categories.some((c) => c.parentId === categoryId);
+    return !categories.some((category) => category.parentId === categoryId);
   }
 
   getDepth(category: BudgetCategoryResponse, categories: BudgetCategoryResponse[]): number {
     let depth = 0;
     let current = category;
+
     while (current.parentId) {
-      const parent = categories.find((c) => c.id === current.parentId);
-      if (!parent) break;
+      const parent = categories.find((candidate) => candidate.id === current.parentId);
+      if (!parent) {
+        break;
+      }
+
       current = parent;
       depth++;
     }
+
     return depth;
+  }
+
+  protected statusVariantFor(status: BudgetResponse['status']): MnlBadgeVariant {
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'Closed':
+        return 'error';
+      default:
+        return 'neutral';
+    }
   }
 
   private topologicalSort(categories: BudgetCategoryResponse[]): BudgetCategoryResponse[] {
     const result: BudgetCategoryResponse[] = [];
     const visited = new Set<string>();
 
-    const visit = (cat: BudgetCategoryResponse): void => {
-      if (visited.has(cat.id)) return;
-      visited.add(cat.id);
-      result.push(cat);
-      categories.filter((c) => c.parentId === cat.id).forEach(visit);
+    const visit = (category: BudgetCategoryResponse): void => {
+      if (visited.has(category.id)) {
+        return;
+      }
+
+      visited.add(category.id);
+      result.push(category);
+      categories.filter((candidate) => candidate.parentId === category.id).forEach(visit);
     };
 
-    categories.filter((c) => !c.parentId).forEach(visit);
-    categories.filter((c) => !visited.has(c.id)).forEach((c) => result.push(c));
+    categories.filter((candidate) => !candidate.parentId).forEach(visit);
+    categories
+      .filter((candidate) => !visited.has(candidate.id))
+      .forEach((candidate) => result.push(candidate));
 
     return result;
   }

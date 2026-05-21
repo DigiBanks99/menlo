@@ -45,7 +45,7 @@ const panelDialogOpenClasses = 'scale-100 opacity-100';
   },
   template: `
     @if (isRendered()) {
-      <div class="fixed inset-0 z-50" data-testid="mnl-panel-root">
+      <div class="fixed inset-0 z-50" [attr.data-testid]="rootTestId()">
         <div
           aria-hidden="true"
           [class]="backdropClasses()"
@@ -108,6 +108,7 @@ const panelDialogOpenClasses = 'scale-100 opacity-100';
 export class MnlPanelComponent {
   readonly open = input(false);
   readonly mode = input<MnlPanelMode>('auto');
+  readonly rootTestId = input('mnl-panel-root');
 
   readonly closed = output<void>();
 

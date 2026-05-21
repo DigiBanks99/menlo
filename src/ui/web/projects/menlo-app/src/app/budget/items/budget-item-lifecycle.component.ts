@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   BudgetItemApiService,
@@ -6,172 +6,124 @@ import {
   RealizeBudgetItemRequest,
   RecordBudgetItemSpentRequest,
 } from 'data-access-menlo-api';
+import {
+  MnlAmountInputComponent,
+  MnlButtonComponent,
+  MnlFormFieldComponent,
+  MnlToastService,
+} from 'menlo-lib';
 import { getErrorMessage, isSuccess } from 'shared-util';
 
 @Component({
   selector: 'app-budget-item-lifecycle',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MnlAmountInputComponent,
+    MnlButtonComponent,
+    MnlFormFieldComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="lifecycle-summary">
-      <div class="amount-group">
-        <span class="label">Planned</span>
-        <span class="value" data-testid="planned-amount"
-          >{{ item().plannedCurrency }} {{ item().plannedAmount }}</span
-        >
+    <div class="space-y-4">
+      <div class="grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl border border-mnl-border/70 bg-mnl-surface-alt/50 p-3">
+          <span class="label text-xs font-semibold uppercase tracking-wide text-mnl-subtext">
+            Planned
+          </span>
+          <span
+            class="value mt-1 block text-base font-semibold text-mnl-text"
+            data-testid="planned-amount"
+          >
+            {{ item().plannedCurrency }} {{ item().plannedAmount }}
+          </span>
+        </div>
+
+        @if (item().realizedAmount != null) {
+          <div class="rounded-2xl border border-mnl-border/70 bg-mnl-surface-alt/50 p-3">
+            <span class="label text-xs font-semibold uppercase tracking-wide text-mnl-subtext">
+              Realized
+            </span>
+            <span
+              class="value mt-1 block text-base font-semibold text-mnl-text"
+              data-testid="realized-amount"
+            >
+              {{ item().realizedCurrency }} {{ item().realizedAmount }}
+            </span>
+          </div>
+        }
+
+        @if (item().spentAmount != null) {
+          <div class="rounded-2xl border border-mnl-border/70 bg-mnl-surface-alt/50 p-3">
+            <span class="label text-xs font-semibold uppercase tracking-wide text-mnl-subtext">
+              Spent
+            </span>
+            <span
+              class="value mt-1 block text-base font-semibold text-mnl-text"
+              data-testid="spent-amount"
+            >
+              {{ item().spentCurrency }} {{ item().spentAmount }}
+            </span>
+          </div>
+        }
       </div>
-      @if (item().realizedAmount != null) {
-        <div class="amount-group">
-          <span class="label">Realized</span>
-          <span class="value" data-testid="realized-amount"
-            >{{ item().realizedCurrency }} {{ item().realizedAmount }}</span
+
+      @if (mode() === 'idle') {
+        <div class="actions flex flex-col gap-3 sm:flex-row">
+          <mnl-button
+            testId="btn-realize"
+            type="button"
+            variant="secondary"
+            (pressed)="startRealize()"
           >
+            Record bill
+          </mnl-button>
+          <mnl-button testId="btn-spent" type="button" variant="ghost" (pressed)="startSpent()">
+            Record payment
+          </mnl-button>
         </div>
-      }
-      @if (item().spentAmount != null) {
-        <div class="amount-group">
-          <span class="label">Spent</span>
-          <span class="value" data-testid="spent-amount"
-            >{{ item().spentCurrency }} {{ item().spentAmount }}</span
+      } @else {
+        <form [formGroup]="amountForm" (ngSubmit)="onSubmit()" class="amount-form space-y-4">
+          <mnl-form-field
+            inputId="amount"
+            label="{{ mode() === 'realize' ? 'Bill amount' : 'Payment amount' }}"
+            [error]="amountErrorMessage()"
           >
-        </div>
+            <mnl-amount-input id="amount" testId="input-amount" formControlName="amount" />
+          </mnl-form-field>
+
+          @if (error()) {
+            <div
+              class="rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+              data-testid="error-message"
+            >
+              {{ error() }}
+            </div>
+          }
+
+          <div class="form-actions flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <mnl-button
+              testId="btn-cancel"
+              type="button"
+              variant="ghost"
+              [disabled]="saving()"
+              (pressed)="cancel()"
+            >
+              Cancel
+            </mnl-button>
+
+            <mnl-button testId="btn-submit" type="submit" [loading]="saving()">
+              {{ saving() ? 'Saving...' : 'Save' }}
+            </mnl-button>
+          </div>
+        </form>
       }
     </div>
-
-    @if (mode() === 'idle') {
-      <div class="actions">
-        <button type="button" (click)="startRealize()" data-testid="btn-realize">
-          Record Bill
-        </button>
-        <button type="button" (click)="startSpent()" data-testid="btn-spent">Record Payment</button>
-      </div>
-    } @else {
-      <form [formGroup]="amountForm" (ngSubmit)="onSubmit()" class="amount-form">
-        <div class="form-field">
-          <label for="amount">{{ mode() === 'realize' ? 'Bill Amount' : 'Payment Amount' }}</label>
-          <input
-            id="amount"
-            type="number"
-            formControlName="amount"
-            step="0.01"
-            data-testid="input-amount"
-          />
-          @if (amountForm.controls.amount.touched && amountForm.controls.amount.errors) {
-            <span class="field-error">Amount is required and must be positive</span>
-          }
-        </div>
-        @if (error()) {
-          <div class="error-banner" data-testid="error-message">{{ error() }}</div>
-        }
-        <div class="form-actions">
-          <button type="submit" [disabled]="saving()" data-testid="btn-submit">
-            {{ saving() ? 'Saving...' : 'Save' }}
-          </button>
-          <button type="button" (click)="cancel()" data-testid="btn-cancel">Cancel</button>
-        </div>
-      </form>
-    }
   `,
-  styles: [
-    `
-      .lifecycle-summary {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .amount-group {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .amount-group .label {
-        font-size: 0.75rem;
-        color: #6c757d;
-        text-transform: uppercase;
-      }
-
-      .amount-group .value {
-        font-weight: 600;
-      }
-
-      .actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .actions button {
-        padding: 0.4rem 0.8rem;
-        border: 1px solid #007bff;
-        background: white;
-        color: #007bff;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .actions button:hover {
-        background: #007bff;
-        color: white;
-      }
-
-      .amount-form {
-        display: flex;
-        align-items: flex-end;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-
-      .form-field {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .form-field input {
-        padding: 0.4rem 0.6rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        width: 150px;
-      }
-
-      .field-error {
-        color: #dc3545;
-        font-size: 0.8rem;
-      }
-
-      .error-banner {
-        color: #dc3545;
-        font-size: 0.85rem;
-      }
-
-      .form-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .form-actions button {
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .form-actions button[type='submit'] {
-        background: #28a745;
-        color: white;
-        border: none;
-      }
-
-      .form-actions button[type='submit']:disabled {
-        background: #6c757d;
-      }
-
-      .form-actions button[type='button'] {
-        background: white;
-        border: 1px solid #ced4da;
-      }
-    `,
-  ],
 })
 export class BudgetItemLifecycleComponent {
   private readonly budgetItemApi = inject(BudgetItemApiService);
+  private readonly toastService = inject(MnlToastService);
 
   readonly budgetId = input.required<string>();
   readonly categoryId = input.required<string>();
@@ -210,6 +162,8 @@ export class BudgetItemLifecycleComponent {
     }
 
     this.saving.set(true);
+    this.error.set(null);
+
     const amount = this.amountForm.controls.amount.value!;
     const request: RealizeBudgetItemRequest | RecordBudgetItemSpentRequest = {
       amount,
@@ -234,12 +188,26 @@ export class BudgetItemLifecycleComponent {
     operation$.subscribe((result) => {
       this.saving.set(false);
       if (isSuccess(result)) {
+        this.toastService.show(this.mode() === 'realize' ? 'Bill recorded.' : 'Payment recorded.', {
+          variant: 'success',
+        });
         this.updated.emit(result.value);
         this.mode.set('idle');
       } else {
-        this.error.set(getErrorMessage(result.error));
+        const message = getErrorMessage(result.error);
+        this.error.set(message);
+        this.toastService.show(message, { variant: 'error' });
       }
     });
+  }
+
+  protected amountErrorMessage(): string | null {
+    const control = this.amountForm.controls.amount;
+    if (!control.touched || !control.errors) {
+      return null;
+    }
+
+    return 'Amount is required and must be positive';
   }
 
   private resetForm(): void {

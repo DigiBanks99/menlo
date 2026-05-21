@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -17,6 +26,16 @@ import {
   UpdateBudgetItemRequest,
 } from 'data-access-menlo-api';
 import {
+  MnlAmountInputComponent,
+  MnlButtonComponent,
+  MnlFormFieldComponent,
+  MnlFormLayoutComponent,
+  MnlInputComponent,
+  type MnlSelectOption,
+  MnlSelectComponent,
+  MnlToastService,
+} from 'menlo-lib';
+import {
   ApiError,
   getErrorMessage,
   hasValidationErrors,
@@ -34,341 +53,283 @@ type AttributionSplitGroup = FormGroup<{
   percent: FormControl<number>;
 }>;
 
+const budgetFlowOptions: readonly MnlSelectOption[] = [
+  { value: 'Income', label: 'Income' },
+  { value: 'Expense', label: 'Expense' },
+];
+
+const attributionOptions: readonly MnlSelectOption[] = [
+  { value: 'Main', label: 'Main' },
+  { value: 'Rental', label: 'Rental' },
+  { value: 'ServiceProvider', label: 'Service Provider' },
+];
+
 function splitSumValidator(control: AbstractControl): ValidationErrors | null {
   const array = control as FormArray;
   const sum = array.controls.reduce((acc, group) => {
     const percent = (group as FormGroup).controls['percent']?.value ?? 0;
     return acc + percent;
   }, 0);
+
   return Math.abs(sum - 100) < 0.001 ? null : { splitSum: { actual: sum, required: 100 } };
 }
 
 @Component({
   selector: 'app-budget-item-form',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MnlAmountInputComponent,
+    MnlButtonComponent,
+    MnlFormFieldComponent,
+    MnlFormLayoutComponent,
+    MnlInputComponent,
+    MnlSelectComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form
-      [formGroup]="form"
-      (ngSubmit)="onSubmit()"
-      class="budget-item-form"
-      data-testid="budget-item-form"
-    >
-      @if (isCreateMode()) {
-        <div class="form-field">
-          <label for="month">Month *</label>
-          <input
-            id="month"
-            type="number"
-            min="1"
-            max="12"
-            formControlName="month"
-            data-testid="input-month"
-          />
-          @if (form.controls.month.touched && form.controls.month.errors) {
-            <span class="field-error" data-testid="error-month">Month is required (1–12)</span>
-          }
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="block" data-testid="budget-item-form">
+      <mnl-form-layout>
+        <div mnlFormTitle class="space-y-2">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-accent">
+            Budget item
+          </p>
+          <h3 class="m-0 text-2xl font-bold tracking-tight text-mnl-text">
+            {{ isCreateMode() ? 'Add a budget item' : 'Edit budget item' }}
+          </h3>
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Capture a single month line item with the same validation and API behavior as before.
+          </p>
         </div>
 
-        <div class="form-field">
-          <label for="budgetFlow">Budget Flow *</label>
-          <select id="budgetFlow" formControlName="budgetFlow" data-testid="select-budgetFlow">
-            <option value="">-- Select --</option>
-            <option value="Income">Income</option>
-            <option value="Expense">Expense</option>
-          </select>
-          @if (form.controls.budgetFlow.touched && form.controls.budgetFlow.errors) {
-            <span class="field-error" data-testid="error-budgetFlow">Budget flow is required</span>
-          }
-        </div>
-      }
+        <div class="space-y-6">
+          @if (isCreateMode()) {
+            <section class="grid gap-4 md:grid-cols-2">
+              <mnl-form-field
+                errorTestId="error-month"
+                inputId="month"
+                label="Month"
+                [error]="monthErrorMessage()"
+                [required]="true"
+              >
+                <mnl-input id="month" testId="input-month" type="number" formControlName="month" />
+              </mnl-form-field>
 
-      <div class="form-field">
-        <label for="plannedAmount">Planned Amount *</label>
-        <input
-          id="plannedAmount"
-          type="number"
-          formControlName="plannedAmount"
-          data-testid="input-plannedAmount"
-        />
-        @if (form.controls.plannedAmount.touched && form.controls.plannedAmount.errors) {
-          <span class="field-error" data-testid="error-plannedAmount">
-            @if (form.controls.plannedAmount.errors['required']) {
-              Planned amount is required
-            } @else if (form.controls.plannedAmount.errors['api']) {
-              {{ form.controls.plannedAmount.errors['api'] }}
+              <mnl-form-field
+                errorTestId="error-budgetFlow"
+                inputId="budgetFlow"
+                label="Budget flow"
+                [error]="budgetFlowErrorMessage()"
+                [required]="true"
+              >
+                <mnl-select
+                  id="budgetFlow"
+                  placeholder="-- Select --"
+                  testId="select-budgetFlow"
+                  [options]="budgetFlowOptions"
+                  formControlName="budgetFlow"
+                />
+              </mnl-form-field>
+            </section>
+          }
+
+          <section class="grid gap-4 md:grid-cols-3">
+            <mnl-form-field
+              errorTestId="error-plannedAmount"
+              inputId="plannedAmount"
+              label="Planned amount"
+              [error]="plannedAmountErrorMessage()"
+              [required]="true"
+            >
+              <mnl-amount-input
+                id="plannedAmount"
+                testId="input-plannedAmount"
+                formControlName="plannedAmount"
+              />
+            </mnl-form-field>
+
+            <mnl-form-field inputId="realizedAmount" label="Realized amount">
+              <mnl-amount-input
+                id="realizedAmount"
+                testId="input-realizedAmount"
+                formControlName="realizedAmount"
+              />
+            </mnl-form-field>
+
+            <mnl-form-field inputId="spentAmount" label="Spent amount">
+              <mnl-amount-input
+                id="spentAmount"
+                testId="input-spentAmount"
+                formControlName="spentAmount"
+              />
+            </mnl-form-field>
+          </section>
+
+          <section
+            class="space-y-4 rounded-2xl border border-mnl-border/80 bg-mnl-surface-alt/40 p-4"
+            formArrayName="payerSplit"
+          >
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="space-y-1">
+                <h4 class="m-0 text-sm font-semibold text-mnl-text">Payer split</h4>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Keep the payer allocation at exactly 100%.
+                </p>
+              </div>
+
+              <span [class]="splitTotalClasses(payerSplitTotal())" data-testid="payer-split-total">
+                {{ payerSplitTotal() }}%
+              </span>
+            </div>
+
+            <div class="space-y-3">
+              @for (payer of payerSplitControls; track $index) {
+                <div
+                  class="grid gap-3 rounded-2xl border border-mnl-border/70 bg-mnl-surface p-3 md:grid-cols-[minmax(0,1fr)_7rem_auto]"
+                  [formGroupName]="$index"
+                >
+                  <mnl-input
+                    placeholder="User ID"
+                    [testId]="'input-payer-userId-' + $index"
+                    formControlName="userId"
+                  />
+
+                  <mnl-input
+                    placeholder="%"
+                    type="number"
+                    [testId]="'input-payer-percent-' + $index"
+                    formControlName="percent"
+                  />
+
+                  <mnl-button
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                    [testId]="'btn-remove-payer-' + $index"
+                    (pressed)="removePayerSplit($index)"
+                  >
+                    Remove
+                  </mnl-button>
+                </div>
+              }
+            </div>
+
+            <mnl-button
+              size="sm"
+              type="button"
+              variant="secondary"
+              testId="btn-add-payer"
+              (pressed)="addPayerSplit()"
+            >
+              Add payer
+            </mnl-button>
+
+            @if (form.controls.payerSplit.errors?.['splitSum']) {
+              <p class="m-0 text-sm font-medium text-mnl-error" data-testid="error-payerSplit">
+                Payer split must total 100% (currently {{ payerSplitTotal() }}%)
+              </p>
             }
-          </span>
-        }
-      </div>
+          </section>
 
-      <div class="form-field">
-        <label for="realizedAmount">Realized Amount</label>
-        <input
-          id="realizedAmount"
-          type="number"
-          formControlName="realizedAmount"
-          data-testid="input-realizedAmount"
-        />
-      </div>
-
-      <div class="form-field">
-        <label for="spentAmount">Spent Amount</label>
-        <input
-          id="spentAmount"
-          type="number"
-          formControlName="spentAmount"
-          data-testid="input-spentAmount"
-        />
-      </div>
-
-      <fieldset class="split-section" formArrayName="payerSplit">
-        <legend>
-          Payer Split
-          <span
-            class="split-total"
-            [class.invalid]="payerSplitTotal() !== 100"
-            data-testid="payer-split-total"
+          <section
+            class="space-y-4 rounded-2xl border border-mnl-border/80 bg-mnl-surface-alt/40 p-4"
+            formArrayName="attributionSplit"
           >
-            ({{ payerSplitTotal() }}%)
-          </span>
-        </legend>
-        @for (payer of payerSplitControls; track $index) {
-          <div class="split-row" [formGroupName]="$index">
-            <input
-              placeholder="User ID"
-              formControlName="userId"
-              [attr.data-testid]="'input-payer-userId-' + $index"
-            />
-            <input
-              type="number"
-              placeholder="%"
-              formControlName="percent"
-              [attr.data-testid]="'input-payer-percent-' + $index"
-            />
-            <button
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="space-y-1">
+                <h4 class="m-0 text-sm font-semibold text-mnl-text">Attribution split</h4>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  Split the amount across Menlo attribution buckets.
+                </p>
+              </div>
+
+              <span
+                [class]="splitTotalClasses(attributionSplitTotal())"
+                data-testid="attribution-split-total"
+              >
+                {{ attributionSplitTotal() }}%
+              </span>
+            </div>
+
+            <div class="space-y-3">
+              @for (attr of attributionSplitControls; track $index) {
+                <div
+                  class="grid gap-3 rounded-2xl border border-mnl-border/70 bg-mnl-surface p-3 md:grid-cols-[minmax(0,1fr)_7rem_auto]"
+                  [formGroupName]="$index"
+                >
+                  <mnl-select
+                    placeholder="-- Select --"
+                    [options]="attributionOptions"
+                    [testId]="'select-attribution-' + $index"
+                    formControlName="attribution"
+                  />
+
+                  <mnl-input
+                    placeholder="%"
+                    type="number"
+                    [testId]="'input-attribution-percent-' + $index"
+                    formControlName="percent"
+                  />
+
+                  <mnl-button
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                    [testId]="'btn-remove-attribution-' + $index"
+                    (pressed)="removeAttributionSplit($index)"
+                  >
+                    Remove
+                  </mnl-button>
+                </div>
+              }
+            </div>
+
+            <mnl-button
+              size="sm"
               type="button"
-              class="btn-remove"
-              (click)="removePayerSplit($index)"
-              [attr.data-testid]="'btn-remove-payer-' + $index"
+              variant="secondary"
+              testId="btn-add-attribution"
+              (pressed)="addAttributionSplit()"
             >
-              Remove
-            </button>
-          </div>
-        }
-        <button type="button" class="btn-add" (click)="addPayerSplit()" data-testid="btn-add-payer">
-          Add Payer
-        </button>
-        @if (form.controls.payerSplit.errors?.['splitSum']) {
-          <span class="field-error" data-testid="error-payerSplit">
-            Payer split must total 100% (currently {{ payerSplitTotal() }}%)
-          </span>
-        }
-      </fieldset>
+              Add attribution
+            </mnl-button>
 
-      <fieldset class="split-section" formArrayName="attributionSplit">
-        <legend>
-          Attribution Split
-          <span
-            class="split-total"
-            [class.invalid]="attributionSplitTotal() !== 100"
-            data-testid="attribution-split-total"
-          >
-            ({{ attributionSplitTotal() }}%)
-          </span>
-        </legend>
-        @for (attr of attributionSplitControls; track $index) {
-          <div class="split-row" [formGroupName]="$index">
-            <select formControlName="attribution" [attr.data-testid]="'select-attribution-' + $index">
-              <option value="">-- Select --</option>
-              <option value="Main">Main</option>
-              <option value="Rental">Rental</option>
-              <option value="ServiceProvider">ServiceProvider</option>
-            </select>
-            <input
-              type="number"
-              placeholder="%"
-              formControlName="percent"
-              [attr.data-testid]="'input-attribution-percent-' + $index"
-            />
-            <button
-              type="button"
-              class="btn-remove"
-              (click)="removeAttributionSplit($index)"
-              [attr.data-testid]="'btn-remove-attribution-' + $index"
+            @if (form.controls.attributionSplit.errors?.['splitSum']) {
+              <p
+                class="m-0 text-sm font-medium text-mnl-error"
+                data-testid="error-attributionSplit"
+              >
+                Attribution split must total 100% (currently {{ attributionSplitTotal() }}%)
+              </p>
+            }
+          </section>
+
+          @if (formError()) {
+            <div
+              class="rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+              data-testid="form-error"
             >
-              Remove
-            </button>
-          </div>
-        }
-        <button
-          type="button"
-          class="btn-add"
-          (click)="addAttributionSplit()"
-          data-testid="btn-add-attribution"
-        >
-          Add Attribution
-        </button>
-        @if (form.controls.attributionSplit.errors?.['splitSum']) {
-          <span class="field-error" data-testid="error-attributionSplit">
-            Attribution split must total 100% (currently {{ attributionSplitTotal() }}%)
-          </span>
-        }
-      </fieldset>
+              {{ formError() }}
+            </div>
+          }
+        </div>
 
-      @if (formError()) {
-        <div class="error-banner" data-testid="form-error">{{ formError() }}</div>
-      }
+        <div mnlFormActions class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <mnl-button type="button" variant="ghost" testId="btn-cancel" (pressed)="onCancel()">
+            Cancel
+          </mnl-button>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-primary" [disabled]="saving()" data-testid="btn-save">
-          {{ saving() ? 'Saving...' : isCreateMode() ? 'Create' : 'Update' }}
-        </button>
-        <button type="button" class="btn-secondary" (click)="onCancel()" data-testid="btn-cancel">
-          Cancel
-        </button>
-      </div>
+          <mnl-button type="submit" [loading]="saving()" testId="btn-save">
+            {{ saving() ? 'Saving...' : isCreateMode() ? 'Create' : 'Update' }}
+          </mnl-button>
+        </div>
+      </mnl-form-layout>
     </form>
   `,
-  styles: [
-    `
-      .budget-item-form {
-        padding: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        background: #f8f9fa;
-        margin: 0.5rem 0;
-      }
-
-      .form-field {
-        margin-bottom: 0.75rem;
-      }
-
-      .form-field label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-        font-size: 0.875rem;
-      }
-
-      .form-field input {
-        width: 100%;
-        padding: 0.4rem 0.6rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 0.9rem;
-      }
-
-      .field-error {
-        color: #dc3545;
-        font-size: 0.8rem;
-        margin-top: 0.2rem;
-        display: block;
-      }
-
-      .error-banner {
-        padding: 0.75rem;
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        color: #721c24;
-        margin-bottom: 0.75rem;
-        font-size: 0.875rem;
-      }
-
-      .split-section {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .split-section legend {
-        font-weight: 500;
-        font-size: 0.875rem;
-        padding: 0 0.25rem;
-      }
-
-      .split-total {
-        font-weight: normal;
-        color: #28a745;
-      }
-
-      .split-total.invalid {
-        color: #dc3545;
-      }
-
-      .split-row {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-        align-items: center;
-      }
-
-      .split-row input,
-      .split-row select {
-        flex: 1;
-        padding: 0.3rem 0.5rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 0.85rem;
-      }
-
-      .split-row input[type='number'] {
-        max-width: 80px;
-      }
-
-      .btn-add {
-        padding: 0.3rem 0.75rem;
-        background: #e9ecef;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-      }
-
-      .btn-remove {
-        padding: 0.2rem 0.5rem;
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        color: #721c24;
-      }
-
-      .form-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .btn-primary {
-        padding: 0.4rem 1rem;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .btn-primary:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-
-      .btn-secondary {
-        padding: 0.4rem 1rem;
-        background: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-    `,
-  ],
 })
 export class BudgetItemFormComponent implements OnInit {
   private readonly budgetItemApi = inject(BudgetItemApiService);
+  private readonly toastService = inject(MnlToastService);
 
   readonly budgetId = input.required<string>();
   readonly categoryId = input.required<string>();
@@ -381,6 +342,8 @@ export class BudgetItemFormComponent implements OnInit {
   readonly formError = signal<string | null>(null);
 
   readonly isCreateMode = computed(() => this.item() == null);
+  protected readonly attributionOptions = attributionOptions;
+  protected readonly budgetFlowOptions = budgetFlowOptions;
 
   readonly form = new FormGroup({
     month: new FormControl<number>(1, {
@@ -443,6 +406,7 @@ export class BudgetItemFormComponent implements OnInit {
       for (const payer of existing.payerSplit) {
         this.addPayerSplit(payer.userId, payer.percent);
       }
+
       for (const attr of existing.attributionSplit) {
         this.addAttributionSplit(attr.attribution, attr.percent);
       }
@@ -497,13 +461,65 @@ export class BudgetItemFormComponent implements OnInit {
     const existing = this.item();
     if (existing) {
       this.doUpdate(existing);
-    } else {
-      this.doCreate();
+      return;
     }
+
+    this.doCreate();
   }
 
   onCancel(): void {
     this.cancelled.emit();
+  }
+
+  protected budgetFlowErrorMessage(): string | null {
+    return this.controlErrorMessage(this.form.controls.budgetFlow, {
+      api: '',
+      required: 'Budget flow is required',
+    });
+  }
+
+  protected monthErrorMessage(): string | null {
+    const control = this.form.controls.month;
+    if (!control.touched || !control.errors) {
+      return null;
+    }
+
+    return 'Month is required (1–12)';
+  }
+
+  protected plannedAmountErrorMessage(): string | null {
+    return this.controlErrorMessage(this.form.controls.plannedAmount, {
+      api: '',
+      required: 'Planned amount is required',
+    });
+  }
+
+  protected splitTotalClasses(total: number): string {
+    const baseClasses = 'inline-flex rounded-full px-3 py-1 text-xs font-semibold';
+    return total === 100
+      ? `${baseClasses} bg-mnl-success/20 text-mnl-success`
+      : `${baseClasses} bg-mnl-error/15 text-mnl-error`;
+  }
+
+  private controlErrorMessage(
+    control: AbstractControl,
+    messages: Partial<Record<string, string>>,
+  ): string | null {
+    if (!control.touched || !control.errors) {
+      return null;
+    }
+
+    if (typeof control.errors['api'] === 'string') {
+      return control.errors['api'] as string;
+    }
+
+    for (const [key, message] of Object.entries(messages)) {
+      if (key !== 'api' && control.errors[key]) {
+        return message ?? 'Invalid value';
+      }
+    }
+
+    return 'Invalid value';
   }
 
   private doCreate(): void {
@@ -516,11 +532,13 @@ export class BudgetItemFormComponent implements OnInit {
       payerSplit: v.payerSplit as PayerAllocationDto[],
       attributionSplit: v.attributionSplit as unknown as AttributionAllocationDto[],
     };
+
     this.budgetItemApi
       .createItem(this.budgetId(), this.categoryId(), request)
       .subscribe((result) => {
         this.saving.set(false);
         if (isSuccess(result)) {
+          this.toastService.show('Budget item created.', { variant: 'success' });
           this.saved.emit(result.value);
         } else {
           this.handleError(result.error);
@@ -535,6 +553,7 @@ export class BudgetItemFormComponent implements OnInit {
       .subscribe((result) => {
         this.saving.set(false);
         if (isSuccess(result)) {
+          this.toastService.show('Budget item updated.', { variant: 'success' });
           this.saved.emit(result.value);
         } else {
           this.handleError(result.error);
@@ -550,10 +569,12 @@ export class BudgetItemFormComponent implements OnInit {
       request.plannedAmount = v.plannedAmount;
       request.plannedCurrency = 'ZAR';
     }
+
     if (v.realizedAmount !== existing.realizedAmount) {
       request.realizedAmount = v.realizedAmount ?? undefined;
       request.realizedCurrency = v.realizedAmount != null ? 'ZAR' : undefined;
     }
+
     if (v.spentAmount !== existing.spentAmount) {
       request.spentAmount = v.spentAmount ?? undefined;
       request.spentCurrency = v.spentAmount != null ? 'ZAR' : undefined;
@@ -573,14 +594,19 @@ export class BudgetItemFormComponent implements OnInit {
   }
 
   private handleError(error: ApiError): void {
+    const message = getErrorMessage(error);
     if (hasValidationErrors(error)) {
       mapValidationErrorsToForm(error, this.form);
+      this.toastService.show('Please fix the highlighted validation errors.', {
+        variant: 'warning',
+      });
     } else {
-      this.formError.set(getErrorMessage(error));
+      this.formError.set(message);
+      this.toastService.show(message, { variant: 'error' });
     }
   }
 
   private notifySplitChange(): void {
-    this._splitChange.update((v) => v + 1);
+    this._splitChange.update((value) => value + 1);
   }
 }

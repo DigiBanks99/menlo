@@ -1,104 +1,81 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { BudgetItemApiService } from 'data-access-menlo-api';
+import { MnlButtonComponent, MnlPanelComponent, MnlToastService } from 'menlo-lib';
 import { getErrorMessage, isSuccess } from 'shared-util';
 
 @Component({
   selector: 'app-budget-item-delete',
-  imports: [],
+  standalone: true,
+  imports: [MnlButtonComponent, MnlPanelComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (!confirming()) {
-      <button type="button" class="delete-btn" (click)="askConfirmation()" data-testid="btn-delete">
+      <mnl-button
+        size="sm"
+        testId="btn-delete"
+        type="button"
+        variant="destructive"
+        (pressed)="askConfirmation()"
+      >
         Delete
-      </button>
+      </mnl-button>
     } @else {
-      <div class="confirm-prompt">
-        <span>Are you sure?</span>
-        <button
-          type="button"
-          class="confirm-yes"
-          (click)="confirmDelete()"
-          [disabled]="deleting()"
-          data-testid="btn-confirm-yes"
+      <div>
+        <mnl-panel
+          [open]="confirming()"
+          mode="dialog"
+          rootTestId="delete-confirmation-panel"
+          (closed)="cancelDelete()"
         >
-          {{ deleting() ? 'Deleting...' : 'Yes, delete' }}
-        </button>
-        <button
-          type="button"
-          class="confirm-no"
-          (click)="cancelDelete()"
-          [disabled]="deleting()"
-          data-testid="btn-confirm-no"
-        >
-          No
-        </button>
+          <div mnlPanelHeader class="space-y-1">
+            <h3 class="m-0 text-xl font-semibold text-mnl-text">Delete budget item?</h3>
+            <p class="m-0 text-sm text-mnl-subtext">
+              This action cannot be undone from the current workspace.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <p class="m-0 text-sm leading-6 text-mnl-text">Are you sure?</p>
+
+            @if (error()) {
+              <div
+                class="rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+                data-testid="delete-error"
+              >
+                {{ error() }}
+              </div>
+            }
+
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <mnl-button
+                testId="btn-confirm-no"
+                type="button"
+                variant="ghost"
+                [disabled]="deleting()"
+                (pressed)="cancelDelete()"
+              >
+                No
+              </mnl-button>
+
+              <mnl-button
+                testId="btn-confirm-yes"
+                type="button"
+                variant="destructive"
+                [loading]="deleting()"
+                (pressed)="confirmDelete()"
+              >
+                {{ deleting() ? 'Deleting...' : 'Yes, delete' }}
+              </mnl-button>
+            </div>
+          </div>
+        </mnl-panel>
       </div>
-      @if (error()) {
-        <div class="error-message" data-testid="delete-error">{{ error() }}</div>
-      }
     }
   `,
-  styles: [
-    `
-      .delete-btn {
-        padding: 0.3rem 0.6rem;
-        border: 1px solid #dc3545;
-        background: white;
-        color: #dc3545;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.85rem;
-      }
-
-      .delete-btn:hover {
-        background: #dc3545;
-        color: white;
-      }
-
-      .confirm-prompt {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-      }
-
-      .confirm-prompt span {
-        color: #dc3545;
-        font-weight: 500;
-      }
-
-      .confirm-yes {
-        padding: 0.25rem 0.5rem;
-        border: none;
-        background: #dc3545;
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-
-      .confirm-yes:disabled {
-        background: #6c757d;
-      }
-
-      .confirm-no {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid #ced4da;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-
-      .error-message {
-        color: #dc3545;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-      }
-    `,
-  ],
 })
 export class BudgetItemDeleteComponent {
   private readonly budgetItemApi = inject(BudgetItemApiService);
+  private readonly toastService = inject(MnlToastService);
 
   readonly budgetId = input.required<string>();
   readonly categoryId = input.required<string>();
@@ -115,6 +92,10 @@ export class BudgetItemDeleteComponent {
   }
 
   cancelDelete(): void {
+    if (this.deleting()) {
+      return;
+    }
+
     this.confirming.set(false);
     this.error.set(null);
   }
@@ -126,9 +107,13 @@ export class BudgetItemDeleteComponent {
       .subscribe((result) => {
         this.deleting.set(false);
         if (isSuccess(result)) {
+          this.toastService.show('Budget item deleted.', { variant: 'success' });
+          this.confirming.set(false);
           this.deleted.emit();
         } else {
-          this.error.set(getErrorMessage(result.error));
+          const message = getErrorMessage(result.error);
+          this.error.set(message);
+          this.toastService.show(message, { variant: 'error' });
         }
       });
   }

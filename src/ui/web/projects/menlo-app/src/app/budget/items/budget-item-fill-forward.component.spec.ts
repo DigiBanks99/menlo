@@ -35,6 +35,13 @@ function mockBudgetItemDto(overrides: Partial<BudgetItemDto> = {}): BudgetItemDt
   };
 }
 
+function formatAmount(value: number): string {
+  return new Intl.NumberFormat('en-ZA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 describe('BudgetItemFillForwardComponent', () => {
   let mockBudgetItemApi: {
     fillForward: ReturnType<typeof vi.fn>;
@@ -178,7 +185,7 @@ describe('BudgetItemFillForwardComponent', () => {
     ) as HTMLInputElement;
 
     // Default should be the item's planned amount
-    expect(amountInput.value).toBe('2000');
+    expect(amountInput.value).toBe(formatAmount(2000));
 
     // Change it
     amountInput.value = '3500';
