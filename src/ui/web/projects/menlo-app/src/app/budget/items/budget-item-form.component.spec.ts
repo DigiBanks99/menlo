@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormControl } from '@angular/forms';
 import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -340,6 +341,63 @@ describe('BudgetItemFormComponent', () => {
       ) as HTMLButtonElement;
       expect(btn.disabled).toBe(true);
       expect(btn.textContent?.trim()).toContain('Saving...');
+    });
+
+    it('returns the month validation message when the create-mode month field is touched and invalid', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const control = fixture.componentInstance.form.controls.month;
+      control.markAsTouched();
+      control.setValue(null);
+      control.updateValueAndValidity();
+
+      expect(
+        (
+          fixture.componentInstance as unknown as {
+            monthErrorMessage(): string | null;
+          }
+        ).monthErrorMessage(),
+      ).toBe('Month is required (1–12)');
+    });
+
+    it('surfaces mapped and fallback control messages for field helpers', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      const component = fixture.componentInstance as unknown as {
+        controlErrorMessage(
+          control: FormControl,
+          messages: Partial<Record<string, string | undefined>>,
+        ): string | null;
+      };
+
+      const requiredControl = new FormControl<number | null>(null);
+      requiredControl.markAsTouched();
+      requiredControl.setErrors({ required: true });
+      expect(
+        component.controlErrorMessage(requiredControl, {
+          api: '',
+          required: 'Planned amount is required',
+        }),
+      ).toBe('Planned amount is required');
+
+      const customControl = new FormControl<number | null>(null);
+      customControl.markAsTouched();
+      customControl.setErrors({ custom: true });
+      expect(component.controlErrorMessage(customControl, { api: '', custom: undefined })).toBe(
+        'Invalid value',
+      );
+
+      const unmatchedControl = new FormControl<number | null>(null);
+      unmatchedControl.markAsTouched();
+      unmatchedControl.setErrors({ min: true });
+      expect(
+        component.controlErrorMessage(unmatchedControl, {
+          api: '',
+          required: 'Planned amount is required',
+        }),
+      ).toBe('Invalid value');
     });
   });
 

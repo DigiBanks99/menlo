@@ -141,6 +141,25 @@ describe('BudgetDetailComponent', () => {
       expect(badgeEl.textContent?.trim()).toBe('Draft');
     });
 
+    it.each([
+      ['Active', 'success'],
+      ['Closed', 'error'],
+      ['Draft', 'neutral'],
+    ] satisfies readonly [BudgetResponse['status'], string][])(
+      'maps %s budgets to the expected detail badge variant',
+      (status, variant) => {
+        const fixture = TestBed.createComponent(BudgetDetailComponent);
+
+        expect(
+          (
+            fixture.componentInstance as unknown as {
+              statusVariantFor(status: BudgetResponse['status']): string;
+            }
+          ).statusVariantFor(status),
+        ).toBe(variant);
+      },
+    );
+
     it('renders total planned monthly amount', () => {
       mockBudgetApiService.getBudget.mockReturnValue(
         of(

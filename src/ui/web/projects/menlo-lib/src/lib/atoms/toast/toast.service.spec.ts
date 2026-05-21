@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -52,6 +52,36 @@ describe('MnlToastService', () => {
     expect(document.body.textContent).not.toContain('Dismiss me');
   });
 
+  it('clear is a no-op when there are no active toasts', () => {
+    const service = TestBed.inject(MnlToastService);
+
+    expect(() => service.clear()).not.toThrow();
+    expect(service.activeToasts()).toHaveLength(0);
+  });
+
+  it('clear removes the active queue and syncs the outlet', async () => {
+    const service = TestBed.inject(MnlToastService);
+    service.show('Clear me', { duration: 0 });
+    await Promise.resolve();
+
+    service.clear();
+    await Promise.resolve();
+
+    expect(service.activeToasts()).toHaveLength(0);
+    expect(document.body.textContent).not.toContain('Clear me');
+  });
+
+  it('ignores dismiss requests for unknown toast ids', async () => {
+    const service = TestBed.inject(MnlToastService);
+    service.show('Still here', { duration: 0 });
+    await Promise.resolve();
+
+    service.dismiss(999);
+
+    expect(service.activeToasts()).toHaveLength(1);
+    expect(document.body.textContent).toContain('Still here');
+  });
+
   it('keeps only the latest three visible toasts', async () => {
     const service = TestBed.inject(MnlToastService);
 
@@ -85,6 +115,27 @@ describe('MnlToastService', () => {
 
     expect(service.activeToasts()).toHaveLength(0);
     expect(document.body.textContent).not.toContain('Closable toast');
+  });
+
+  it('can destroy the outlet after it has been attached to the application', async () => {
+    const applicationRef = TestBed.inject(ApplicationRef);
+    const detachView = vi.spyOn(applicationRef, 'detachView');
+    const service = TestBed.inject(MnlToastService);
+    service.show('Destroy me', { duration: 0 });
+    await Promise.resolve();
+
+    (service as unknown as { destroyOutlet(): void }).destroyOutlet();
+
+    expect(detachView).toHaveBeenCalledTimes(1);
+    expect(document.body.querySelector('[data-mnl-toast-portal]')).toBeNull();
+  });
+
+  it('allows syncOutlet to no-op before an outlet exists', () => {
+    const service = TestBed.inject(MnlToastService);
+
+    expect(() =>
+      (service as unknown as { syncOutlet(): void }).syncOutlet(),
+    ).not.toThrow();
   });
 });
 

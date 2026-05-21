@@ -68,6 +68,29 @@ describe('MnlBadgeComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="mnl-badge-dot"]')).toBeTruthy();
   });
 
+  it('does not render the leading dot when it is not requested', () => {
+    const fixture = TestBed.createComponent(BadgeHostComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="mnl-badge-dot"]')).toBeNull();
+  });
+
+  it.each([
+    ['sm', 'size-1.5'],
+    ['md', 'size-2'],
+  ] satisfies readonly [MnlBadgeSize, string][])(
+    'applies the %s dot size class',
+    (size, expectedClass) => {
+      const fixture = TestBed.createComponent(BadgeHostComponent);
+      fixture.componentInstance.leadingDot = true;
+      fixture.componentInstance.size = size;
+      fixture.detectChanges();
+
+      const dot = fixture.nativeElement.querySelector('[data-testid="mnl-badge-dot"]') as HTMLElement;
+      expect(dot.className).toContain(expectedClass);
+    },
+  );
+
   it('renders projected leading content for icons or markers', () => {
     const fixture = TestBed.createComponent(BadgeHostComponent);
     fixture.detectChanges();

@@ -142,6 +142,18 @@ describe('BudgetItemsWorkspaceComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="category-title"]')).toBeNull();
   });
 
+  it('maps income items to the success flow badge variant', () => {
+    const fixture = createComponent();
+
+    expect(
+      (
+        fixture.componentInstance as unknown as {
+          flowVariantFor(flow: BudgetItemDto['budgetFlow']): string;
+        }
+      ).flowVariantFor('Income'),
+    ).toBe('success');
+  });
+
   // ── Edit panel ─────────────────────────────────────────────────────────────
 
   it('shows edit panel when edit button is clicked', () => {
