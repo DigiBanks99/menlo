@@ -21,6 +21,7 @@ IResourceBuilder<OllamaResource> ollama = builder.AddOllama("ollama")
 IResourceBuilder<OllamaModelResource> textModel = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
 IResourceBuilder<OllamaModelResource> visionModel = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
 
+#pragma warning disable ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Projects.Menlo_Api>("api")
     .WithHttpHealthCheck("health")
@@ -31,16 +32,17 @@ IResourceBuilder<ProjectResource> api = builder
     .WithReference(visionModel)
     .WaitFor(visionModel)
     .WithEnvironment(env => env.AddEntraIdCredentials(builder.Configuration))
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithBrowserLogs();
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
 
-#pragma warning disable ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 IResourceBuilder<JavaScriptAppResource> ui = builder
     .AddViteApp("web-ui", uiPath)
     .WithPnpm()
     .WithRunScript("start")
     .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
+    .WithEnvironment("HOST", "127.0.0.1")
     .WithHttpEndpoint(name: "https", isProxied: false, port: 4200, env: "PORT")
     .WithHttpHealthCheck()
     .WithReference(api)

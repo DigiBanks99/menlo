@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     mainFields: ['module']
   },
+  server: {
+    host: '127.0.0.1',
+    middlewareMode: false,
+  },
   test: {
     name: 'menlo-app',
     globals: true,
