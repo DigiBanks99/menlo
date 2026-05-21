@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "main": "./bundles/menlo-lib.umd.js",
   "type": "module",
-  "types": "index.d.ts",
+  "types": "types/menlo-lib.d.ts",
   "peerDependencies": {
     "@angular/common": "^20.1.0",
     "@angular/core": "^20.1.0",
+    "apexcharts": "^5.10.3",
+    "ng-apexcharts": "^2.4.0",
     "shared-util": "workspace:*",
     "data-access-menlo-api": "workspace:*"
   },

@@ -1,8 +1,8 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BudgetApiService, BudgetResponse } from 'data-access-menlo-api';
 import { success } from 'shared-util';
@@ -10,6 +10,7 @@ import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
   const currentYear = new Date().getFullYear();
+  let mockRouter: { navigateByUrl: ReturnType<typeof vi.fn> };
   const budget: BudgetResponse = {
     id: 'budget-1',
     year: currentYear,
@@ -20,11 +21,13 @@ describe('HomeComponent', () => {
   };
 
   beforeEach(async () => {
+    mockRouter = { navigateByUrl: vi.fn() };
+
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
         provideZonelessChangeDetection(),
-        provideRouter([]),
+        { provide: Router, useValue: mockRouter },
         {
           provide: BudgetApiService,
           useValue: {
@@ -40,9 +43,26 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const navLinks = compiled.querySelectorAll('.nav-button');
+    const actions = compiled.querySelectorAll(
+      '[data-testid="home-primary-action"], [data-testid="home-secondary-action"]',
+    );
+    const featureCards = compiled.querySelectorAll('[data-testid="home-feature-card"]');
 
+    expect(compiled.querySelector('[data-testid="mnl-page-header"]')).toBeTruthy();
     expect(compiled.querySelector('h1')?.textContent).toContain('Menlo Home Management');
-    expect(navLinks).toHaveLength(2);
+    expect(actions).toHaveLength(2);
+    expect(featureCards).toHaveLength(3);
+    expect(compiled.querySelector('[data-testid="home-overview-placeholder"]')).toBeTruthy();
+  });
+
+  it('navigates to the selected route through the component helper', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    (fixture.componentInstance as unknown as { navigateTo(path: '/analytics' | '/budgets'): void }).navigateTo(
+      '/budgets',
+    );
+
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/budgets');
   });
 });

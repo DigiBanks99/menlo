@@ -8,6 +8,7 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { API_BASE_URL } from 'data-access-menlo-api';
+import { ThemeService } from 'menlo-lib';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { AuthService } from './core/auth/auth.service';
@@ -17,11 +18,16 @@ function initialiseAuth(): () => Promise<void> {
   return () => inject(AuthService).loadUser();
 }
 
+function initialiseTheme(): void {
+  inject(ThemeService);
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
+    provideAppInitializer(initialiseTheme),
     provideAppInitializer(initialiseAuth()),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
   ],

@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { BudgetItemApiService, BudgetSummary } from 'data-access-menlo-api';
 import { getErrorMessage } from 'shared-util';
 
@@ -23,231 +23,244 @@ const MONTH_NAMES = [
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="view-controls">
-      <button
-        class="toggle-btn"
-        [class.active]="viewMode() === 'yearly'"
-        (click)="setViewMode('yearly')"
-      >
-        Yearly
-      </button>
-      <button
-        class="toggle-btn"
-        [class.active]="viewMode() === 'monthly'"
-        (click)="setViewMode('monthly')"
-      >
-        Monthly
-      </button>
-    </div>
-
-    @if (viewMode() === 'monthly') {
-      <nav class="month-nav">
-        <button [disabled]="currentMonth() <= 1" (click)="previousMonth()">← Previous Month</button>
-        <span class="current-month">{{ monthLabel() }}</span>
-        <button [disabled]="currentMonth() >= 12" (click)="nextMonth()">Next Month →</button>
-      </nav>
-    }
-
-    @if (loading()) {
-      <div class="loading">Loading summary...</div>
-    } @else if (error()) {
-      <div class="error">{{ error() }}</div>
-    } @else if (summary()) {
-      <div class="balance-sheet">
-        <section class="income-section">
-          <h3>Income</h3>
-          @for (cat of summary()!.income; track cat.id) {
-            <div class="category-row root" (click)="toggle(cat.id)">
-              <span class="expand-icon">{{ isExpanded(cat.id) ? '▼' : '▶' }}</span>
-              <span class="name">{{ cat.name }}</span>
-              <span class="planned">{{ cat.plannedTotal | number: '1.2-2' }}</span>
-              @if (hasRealized()) {
-                <span class="realized">{{ cat.realizedTotal | number: '1.2-2' }}</span>
-              }
-              @if (hasSpent()) {
-                <span class="spent">{{ cat.spentTotal | number: '1.2-2' }}</span>
-              }
-            </div>
-            @if (isExpanded(cat.id)) {
-              @for (child of cat.children; track child.id) {
-                <div class="category-row child">
-                  <span class="name">{{ child.name }}</span>
-                  <span class="planned">{{ child.plannedTotal | number: '1.2-2' }}</span>
-                  @if (hasRealized()) {
-                    <span class="realized">{{ child.realizedTotal | number: '1.2-2' }}</span>
-                  }
-                  @if (hasSpent()) {
-                    <span class="spent">{{ child.spentTotal | number: '1.2-2' }}</span>
-                  }
-                </div>
-              }
-            }
-          }
-        </section>
-
-        <section class="expenses-section">
-          <h3>Expenses</h3>
-          @for (cat of summary()!.expenses; track cat.id) {
-            <div class="category-row root" (click)="toggle(cat.id)">
-              <span class="expand-icon">{{ isExpanded(cat.id) ? '▼' : '▶' }}</span>
-              <span class="name">{{ cat.name }}</span>
-              <span class="planned">{{ cat.plannedTotal | number: '1.2-2' }}</span>
-              @if (hasRealized()) {
-                <span class="realized">{{ cat.realizedTotal | number: '1.2-2' }}</span>
-              }
-              @if (hasSpent()) {
-                <span class="spent">{{ cat.spentTotal | number: '1.2-2' }}</span>
-              }
-            </div>
-            @if (isExpanded(cat.id)) {
-              @for (child of cat.children; track child.id) {
-                <div class="category-row child">
-                  <span class="name">{{ child.name }}</span>
-                  <span class="planned">{{ child.plannedTotal | number: '1.2-2' }}</span>
-                  @if (hasRealized()) {
-                    <span class="realized">{{ child.realizedTotal | number: '1.2-2' }}</span>
-                  }
-                  @if (hasSpent()) {
-                    <span class="spent">{{ child.spentTotal | number: '1.2-2' }}</span>
-                  }
-                </div>
-              }
-            }
-          }
-        </section>
-
-        <section class="net-section">
-          <h3>Net</h3>
-          <div class="net-row">
-            <span class="name">Net (Income - Expenses)</span>
-            <span class="planned">{{ summary()!.netPlanned | number: '1.2-2' }}</span>
-            @if (hasRealized()) {
-              <span class="realized">{{ summary()!.netRealized | number: '1.2-2' }}</span>
-            }
-            @if (hasSpent()) {
-              <span class="spent">{{ summary()!.netSpent | number: '1.2-2' }}</span>
-            }
-          </div>
-        </section>
+    <div class="space-y-4">
+      <div class="view-controls flex flex-wrap gap-2">
+        <button
+          [class]="toggleButtonClasses('yearly')"
+          type="button"
+          (click)="setViewMode('yearly')"
+        >
+          Yearly
+        </button>
+        <button
+          [class]="toggleButtonClasses('monthly')"
+          type="button"
+          (click)="setViewMode('monthly')"
+        >
+          Monthly
+        </button>
       </div>
-    }
+
+      @if (viewMode() === 'monthly') {
+        <nav
+          class="month-nav flex flex-col gap-3 rounded-2xl border border-mnl-border/70 bg-mnl-surface-alt/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <button
+            class="inline-flex items-center justify-center rounded-xl border border-mnl-border bg-mnl-surface px-4 py-2 text-sm font-medium text-mnl-text shadow-sm transition-colors hover:bg-mnl-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
+            [disabled]="currentMonth() <= 1"
+            type="button"
+            (click)="previousMonth()"
+          >
+            ← Previous Month
+          </button>
+
+          <span
+            class="current-month text-sm font-semibold uppercase tracking-wide text-mnl-subtext"
+          >
+            {{ monthLabel() }}
+          </span>
+
+          <button
+            class="inline-flex items-center justify-center rounded-xl border border-mnl-border bg-mnl-surface px-4 py-2 text-sm font-medium text-mnl-text shadow-sm transition-colors hover:bg-mnl-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
+            [disabled]="currentMonth() >= 12"
+            type="button"
+            (click)="nextMonth()"
+          >
+            Next Month →
+          </button>
+        </nav>
+      }
+
+      @if (loading()) {
+        <div
+          class="loading rounded-2xl border border-dashed border-mnl-border px-4 py-8 text-center text-sm text-mnl-subtext"
+        >
+          Loading summary...
+        </div>
+      } @else if (error()) {
+        <div
+          class="error rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+        >
+          {{ error() }}
+        </div>
+      } @else if (summary()) {
+        <div class="balance-sheet space-y-6">
+          <section class="income-section space-y-3">
+            <h3 class="m-0 text-base font-semibold text-mnl-text">Income</h3>
+            @for (cat of summary()!.income; track cat.id) {
+              <button
+                class="category-row root flex w-full items-center gap-3 rounded-2xl border border-mnl-border/70 bg-mnl-surface px-4 py-3 text-left transition-colors hover:bg-mnl-surface-alt"
+                type="button"
+                (click)="toggle(cat.id)"
+              >
+                <span class="expand-icon inline-flex w-4 justify-center text-mnl-subtext">
+                  {{ isExpanded(cat.id) ? '▼' : '▶' }}
+                </span>
+                <span class="name min-w-0 flex-1 font-medium text-mnl-text">{{ cat.name }}</span>
+                <span class="planned w-28 text-right font-semibold text-mnl-text">
+                  {{ cat.plannedTotal | number: '1.2-2' }}
+                </span>
+                @if (hasRealized()) {
+                  <span class="realized w-28 text-right font-semibold text-mnl-text">
+                    {{ cat.realizedTotal | number: '1.2-2' }}
+                  </span>
+                }
+                @if (hasSpent()) {
+                  <span class="spent w-28 text-right font-semibold text-mnl-text">
+                    {{ cat.spentTotal | number: '1.2-2' }}
+                  </span>
+                }
+              </button>
+
+              @if (isExpanded(cat.id)) {
+                @for (child of cat.children; track child.id) {
+                  <div
+                    class="category-row child flex items-center gap-3 rounded-2xl border border-mnl-border/60 bg-mnl-surface-alt/40 px-4 py-3"
+                  >
+                    <span class="expand-icon inline-flex w-4"></span>
+                    <span class="name min-w-0 flex-1 text-sm text-mnl-text">{{ child.name }}</span>
+                    <span class="planned w-28 text-right text-sm font-medium text-mnl-text">
+                      {{ child.plannedTotal | number: '1.2-2' }}
+                    </span>
+                    @if (hasRealized()) {
+                      <span class="realized w-28 text-right text-sm font-medium text-mnl-text">
+                        {{ child.realizedTotal | number: '1.2-2' }}
+                      </span>
+                    }
+                    @if (hasSpent()) {
+                      <span class="spent w-28 text-right text-sm font-medium text-mnl-text">
+                        {{ child.spentTotal | number: '1.2-2' }}
+                      </span>
+                    }
+                  </div>
+                }
+              }
+            }
+          </section>
+
+          <section class="expenses-section space-y-3">
+            <h3 class="m-0 text-base font-semibold text-mnl-text">Expenses</h3>
+            @for (cat of summary()!.expenses; track cat.id) {
+              <button
+                class="category-row root flex w-full items-center gap-3 rounded-2xl border border-mnl-border/70 bg-mnl-surface px-4 py-3 text-left transition-colors hover:bg-mnl-surface-alt"
+                type="button"
+                (click)="toggle(cat.id)"
+              >
+                <span class="expand-icon inline-flex w-4 justify-center text-mnl-subtext">
+                  {{ isExpanded(cat.id) ? '▼' : '▶' }}
+                </span>
+                <span class="name min-w-0 flex-1 font-medium text-mnl-text">{{ cat.name }}</span>
+                <span class="planned w-28 text-right font-semibold text-mnl-text">
+                  {{ cat.plannedTotal | number: '1.2-2' }}
+                </span>
+                @if (hasRealized()) {
+                  <span class="realized w-28 text-right font-semibold text-mnl-text">
+                    {{ cat.realizedTotal | number: '1.2-2' }}
+                  </span>
+                }
+                @if (hasSpent()) {
+                  <span class="spent w-28 text-right font-semibold text-mnl-text">
+                    {{ cat.spentTotal | number: '1.2-2' }}
+                  </span>
+                }
+              </button>
+
+              @if (isExpanded(cat.id)) {
+                @for (child of cat.children; track child.id) {
+                  <div
+                    class="category-row child flex items-center gap-3 rounded-2xl border border-mnl-border/60 bg-mnl-surface-alt/40 px-4 py-3"
+                  >
+                    <span class="expand-icon inline-flex w-4"></span>
+                    <span class="name min-w-0 flex-1 text-sm text-mnl-text">{{ child.name }}</span>
+                    <span class="planned w-28 text-right text-sm font-medium text-mnl-text">
+                      {{ child.plannedTotal | number: '1.2-2' }}
+                    </span>
+                    @if (hasRealized()) {
+                      <span class="realized w-28 text-right text-sm font-medium text-mnl-text">
+                        {{ child.realizedTotal | number: '1.2-2' }}
+                      </span>
+                    }
+                    @if (hasSpent()) {
+                      <span class="spent w-28 text-right text-sm font-medium text-mnl-text">
+                        {{ child.spentTotal | number: '1.2-2' }}
+                      </span>
+                    }
+                  </div>
+                }
+              }
+            }
+          </section>
+
+          <section class="net-section space-y-3">
+            <h3 class="m-0 text-base font-semibold text-mnl-text">Net</h3>
+            <div
+              class="net-row flex items-center gap-3 rounded-2xl border border-mnl-accent/25 bg-mnl-accent/10 px-4 py-3"
+            >
+              <span class="name min-w-0 flex-1 font-semibold text-mnl-text"
+                >Net (Income - Expenses)</span
+              >
+              <span class="planned w-28 text-right font-semibold text-mnl-text">
+                {{ summary()!.netPlanned | number: '1.2-2' }}
+              </span>
+              @if (hasRealized()) {
+                <span class="realized w-28 text-right font-semibold text-mnl-text">
+                  {{ summary()!.netRealized | number: '1.2-2' }}
+                </span>
+              }
+              @if (hasSpent()) {
+                <span class="spent w-28 text-right font-semibold text-mnl-text">
+                  {{ summary()!.netSpent | number: '1.2-2' }}
+                </span>
+              }
+            </div>
+          </section>
+        </div>
+      }
+    </div>
   `,
-  styles: [
-    `
-      .view-controls {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-      }
-      .toggle-btn {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ccc;
-        background: #f5f5f5;
-        cursor: pointer;
-      }
-      .toggle-btn.active {
-        background: #333;
-        color: #fff;
-        border-color: #333;
-      }
-      .month-nav {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-      .month-nav button {
-        padding: 0.25rem 0.75rem;
-        cursor: pointer;
-      }
-      .month-nav button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .current-month {
-        font-weight: bold;
-      }
-      .balance-sheet {
-        font-family: monospace;
-      }
-      .category-row {
-        display: flex;
-        gap: 1rem;
-        padding: 0.25rem 0;
-        cursor: pointer;
-      }
-      .category-row.child {
-        padding-left: 2rem;
-        cursor: default;
-      }
-      .expand-icon {
-        width: 1rem;
-      }
-      .name {
-        flex: 1;
-      }
-      .planned,
-      .realized,
-      .spent {
-        width: 8rem;
-        text-align: right;
-      }
-      .net-row {
-        display: flex;
-        gap: 1rem;
-        padding: 0.5rem 0;
-        font-weight: bold;
-        border-top: 2px solid;
-      }
-      .loading,
-      .error {
-        padding: 1rem;
-      }
-      .error {
-        color: red;
-      }
-      h3 {
-        margin: 1rem 0 0.5rem;
-      }
-    `,
-  ],
 })
 export class BudgetSummaryComponent {
   private readonly api = inject(BudgetItemApiService);
 
-  budgetId = input.required<string>();
+  readonly budgetId = input.required<string>();
+  readonly month = input<number | undefined>(undefined);
+
+  readonly summary = signal<BudgetSummary | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly viewMode = signal<'yearly' | 'monthly'>('monthly');
+  readonly currentMonth = signal<number>(new Date().getMonth() + 1);
+
+  private readonly expandedIds = signal<Set<string>>(new Set());
 
   constructor() {
     effect(() => {
-      this.budgetId(); // track — re-run when budgetId changes
+      this.budgetId();
       untracked(() => this.loadSummary());
     });
   }
-  month = input<number | undefined>(undefined);
 
-  summary = signal<BudgetSummary | null>(null);
-  loading = signal(false);
-  error = signal<string | null>(null);
-  viewMode = signal<'yearly' | 'monthly'>('monthly');
-  currentMonth = signal<number>(new Date().getMonth() + 1);
-
-  private expandedIds = signal<Set<string>>(new Set());
-
-  monthLabel = computed(() => {
-    const m = this.currentMonth();
-    return MONTH_NAMES[m - 1] ?? '';
+  readonly monthLabel = computed(() => {
+    const month = this.currentMonth();
+    return MONTH_NAMES[month - 1] ?? '';
   });
 
-  hasRealized = computed(() => {
-    const s = this.summary();
-    if (!s) return false;
-    return s.netRealized !== null;
+  readonly hasRealized = computed(() => {
+    const summary = this.summary();
+    if (!summary) {
+      return false;
+    }
+
+    return summary.netRealized !== null;
   });
 
-  hasSpent = computed(() => {
-    const s = this.summary();
-    if (!s) return false;
-    return s.netSpent !== null;
+  readonly hasSpent = computed(() => {
+    const summary = this.summary();
+    if (!summary) {
+      return false;
+    }
+
+    return summary.netSpent !== null;
   });
 
   setViewMode(mode: 'yearly' | 'monthly'): void {
@@ -256,17 +269,17 @@ export class BudgetSummaryComponent {
   }
 
   previousMonth(): void {
-    const m = this.currentMonth();
-    if (m > 1) {
-      this.currentMonth.set(m - 1);
+    const month = this.currentMonth();
+    if (month > 1) {
+      this.currentMonth.set(month - 1);
       this.loadSummary();
     }
   }
 
   nextMonth(): void {
-    const m = this.currentMonth();
-    if (m < 12) {
-      this.currentMonth.set(m + 1);
+    const month = this.currentMonth();
+    if (month < 12) {
+      this.currentMonth.set(month + 1);
       this.loadSummary();
     }
   }
@@ -279,6 +292,7 @@ export class BudgetSummaryComponent {
     } else {
       next.add(categoryId);
     }
+
     this.expandedIds.set(next);
   }
 
@@ -298,5 +312,16 @@ export class BudgetSummaryComponent {
       }
       this.loading.set(false);
     });
+  }
+
+  protected toggleButtonClasses(mode: 'yearly' | 'monthly'): string {
+    const baseClasses =
+      'toggle-btn inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold transition-colors';
+
+    if (this.viewMode() === mode) {
+      return `${baseClasses} active border-mnl-text bg-mnl-text text-mnl-bg`;
+    }
+
+    return `${baseClasses} border-mnl-border bg-mnl-surface text-mnl-text hover:bg-mnl-surface-alt`;
   }
 }

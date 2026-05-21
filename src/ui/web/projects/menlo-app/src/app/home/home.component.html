@@ -1,68 +1,148 @@
-<div class="home-container">
-  <section class="hero">
-    <h1>Welcome to Menlo</h1>
-    <p class="hero-subtitle">Your intelligent home management companion</p>
-    <div class="hero-actions">
-      <a routerLink="/budgets" class="btn btn-primary">Manage Budgets</a>
-      <a routerLink="/analytics" class="btn btn-secondary">View Analytics</a>
-    </div>
-  </section>
+<div class="space-y-8 pb-10">
+  <mnl-page-header>
+    <div class="max-w-3xl space-y-6" data-testid="home-hero" mnlPageHeaderHero>
+      <mnl-badge size="sm" variant="neutral">Family finance hub</mnl-badge>
 
-  <section class="features">
-    <h2>Family Finance Made Simple</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <h3>Smart Budgeting</h3>
-        <p>AI-powered budget tracking that learns from your family's spending patterns</p>
+      <div class="space-y-3">
+        <h1 class="m-0 text-4xl font-bold tracking-tight text-inherit sm:text-5xl">
+          Menlo Home Management
+        </h1>
+        <p class="m-0 max-w-2xl text-base leading-7 text-black/70 sm:text-lg">
+          Your intelligent family budget management system.
+        </p>
       </div>
-      <div class="feature-card">
-        <h3>Handwritten Lists</h3>
-        <p>Capture and digitize handwritten shopping lists with intelligent recognition</p>
-      </div>
-      <div class="feature-card">
-        <h3>Privacy First</h3>
-        <p>All AI processing happens locally on your home server - your data stays private</p>
+
+      <div class="grid gap-3 sm:flex sm:flex-wrap" data-testid="home-actions">
+        <mnl-button
+          class="w-full sm:w-auto"
+          data-testid="home-primary-action"
+          variant="primary"
+          (pressed)="navigateTo('/budgets')"
+        >
+          View Budgets
+        </mnl-button>
+        <mnl-button
+          class="w-full sm:w-auto"
+          data-testid="home-secondary-action"
+          variant="secondary"
+          (pressed)="navigateTo('/analytics')"
+        >
+          Analytics
+        </mnl-button>
       </div>
     </div>
-  </section>
 
-  @defer (on viewport) {
-    <!-- Analytics preview loads when scrolled into view -->
-    <section class="analytics-preview">
-      <h2>Your Budget Insights</h2>
-      <div class="preview-card">
-        <h3>This Month's Overview</h3>
-        <div class="preview-stats">
-          <div class="stat">
-            <span class="stat-value">R 4,250</span>
-            <span class="stat-label">Remaining Budget</span>
+    <div
+      class="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
+      data-testid="home-overlap"
+    >
+      <app-budget-widget />
+
+      <mnl-card padding="lg">
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-mnl-accent">
+              Household dashboard
+            </p>
+            <h2 class="m-0 text-2xl font-semibold tracking-tight text-mnl-text">
+              A calm summary for budgets, planning, and quick decisions.
+            </h2>
           </div>
-          <div class="stat">
-            <span class="stat-value">73%</span>
-            <span class="stat-label">On Track</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">12</span>
-            <span class="stat-label">Days Left</span>
+
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Move from today&apos;s household snapshot into detailed budget workspaces without losing
+            context across mobile and desktop.
+          </p>
+
+          <div class="flex flex-wrap gap-2">
+            <mnl-badge size="sm" variant="success">Responsive</mnl-badge>
+            <mnl-badge size="sm" variant="info">Theme-aware</mnl-badge>
+            <mnl-badge size="sm" variant="neutral">Private-first</mnl-badge>
           </div>
         </div>
-        <p>Your family is staying within budget this month. Great work!</p>
-      </div>
-    </section>
-  } @placeholder {
-    <!-- Shown while deferred content loads -->
-    <section class="analytics-placeholder">
-      <div class="placeholder-card">
-        <h3>📊 Budget Analytics Loading...</h3>
-        <p>Scroll down to see your personalized insights</p>
-      </div>
-    </section>
-  } @error {
-    <section class="analytics-error">
-      <div class="error-card">
-        <h3>⚠️ Analytics Unavailable</h3>
-        <p>Unable to load your budget insights right now. Please try again later.</p>
-      </div>
-    </section>
-  }
+      </mnl-card>
+    </div>
+  </mnl-page-header>
+
+  <section class="space-y-6 px-4 sm:px-6 lg:px-0" data-testid="home-features">
+    <div class="space-y-2">
+      <p class="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-mnl-accent">
+        Feature highlights
+      </p>
+      <h2 class="m-0 text-3xl font-bold tracking-tight text-mnl-text">
+        Family finance made simple
+      </h2>
+      <p class="m-0 max-w-3xl text-sm leading-6 text-mnl-subtext">
+        Menlo combines budgeting, planning, and local-first intelligence in one shared household
+        surface.
+      </p>
+    </div>
+
+    <div class="grid gap-4 xl:grid-cols-3">
+      @for (feature of features; track feature.title) {
+        <mnl-card>
+          <div class="space-y-4" data-testid="home-feature-card">
+            <mnl-badge [variant]="feature.badgeVariant" size="sm">{{ feature.badge }}</mnl-badge>
+
+            <div class="space-y-2">
+              <h3 class="m-0 text-xl font-semibold text-mnl-text">{{ feature.title }}</h3>
+              <p class="m-0 text-sm leading-6 text-mnl-subtext">{{ feature.description }}</p>
+            </div>
+          </div>
+        </mnl-card>
+      }
+    </div>
+  </section>
+
+  <section class="px-4 sm:px-6 lg:px-0" data-testid="home-overview-section">
+    @defer (on viewport) {
+      <mnl-card data-testid="home-overview-card">
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <mnl-badge size="sm" variant="success">On track</mnl-badge>
+              <span class="text-sm font-semibold text-mnl-subtext">Quick overview</span>
+            </div>
+            <h2 class="m-0 text-2xl font-semibold tracking-tight text-mnl-text">
+              This month&apos;s household snapshot
+            </h2>
+            <p class="m-0 max-w-3xl text-sm leading-6 text-mnl-subtext">
+              A high-level look at total budget, current spend, and remaining room before the next
+              cycle closes.
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3">
+            @for (stat of overviewStats; track stat.label) {
+              <div class="rounded-2xl bg-mnl-bg/60 p-4 ring-1 ring-mnl-border/50">
+                <mnl-stat [label]="stat.label" [trend]="stat.trend" [value]="stat.value" />
+              </div>
+            }
+          </div>
+        </div>
+      </mnl-card>
+    } @placeholder {
+      <mnl-card data-testid="home-overview-placeholder">
+        <div class="space-y-3 text-center">
+          <p class="m-0 text-sm font-semibold uppercase tracking-[0.18em] text-mnl-subtext">
+            Quick overview
+          </p>
+          <h2 class="m-0 text-xl font-semibold text-mnl-text">Loading overview...</h2>
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Scroll a little further and Menlo will load the household snapshot.
+          </p>
+        </div>
+      </mnl-card>
+    } @error {
+      <mnl-card data-testid="home-overview-error">
+        <div class="space-y-3 text-center">
+          <mnl-badge class="mx-auto" size="sm" variant="error">Unavailable</mnl-badge>
+          <h2 class="m-0 text-xl font-semibold text-mnl-text">Failed to load overview</h2>
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Unable to load your budget insights right now. Please try again later.
+          </p>
+        </div>
+      </mnl-card>
+    }
+  </section>
 </div>

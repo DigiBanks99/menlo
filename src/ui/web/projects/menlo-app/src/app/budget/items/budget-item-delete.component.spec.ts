@@ -141,4 +141,18 @@ describe('BudgetItemDeleteComponent', () => {
     subject.next(success(undefined));
     fixture.detectChanges();
   });
+
+  it('does not cancel the confirmation state while deletion is in progress', () => {
+    const fixture = createComponent();
+    fixture.componentInstance.askConfirmation();
+    (
+      fixture.componentInstance as unknown as {
+        deleting: { set(value: boolean): void };
+      }
+    ).deleting.set(true);
+
+    fixture.componentInstance.cancelDelete();
+
+    expect(fixture.componentInstance.confirming()).toBe(true);
+  });
 });

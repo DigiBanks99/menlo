@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormControl } from '@angular/forms';
 import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -35,6 +36,13 @@ function mockBudgetItemDto(overrides: Partial<BudgetItemDto> = {}): BudgetItemDt
     isManualOverride: false,
     ...overrides,
   };
+}
+
+function formatAmount(value: number): string {
+  return new Intl.NumberFormat('en-ZA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 describe('BudgetItemFormComponent', () => {
@@ -74,7 +82,7 @@ describe('BudgetItemFormComponent', () => {
       const plannedInput = fixture.nativeElement.querySelector(
         '[data-testid="input-plannedAmount"]',
       ) as HTMLInputElement;
-      expect(plannedInput.value).toBe('5000');
+      expect(plannedInput.value).toBe(formatAmount(5000));
     });
 
     it('populates payer split from existing item', () => {
@@ -333,6 +341,63 @@ describe('BudgetItemFormComponent', () => {
       ) as HTMLButtonElement;
       expect(btn.disabled).toBe(true);
       expect(btn.textContent?.trim()).toContain('Saving...');
+    });
+
+    it('returns the month validation message when the create-mode month field is touched and invalid', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      fixture.componentRef.setInput('budgetId', mockBudgetId);
+      fixture.componentRef.setInput('categoryId', mockCategoryId);
+      fixture.detectChanges();
+
+      const control = fixture.componentInstance.form.controls.month;
+      control.markAsTouched();
+      control.setValue(null);
+      control.updateValueAndValidity();
+
+      expect(
+        (
+          fixture.componentInstance as unknown as {
+            monthErrorMessage(): string | null;
+          }
+        ).monthErrorMessage(),
+      ).toBe('Month is required (1–12)');
+    });
+
+    it('surfaces mapped and fallback control messages for field helpers', () => {
+      const fixture = TestBed.createComponent(BudgetItemFormComponent);
+      const component = fixture.componentInstance as unknown as {
+        controlErrorMessage(
+          control: FormControl,
+          messages: Partial<Record<string, string | undefined>>,
+        ): string | null;
+      };
+
+      const requiredControl = new FormControl<number | null>(null);
+      requiredControl.markAsTouched();
+      requiredControl.setErrors({ required: true });
+      expect(
+        component.controlErrorMessage(requiredControl, {
+          api: '',
+          required: 'Planned amount is required',
+        }),
+      ).toBe('Planned amount is required');
+
+      const customControl = new FormControl<number | null>(null);
+      customControl.markAsTouched();
+      customControl.setErrors({ custom: true });
+      expect(component.controlErrorMessage(customControl, { api: '', custom: undefined })).toBe(
+        'Invalid value',
+      );
+
+      const unmatchedControl = new FormControl<number | null>(null);
+      unmatchedControl.markAsTouched();
+      unmatchedControl.setErrors({ min: true });
+      expect(
+        component.controlErrorMessage(unmatchedControl, {
+          api: '',
+          required: 'Planned amount is required',
+        }),
+      ).toBe('Invalid value');
     });
   });
 
@@ -593,10 +658,9 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set a percent to null to exercise the ?? 0 branch in splitSumValidator
-      component.form.controls.payerSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-        { emitEvent: false },
-      );
+      component.form.controls.payerSplit
+        .at(0)
+        .controls.percent.setValue(null as unknown as number, { emitEvent: false });
       component.form.controls.payerSplit.updateValueAndValidity({ emitEvent: false });
 
       expect(component.form.controls.payerSplit.errors).toBeTruthy();
@@ -614,9 +678,7 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set percent to null to trigger ?? 0
-      component.form.controls.payerSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-      );
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(null as unknown as number);
 
       expect(component.payerSplitTotal()).toBe(40); // 0 + 40
     });
@@ -632,9 +694,9 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set percent to null to trigger ?? 0
-      component.form.controls.attributionSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-      );
+      component.form.controls.attributionSplit
+        .at(0)
+        .controls.percent.setValue(null as unknown as number);
 
       expect(component.attributionSplitTotal()).toBe(30); // 0 + 30
     });
@@ -648,9 +710,7 @@ describe('BudgetItemFormComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeTruthy();
-      expect(
-        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
-      ).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]')).toBeTruthy();
     });
 
     it('does not show month and budgetFlow fields in edit mode', () => {
@@ -663,9 +723,7 @@ describe('BudgetItemFormComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeNull();
-      expect(
-        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
-      ).toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]')).toBeNull();
     });
 
     it('shows Create button label in create mode', () => {
@@ -674,7 +732,9 @@ describe('BudgetItemFormComponent', () => {
       fixture.componentRef.setInput('categoryId', mockCategoryId);
       fixture.detectChanges();
 
-      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      const btn = fixture.nativeElement.querySelector(
+        '[data-testid="btn-save"]',
+      ) as HTMLButtonElement;
       expect(btn.textContent?.trim()).toBe('Create');
     });
 
@@ -687,7 +747,9 @@ describe('BudgetItemFormComponent', () => {
       fixture.componentRef.setInput('item', existing);
       fixture.detectChanges();
 
-      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      const btn = fixture.nativeElement.querySelector(
+        '[data-testid="btn-save"]',
+      ) as HTMLButtonElement;
       expect(btn.textContent?.trim()).toBe('Update');
     });
 
@@ -705,7 +767,11 @@ describe('BudgetItemFormComponent', () => {
 
       fixture.componentInstance.addPayerSplit('user-1', 100);
       fixture.componentInstance.addAttributionSplit('Main', 100);
-      fixture.componentInstance.form.patchValue({ plannedAmount: 3000, month: 5, budgetFlow: 'Income' });
+      fixture.componentInstance.form.patchValue({
+        plannedAmount: 3000,
+        month: 5,
+        budgetFlow: 'Income',
+      });
       fixture.componentInstance.onSubmit();
 
       expect(savedSpy).toHaveBeenCalledWith(createdDto);
@@ -723,7 +789,11 @@ describe('BudgetItemFormComponent', () => {
 
       fixture.componentInstance.addPayerSplit('user-1', 100);
       fixture.componentInstance.addAttributionSplit('Main', 100);
-      fixture.componentInstance.form.patchValue({ plannedAmount: 2000, month: 1, budgetFlow: 'Expense' });
+      fixture.componentInstance.form.patchValue({
+        plannedAmount: 2000,
+        month: 1,
+        budgetFlow: 'Expense',
+      });
       fixture.componentInstance.onSubmit();
       fixture.detectChanges();
 

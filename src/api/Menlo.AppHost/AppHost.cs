@@ -35,15 +35,17 @@ IResourceBuilder<ProjectResource> api = builder
 
 string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
 
+#pragma warning disable ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 IResourceBuilder<JavaScriptAppResource> ui = builder
-    .AddJavaScriptApp("web-ui", uiPath)
+    .AddViteApp("web-ui", uiPath)
     .WithPnpm()
     .WithRunScript("start")
     .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
     .WithHttpEndpoint(name: "https", isProxied: false, port: 4200, env: "PORT")
     .WithHttpHealthCheck()
     .WithReference(api)
-    .WaitFor(api);
+    .WaitFor(api)
+    .WithBrowserLogs();
 
 IResourceBuilder<JavaScriptAppResource> uiStorybook = builder
     .AddJavaScriptApp("web-ui-storybook", uiPath)
@@ -52,7 +54,8 @@ IResourceBuilder<JavaScriptAppResource> uiStorybook = builder
     .WithExternalHttpEndpoints()
     .WithHttpEndpoint(name: "https", isProxied: false, port: 6006)
     .WithHttpHealthCheck()
-    .WithExplicitStart();
+    .WithExplicitStart()
+    .WithBrowserLogs();
 
 IResourceBuilder<JavaScriptAppResource> libStorybook = builder
     .AddJavaScriptApp("lib-ui-storybook", uiPath)
@@ -61,7 +64,9 @@ IResourceBuilder<JavaScriptAppResource> libStorybook = builder
     .WithExternalHttpEndpoints()
     .WithHttpEndpoint(name: "https", isProxied: false, port: 6007)
     .WithHttpHealthCheck()
-    .WithExplicitStart();
+    .WithExplicitStart()
+    .WithBrowserLogs();
+#pragma warning restore ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
 uiStorybook.WithParentRelationship(ui);
 libStorybook.WithParentRelationship(ui);

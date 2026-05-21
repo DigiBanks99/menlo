@@ -1,0 +1,70 @@
+@import '@fontsource/nunito-sans/400.css';
+@import '@fontsource/nunito-sans/500.css';
+@import '@fontsource/nunito-sans/600.css';
+@import '@fontsource/nunito-sans/700.css';
+@import 'tailwindcss' source('./');
+@config "./tailwind.config.ts";
+@plugin "@tailwindcss/forms" {
+  strategy: 'class';
+}
+@plugin "@tailwindcss/container-queries";
+
+:root {
+  --mnl-color-bg: #eff1f5;
+  --mnl-color-surface: #ffffff;
+  --mnl-color-surface-alt: #e6e9ef;
+  --mnl-color-surface-muted: #ccd0da;
+  --mnl-color-border: #bcc0cc;
+  --mnl-color-text: #4c4f69;
+  --mnl-color-subtext: #6c6f85;
+  --mnl-color-accent: #ea76cb;
+  --mnl-color-accent-strong: #8839ef;
+  --mnl-color-gradient-start: #ea76cb;
+  --mnl-color-gradient-mid: #8839ef;
+  --mnl-color-gradient-end: #7287fd;
+  --mnl-color-success: #40a02b;
+  --mnl-color-warning: #df8e1d;
+  --mnl-color-error: #d20f39;
+  --mnl-color-info: #1e66f5;
+}
+
+html.dark {
+  --mnl-color-bg: #1e1e2e;
+  --mnl-color-surface: #313244;
+  --mnl-color-surface-alt: #45475a;
+  --mnl-color-surface-muted: #585b70;
+  --mnl-color-border: #6c7086;
+  --mnl-color-text: #cdd6f4;
+  --mnl-color-subtext: #a6adc8;
+  --mnl-color-accent: #f5c2e7;
+  --mnl-color-accent-strong: #cba6f7;
+  --mnl-color-gradient-start: #f5c2e7;
+  --mnl-color-gradient-mid: #cba6f7;
+  --mnl-color-gradient-end: #b4befe;
+  --mnl-color-success: #a6e3a1;
+  --mnl-color-warning: #f9e2af;
+  --mnl-color-error: #f38ba8;
+  --mnl-color-info: #89b4fa;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--mnl-color-bg);
+  color: var(--mnl-color-text);
+  font-family: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+*,
+::before,
+::after {
+  border-color: var(--mnl-color-border);
+}

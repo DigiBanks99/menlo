@@ -35,6 +35,13 @@ function mockBudgetItemDto(overrides: Partial<BudgetItemDto> = {}): BudgetItemDt
   };
 }
 
+function formatAmount(value: number): string {
+  return new Intl.NumberFormat('en-ZA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 describe('BudgetItemFillForwardComponent', () => {
   let mockBudgetItemApi: {
     fillForward: ReturnType<typeof vi.fn>;
@@ -168,6 +175,32 @@ describe('BudgetItemFillForwardComponent', () => {
     expect(component.form.controls.amount.touched).toBe(true);
   });
 
+  it('returns the validation message only when the amount control is touched and invalid', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setValue(null);
+    component.form.controls.amount.updateValueAndValidity();
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBe('Amount is required and must be positive');
+  });
+
+  it('returns no validation message when the touched amount control is valid', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.form.controls.amount.markAsTouched();
+    component.form.controls.amount.setValue(2500);
+    component.form.controls.amount.updateValueAndValidity();
+
+    expect(
+      (component as unknown as { amountErrorMessage(): string | null }).amountErrorMessage(),
+    ).toBeNull();
+  });
+
   it('amount can be edited before submitting', () => {
     const filledItems: BudgetItemDto[] = [mockBudgetItemDto({ month: 3 })];
     mockBudgetItemApi.fillForward.mockReturnValue(of(success(filledItems)));
@@ -178,7 +211,7 @@ describe('BudgetItemFillForwardComponent', () => {
     ) as HTMLInputElement;
 
     // Default should be the item's planned amount
-    expect(amountInput.value).toBe('2000');
+    expect(amountInput.value).toBe(formatAmount(2000));
 
     // Change it
     amountInput.value = '3500';
