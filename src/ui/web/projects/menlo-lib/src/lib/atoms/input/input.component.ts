@@ -61,7 +61,7 @@ const inputClasses =
         [class]="controlClasses()"
         [disabled]="isDisabled()"
         [value]="displayValue()"
-        data-testid="mnl-input"
+        [attr.data-testid]="testId()"
         (blur)="handleBlur()"
         (input)="handleInput($event)"
       />
@@ -79,6 +79,7 @@ export class MnlInputComponent implements ControlValueAccessor {
   readonly id = input('');
   readonly name = input('');
   readonly placeholder = input('');
+  readonly testId = input('mnl-input');
   readonly type = input<MnlInputType>('text');
 
   readonly valueChange = output<MnlInputValue>();

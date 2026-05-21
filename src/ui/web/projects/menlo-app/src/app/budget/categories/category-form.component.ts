@@ -1,11 +1,34 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import {
   CategoryApiService,
   CategoryDto,
   CreateCategoryRequest,
   UpdateCategoryRequest,
 } from 'data-access-menlo-api';
+import {
+  MnlButtonComponent,
+  MnlFormFieldComponent,
+  MnlFormLayoutComponent,
+  MnlInputComponent,
+  type MnlSelectOption,
+  MnlSelectComponent,
+  MnlToastService,
+} from 'menlo-lib';
 import {
   ApiError,
   getErrorMessage,
@@ -14,169 +37,138 @@ import {
   mapValidationErrorsToForm,
 } from 'shared-util';
 
+const budgetFlowOptions: readonly MnlSelectOption[] = [
+  { value: 'Income', label: 'Income' },
+  { value: 'Expense', label: 'Expense' },
+  { value: 'Both', label: 'Both' },
+];
+
+const attributionOptions: readonly MnlSelectOption[] = [
+  { value: 'Main', label: 'Main' },
+  { value: 'Rental', label: 'Rental' },
+  { value: 'ServiceProvider', label: 'Service Provider' },
+];
+
 @Component({
   selector: 'app-category-form',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MnlButtonComponent,
+    MnlFormFieldComponent,
+    MnlFormLayoutComponent,
+    MnlInputComponent,
+    MnlSelectComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <form
-      [formGroup]="form"
-      (ngSubmit)="onSubmit()"
-      class="category-form"
-      data-testid="category-form"
-    >
-      <div class="form-field">
-        <label for="name">Name *</label>
-        <input id="name" formControlName="name" data-testid="input-name" />
-        @if (form.controls.name.touched && form.controls.name.errors) {
-          <span class="field-error" data-testid="error-name">
-            @if (form.controls.name.errors['required']) {
-              Name is required
-            } @else if (form.controls.name.errors['api']) {
-              {{ form.controls.name.errors['api'] }}
-            }
-          </span>
-        }
-      </div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="block" data-testid="category-form">
+      <mnl-form-layout>
+        <div mnlFormTitle class="space-y-2">
+          <p class="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-mnl-accent">
+            Category
+          </p>
+          <h3 class="m-0 text-2xl font-bold tracking-tight text-mnl-text">
+            {{ isEditMode() ? 'Edit category' : 'Add category' }}
+          </h3>
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">
+            Define the budget flow, attribution, and ownership metadata for this category.
+          </p>
+        </div>
 
-      <div class="form-field">
-        <label for="description">Description</label>
-        <input id="description" formControlName="description" data-testid="input-description" />
-      </div>
+        <div class="space-y-6">
+          <section class="grid gap-4 md:grid-cols-2">
+            <mnl-form-field
+              errorTestId="error-name"
+              inputId="name"
+              label="Name"
+              [error]="nameErrorMessage()"
+              [required]="true"
+            >
+              <mnl-input id="name" testId="input-name" formControlName="name" />
+            </mnl-form-field>
 
-      <div class="form-field">
-        <label for="budgetFlow">Budget Flow *</label>
-        <select id="budgetFlow" formControlName="budgetFlow" data-testid="select-budgetFlow">
-          <option value="">-- Select --</option>
-          <option value="Income">Income</option>
-          <option value="Expense">Expense</option>
-          <option value="Both">Both</option>
-        </select>
-        @if (form.controls.budgetFlow.touched && form.controls.budgetFlow.errors) {
-          <span class="field-error" data-testid="error-budgetFlow">Budget flow is required</span>
-        }
-      </div>
+            <mnl-form-field inputId="description" label="Description">
+              <mnl-input
+                id="description"
+                testId="input-description"
+                formControlName="description"
+              />
+            </mnl-form-field>
+          </section>
 
-      <div class="form-field">
-        <label for="attribution">Attribution</label>
-        <select id="attribution" formControlName="attribution" data-testid="select-attribution">
-          <option value="">-- None --</option>
-          <option value="Main">Main</option>
-          <option value="Rental">Rental</option>
-          <option value="ServiceProvider">ServiceProvider</option>
-        </select>
-      </div>
+          <section class="grid gap-4 md:grid-cols-2">
+            <mnl-form-field
+              errorTestId="error-budgetFlow"
+              inputId="category-budgetFlow"
+              label="Budget flow"
+              [error]="budgetFlowErrorMessage()"
+              [required]="true"
+            >
+              <mnl-select
+                id="category-budgetFlow"
+                placeholder="-- Select --"
+                testId="select-budgetFlow"
+                [options]="budgetFlowOptions"
+                formControlName="budgetFlow"
+              />
+            </mnl-form-field>
 
-      <div class="form-field">
-        <label for="incomeContributor">Income Contributor</label>
-        <input
-          id="incomeContributor"
-          formControlName="incomeContributor"
-          data-testid="input-incomeContributor"
-        />
-      </div>
+            <mnl-form-field inputId="attribution" label="Attribution">
+              <mnl-select
+                id="attribution"
+                placeholder="-- None --"
+                testId="select-attribution"
+                [options]="attributionOptions"
+                formControlName="attribution"
+              />
+            </mnl-form-field>
+          </section>
 
-      <div class="form-field">
-        <label for="responsiblePayer">Responsible Payer</label>
-        <input
-          id="responsiblePayer"
-          formControlName="responsiblePayer"
-          data-testid="input-responsiblePayer"
-        />
-      </div>
+          <section class="grid gap-4 md:grid-cols-2">
+            <mnl-form-field inputId="incomeContributor" label="Income contributor">
+              <mnl-input
+                id="incomeContributor"
+                testId="input-incomeContributor"
+                formControlName="incomeContributor"
+              />
+            </mnl-form-field>
 
-      @if (formError()) {
-        <div class="error-banner" data-testid="form-error">{{ formError() }}</div>
-      }
+            <mnl-form-field inputId="responsiblePayer" label="Responsible payer">
+              <mnl-input
+                id="responsiblePayer"
+                testId="input-responsiblePayer"
+                formControlName="responsiblePayer"
+              />
+            </mnl-form-field>
+          </section>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-primary" [disabled]="saving()" data-testid="btn-save">
-          {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
-        </button>
-        <button type="button" class="btn-secondary" (click)="onCancel()" data-testid="btn-cancel">
-          Cancel
-        </button>
-      </div>
+          @if (formError()) {
+            <div
+              class="rounded-2xl border border-mnl-error/30 bg-mnl-error/10 px-4 py-3 text-sm text-mnl-error"
+              data-testid="form-error"
+            >
+              {{ formError() }}
+            </div>
+          }
+        </div>
+
+        <div mnlFormActions class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <mnl-button type="button" variant="ghost" testId="btn-cancel" (pressed)="onCancel()">
+            Cancel
+          </mnl-button>
+
+          <mnl-button type="submit" [loading]="saving()" testId="btn-save">
+            {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
+          </mnl-button>
+        </div>
+      </mnl-form-layout>
     </form>
   `,
-  styles: [
-    `
-      .category-form {
-        padding: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        background: #f8f9fa;
-        margin: 0.5rem 0;
-      }
-
-      .form-field {
-        margin-bottom: 0.75rem;
-      }
-
-      .form-field label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-        font-size: 0.875rem;
-      }
-
-      .form-field input,
-      .form-field select {
-        width: 100%;
-        padding: 0.4rem 0.6rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 0.9rem;
-      }
-
-      .field-error {
-        color: #dc3545;
-        font-size: 0.8rem;
-        margin-top: 0.2rem;
-        display: block;
-      }
-
-      .error-banner {
-        padding: 0.75rem;
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        color: #721c24;
-        margin-bottom: 0.75rem;
-        font-size: 0.875rem;
-      }
-
-      .form-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .btn-primary {
-        padding: 0.4rem 1rem;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .btn-primary:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-      }
-
-      .btn-secondary {
-        padding: 0.4rem 1rem;
-        background: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-    `,
-  ],
 })
 export class CategoryFormComponent {
   private readonly categoryApi = inject(CategoryApiService);
+  private readonly toastService = inject(MnlToastService);
 
   readonly budgetId = input.required<string>();
   readonly category = input<CategoryDto | null>(null);
@@ -189,6 +181,8 @@ export class CategoryFormComponent {
   readonly formError = signal<string | null>(null);
 
   readonly isEditMode = computed(() => !!this.category());
+  protected readonly attributionOptions = attributionOptions;
+  protected readonly budgetFlowOptions = budgetFlowOptions;
 
   readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -205,17 +199,19 @@ export class CategoryFormComponent {
   });
 
   ngOnInit(): void {
-    const cat = this.category();
-    if (cat) {
-      this.form.patchValue({
-        name: cat.name,
-        description: cat.description ?? '',
-        budgetFlow: cat.budgetFlow,
-        attribution: cat.attribution ?? '',
-        incomeContributor: cat.incomeContributor ?? '',
-        responsiblePayer: cat.responsiblePayer ?? '',
-      });
+    const category = this.category();
+    if (!category) {
+      return;
     }
+
+    this.form.patchValue({
+      name: category.name,
+      description: category.description ?? '',
+      budgetFlow: category.budgetFlow,
+      attribution: category.attribution ?? '',
+      incomeContributor: category.incomeContributor ?? '',
+      responsiblePayer: category.responsiblePayer ?? '',
+    });
   }
 
   onSubmit(): void {
@@ -227,23 +223,49 @@ export class CategoryFormComponent {
     this.saving.set(true);
     this.formError.set(null);
 
-    const cat = this.category();
-    if (cat) {
-      this.doUpdate(cat.id);
-    } else {
-      this.doCreate();
+    const category = this.category();
+    if (category) {
+      this.doUpdate(category.id);
+      return;
     }
+
+    this.doCreate();
   }
 
   onCancel(): void {
     this.cancelled.emit();
   }
 
+  protected budgetFlowErrorMessage(): string | null {
+    return this.controlErrorMessage(this.form.controls.budgetFlow, 'Budget flow is required');
+  }
+
+  protected nameErrorMessage(): string | null {
+    return this.controlErrorMessage(this.form.controls.name, 'Name is required');
+  }
+
+  private controlErrorMessage(control: AbstractControl, requiredMessage: string): string | null {
+    if (!control.touched || !control.errors) {
+      return null;
+    }
+
+    if (typeof control.errors['api'] === 'string') {
+      return control.errors['api'] as string;
+    }
+
+    if (control.errors['required']) {
+      return requiredMessage;
+    }
+
+    return 'Invalid value';
+  }
+
   private doCreate(): void {
-    const request: CreateCategoryRequest = this.buildCreateRequest();
+    const request = this.buildCreateRequest();
     this.categoryApi.createCategory(this.budgetId(), request).subscribe((result) => {
       this.saving.set(false);
       if (isSuccess(result)) {
+        this.toastService.show('Category created.', { variant: 'success' });
         this.saved.emit(result.value);
       } else {
         this.handleError(result.error);
@@ -252,10 +274,11 @@ export class CategoryFormComponent {
   }
 
   private doUpdate(categoryId: string): void {
-    const request: UpdateCategoryRequest = this.buildUpdateRequest();
+    const request = this.buildUpdateRequest();
     this.categoryApi.updateCategory(this.budgetId(), categoryId, request).subscribe((result) => {
       this.saving.set(false);
       if (isSuccess(result)) {
+        this.toastService.show('Category updated.', { variant: 'success' });
         this.saved.emit(result.value);
       } else {
         this.handleError(result.error);
@@ -264,41 +287,80 @@ export class CategoryFormComponent {
   }
 
   private buildCreateRequest(): CreateCategoryRequest {
-    const v = this.form.getRawValue();
+    const value = this.form.getRawValue();
     const request: CreateCategoryRequest = {
-      name: v.name,
-      budgetFlow: v.budgetFlow as 'Income' | 'Expense' | 'Both',
+      name: value.name,
+      budgetFlow: value.budgetFlow as 'Income' | 'Expense' | 'Both',
     };
-    if (this.parentId()) request.parentId = this.parentId()!;
-    if (v.description) request.description = v.description;
-    if (v.attribution) request.attribution = v.attribution as 'Main' | 'Rental' | 'ServiceProvider';
-    if (v.incomeContributor) request.incomeContributor = v.incomeContributor;
-    if (v.responsiblePayer) request.responsiblePayer = v.responsiblePayer;
+
+    if (this.parentId()) {
+      request.parentId = this.parentId()!;
+    }
+
+    if (value.description) {
+      request.description = value.description;
+    }
+
+    if (value.attribution) {
+      request.attribution = value.attribution as 'Main' | 'Rental' | 'ServiceProvider';
+    }
+
+    if (value.incomeContributor) {
+      request.incomeContributor = value.incomeContributor;
+    }
+
+    if (value.responsiblePayer) {
+      request.responsiblePayer = value.responsiblePayer;
+    }
+
     return request;
   }
 
   private buildUpdateRequest(): UpdateCategoryRequest {
-    const v = this.form.getRawValue();
+    const value = this.form.getRawValue();
     const request: UpdateCategoryRequest = {
-      name: v.name,
-      budgetFlow: v.budgetFlow as 'Income' | 'Expense' | 'Both',
+      name: value.name,
+      budgetFlow: value.budgetFlow as 'Income' | 'Expense' | 'Both',
     };
-    if (v.description) request.description = v.description;
-    if (v.attribution) request.attribution = v.attribution as 'Main' | 'Rental' | 'ServiceProvider';
-    if (v.incomeContributor) request.incomeContributor = v.incomeContributor;
-    if (v.responsiblePayer) request.responsiblePayer = v.responsiblePayer;
+
+    if (value.description) {
+      request.description = value.description;
+    }
+
+    if (value.attribution) {
+      request.attribution = value.attribution as 'Main' | 'Rental' | 'ServiceProvider';
+    }
+
+    if (value.incomeContributor) {
+      request.incomeContributor = value.incomeContributor;
+    }
+
+    if (value.responsiblePayer) {
+      request.responsiblePayer = value.responsiblePayer;
+    }
+
     return request;
   }
 
   private handleError(error: ApiError): void {
+    const message = getErrorMessage(error);
     if (error.kind === 'problem' && error.status === 409) {
       const nameControl = this.form.get('name')!;
-      nameControl.setErrors({ api: getErrorMessage(error) });
+      nameControl.setErrors({ api: message });
       nameControl.markAsTouched();
-    } else if (hasValidationErrors(error)) {
-      mapValidationErrorsToForm(error, this.form);
-    } else {
-      this.formError.set(getErrorMessage(error));
+      this.toastService.show(message, { variant: 'warning' });
+      return;
     }
+
+    if (hasValidationErrors(error)) {
+      mapValidationErrorsToForm(error, this.form);
+      this.toastService.show('Please fix the highlighted validation errors.', {
+        variant: 'warning',
+      });
+      return;
+    }
+
+    this.formError.set(message);
+    this.toastService.show(message, { variant: 'error' });
   }
 }

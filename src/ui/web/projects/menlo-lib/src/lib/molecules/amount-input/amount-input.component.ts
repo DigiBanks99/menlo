@@ -58,7 +58,7 @@ const inputClasses =
         [class]="controlClasses()"
         [disabled]="isDisabled()"
         [value]="displayValue()"
-        data-testid="mnl-amount-input"
+        [attr.data-testid]="testId()"
         inputmode="decimal"
         type="text"
         (blur)="handleBlur()"
@@ -75,6 +75,7 @@ export class MnlAmountInputComponent implements ControlValueAccessor {
   readonly id = input('');
   readonly name = input('');
   readonly placeholder = input('');
+  readonly testId = input('mnl-amount-input');
 
   readonly valueChange = output<MnlAmountInputValue>();
 

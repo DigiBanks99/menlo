@@ -68,7 +68,7 @@ const selectClasses =
           [class]="controlClasses()"
           [disabled]="isDisabled()"
           [value]="displayValue()"
-          data-testid="mnl-select"
+          [attr.data-testid]="testId()"
           (blur)="handleBlur()"
           (change)="handleChange($event)"
         >
@@ -112,6 +112,7 @@ export class MnlSelectComponent implements AfterViewChecked, ControlValueAccesso
   readonly name = input('');
   readonly options = input<readonly MnlSelectOption[]>([]);
   readonly placeholder = input('');
+  readonly testId = input('mnl-select');
 
   readonly valueChange = output<MnlSelectValue>();
 

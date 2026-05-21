@@ -40,7 +40,7 @@ const variantClasses: Record<MnlButtonVariant, string> = {
       [attr.type]="type()"
       [class]="buttonClasses()"
       [disabled]="isDisabled()"
-      data-testid="mnl-button"
+      [attr.data-testid]="testId()"
       (click)="handleClick($event)"
     >
       @if (loading()) {
@@ -82,6 +82,7 @@ export class MnlButtonComponent {
   readonly size = input<MnlButtonSize>('md');
   readonly disabled = input(false);
   readonly loading = input(false);
+  readonly testId = input('mnl-button');
   readonly type = input<MnlButtonType>('button');
 
   readonly pressed = output<MouseEvent>();

@@ -37,6 +37,13 @@ function mockBudgetItemDto(overrides: Partial<BudgetItemDto> = {}): BudgetItemDt
   };
 }
 
+function formatAmount(value: number): string {
+  return new Intl.NumberFormat('en-ZA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 describe('BudgetItemFormComponent', () => {
   let mockBudgetItemApi: {
     updateItem: ReturnType<typeof vi.fn>;
@@ -74,7 +81,7 @@ describe('BudgetItemFormComponent', () => {
       const plannedInput = fixture.nativeElement.querySelector(
         '[data-testid="input-plannedAmount"]',
       ) as HTMLInputElement;
-      expect(plannedInput.value).toBe('5000');
+      expect(plannedInput.value).toBe(formatAmount(5000));
     });
 
     it('populates payer split from existing item', () => {
@@ -593,10 +600,9 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set a percent to null to exercise the ?? 0 branch in splitSumValidator
-      component.form.controls.payerSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-        { emitEvent: false },
-      );
+      component.form.controls.payerSplit
+        .at(0)
+        .controls.percent.setValue(null as unknown as number, { emitEvent: false });
       component.form.controls.payerSplit.updateValueAndValidity({ emitEvent: false });
 
       expect(component.form.controls.payerSplit.errors).toBeTruthy();
@@ -614,9 +620,7 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set percent to null to trigger ?? 0
-      component.form.controls.payerSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-      );
+      component.form.controls.payerSplit.at(0).controls.percent.setValue(null as unknown as number);
 
       expect(component.payerSplitTotal()).toBe(40); // 0 + 40
     });
@@ -632,9 +636,9 @@ describe('BudgetItemFormComponent', () => {
 
       const component = fixture.componentInstance;
       // Set percent to null to trigger ?? 0
-      component.form.controls.attributionSplit.at(0).controls.percent.setValue(
-        null as unknown as number,
-      );
+      component.form.controls.attributionSplit
+        .at(0)
+        .controls.percent.setValue(null as unknown as number);
 
       expect(component.attributionSplitTotal()).toBe(30); // 0 + 30
     });
@@ -648,9 +652,7 @@ describe('BudgetItemFormComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeTruthy();
-      expect(
-        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
-      ).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]')).toBeTruthy();
     });
 
     it('does not show month and budgetFlow fields in edit mode', () => {
@@ -663,9 +665,7 @@ describe('BudgetItemFormComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('[data-testid="input-month"]')).toBeNull();
-      expect(
-        fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]'),
-      ).toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-testid="select-budgetFlow"]')).toBeNull();
     });
 
     it('shows Create button label in create mode', () => {
@@ -674,7 +674,9 @@ describe('BudgetItemFormComponent', () => {
       fixture.componentRef.setInput('categoryId', mockCategoryId);
       fixture.detectChanges();
 
-      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      const btn = fixture.nativeElement.querySelector(
+        '[data-testid="btn-save"]',
+      ) as HTMLButtonElement;
       expect(btn.textContent?.trim()).toBe('Create');
     });
 
@@ -687,7 +689,9 @@ describe('BudgetItemFormComponent', () => {
       fixture.componentRef.setInput('item', existing);
       fixture.detectChanges();
 
-      const btn = fixture.nativeElement.querySelector('[data-testid="btn-save"]') as HTMLButtonElement;
+      const btn = fixture.nativeElement.querySelector(
+        '[data-testid="btn-save"]',
+      ) as HTMLButtonElement;
       expect(btn.textContent?.trim()).toBe('Update');
     });
 
@@ -705,7 +709,11 @@ describe('BudgetItemFormComponent', () => {
 
       fixture.componentInstance.addPayerSplit('user-1', 100);
       fixture.componentInstance.addAttributionSplit('Main', 100);
-      fixture.componentInstance.form.patchValue({ plannedAmount: 3000, month: 5, budgetFlow: 'Income' });
+      fixture.componentInstance.form.patchValue({
+        plannedAmount: 3000,
+        month: 5,
+        budgetFlow: 'Income',
+      });
       fixture.componentInstance.onSubmit();
 
       expect(savedSpy).toHaveBeenCalledWith(createdDto);
@@ -723,7 +731,11 @@ describe('BudgetItemFormComponent', () => {
 
       fixture.componentInstance.addPayerSplit('user-1', 100);
       fixture.componentInstance.addAttributionSplit('Main', 100);
-      fixture.componentInstance.form.patchValue({ plannedAmount: 2000, month: 1, budgetFlow: 'Expense' });
+      fixture.componentInstance.form.patchValue({
+        plannedAmount: 2000,
+        month: 1,
+        budgetFlow: 'Expense',
+      });
       fixture.componentInstance.onSubmit();
       fixture.detectChanges();
 

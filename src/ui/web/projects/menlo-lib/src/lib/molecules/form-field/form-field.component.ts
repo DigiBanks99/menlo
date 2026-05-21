@@ -34,7 +34,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
       @if (error()) {
         <p
           class="m-0 text-xs font-medium leading-5 text-mnl-red"
-          data-testid="mnl-form-field-error"
+          [attr.data-testid]="errorTestId()"
         >
           {{ error() }}
         </p>
@@ -44,6 +44,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 })
 export class MnlFormFieldComponent {
   readonly error = input<string | null>(null);
+  readonly errorTestId = input('mnl-form-field-error');
   readonly hint = input('');
   readonly inputId = input('');
   readonly label = input.required<string>();
