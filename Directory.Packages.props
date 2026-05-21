@@ -3,8 +3,9 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.4" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.4" />
+    <PackageVersion Include="Aspire.Hosting.Browsers" Version="13.3.5-preview.1.26270.6" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.5" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.5" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.3.0" />
     <PackageVersion Include="CommunityToolkit.Aspire.OllamaSharp" Version="13.3.0" />
     <PackageVersion Include="CSharpFunctionalExtensions" Version="3.7.0" />

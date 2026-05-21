@@ -28,8 +28,7 @@ describe('App', () => {
         ]),
         provideZonelessChangeDetection(),
       ],
-    })
-    .compileComponents();
+    }).compileComponents();
   });
 
   it('should create the app', () => {

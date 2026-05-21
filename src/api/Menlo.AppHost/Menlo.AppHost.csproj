@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.4">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -6,6 +6,7 @@
     <UserSecretsId>menlo-app-host</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Browsers" />
     <PackageReference Include="Aspire.Hosting.JavaScript" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
