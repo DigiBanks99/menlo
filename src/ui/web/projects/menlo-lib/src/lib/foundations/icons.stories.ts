@@ -91,7 +91,7 @@ const iconEntries = [
                 <span
                   class="inline-flex items-center rounded-full bg-mnl-surface-alt px-3 py-1 text-xs font-semibold text-mnl-subtext ring-1 ring-mnl-border"
                 >
-                  import { icon } from 'lucide-angular'
+                  import &#123; icon &#125; from 'lucide-angular'
                 </span>
               </div>
 
