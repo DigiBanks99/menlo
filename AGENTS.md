@@ -29,31 +29,31 @@ Use `aspire` to run the application
 ## Linting and formatting
 
 - Web:
-  - Linting: `pnpm lint`
-  - Formatting: `pnpm format`
+    - Linting: `pnpm lint`
+    - Formatting: `pnpm format`
 - All .NET: `dotnet format`
 
 ## API Coverage Baseline (`src/api/Menlo.Api`)
 
 Measured from the latest full `Menlo.Api.Tests` run (post-fix, feat/285 branch).
 
-| File | Line coverage |
-|------|--------------|
-| BudgetSummaryDto.cs | 100.00% |
-| GetBudgetSummaryHandler.cs | 96.81% |
-| FillForwardHandler.cs | 91.04% |
-| BulkCreateBudgetItemHandler.cs | 91.18% |
-| CreateBudgetItemHandler.cs | 91.55% |
-| DeleteBudgetItemHandler.cs | 95.00% |
-| ListBudgetItemsHandler.cs | 96.00% |
-| BudgetItemMapper.cs | 94.59% |
-| BudgetEndpoints.cs | 100.00% |
-| BudgetItemDto.cs | 100.00% |
-| BudgetItemEndpoints.cs | 100.00% |
-| RecordItemSpentHandler.cs | 82.76% |
-| RealizeItemHandler.cs | 82.76% |
-| UpdateBudgetItemHandler.cs | 72.62% |
-| **Overall `Menlo.Api.Tests` line-rate** | **75.53%** |
+| File                                    | Line coverage |
+| --------------------------------------- | ------------- |
+| BudgetSummaryDto.cs                     | 100.00%       |
+| GetBudgetSummaryHandler.cs              | 96.81%        |
+| FillForwardHandler.cs                   | 91.04%        |
+| BulkCreateBudgetItemHandler.cs          | 91.18%        |
+| CreateBudgetItemHandler.cs              | 91.55%        |
+| DeleteBudgetItemHandler.cs              | 95.00%        |
+| ListBudgetItemsHandler.cs               | 96.00%        |
+| BudgetItemMapper.cs                     | 94.59%        |
+| BudgetEndpoints.cs                      | 100.00%       |
+| BudgetItemDto.cs                        | 100.00%       |
+| BudgetItemEndpoints.cs                  | 100.00%       |
+| RecordItemSpentHandler.cs               | 82.76%        |
+| RealizeItemHandler.cs                   | 82.76%        |
+| UpdateBudgetItemHandler.cs              | 72.62%        |
+| **Overall `Menlo.Api.Tests` line-rate** | **75.53%**    |
 
 **Guardrail:** Changed C# files under `src/api/Menlo.Api/**` must stay at or above **70% line coverage** in CI. The repo-local guardrail definition lives in `scripts/` (implemented in a parallel lane — do not modify it here).
 
@@ -64,6 +64,7 @@ You must use conventional commits and tag the github issue you are working on in
 Update your learnings as you progress but keep them brief.
 
 <!-- Agent updates this section with discoveries - keep brief -->
+
 - Local GitHub Actions reproduction already has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
 - Household IDs in shared-fixture API tests must be unique across test classes to avoid cross-test contamination.
 - Tailwind v4 in `src/ui/web` should be wired through PostCSS, and `@tailwindcss/forms` should use `strategy: "class"` to avoid reset regressions during the design-system rollout.
@@ -77,3 +78,5 @@ Update your learnings as you progress but keep them brief.
 - `mnl-button` exposes routed CTA interactions through its `pressed` output, so components that need navigation should handle routing in the host component instead of trying to attach `routerLink` directly.
 - `pnpm exec nx test menlo-app --coverage` can fully cover a migrated app slice while still failing branch-wide because `menlo-app` and `menlo-lib` both enforce 100% global coverage across pre-existing uncovered files.
 - A stray `Menlo.Api.exe` process locks backend build outputs and makes `dotnet test Menlo.slnx` fail even when the test suite itself is green; stop the specific PID before rerunning.
+- `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
+- `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
