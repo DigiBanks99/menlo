@@ -43,7 +43,7 @@ IResourceBuilder<JavaScriptAppResource> ui = builder
     .WithRunScript("start")
     .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
     .WithEnvironment("HOST", "127.0.0.1")
-    .WithHttpEndpoint(name: "https", isProxied: false, port: 4200, env: "PORT")
+    .WithHttpEndpoint(name: "http", isProxied: false, port: 4200, env: "PORT")
     .WithHttpHealthCheck()
     .WithReference(api)
     .WaitFor(api)
