@@ -63,10 +63,15 @@ if ($LASTEXITCODE -ne 0) {
     $changedRaw = & git @gitArgs 2>&1
 }
 
-# Normalize changed file paths to forward slashes
+# Normalize changed file paths to forward slashes while retaining original casing for file reads.
 $changedFiles = @($changedRaw |
     Where-Object { $_ -match '\.cs$' } |
-    ForEach-Object { Normalize-Path $_ })
+    ForEach-Object {
+        [pscustomobject]@{
+            Original   = $_
+            Normalized = Normalize-Path $_
+        }
+    })
 
 if ($changedFiles.Count -eq 0) {
     Write-Host "✅ No changed C# files in src/api/Menlo.Api/ — skipping coverage check."
@@ -74,7 +79,7 @@ if ($changedFiles.Count -eq 0) {
 }
 
 Write-Host "Changed Menlo.Api files ($($changedFiles.Count)):"
-$changedFiles | ForEach-Object { Write-Host "  $_" }
+$changedFiles | ForEach-Object { Write-Host "  $($_.Normalized)" }
 
 # ── 3. Find coverage XML files ───────────────────────────────────────────────
 $xmlFiles = @(Get-ChildItem -Path $CoverageDir -Recurse -Filter 'coverage.cobertura.xml' -ErrorAction SilentlyContinue)
@@ -130,11 +135,23 @@ $results = @()
 foreach ($changedFile in $changedFiles) {
     # changed file: "src/api/menlo.api/budget/budgetdto.cs"
     # xml key:      "api/menlo.api/budget/budgetdto.cs"
-    $xmlKey = $changedFile -replace '^src/', ''
+    $xmlKey = $changedFile.Normalized -replace '^src/', ''
 
     if (-not $fileCoverage.ContainsKey($xmlKey)) {
-        Write-Warning "⚠️  $changedFile — not found in coverage report"
-        $results += [pscustomobject]@{ File = $changedFile; Coverage = 'N/A'; Status = 'MISSING' }
+        $isExcludedFromCoverage = $false
+        if (Test-Path -LiteralPath $changedFile.Original) {
+            $fileContent = Get-Content -LiteralPath $changedFile.Original -Raw
+            $isExcludedFromCoverage = $fileContent -match '\[(?:\s*System\.Diagnostics\.CodeAnalysis\.)?ExcludeFromCodeCoverage(?:Attribute)?(?:\s*\(.*?\))?\s*\]'
+        }
+
+        if ($isExcludedFromCoverage) {
+            Write-Host "ℹ️  $($changedFile.Normalized) — excluded from code coverage via [ExcludeFromCodeCoverage], skipping."
+            $results += [pscustomobject]@{ File = $changedFile.Normalized; Coverage = 'N/A'; Status = 'EXCLUDED' }
+            continue
+        }
+
+        Write-Warning "⚠️  $($changedFile.Normalized) — not found in coverage report"
+        $results += [pscustomobject]@{ File = $changedFile.Normalized; Coverage = 'N/A'; Status = 'MISSING' }
         $failed = $true
         continue
     }
@@ -150,7 +167,7 @@ foreach ($changedFile in $changedFiles) {
     }
 
     $status = if ($pct -ge $Threshold) { 'PASS' } else { 'FAIL'; $failed = $true }
-    $results += [pscustomobject]@{ File = $changedFile; Coverage = "$pct%"; Status = $status }
+    $results += [pscustomobject]@{ File = $changedFile.Normalized; Coverage = "$pct%"; Status = $status }
 }
 
 # ── 6. Print summary ─────────────────────────────────────────────────────────
