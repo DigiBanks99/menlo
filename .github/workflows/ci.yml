@@ -336,7 +336,7 @@ jobs:
 
       - name: Run tests
         working-directory: src/ui/web
-        run: pnpm run test:all -- --coverage --reporters=default --reporters=junit
+        run: pnpm run test:all -- --reporters=default --reporters=junit
         env:
           NODE_ENV: test
 
