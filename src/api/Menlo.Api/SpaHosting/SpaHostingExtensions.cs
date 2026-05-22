@@ -57,9 +57,9 @@ internal static class SpaHostingExtensions
 
     private static string ResolveDevelopmentServerUri(IConfiguration configuration)
     {
-        string? uri = configuration.GetConnectionString(SpaServiceName)
+        string? uri = configuration[$"Services:{SpaServiceName}:http:0"]
             ?? configuration[$"Services:{SpaServiceName}:https:0"]
-            ?? configuration[$"Services:{SpaServiceName}:http:0"];
+            ?? configuration.GetConnectionString(SpaServiceName);
 
         return Uri.TryCreate(uri, UriKind.Absolute, out Uri? developmentServerUri)
             ? EnsureTrailingSlash(developmentServerUri.AbsoluteUri)
