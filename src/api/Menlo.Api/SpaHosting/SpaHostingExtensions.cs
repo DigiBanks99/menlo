@@ -1,9 +1,11 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Menlo.Api.SpaHosting;
 
+[ExcludeFromCodeCoverage]
 internal static class SpaHostingExtensions
 {
     private const string SpaServiceName = "web-ui";
