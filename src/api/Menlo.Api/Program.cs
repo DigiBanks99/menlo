@@ -27,12 +27,13 @@ builder
 
 WebApplication app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+ForwardedHeadersOptions forwardedHeadersOptions = new()
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    KnownIPNetworks = { },
-    KnownProxies = { }
-});
+};
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.UseHttpsRedirection();
 

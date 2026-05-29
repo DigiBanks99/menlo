@@ -86,6 +86,16 @@ public static class AuthServiceCollectionExtensions
                     {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.HandleResponse();
+                        return Task.CompletedTask;
+                    }
+
+                    // Safety net: rewrite redirect URI scheme when running behind a TLS-terminating
+                    // reverse proxy (e.g. Cloudflare Tunnel) in case ForwardedHeaders middleware
+                    // did not process X-Forwarded-Proto.
+                    if (context.ProtocolMessage.RedirectUri?.StartsWith("http://", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        context.ProtocolMessage.RedirectUri =
+                            string.Concat("https://", context.ProtocolMessage.RedirectUri.AsSpan(7));
                     }
 
                     return Task.CompletedTask;
