@@ -39,17 +39,21 @@ public static class AuthServiceCollectionExtensions
         }
 
         // AddMicrosoftIdentityWebApp reads ClientCertificates (or ClientSecret) from the AzureAd
-        // config section and uses MSAL for the authorization code exchange. When ClientCertificates
-        // is configured (as injected by CD from Key Vault), MSAL generates the required
-        // client_assertion JWT — satisfying Entra ID's AADSTS7000218 requirement without a
-        // plain-text client_secret.
+        // config section. EnableTokenAcquisitionToCallDownstreamApi() is the critical step:
+        // it registers MSAL and overrides OnAuthorizationCodeReceived so that MSAL — not the
+        // native OpenIdConnectHandler — exchanges the authorization code at the token endpoint.
+        // When ClientCertificates is configured (injected by CD from Key Vault), MSAL generates
+        // the required client_assertion JWT instead of sending a plain-text client_secret,
+        // satisfying Entra ID's AADSTS7000218 requirement.
         builder.Services
             .AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
-            .AddMicrosoftIdentityWebApp(section);
+            .AddMicrosoftIdentityWebApp(section)
+            .EnableTokenAcquisitionToCallDownstreamApi()
+            .AddInMemoryTokenCaches();
 
         // PostConfigure runs after AddMicrosoftIdentityWebApp's internal OidcConfigurator,
         // allowing us to layer Menlo-specific behaviour on top without losing MiW's
