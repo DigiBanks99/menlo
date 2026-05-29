@@ -21,7 +21,7 @@ updates:
 
   # Frontend Dependencies (npm/pnpm)
   - package-ecosystem: "npm"
-    directory: "/src/ui/web"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
