@@ -192,7 +192,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
             ["AzureAd:TenantId"] = "test-tenant-id",
             ["AzureAd:ClientId"] = "test-client-id",
-            ["AzureAd:ClientSecret"] = "test-client-secret"
+            ["AzureAd:ClientSecret"] = "test-client-secret",
+            ["AzureAd:ResponseType"] = "code"
         };
 
         if (MenloConnectionString is not null)
