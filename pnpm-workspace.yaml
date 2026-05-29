@@ -1,6 +1,10 @@
 packages:
   - src/ui/web
 
+# Disable minimum release age — Dependabot PRs target trusted packages
+# (Angular, Vite, etc.) at minor/patch only, so supply-chain risk is low.
+minimumReleaseAge: 0
+
 allowBuilds:
   '@compodoc/compodoc': true
   '@parcel/watcher': true
