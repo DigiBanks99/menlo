@@ -40,7 +40,7 @@ jobs:
       contains(github.event.head_commit.modified, 'infra/')
     uses: ./.github/workflows/cd-infra.yml
     with:
-      environment: prod
+      environment: Production
     secrets: inherit
 
     permissions:

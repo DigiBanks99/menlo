@@ -6,17 +6,17 @@ on:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'prod'
+        default: 'Production'
         type: choice
         options:
-          - prod
+          - Production
           - dev
   workflow_call:
     inputs:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'prod'
+        default: 'Production'
         type: string
     outputs:
       key-vault-name:
@@ -34,7 +34,7 @@ jobs:
   deploy-infrastructure:
     name: Deploy Azure Infrastructure
     runs-on: ubuntu-latest
-    environment: prod
+    environment: ${{ inputs.environment }}
 
     permissions:
       id-token: write
