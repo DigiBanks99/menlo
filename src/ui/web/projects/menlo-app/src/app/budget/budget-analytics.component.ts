@@ -153,8 +153,7 @@ export class BudgetAnalyticsComponent {
   ];
   protected readonly selectedPeriod = signal<BudgetAnalyticsPeriod>('current');
   protected readonly selectedPeriodLabel = computed(
-    () =>
-      this.periodOptions.find((option) => option.value === this.selectedPeriod())?.label ?? 'Current Month',
+    () => this.periodOptions.find((option) => option.value === this.selectedPeriod())!.label,
   );
 
   protected categoryProgressVariantFor(percentage: number): MnlProgressVariant {
