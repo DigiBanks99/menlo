@@ -40,6 +40,6 @@ internal static class EntraIdExtensions
             .WithEnvironment("AzureAd__TenantId", tenantId)
             .WithEnvironment("AzureAd__Domain", domain)
             .WithEnvironment("AzureAd__ClientId", clientId)
-            .WithEnvironment("AzureAd__ClientCredentials__0__ClientSecret", clientSecret);
+            .WithEnvironment("AzureAd__ClientSecret", clientSecret);
     }
 }
