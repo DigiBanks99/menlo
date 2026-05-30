@@ -496,3 +496,5 @@ src/api/Menlo.Api/wwwroot/*
 node_modules
 _tmp*
 .ralph.done
+auth.json
+.auth.json
