@@ -33,27 +33,7 @@ Use `aspire` to run the application
     - Formatting: `pnpm format`
 - All .NET: `dotnet format`
 
-## API Coverage Baseline (`src/api/Menlo.Api`)
-
-Measured from the latest full `Menlo.Api.Tests` run (post-fix, feat/285 branch).
-
-| File                                    | Line coverage |
-| --------------------------------------- | ------------- |
-| BudgetSummaryDto.cs                     | 100.00%       |
-| GetBudgetSummaryHandler.cs              | 96.81%        |
-| FillForwardHandler.cs                   | 91.04%        |
-| BulkCreateBudgetItemHandler.cs          | 91.18%        |
-| CreateBudgetItemHandler.cs              | 91.55%        |
-| DeleteBudgetItemHandler.cs              | 95.00%        |
-| ListBudgetItemsHandler.cs               | 96.00%        |
-| BudgetItemMapper.cs                     | 94.59%        |
-| BudgetEndpoints.cs                      | 100.00%       |
-| BudgetItemDto.cs                        | 100.00%       |
-| BudgetItemEndpoints.cs                  | 100.00%       |
-| RecordItemSpentHandler.cs               | 82.76%        |
-| RealizeItemHandler.cs                   | 82.76%        |
-| UpdateBudgetItemHandler.cs              | 72.62%        |
-| **Overall `Menlo.Api.Tests` line-rate** | **75.53%**    |
+## API Coverage
 
 **Guardrail:** Changed C# files under `src/api/Menlo.Api/**` must stay at or above **70% line coverage** in CI. The repo-local guardrail definition lives in `scripts/` (implemented in a parallel lane — do not modify it here).
 
