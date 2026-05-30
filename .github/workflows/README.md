@@ -119,6 +119,7 @@ Configure these variables in GitHub repository settings:
 - `DEPLOY_STORYBOOK`: Set to `true` to enable Storybook deployment
 - `STORYBOOK_URL`: Storybook documentation URL
 - `CLOUDFLARE_TUNNEL_ENABLED`: Set to `true` if using Cloudflare Tunnel
+- `FEATURES_BUDGET`: Set to `true`/`false` to control budget endpoints in production
 
 ## 🚀 Deployment Process
 
