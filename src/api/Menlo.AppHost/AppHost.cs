@@ -31,7 +31,7 @@ IResourceBuilder<ProjectResource> api = builder
     .WaitFor(textModel)
     .WithReference(visionModel)
     .WaitFor(visionModel)
-    .WithEnvironment(env => env.AddEntraIdCredentials(builder.Configuration))
+    .WithEntraIdCredentials(builder)
     .WithExternalHttpEndpoints()
     .WithBrowserLogs();
 
