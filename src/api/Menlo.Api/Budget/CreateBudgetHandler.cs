@@ -4,6 +4,8 @@ using Menlo.Lib.Auth.Abstractions;
 using Menlo.Lib.Auth.Errors;
 using Menlo.Lib.Auth.Models;
 using Menlo.Lib.Budget.Entities;
+using Menlo.Lib.Budget.Enums;
+using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +53,7 @@ public static class CreateBudgetHandler
 
         Lib.Budget.Entities.Budget? existing = await budgetContext.Budgets
             .Include(b => b.Categories)
+            .Include(b => b.Items)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 b => b.HouseholdId == userContext.HouseholdId && b.Year == year,
@@ -92,8 +95,16 @@ public static class CreateBudgetHandler
         return Results.Created($"/api/budgets/{budget.Id.Value}", MapToDto(budget));
     }
 
-    internal static BudgetDto MapToDto(Lib.Budget.Entities.Budget budget) =>
-        new(
+    internal static BudgetDto MapToDto(Lib.Budget.Entities.Budget budget)
+    {
+        int currentMonth = DateTime.UtcNow.Month;
+        decimal totalPlanned = budget.Items
+            .Where(i => !i.IsDeleted && i.Month == currentMonth)
+            .Sum(i => i.BudgetFlow == BudgetFlow.Income
+                ? i.PlannedAmount.Amount
+                : -i.PlannedAmount.Amount);
+
+        return new(
             Id: budget.Id.Value,
             Year: budget.Year,
             HouseholdId: budget.HouseholdId.Value,
@@ -104,9 +115,8 @@ public static class CreateBudgetHandler
                 ParentId: c.ParentId?.Value,
                 PlannedMonthlyAmount: new MoneyDto(c.PlannedMonthlyAmount.Amount, c.PlannedMonthlyAmount.Currency)))
                 .ToList(),
-            TotalPlannedMonthlyAmount: new MoneyDto(
-                budget.TotalPlannedMonthlyAmount.Amount,
-                budget.TotalPlannedMonthlyAmount.Currency));
+            TotalPlannedMonthlyAmount: new MoneyDto(totalPlanned, "ZAR"));
+    }
 
     private static bool IsFeatureEnabled(IConfiguration configuration) =>
         configuration.GetValue<bool>("Features:Budget", defaultValue: false);
