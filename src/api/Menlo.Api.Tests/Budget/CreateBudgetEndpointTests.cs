@@ -6,6 +6,7 @@ using Menlo.Lib.Auth.Models;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using System.Net;
 using System.Net.Http.Json;
@@ -162,6 +163,27 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
             await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
 
         ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Fact]
+    public async Task GivenDevelopmentEnvironmentWithoutOverrides_WhenPostBudget_ThenFeatureIsEnabledByDefault()
+    {
+        await using TestWebApplicationFactory factory = new()
+        {
+            EnvironmentName = Environments.Development,
+            SimulateUnauthenticated = true,
+            ConfigurationOverrides = new Dictionary<string, string?>
+            {
+                ["Services:web-ui:http:0"] = "http://localhost:5173"
+            }
+        };
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        int year = DateTimeOffset.UtcNow.Year;
+
+        HttpResponseMessage response =
+            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+
+        ItShouldHaveBeenUnauthorised(response);
     }
 
     // -------------------------------------------------------------------------
