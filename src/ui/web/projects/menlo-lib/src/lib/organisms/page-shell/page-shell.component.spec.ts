@@ -1,8 +1,9 @@
-import { Component, provideZonelessChangeDetection } from '@angular/core';
+import { Component, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { type Theme, ThemeService } from '../../theme';
 import { MnlPageShellComponent } from './page-shell.component';
 
 @Component({
@@ -29,7 +30,13 @@ class TestHostComponent {
 }
 
 describe('MnlPageShellComponent', () => {
+  const currentTheme = signal<Theme>('light');
+  const toggleTheme = vi.fn();
+
   beforeEach(async () => {
+    currentTheme.set('light');
+    toggleTheme.mockReset();
+
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
       providers: [
@@ -39,6 +46,13 @@ describe('MnlPageShellComponent', () => {
           { path: 'analytics', component: DummyRouteComponent },
         ]),
         provideZonelessChangeDetection(),
+        {
+          provide: ThemeService,
+          useValue: {
+            currentTheme,
+            toggle: toggleTheme,
+          } satisfies Pick<ThemeService, 'currentTheme' | 'toggle'>,
+        },
       ],
     }).compileComponents();
   });
@@ -61,6 +75,31 @@ describe('MnlPageShellComponent', () => {
     expect(container?.className).toContain('px-4');
     expect(container?.className).toContain('lg:px-8');
     expect(container?.className).toContain('max-w-screen-2xl');
+  });
+
+  it('renders a theme toggle button and toggles the theme when clicked', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const button = host.querySelector(
+      '[data-testid="mnl-page-shell-theme-toggle"]',
+    ) as HTMLButtonElement | null;
+
+    expect(button).toBeTruthy();
+    expect(button?.getAttribute('aria-label')).toBe('Switch to dark mode');
+
+    button?.click();
+
+    expect(toggleTheme).toHaveBeenCalledTimes(1);
+
+    currentTheme.set('dark');
+    fixture.detectChanges();
+
+    expect(button?.getAttribute('aria-label')).toBe('Switch to light mode');
   });
 
   it('scrolls the content viewport to the top after navigation completes', async () => {

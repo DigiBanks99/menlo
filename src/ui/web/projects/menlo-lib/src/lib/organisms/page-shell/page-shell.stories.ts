@@ -53,7 +53,7 @@ class DummyStoryRouteComponent {}
           <h1 class="mt-2 mb-0 text-3xl font-bold tracking-tight">Page Shell</h1>
           <p class="mt-3 mb-0 max-w-3xl text-sm leading-6 text-mnl-subtext">
             The page shell composes the responsive navigation scaffold with a padded, max-width
-            content column that stays scrollable across route changes.
+            content column, route-aware scroll reset, and a built-in theme toggle.
           </p>
         </section>
 
@@ -74,7 +74,7 @@ class DummyStoryRouteComponent {}
                     <h2 class="m-0 text-3xl font-bold tracking-tight">Household dashboard</h2>
                     <p class="m-0 max-w-3xl text-sm leading-6 text-mnl-subtext">
                       Page content remains centered, padded, and scrollable while navigation adapts
-                      to the current viewport.
+                      to the current viewport and the shell keeps the theme toggle within reach.
                     </p>
                   </header>
 
