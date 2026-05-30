@@ -40,6 +40,7 @@ public static class GetBudgetHandler
 
         Lib.Budget.Entities.Budget? budget = await budgetContext.Budgets
             .Include(b => b.Categories)
+            .Include(b => b.Items)
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == budgetId, cancellationToken);
 
