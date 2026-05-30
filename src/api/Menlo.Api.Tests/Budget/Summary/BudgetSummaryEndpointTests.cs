@@ -25,6 +25,9 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
     private static readonly HouseholdId SummaryDeletedExcludedHousehold =
         new(Guid.Parse("92929292-9292-9292-9292-929292929292"));
 
+    private static readonly HouseholdId SummaryBothFlowHousehold =
+        new(Guid.Parse("93939393-9393-9393-9393-939393939393"));
+
     private static readonly HouseholdId SummaryUnknownBudgetHousehold =
         new(Guid.Parse("94949494-9494-9494-9494-949494949494"));
 
@@ -65,6 +68,33 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
         ItShouldHaveIncomeTotal(dto, 5000m);
         ItShouldHaveExpenseTotal(dto, 1500m);
         ItShouldHaveNetPlanned(dto, 3500m); // 5000 - 1500
+    }
+
+    [Fact]
+    public async Task GivenBudgetFlowBothCategory_WhenGetSummary_ThenIncomeAndExpenseItemsAppearCorrectly()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(SummaryBothFlowHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+
+        // "Both" root with income leaf and expense leaf
+        (_, Guid incomeLeafId) = await CreateRootAndLeafAsync(client, budgetId, "Payslip", "Both");
+        await CreateItemAsync(client, budgetId, incomeLeafId, "Income", month: 1, amount: 10_000m);
+
+        (_, Guid expenseLeafId) = await CreateRootAndLeafAsync(client, budgetId, "Deductions", "Both");
+        await CreateItemAsync(client, budgetId, expenseLeafId, "Expense", month: 1, amount: 3_000m);
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{budgetId}/summary", TestContext.Current.CancellationToken);
+
+        BudgetSummaryDto? dto = await DeserializeSummaryDtoAsync(response);
+
+        ItShouldHaveReturned200Ok(response);
+        dto.ShouldNotBeNull();
+        ItShouldHaveIncomeTotal(dto, 10_000m);
+        ItShouldHaveExpenseTotal(dto, 3_000m);
+        ItShouldHaveNetPlanned(dto, 7_000m); // 10000 - 3000
     }
 
     // =========================================================================

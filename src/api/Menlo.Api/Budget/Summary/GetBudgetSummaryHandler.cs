@@ -103,8 +103,10 @@ public static class GetBudgetSummaryHandler
         List<BudgetItem> filteredItems,
         BudgetFlow flow)
     {
+        // Include categories that exactly match the flow OR have BudgetFlow.Both
+        // (Both categories hold items of either type — filter by item-level flow)
         return rootCategories
-            .Where(r => r.BudgetFlow == flow)
+            .Where(r => r.BudgetFlow == flow || r.BudgetFlow == BudgetFlow.Both)
             .Select(root =>
             {
                 List<CategoryNode> children = allCategories
@@ -115,7 +117,7 @@ public static class GetBudgetSummaryHandler
                     .Select(child =>
                     {
                         List<BudgetItem> childItems = filteredItems
-                            .Where(i => i.CategoryId == child.Id)
+                            .Where(i => i.CategoryId == child.Id && i.BudgetFlow == flow)
                             .ToList();
 
                         return new CategorySummaryDto(
@@ -126,16 +128,14 @@ public static class GetBudgetSummaryHandler
                             SpentTotal: AggregateNullable(childItems, i => i.SpentAmount?.Amount),
                             Children: []);
                     })
+                    .Where(c => c.PlannedTotal != 0 || c.RealizedTotal is > 0 || c.SpentTotal is > 0)
                     .ToList();
 
                 // Root totals include items directly on the root + all children items
-                List<BudgetItem> rootDirectItems = filteredItems
-                    .Where(i => i.CategoryId == root.Id)
-                    .ToList();
-
                 HashSet<BudgetCategoryId> childIds = children.Select(c => c.Id).ToHashSet();
                 List<BudgetItem> allRootItems = filteredItems
-                    .Where(i => i.CategoryId == root.Id || childIds.Contains(i.CategoryId))
+                    .Where(i => (i.CategoryId == root.Id || childIds.Contains(i.CategoryId))
+                                && i.BudgetFlow == flow)
                     .ToList();
 
                 return new CategorySummaryDto(
@@ -146,6 +146,7 @@ public static class GetBudgetSummaryHandler
                     SpentTotal: AggregateNullable(allRootItems, i => i.SpentAmount?.Amount),
                     Children: childDtos);
             })
+            .Where(r => r.PlannedTotal != 0 || r.RealizedTotal is > 0 || r.SpentTotal is > 0)
             .ToList();
     }
 
