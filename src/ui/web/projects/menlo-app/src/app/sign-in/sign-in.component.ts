@@ -1,24 +1,29 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../core/auth/auth.service';
 
 @Component({
   selector: 'app-sign-in',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="sign-in-page">
-      <div class="sign-in-card">
-        <p class="eyebrow">Menlo</p>
-        <h1>Sign in to your household workspace</h1>
-        <p class="description">
+    <section class="grid min-h-screen place-items-center px-4 py-8 bg-[--mnl-base]">
+      <div
+        class="w-full max-w-sm rounded-2xl border border-[--mnl-surface-2] bg-[--mnl-surface-1] p-10 text-center shadow-md"
+      >
+        <p class="mb-3 text-xs font-bold uppercase tracking-widest text-[--mnl-pink]">Menlo</p>
+        <h1 class="mb-4 text-2xl font-bold text-[--mnl-text]">
+          Sign in to your household workspace
+        </h1>
+        <p class="mb-6 text-sm leading-relaxed text-[--mnl-subtext]">
           Use your Microsoft account to access budgets, planning, and household insights in one
           secure place.
         </p>
 
         <button
           type="button"
-          class="sign-in-button"
           data-testid="sign-in-button"
+          class="cursor-pointer rounded-full bg-gradient-to-br from-[#0078d4] to-[#0056b3] px-6 py-3.5 text-base font-semibold text-white transition-[filter] duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--mnl-pink] focus-visible:ring-offset-2"
           (click)="signIn()"
         >
           Sign in with Microsoft
@@ -26,61 +31,6 @@ import { AuthService } from '../core/auth/auth.service';
       </div>
     </section>
   `,
-  styles: [
-    `
-      .sign-in-page {
-        min-height: 100%;
-        display: grid;
-        place-items: center;
-        padding: 2rem 1rem;
-      }
-
-      .sign-in-card {
-        max-width: 32rem;
-        padding: 2.5rem;
-        border-radius: 1rem;
-        background: white;
-        border: 1px solid #dee2e6;
-        box-shadow: 0 16px 40px rgba(44, 62, 80, 0.08);
-        text-align: center;
-      }
-
-      .eyebrow {
-        margin: 0 0 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #007bff;
-      }
-
-      h1 {
-        margin: 0 0 1rem;
-        color: #2c3e50;
-      }
-
-      .description {
-        margin: 0 0 1.5rem;
-        color: #495057;
-        line-height: 1.6;
-      }
-
-      .sign-in-button {
-        border: none;
-        border-radius: 999px;
-        padding: 0.85rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: white;
-        background: linear-gradient(135deg, #0078d4, #0056b3);
-        cursor: pointer;
-      }
-
-      .sign-in-button:hover {
-        filter: brightness(1.05);
-      }
-    `,
-  ],
 })
 export class SignInComponent {
   private readonly authService = inject(AuthService);
