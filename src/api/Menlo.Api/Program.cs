@@ -82,5 +82,6 @@ app.MapDefaultEndpoints();
 app.MapMenloSpa();
 
 await app.MigrateDatabaseAsync();
+await app.SeedDemoBudgetAsync();
 
 app.Run();
