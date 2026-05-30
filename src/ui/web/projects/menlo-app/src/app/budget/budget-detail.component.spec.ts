@@ -5,7 +5,7 @@ import { Subject, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, Result, failure, success, unknownError } from 'shared-util';
-import { BudgetApiService, BudgetCategoryResponse, BudgetItemApiService, BudgetResponse } from 'data-access-menlo-api';
+import { BudgetApiService, BudgetCategoryResponse, BudgetItemApiService, BudgetResponse, CategoryApiService } from 'data-access-menlo-api';
 import { BudgetDetailComponent } from './budget-detail.component';
 
 const currentYear = new Date().getFullYear();
@@ -47,6 +47,9 @@ describe('BudgetDetailComponent', () => {
     getSummary: ReturnType<typeof vi.fn>;
     listItems: ReturnType<typeof vi.fn>;
   };
+  let mockCategoryApiService: {
+    listCategories: ReturnType<typeof vi.fn>;
+  };
   let mockRouter: { navigate: ReturnType<typeof vi.fn> };
   let routeBudgetId: string | null;
 
@@ -59,6 +62,11 @@ describe('BudgetDetailComponent', () => {
     mockBudgetItemApiService = {
       getSummary: vi.fn().mockReturnValue(new Subject().asObservable()),
       listItems: vi.fn().mockReturnValue(new Subject().asObservable()),
+    };
+    // Provide a never-resolving observable so CategoryTreeComponent doesn't trigger
+    // async subscriptions that outlive the test injector (NG0205)
+    mockCategoryApiService = {
+      listCategories: vi.fn().mockReturnValue(new Subject().asObservable()),
     };
     mockRouter = { navigate: vi.fn() };
     routeBudgetId = 'budget-current';
@@ -73,6 +81,7 @@ describe('BudgetDetailComponent', () => {
         },
         { provide: BudgetApiService, useValue: mockBudgetApiService },
         { provide: BudgetItemApiService, useValue: mockBudgetItemApiService },
+        { provide: CategoryApiService, useValue: mockCategoryApiService },
         { provide: Router, useValue: mockRouter },
       ],
     }).compileComponents();
