@@ -141,7 +141,8 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             }
 
             IUserContext userContext = Substitute.For<IUserContext>();
-            userContext.Users.Returns(DbSetMock.Create(currentUser));
+            var userSet = DbSetMock.Create(currentUser);
+            userContext.Users.Returns(userSet);
             services.AddScoped(_ => userContext);
         }
 
@@ -154,7 +155,8 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             }
 
             IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
-            onboardingContext.OnboardingStates.Returns(DbSetMock.Create(currentOnboardingState));
+            var onboardingSet = DbSetMock.Create(currentOnboardingState);
+            onboardingContext.OnboardingStates.Returns(onboardingSet);
             services.AddScoped(_ => onboardingContext);
         }
     }

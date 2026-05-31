@@ -20,7 +20,7 @@ public sealed class OnboardingCompleteHandlerTests
         OnboardingState onboardingState = OnboardingState.Create(user.Id);
         onboardingState.CompleteTask(OnboardingTaskType.SelectedHousehold);
 
-        OnboardingCompleteHandler sut = new(CreateUserContext(user), CreateOnboardingContext(onboardingState));
+        OnboardingCompleteHandler sut = new(CreateServices(CreateUserContext(user), CreateOnboardingContext(onboardingState)));
         AuthorizationHandlerContext context = CreateAuthorizationContext(TestAuthHandler.DefaultUserId);
 
         await sut.HandleAsync(context);
@@ -34,7 +34,7 @@ public sealed class OnboardingCompleteHandlerTests
         User user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
         OnboardingState onboardingState = OnboardingState.Create(user.Id);
 
-        OnboardingCompleteHandler sut = new(CreateUserContext(user), CreateOnboardingContext(onboardingState));
+        OnboardingCompleteHandler sut = new(CreateServices(CreateUserContext(user), CreateOnboardingContext(onboardingState)));
         AuthorizationHandlerContext context = CreateAuthorizationContext(TestAuthHandler.DefaultUserId);
 
         await sut.HandleAsync(context);
@@ -46,15 +46,25 @@ public sealed class OnboardingCompleteHandlerTests
     private static IUserContext CreateUserContext(params User[] users)
     {
         IUserContext userContext = Substitute.For<IUserContext>();
-        userContext.Users.Returns(DbSetMock.Create(users));
+        var userSet = DbSetMock.Create(users);
+        userContext.Users.Returns(userSet);
         return userContext;
     }
 
     private static IOnboardingContext CreateOnboardingContext(params OnboardingState[] onboardingStates)
     {
         IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
-        onboardingContext.OnboardingStates.Returns(DbSetMock.Create(onboardingStates));
+        var onboardingSet = DbSetMock.Create(onboardingStates);
+        onboardingContext.OnboardingStates.Returns(onboardingSet);
         return onboardingContext;
+    }
+
+    private static IServiceProvider CreateServices(IUserContext userContext, IOnboardingContext onboardingContext)
+    {
+        IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(IUserContext)).Returns(userContext);
+        serviceProvider.GetService(typeof(IOnboardingContext)).Returns(onboardingContext);
+        return serviceProvider;
     }
 
     private static AuthorizationHandlerContext CreateAuthorizationContext(string externalId)
