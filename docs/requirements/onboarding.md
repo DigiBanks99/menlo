@@ -481,7 +481,6 @@ export const routes: Routes = [
   "isOnboardingCompleted": false
 }
 ```
-```
 
 **Change:** Add `isOnboardingCompleted` field (boolean).
 
