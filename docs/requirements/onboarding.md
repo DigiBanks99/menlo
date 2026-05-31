@@ -180,6 +180,7 @@ public class UserOnboardingConfiguration : IEntityTypeConfiguration<UserOnboardi
 **When:** OIDC `OnTokenValidated` event fires (after token validation succeeds)
 
 **What happens:**
+
 1. Extract `external_id` (e.g., Azure AD ObjectId) from token claims
 2. Query `shared.users` for matching `ExternalId`
 3. If not found:
@@ -470,6 +471,7 @@ export const routes: Routes = [
 **Endpoint:** `GET /auth/user`
 
 **Response:**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -478,6 +480,7 @@ export const routes: Routes = [
   "roles": ["Member"],
   "isOnboardingCompleted": false
 }
+```
 ```
 
 **Change:** Add `isOnboardingCompleted` field (boolean).
@@ -489,6 +492,7 @@ export const routes: Routes = [
 **Endpoint:** `GET /api/onboarding/households`
 
 **Response:**
+
 ```json
 {
   "households": [
@@ -506,6 +510,7 @@ export const routes: Routes = [
 **Endpoint:** `POST /api/onboarding/households`
 
 **Request:**
+
 ```json
 {
   "name": "My Household",
@@ -514,6 +519,7 @@ export const routes: Routes = [
 ```
 
 **Response:**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440001",
@@ -529,6 +535,7 @@ export const routes: Routes = [
 **Endpoint:** `POST /api/onboarding/households/{householdId}/select`
 
 **Response:**
+
 ```json
 {
   "householdId": "550e8400-e29b-41d4-a716-446655440001",
@@ -560,6 +567,7 @@ See [Navigation Guards](#navigation-guards) above.
 ### Onboarding Component
 
 **Responsibilities:**
+
 - Display available households
 - Allow user to select an existing household
 - Allow user to create a new household
@@ -636,7 +644,7 @@ export class OnboardingComponent implements OnInit {
 
 ## User Flow Diagram
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │ User Visits App (First Time)            │
 └─────────────────────────┬───────────────┘
@@ -746,6 +754,7 @@ To add a new onboarding task (e.g., `SetupProfile`):
 ### Example: Adding `SetupProfile` Task
 
 **Backend:**
+
 ```csharp
 // Handler
 public async Task<IResult> SetupProfile(SetupProfileRequest request)
@@ -772,6 +781,7 @@ private static bool IsTaskRequired(OnboardingTaskType taskType) => taskType swit
 ```
 
 **Frontend:**
+
 ```typescript
 // Add to onboarding wizard
 const onboardingSteps = [
