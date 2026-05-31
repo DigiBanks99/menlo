@@ -74,6 +74,12 @@ public class UserNotAssignedToHouseholdError(string externalId)
 }
 
 /// <summary>
+/// Error indicating the user has not completed onboarding.
+/// </summary>
+public class OnboardingIncompleteError()
+    : AuthError("ONBOARDING_INCOMPLETE", "User onboarding is incomplete");
+
+/// <summary>
 /// Base class for household domain errors.
 /// </summary>
 /// <param name="code">Machine-readable error code.</param>

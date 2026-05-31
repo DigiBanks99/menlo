@@ -26,6 +26,21 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     public string[] UserRoles { get; init; } = ["Menlo.User"];
 
     /// <summary>
+    /// Gets the external identifier claim value for the test user.
+    /// </summary>
+    public string UserId { get; init; } = Fixtures.TestAuthHandler.DefaultUserId;
+
+    /// <summary>
+    /// Gets the email claim value for the test user.
+    /// </summary>
+    public string UserEmail { get; init; } = Fixtures.TestAuthHandler.DefaultEmail;
+
+    /// <summary>
+    /// Gets the display name claim value for the test user.
+    /// </summary>
+    public string UserDisplayName { get; init; } = Fixtures.TestAuthHandler.DefaultName;
+
+    /// <summary>
     /// Gets whether to simulate an unauthenticated user.
     /// </summary>
     public bool SimulateUnauthenticated { get; init; }
@@ -126,6 +141,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
                 services.Configure<TestAuthHandlerOptions>(options =>
                 {
+                    options.UserId = UserId;
+                    options.Email = UserEmail;
+                    options.DisplayName = UserDisplayName;
                     options.Roles = UserRoles;
                     options.SimulateUnauthenticated = SimulateUnauthenticated;
                 });

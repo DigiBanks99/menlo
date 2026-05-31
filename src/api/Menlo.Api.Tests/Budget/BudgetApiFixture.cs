@@ -83,7 +83,7 @@ public sealed class BudgetTestWebApplicationFactory(HouseholdId householdId)
             IUserContextProvider mock = Substitute.For<IUserContextProvider>();
             mock.GetUserContextAsync(Arg.Any<CancellationToken>())
                 .Returns(Result.Success<UserContext, AuthError>(
-                    new UserContext(UserId.NewId(), householdId)));
+                    new UserContext(Menlo.Lib.Common.ValueObjects.UserId.NewId(), householdId)));
 
             services.AddScoped(_ => mock);
         });

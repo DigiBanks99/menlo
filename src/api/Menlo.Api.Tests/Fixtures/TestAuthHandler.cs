@@ -24,7 +24,7 @@ public sealed class TestAuthHandler(
     /// <summary>
     /// Default test user ID.
     /// </summary>
-    public const string DefaultUserId = "test-user-id";
+    public const string DefaultUserId = "11111111-1111-1111-1111-111111111111";
 
     /// <summary>
     /// Default test user email.
@@ -48,9 +48,9 @@ public sealed class TestAuthHandler(
 
         List<Claim> claims =
         [
-            new(ClaimTypes.NameIdentifier, DefaultUserId),
-            new(ClaimTypes.Email, DefaultEmail),
-            new(ClaimTypes.Name, DefaultName),
+            new(ClaimTypes.NameIdentifier, _testOptions.UserId),
+            new(ClaimTypes.Email, _testOptions.Email),
+            new(ClaimTypes.Name, _testOptions.DisplayName),
         ];
 
         claims.AddRange(_testOptions.Roles.Select(role => new Claim(ClaimTypes.Role, role)));

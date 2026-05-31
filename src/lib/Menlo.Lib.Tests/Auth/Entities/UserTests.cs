@@ -152,6 +152,7 @@ public sealed class UserTests
         User user = createResult.Value;
         DateTimeOffset loginTime = DateTimeOffset.UtcNow;
 
+        user.ClearDomainEvents();
         user.RecordLogin(loginTime);
 
         ItShouldHaveLastLoginAt(user, loginTime);
@@ -170,6 +171,7 @@ public sealed class UserTests
         DateTimeOffset firstLogin = DateTimeOffset.UtcNow.AddDays(-1);
         DateTimeOffset secondLogin = DateTimeOffset.UtcNow;
 
+        user.ClearDomainEvents();
         user.RecordLogin(firstLogin);
         user.RecordLogin(secondLogin);
 

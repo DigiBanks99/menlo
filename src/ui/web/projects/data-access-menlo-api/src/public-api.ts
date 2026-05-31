@@ -8,3 +8,5 @@ export * from './lib/menlo-api.client';
 export * from './lib/budget-api.service';
 export * from './lib/category-api.service';
 export * from './lib/budget-item-api.service';
+export * from './lib/models/household';
+export * from './lib/services/household.api.service';
