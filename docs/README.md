@@ -77,6 +77,7 @@ graph TD
 
 - **[Concepts & Terminology Guide](explanations/concepts-and-terminology.md)** - Start here! Core philosophy, design patterns, and terminology
 - **[Business Requirements](requirements/business-requirements.md)** - Complete feature specifications with AI integration
+- **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 
 ### 🏗️ Architecture & Design
@@ -117,6 +118,7 @@ graph TD
 | **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](concepts-and-terminology.md#privacy-first-local-ai)                          |
 | **Hybrid Cloud-Local**             | Frontend (Cloudflare Pages) + local backend/data         | [ADR-001](adr-001-hosting-strategy.md)                                                        |
 | **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](concepts-and-terminology.md#cost-conscious-experimentation)                  |
+| **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](requirements/onboarding.md)                                                      |
 
 ## 🛤️ Reading Paths
 
@@ -125,9 +127,10 @@ graph TD
 1. [Concepts & Terminology Guide](explanations/concepts-and-terminology.md) - Understand the philosophy
 2. [Implementation Roadmap](requirements/implementation-roadmap.md) - Start here for implementation details
 3. [Business Requirements](requirements/business-requirements.md) - Learn the features
-4. [C4 Component Diagram](diagrams/c4-component-diagram.md) - Understand the architecture
-5. [C4 Code Diagram](diagrams/c4-code-diagram.md) - Understand the domain model
-6. [ADR-001](decisions/adr-001-hosting-strategy.md) - Know the infrastructure decisions
+4. [User Onboarding Flow](requirements/onboarding.md) - Understand first-login experience and authentication
+5. [C4 Component Diagram](diagrams/c4-component-diagram.md) - Understand the architecture
+6. [C4 Code Diagram](diagrams/c4-code-diagram.md) - Understand the domain model
+7. [ADR-001](decisions/adr-001-hosting-strategy.md) - Know the infrastructure decisions
 
 ### For New Team Members
 
