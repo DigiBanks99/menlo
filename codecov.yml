@@ -46,3 +46,4 @@ ignore:
   - "src/api/**/obj/**"
   - "**/*.g.cs"
   - "**/*.generated.cs"
+  - "src/lib/Menlo.Application/Common/BudgetSeedingExtensions.cs"

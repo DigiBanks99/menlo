@@ -97,6 +97,38 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
         ItShouldHaveNetPlanned(dto, 7_000m); // 10000 - 3000
     }
 
+    [Fact]
+    public async Task GivenItemsWithRealizedAndSpentAmounts_WhenGetSummary_ThenNetRealizedAndNetSpentAreCalculated()
+    {
+        var testHouseholdId = new HouseholdId(Guid.Parse("97979797-9797-9797-9797-979797979797"));
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(testHouseholdId);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+
+        // Income category with realized amount
+        (_, Guid incomeLeafId) = await CreateRootAndLeafAsync(client, budgetId, "Salary", "Income");
+        Guid incomeItemId = await CreateItemAsync(client, budgetId, incomeLeafId, "Income", month: 1, amount: 5000m);
+
+        // Expense category with spent amount
+        (_, Guid expenseLeafId) = await CreateRootAndLeafAsync(client, budgetId, "Housing", "Expense");
+        Guid expenseItemId = await CreateItemAsync(client, budgetId, expenseLeafId, "Expense", month: 1, amount: 1500m);
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{budgetId}/summary?month=1", TestContext.Current.CancellationToken);
+
+        BudgetSummaryDto? dto = await DeserializeSummaryDtoAsync(response);
+
+        ItShouldHaveReturned200Ok(response);
+        dto.ShouldNotBeNull();
+        ItShouldHaveIncomeTotal(dto, 5000m);
+        ItShouldHaveExpenseTotal(dto, 1500m);
+        ItShouldHaveNetPlanned(dto, 3500m); // 5000 - 1500
+        // NetRealized and NetSpent are null until items are explicitly realized/spent
+        dto.NetRealized.ShouldBeNull();
+        dto.NetSpent.ShouldBeNull();
+    }
+
     // =========================================================================
     // MONTH FILTERING
     // =========================================================================
