@@ -53,6 +53,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 **Onboarding Gate:** None (must be accessible before onboarding is complete)
 
 **Response (200 OK):**
+
 ```json
 {
   "households": [
@@ -69,6 +70,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` — No valid authentication token
 - `500 Internal Server Error` — Database or service error
 
@@ -83,6 +85,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 **Onboarding Gate:** None (must be accessible before onboarding is complete)
 
 **Request Body:**
+
 ```json
 {
   "name": "My Family"
@@ -90,6 +93,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440002",
@@ -98,6 +102,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` — Invalid request (missing name, empty string, etc.)
 - `401 Unauthorized` — No valid authentication token
 - `409 Conflict` — Household with this name already exists for user
@@ -110,6 +115,7 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 **Endpoint:** `POST /api/households/{id}/join`
 
 **Path Parameters:**
+
 - `id` (string, UUID) — Household ID to join
 
 **Authentication:** Required (any authenticated user)
@@ -118,11 +124,12 @@ All endpoints require authentication (`Bearer` token from Azure AD OIDC).
 
 **Request Body:** Empty (no body required)
 
-**Response (204 No Content)**
+### Response (204 No Content)
 
 No response body on success.
 
 **Error Responses:**
+
 - `400 Bad Request` — Invalid household ID format
 - `401 Unauthorized` — No valid authentication token
 - `403 Forbidden` — Household does not exist or user is not authorized to join
@@ -130,6 +137,7 @@ No response body on success.
 - `500 Internal Server Error` — Database or service error
 
 **Side Effects:**
+
 - User is assigned to the household
 - `OnboardingState.CompleteTask(SelectHousehold)` is marked complete
 - User's `UserProfile.onboarding.isComplete` becomes `true`
@@ -143,6 +151,7 @@ No response body on success.
 **Authentication:** Required (any authenticated user)
 
 **Response (200 OK):**
+
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -157,6 +166,7 @@ No response body on success.
 ```
 
 **Response (200 OK, after onboarding):**
+
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -171,6 +181,7 @@ No response body on success.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` — No valid authentication token or token expired
 
 ---
@@ -180,6 +191,7 @@ No response body on success.
 ### 1. Route Guard
 
 The `onboardingGuard` will use the `UserProfile.onboarding.isComplete` flag to:
+
 - Allow access to `/onboarding` route **without** requiring `onboarding.isComplete`
 - Redirect incomplete users to `/onboarding` from protected routes (budget, planning, etc.)
 - Allow access to protected routes **only if** `onboarding.isComplete === true`
@@ -187,6 +199,7 @@ The `onboardingGuard` will use the `UserProfile.onboarding.isComplete` flag to:
 ### 2. State Persistence
 
 The `OnboardingService` will:
+
 - Cache `UserProfile.onboarding` in local state after login
 - Call `/auth/user` to refresh onboarding state after joining/creating household
 - Persist completion state across page refresh (cached from auth response)
@@ -203,11 +216,13 @@ The `OnboardingService` will:
 ## Validation Rules
 
 ### Household Name
+
 - **Required:** Yes
 - **Length:** 1–100 characters
 - **Uniqueness:** Per user (users can have multiple households with the same name, but a single user cannot create duplicates in a single operation)
 
 ### Household ID (UUID Format)
+
 - Format: RFC 4122 UUID v4
 - Example: `550e8400-e29b-41d4-a716-446655440000`
 
@@ -228,16 +243,18 @@ When adding new onboarding tasks:
 ## Testing Strategy
 
 ### Backend Contract Tests
+
 - Verify all endpoints return correct HTTP status codes
 - Verify error responses include appropriate error messages
 - Verify household list reflects user's available households
 - Verify household creation marks onboarding complete
 
 ### Frontend Contract Tests
+
 - Mock API responses for all endpoints
 - Verify `OnboardingService` correctly parses responses
 - Verify route guards enforce access control based on `isComplete` flag
 
 ### E2E Tests
-- Full flow: login → list households → create/join → verify redirect
 
+- Full flow: login → list households → create/join → verify redirect
