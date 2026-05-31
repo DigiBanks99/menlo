@@ -1,17 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
 import { authGuard } from './core/auth/auth.guard';
+import { noReenterOnboardingGuard, onboardingGuard } from './core/onboarding/onboarding.guard';
 import { routes } from './app.routes';
 
 describe('app routes', () => {
-  it('should expose sign-in outside the guarded route tree', () => {
+  it('should expose sign-in and onboarding outside the guarded route tree', () => {
     const signInRoute = routes.find((route) => route.path === 'sign-in');
+    const onboardingRoute = routes.find((route) => route.path === 'onboarding');
 
     expect(signInRoute?.loadComponent).toBeTypeOf('function');
+    expect(onboardingRoute?.loadComponent).toBeTypeOf('function');
+    expect(onboardingRoute?.canActivate).toEqual([authGuard, noReenterOnboardingGuard]);
   });
 
   it('should lazily resolve each routed component', async () => {
     const signInRoute = routes.find((route) => route.path === 'sign-in');
+    const onboardingRoute = routes.find((route) => route.path === 'onboarding');
     const guardedRoot = routes.find((route) => route.path === '');
     const homeRoute = guardedRoot?.children?.find((child) => child.path === '');
     const budgetsRoute = guardedRoot?.children?.find((child) => child.path === 'budgets');
@@ -20,6 +25,7 @@ describe('app routes', () => {
 
     const resolvedComponents = await Promise.all([
       signInRoute?.loadComponent?.(),
+      onboardingRoute?.loadComponent?.(),
       homeRoute?.loadComponent?.(),
       budgetsRoute?.loadComponent?.(),
       budgetDetailRoute?.loadComponent?.(),
@@ -31,10 +37,10 @@ describe('app routes', () => {
     }
   }, 15000);
 
-  it('should guard all application routes behind the auth guard', () => {
+  it('should guard all application routes behind auth and onboarding', () => {
     const guardedRoot = routes.find((route) => route.path === '');
 
-    expect(guardedRoot?.canActivateChild).toEqual([authGuard]);
+    expect(guardedRoot?.canActivateChild).toEqual([authGuard, onboardingGuard]);
     expect(guardedRoot?.children?.map((child) => child.path)).toEqual([
       '',
       'budgets',

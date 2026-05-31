@@ -12,6 +12,10 @@ const mockUser = {
   email: 'test@menlo.local',
   displayName: 'E2E Test User',
   roles: ['Menlo.User'],
+  onboarding: {
+    isComplete: true,
+    pendingTasks: [],
+  },
 };
 
 const mockBudget = {

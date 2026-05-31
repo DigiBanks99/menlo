@@ -26,6 +26,11 @@ public static class MenloPolicies
     public const string CanViewBudget = "CanViewBudget";
 
     /// <summary>
+    /// Policy requiring the current user to complete onboarding.
+    /// </summary>
+    public const string RequireOnboardingComplete = "RequireOnboardingComplete";
+
+    /// <summary>
     /// Role values that must match Entra ID App Roles.
     /// </summary>
     public static class Roles

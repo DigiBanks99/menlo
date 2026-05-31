@@ -1,8 +1,10 @@
 using Menlo.Api.Auth.Options;
 using Menlo.Api.Auth.Policies;
 using Menlo.Lib.Common.Abstractions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 
@@ -38,13 +40,6 @@ public static class AuthServiceCollectionExtensions
             throw new InvalidOperationException("MenloAuthOptions configuration is missing.");
         }
 
-        // AddMicrosoftIdentityWebApp reads ClientCertificates (or ClientSecret) from the AzureAd
-        // config section. EnableTokenAcquisitionToCallDownstreamApi() is the critical step:
-        // it registers MSAL and overrides OnAuthorizationCodeReceived so that MSAL — not the
-        // native OpenIdConnectHandler — exchanges the authorization code at the token endpoint.
-        // When ClientCertificates is configured (injected by CD from Key Vault), MSAL generates
-        // the required client_assertion JWT instead of sending a plain-text client_secret,
-        // satisfying Entra ID's AADSTS7000218 requirement.
         builder.Services
             .AddAuthentication(options =>
             {
@@ -55,12 +50,7 @@ public static class AuthServiceCollectionExtensions
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
-        // PostConfigure runs after AddMicrosoftIdentityWebApp's internal OidcConfigurator,
-        // allowing us to layer Menlo-specific behaviour on top without losing MiW's
-        // certificate-based token acquisition logic.
-        builder.Services.PostConfigure<OpenIdConnectOptions>(
-            OpenIdConnectDefaults.AuthenticationScheme,
-            ConfigureOidcOptions);
+        builder.Services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>, MenloOpenIdConnectPostConfigure>();
 
         builder.Services.PostConfigure<CookieAuthenticationOptions>(
             CookieAuthenticationDefaults.AuthenticationScheme,
@@ -70,21 +60,36 @@ public static class AuthServiceCollectionExtensions
             .AddAuthorizationBuilder()
             .AddMenloPolicies();
 
+        builder.Services.AddScoped<IAuthorizationHandler, OnboardingCompleteHandler>();
+
         return builder;
     }
 
-    private static void ConfigureOidcOptions(OpenIdConnectOptions options)
+    internal static void ConfigureOidcOptions(OpenIdConnectOptions options, IServiceProvider serviceProvider)
     {
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
+        options.Events ??= new OpenIdConnectEvents();
 
         if (!options.Scope.Contains("email"))
         {
             options.Scope.Add("email");
         }
 
-        // Wrap the existing OnRedirectToIdentityProvider (set by AddMicrosoftIdentityWebApp's
-        // OidcConfigurator) so both MiW logic and Menlo-specific behaviour run.
+        MenloOidcEvents menloEvents = new(serviceProvider);
+
+        Func<TokenValidatedContext, Task> existingTokenValidated = options.Events.OnTokenValidated;
+        options.Events.OnTokenValidated = async context =>
+        {
+            await existingTokenValidated(context);
+            if (context.Result is not null)
+            {
+                return;
+            }
+
+            await menloEvents.OnTokenValidated(context);
+        };
+
         Func<RedirectContext, Task> existingRedirect = options.Events.OnRedirectToIdentityProvider;
         options.Events.OnRedirectToIdentityProvider = async context =>
         {
@@ -95,8 +100,6 @@ public static class AuthServiceCollectionExtensions
                 return;
             }
 
-            // Return 401 for XHR/fetch requests so Angular handles auth state gracefully
-            // instead of receiving an unexpected redirect to Entra ID.
             if (IsXhrRequest(context.Request))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -104,9 +107,6 @@ public static class AuthServiceCollectionExtensions
                 return;
             }
 
-            // Safety net: rewrite redirect URI scheme when running behind a TLS-terminating
-            // reverse proxy (e.g. Cloudflare Tunnel) in case ForwardedHeaders middleware
-            // did not process X-Forwarded-Proto.
             if (context.ProtocolMessage.RedirectUri?.StartsWith("http://", StringComparison.OrdinalIgnoreCase) == true)
             {
                 context.ProtocolMessage.RedirectUri =
@@ -139,8 +139,6 @@ public static class AuthServiceCollectionExtensions
 
         options.Events.OnRedirectToLogin = context =>
         {
-            // Return 401 for XHR/fetch calls (API and auth endpoints accessed programmatically)
-            // rather than redirect to OIDC login, which would overwrite the session cookie.
             if (IsXhrRequest(context.Request))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -157,4 +155,18 @@ public static class AuthServiceCollectionExtensions
         || request.Path.Equals("/auth/user", StringComparison.OrdinalIgnoreCase)
         || request.Headers.Accept.Any(a => a != null && a.Contains("application/json"))
         || request.Headers.ContainsKey("X-Requested-With");
+}
+
+internal sealed class MenloOpenIdConnectPostConfigure(IServiceProvider serviceProvider)
+    : IPostConfigureOptions<OpenIdConnectOptions>
+{
+    public void PostConfigure(string? name, OpenIdConnectOptions options)
+    {
+        if (!string.Equals(name, OpenIdConnectDefaults.AuthenticationScheme, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        AuthServiceCollectionExtensions.ConfigureOidcOptions(options, serviceProvider);
+    }
 }

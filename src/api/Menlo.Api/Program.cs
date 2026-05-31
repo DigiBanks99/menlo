@@ -5,6 +5,7 @@ using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
+using Menlo.Api.Endpoints.Onboarding;
 using Menlo.Api.OpenApi;
 using Menlo.Api.SpaHosting;
 using Menlo.Application.Common;
@@ -60,6 +61,7 @@ RouteGroupBuilder apiGroup = app
 
 // Budget endpoints
 apiGroup.MapBudgetEndpoints();
+apiGroup.MapHouseholdEndpoints();
 
 // Add simple AI health check endpoint
 apiGroup

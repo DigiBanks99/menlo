@@ -5,6 +5,8 @@ using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.Enums;
 using Menlo.Lib.Common.ValueObjects;
+using Menlo.Lib.Onboarding;
+using Menlo.Lib.Onboarding.Events;
 
 namespace Menlo.Lib.Auth.Entities;
 
@@ -183,7 +185,29 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
             deletedAt: null,
             deletedBy: null);
 
+        user.AddDomainEvent(new UserProvisionedEvent(user.Id.Value, user.Email, user.DisplayName, DateTime.UtcNow));
+
         return user;
+    }
+
+    public void AssignToHousehold(Guid householdId)
+    {
+        HouseholdId newHouseholdId = new(householdId);
+
+        if (HouseholdId == newHouseholdId)
+        {
+            return;
+        }
+
+        HouseholdId = newHouseholdId;
+        AddDomainEvent(new OnboardingTaskCompletedEvent(
+            Id.Value,
+            OnboardingTaskType.SelectedHousehold,
+            new Dictionary<string, object>
+            {
+                ["householdId"] = householdId
+            },
+            DateTime.UtcNow));
     }
 
     /// <summary>

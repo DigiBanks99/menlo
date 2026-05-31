@@ -18,7 +18,7 @@ namespace Menlo.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -458,6 +458,41 @@ namespace Menlo.Application.Migrations
                     b.ToTable("budget_categories", "budget_schema");
                 });
 
+            modelBuilder.Entity("Menlo.Lib.Onboarding.OnboardingState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CompletedTasks")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("completed_tasks")
+                        .HasDefaultValueSql("'[]'::jsonb");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_onboarding_states");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_onboarding_states_user_id");
+
+                    b.ToTable("onboarding_states", "shared");
+                });
+
             modelBuilder.Entity("Menlo.Lib.Budget.Entities.BudgetItem", b =>
                 {
                     b.HasOne("Menlo.Lib.Budget.Entities.Budget", null)
@@ -489,6 +524,16 @@ namespace Menlo.Application.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_budget_categories_budgets_budget_id");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Onboarding.OnboardingState", b =>
+                {
+                    b.HasOne("Menlo.Lib.Auth.Entities.User", null)
+                        .WithOne()
+                        .HasForeignKey("Menlo.Lib.Onboarding.OnboardingState", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_onboarding_states_users_user_id");
                 });
 
             modelBuilder.Entity("Menlo.Lib.Budget.Entities.Budget", b =>

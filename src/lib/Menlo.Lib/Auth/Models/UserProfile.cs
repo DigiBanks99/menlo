@@ -13,6 +13,7 @@ public sealed record UserProfile(
     string Id,
     string Email,
     string DisplayName,
-    IReadOnlyList<string> Roles);
+    IReadOnlyList<string> Roles,
+    OnboardingInfo? Onboarding = null);
 
 

@@ -1,6 +1,7 @@
 using Menlo.Application.Auth;
 using Menlo.Application.Budget;
 using Menlo.Application.Common.Interceptors;
+using Menlo.Application.Onboarding;
 using Menlo.Lib.Auth.Abstractions;
 using Menlo.Lib.Common.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,8 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
         builder.Services.AddScoped<IHouseholdContext>(sp => sp.GetRequiredService<MenloDbContext>());
         builder.Services.AddScoped<IBudgetContext>(sp => sp.GetRequiredService<MenloDbContext>());
+        builder.Services.AddScoped<IOnboardingContext>(sp => sp.GetRequiredService<MenloDbContext>());
+        builder.Services.AddScoped<UserProvisioningService>();
         builder.Services.AddScoped<IUserContextProvider, UserContextProvider>();
 
         return builder;
