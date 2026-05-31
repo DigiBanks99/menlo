@@ -9,9 +9,7 @@ public sealed class OnboardingCompleteRequirement : IAuthorizationRequirement
 {
 }
 
-public sealed class OnboardingCompleteHandler(
-    IUserContext userContext,
-    IOnboardingContext onboardingContext)
+public sealed class OnboardingCompleteHandler(IServiceProvider serviceProvider)
     : AuthorizationHandler<OnboardingCompleteRequirement>
 {
     protected override async Task HandleRequirementAsync(
@@ -23,6 +21,9 @@ public sealed class OnboardingCompleteHandler(
             context.Fail();
             return;
         }
+
+        IUserContext userContext = serviceProvider.GetRequiredService<IUserContext>();
+        IOnboardingContext onboardingContext = serviceProvider.GetRequiredService<IOnboardingContext>();
 
         Menlo.Lib.Auth.Entities.User? user = await CurrentUserLookup.FindUserAsync(
             context.User,

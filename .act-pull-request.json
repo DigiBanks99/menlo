@@ -1,0 +1,15 @@
+{
+  "pull_request": {
+    "base": {
+      "sha": "e9f0567d0a42096981d9aa0f74e0bf80f9ea6c12",
+      "ref": "main"
+    },
+    "head": {
+      "sha": "8fb75b28ccd1cf22bc6d6997862c034885f632b2",
+      "ref": "feature/onboarding-362"
+    }
+  },
+  "sender": {
+    "login": "dependabot[bot]"
+  }
+}

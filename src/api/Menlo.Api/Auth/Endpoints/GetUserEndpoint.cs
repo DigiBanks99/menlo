@@ -3,6 +3,8 @@ using Menlo.Application.Auth;
 using Menlo.Application.Onboarding;
 using Menlo.Lib.Auth.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Data.Common;
 using System.Security.Claims;
 
 namespace Menlo.Api.Auth.Endpoints;
@@ -32,8 +34,7 @@ public static class GetUserEndpoint
 
     private static async Task<IResult> Handle(
         ClaimsPrincipal user,
-        IUserContext userContext,
-        IOnboardingContext onboardingContext,
+        IServiceProvider serviceProvider,
         CancellationToken cancellationToken)
     {
         if (user.Identity?.IsAuthenticated != true)
@@ -41,10 +42,23 @@ public static class GetUserEndpoint
             return Results.Unauthorized();
         }
 
-        Menlo.Lib.Auth.Entities.User? currentUser = await CurrentUserLookup.FindUserAsync(
-            user,
-            userContext.Users.AsNoTracking(),
-            cancellationToken);
+        Menlo.Lib.Auth.Entities.User? currentUser = null;
+        IOnboardingContext? onboardingContext = null;
+
+        try
+        {
+            IUserContext userContext = serviceProvider.GetRequiredService<IUserContext>();
+            onboardingContext = serviceProvider.GetRequiredService<IOnboardingContext>();
+
+            currentUser = await CurrentUserLookup.FindUserAsync(
+                user,
+                userContext.Users.AsNoTracking(),
+                cancellationToken);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or DbException)
+        {
+            currentUser = null;
+        }
 
         string[] roles = [.. user.FindAll(ClaimTypes.Role).Select(claim => claim.Value)];
         string defaultEmail = user.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
@@ -57,16 +71,25 @@ public static class GetUserEndpoint
             IsComplete: false,
             PendingTasks: ["SelectHousehold"]);
 
-        if (currentUser is not null)
+        if (currentUser is not null && onboardingContext is not null)
         {
-            var onboardingState = await onboardingContext.OnboardingStates
-                .AsNoTracking()
-                .FirstOrDefaultAsync(state => state.UserId == currentUser.Id, cancellationToken);
+            try
+            {
+                var onboardingState = await onboardingContext.OnboardingStates
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(state => state.UserId == currentUser.Id, cancellationToken);
 
-            bool isComplete = onboardingState?.HasSelectedHousehold ?? false;
-            onboarding = new OnboardingInfo(
-                IsComplete: isComplete,
-                PendingTasks: isComplete ? [] : ["SelectHousehold"]);
+                bool isComplete = onboardingState?.HasSelectedHousehold ?? false;
+                onboarding = new OnboardingInfo(
+                    IsComplete: isComplete,
+                    PendingTasks: isComplete ? [] : ["SelectHousehold"]);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or DbException)
+            {
+                onboarding = new OnboardingInfo(
+                    IsComplete: false,
+                    PendingTasks: ["SelectHousehold"]);
+            }
         }
 
         UserProfile profile = new(
