@@ -4,10 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.Browsers" Version="13.3.5-preview.1.26270.6" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.5" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.5" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.3.0" />
-    <PackageVersion Include="CommunityToolkit.Aspire.OllamaSharp" Version="13.3.0" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.2" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.2" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.4.0" />
+    <PackageVersion Include="CommunityToolkit.Aspire.OllamaSharp" Version="13.4.0" />
     <PackageVersion Include="CSharpFunctionalExtensions" Version="3.7.0" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1">
       <PrivateAssets>all</PrivateAssets>
