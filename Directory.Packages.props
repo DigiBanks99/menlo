@@ -25,7 +25,7 @@
     </PackageVersion>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.8.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
@@ -47,7 +47,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.15" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.16.16" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.13.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
