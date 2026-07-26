@@ -81,9 +81,9 @@
       },
       "Scalar.AspNetCore": {
         "type": "Direct",
-        "requested": "[2.16.15, )",
-        "resolved": "2.16.15",
-        "contentHash": "gCwx1CmfNIY4jlz4KAsiZrnUnz9UP+PhnM/rNQV3xcl4bnCaFVNhEBNrTMY9mi1QnsAJ32GeXCYu6DkSR2MHrQ=="
+        "requested": "[2.16.16, )",
+        "resolved": "2.16.16",
+        "contentHash": "Ax0e0bIh+Upf92k1+pTBUom3e/kbpu20qsrDYmmS1NM721Eq2xF8c789x6IbiNrvW8WwySRzPv/icYYhb6idSg=="
       },
       "Yarp.ReverseProxy": {
         "type": "Direct",
@@ -249,8 +249,8 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "Transitive",
-        "resolved": "10.8.0",
-        "contentHash": "1tJZ5sAYrEq1YjNg8GrZSL1tVodsWRfrgybGsZo5DQsWQgLZ+dSR5uFowIS6vb/9zxGBPl7xpYq53QMjNObO9w=="
+        "resolved": "10.8.1",
+        "contentHash": "dgFfXqIdC1up7q0emi58np/iJFZskNKSgs7rT3G94c0K5L18FH0Vjf9JMgCdlxPaNBuG4AJSCYESJd5WenY8Nw=="
       },
       "Microsoft.Extensions.AI.OpenAI": {
         "type": "Transitive",
@@ -714,7 +714,7 @@
         "dependencies": {
           "CommunityToolkit.Aspire.OllamaSharp": "[13.4.0, )",
           "Menlo.Lib": "[1.0.0, )",
-          "Microsoft.Extensions.AI": "[10.8.0, )",
+          "Microsoft.Extensions.AI": "[10.8.1, )",
           "Microsoft.SemanticKernel": "[1.78.0, )",
           "Microsoft.SemanticKernel.Connectors.Ollama": "[1.76.0-alpha, )",
           "OpenTelemetry.Api": "[1.17.0, )"
@@ -774,11 +774,11 @@
       },
       "Microsoft.Extensions.AI": {
         "type": "CentralTransitive",
-        "requested": "[10.8.0, )",
-        "resolved": "10.8.0",
-        "contentHash": "QfthL8e2X/Z6jRs4YyVS2+HTApJvhz725l35HYZ9cfwlEuQnpzY89NJoGNmpuNZn4LIvvQOQeZIbu3jggBXgUg==",
+        "requested": "[10.8.1, )",
+        "resolved": "10.8.1",
+        "contentHash": "fWi4S6zS2W9kJfhfFZPps99o/hS82tjQC0DKFaoVn+kBvZ3zgdBxwphbXd5jMN/ONs86uolNbuYAfCmgjyulvw==",
         "dependencies": {
-          "Microsoft.Extensions.AI.Abstractions": "10.8.0",
+          "Microsoft.Extensions.AI.Abstractions": "10.8.1",
           "System.Numerics.Tensors": "10.0.10"
         }
       },
