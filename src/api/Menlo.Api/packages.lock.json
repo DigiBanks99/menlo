@@ -4,9 +4,9 @@
     "net10.0": {
       "CommunityToolkit.Aspire.OllamaSharp": {
         "type": "Direct",
-        "requested": "[13.4.0, )",
-        "resolved": "13.4.0",
-        "contentHash": "Xy64OnQNNxCMLFyH1S3HrUEdwwwIraQHjAhKl5PHIq5vWp6jkSMO1gnHHVrfbo6BgSFndFOBWb91eVc2vynbaQ==",
+        "requested": "[13.5.0, )",
+        "resolved": "13.5.0",
+        "contentHash": "blHamecCYW/Gew1F+NRXmVY19D8TA6OxvRmDAIuAP6n5NB+bLDTrKstXdxSPq+tPPsbtoePsVybbpHBXPrXgEg==",
         "dependencies": {
           "Microsoft.Extensions.AI": "10.6.0",
           "OllamaSharp": "5.4.12",
@@ -81,9 +81,9 @@
       },
       "Scalar.AspNetCore": {
         "type": "Direct",
-        "requested": "[2.17.1, )",
-        "resolved": "2.17.1",
-        "contentHash": "7np19IKEqPi+Isbo5Ka1wdMsQedv5jUECPHq223NgKEL7eGd+z98ncZRmpYfKotU/BD07kJSpnPaXp6X0TzRKw=="
+        "requested": "[2.17.2, )",
+        "resolved": "2.17.2",
+        "contentHash": "ciW2HuRWJgNEecophHN9DvoRlTs/+8TNPhB6tQW1gmJWh/eoAIO0ys8XIxx7irUpIu3KRHZyxyuHstqqrTn1Tw=="
       },
       "Yarp.ReverseProxy": {
         "type": "Direct",
@@ -712,7 +712,7 @@
       "menlo.ai": {
         "type": "Project",
         "dependencies": {
-          "CommunityToolkit.Aspire.OllamaSharp": "[13.4.0, )",
+          "CommunityToolkit.Aspire.OllamaSharp": "[13.5.0, )",
           "Menlo.Lib": "[1.0.0, )",
           "Microsoft.Extensions.AI": "[10.9.0, )",
           "Microsoft.SemanticKernel": "[1.80.0, )",
