@@ -46,8 +46,7 @@ IResourceBuilder<JavaScriptAppResource> ui = builder
     .WithHttpEndpoint(name: "http", isProxied: false, port: 4200, env: "PORT")
     .WithHttpHealthCheck()
     .WithReference(api)
-    .WaitFor(api)
-    .WithBrowserLogs();
+    .WaitFor(api);
 
 IResourceBuilder<JavaScriptAppResource> uiStorybook = builder
     .AddJavaScriptApp("web-ui-storybook", uiPath)
