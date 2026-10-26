@@ -22,6 +22,12 @@ public static class BudgetEndpoints
             .WithTags("Budgets");
 
         budgets
+            .MapGet("/", ListBudgetsHandler.Handle)
+            .WithName("ListBudgets")
+            .WithSummary("Lists the household's budgets, newest year first.")
+            .RequireAuthorization(MenloPolicies.CanViewBudget);
+
+        budgets
             .MapPost("/{year:int}", CreateBudgetHandler.Handle)
             .WithName("CreateBudget")
             .WithSummary("Creates a new budget for the given year, or returns the existing one.")
