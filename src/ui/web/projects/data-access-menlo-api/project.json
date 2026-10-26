@@ -24,7 +24,7 @@
     "test": {
       "executor": "@analogjs/vitest-angular:test",
       "outputs": [
-        "{options.reportsDirectory}"
+        "{workspaceRoot}/coverage/projects/{projectName}"
       ],
       "options": {
         "passWithNoTests": true,

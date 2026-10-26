@@ -24,7 +24,7 @@
     "test": {
       "builder": "@angular/build:unit-test",
       "executor": "@analogjs/vitest-angular:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": ["{workspaceRoot}/coverage/projects/{projectName}"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/projects/shared-util",
