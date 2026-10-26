@@ -15,7 +15,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 - **Frontend Testing**: Angular tests, builds, and Storybook generation
 - **Integration Testing**: End-to-end testing across the full stack
 - **Documentation**: Markdown linting and link checking
-- **Quality Gate**: Ensures all checks pass before allowing merge
+- **Quality Gate**: Required status check that blocks merging (including Dependabot auto-merge) unless every job succeeded or was skipped by change detection
 
 ### Continuous Deployment (CD)
 
@@ -84,6 +84,16 @@ graph LR
 - **Self-Hosted Runner**: Direct deployment without SSH keys or remote access
 - **Branch Protection**: GitHub's branch protection provides deployment security
 - **Secure Secret Management**: Deployment credentials managed through GitHub Actions
+
+## 🛡️ Branch Protection
+
+The **Protected Branches** ruleset (default branch and `release/**`) requires a pull request and a passing `Quality Gate` check from GitHub Actions, with no bypass actors. Its definition lives in [`.github/rulesets/protected-branches.json`](../rulesets/protected-branches.json). After changing it, apply it with:
+
+```shell
+gh api -X PUT repos/DigiBanks99/menlo/rulesets/7452579 --input .github/rulesets/protected-branches.json
+```
+
+The required check matches the job name, so renaming the `Quality Gate` job in `ci.yml` means updating the ruleset too. The job runs with `if: always()`, so docs-only PRs still get a status when the path-filtered jobs are skipped.
 
 ## 🔧 Required Secrets
 
