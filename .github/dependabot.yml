@@ -18,6 +18,8 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Aspire packages must move with the AppHost SDK version, which Dependabot can't update; use `aspire update`
+      - dependency-name: "Aspire.*"
 
   # Frontend Dependencies (npm/pnpm)
   - package-ecosystem: "npm"

@@ -57,7 +57,7 @@ Update your learnings as you progress but keep them brief.
 - Design-system gradients that must work in app runtime, Storybook previews, and Vitest are safest when driven by shared theme CSS variables instead of `light-dark()`.
 - `mnl-button` exposes routed CTA interactions through its `pressed` output, so components that need navigation should handle routing in the host component instead of trying to attach `routerLink` directly.
 - `pnpm exec nx test menlo-app --coverage` can fully cover a migrated app slice while still failing branch-wide because `menlo-app` and `menlo-lib` both enforce 100% global coverage across pre-existing uncovered files.
-- A stray `Menlo.Api.exe` process locks backend build outputs and makes `dotnet test Menlo.slnx` fail even when the test suite itself is green; stop the specific PID before rerunning.
 - `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
 - `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
 - Branch protection lives in `.github/rulesets/protected-branches.json` and requires the `Quality Gate` job by name; renaming that job or removing its `if: always()` blocks every merge.
+- Update Aspire only with `aspire update`: it bumps the `Aspire.AppHost.Sdk` version in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill: stop the AppHost first.
