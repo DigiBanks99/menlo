@@ -56,6 +56,17 @@ internal static class OnboardingApiTestData
         return user;
     }
 
+    public static async Task RemoveOnboardingStateAsync(IServiceProvider services, UserId userId)
+    {
+        using IServiceScope scope = services.CreateScope();
+        IOnboardingContext onboardingContext = scope.ServiceProvider.GetRequiredService<IOnboardingContext>();
+
+        OnboardingState onboardingState = await onboardingContext.OnboardingStates
+            .SingleAsync(state => state.UserId == userId, TestContext.Current.CancellationToken);
+        onboardingContext.OnboardingStates.Remove(onboardingState);
+        await onboardingContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
     public static async Task<Household> CreateHouseholdAsync(IServiceProvider services, string name)
     {
         using IServiceScope scope = services.CreateScope();
