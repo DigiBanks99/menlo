@@ -3,12 +3,18 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiError, Result, toResult } from 'shared-util';
 import { API_BASE_URL } from './api-base-url.token';
-import { BudgetResponse } from './menlo-api.client';
+import { BudgetListItemResponse, BudgetResponse } from './menlo-api.client';
 
 @Injectable({ providedIn: 'root' })
 export class BudgetApiService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+
+  listBudgets(): Observable<Result<BudgetListItemResponse[], ApiError>> {
+    return this.http
+      .get<BudgetListItemResponse[]>(`${this.apiBaseUrl}/api/budgets`)
+      .pipe(toResult());
+  }
 
   createOrEnsureBudget(year: number): Observable<Result<BudgetResponse, ApiError>> {
     return this.http

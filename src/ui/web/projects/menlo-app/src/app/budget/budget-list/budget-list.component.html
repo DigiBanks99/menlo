@@ -12,61 +12,84 @@
         </p>
       </div>
 
-      <div class="grid gap-3 sm:flex sm:flex-wrap" data-testid="budget-list-actions">
-        <mnl-button class="w-full sm:w-auto" data-testid="create-budget-button" variant="primary">
-          Create New Budget
-        </mnl-button>
-      </div>
+      @if (!loading() && !error() && budgets().length > 0 && nextBudgetYear(); as year) {
+        <div class="grid gap-3 sm:flex sm:flex-wrap" data-testid="budget-list-actions">
+          <mnl-button
+            class="w-full sm:w-auto"
+            data-testid="create-budget-button"
+            variant="primary"
+            [disabled]="creating()"
+            (pressed)="createBudget()"
+          >
+            {{ creating() ? 'Creating...' : 'Create ' + year + ' Budget' }}
+          </mnl-button>
+        </div>
+      }
     </div>
   </mnl-page-header>
 
   <section class="space-y-6" data-testid="budget-list-section">
-    @if (budgets().length > 0) {
+    @if (createError()) {
+      <p class="m-0 text-sm font-semibold text-mnl-error" data-testid="create-budget-error">
+        {{ createError() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <p class="m-0 text-sm font-medium text-mnl-subtext" data-testid="budget-list-loading">
+        Loading budgets...
+      </p>
+    } @else if (error()) {
+      <mnl-card data-testid="budget-list-error" padding="lg">
+        <div class="space-y-2">
+          <p class="m-0 text-sm font-semibold text-mnl-error">
+            We couldn&apos;t load your budgets.
+          </p>
+          <p class="m-0 text-sm leading-6 text-mnl-subtext">{{ error() }}</p>
+        </div>
+      </mnl-card>
+    } @else if (budgets().length > 0) {
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         @for (budget of budgets(); track budget.id) {
           <mnl-card [interactive]="true" [attr.data-testid]="'budget-card-' + budget.id">
             <div class="flex items-start justify-between gap-4" mnlCardHeader>
               <div class="min-w-0 space-y-1.5">
                 <h2 class="m-0 text-xl font-semibold tracking-tight text-mnl-text">
-                  {{ budget.name }}
+                  Budget {{ budget.year }}
                 </h2>
-                <p class="m-0 text-sm text-mnl-subtext">{{ budget.period }}</p>
+                <p class="m-0 text-sm text-mnl-subtext">
+                  {{ budget.categoryCount }}
+                  {{ budget.categoryCount === 1 ? 'category' : 'categories' }}
+                </p>
               </div>
 
-              <mnl-badge size="sm" variant="neutral">{{ budget.period }}</mnl-badge>
+              <mnl-badge
+                [attr.data-testid]="'budget-status-' + budget.id"
+                [variant]="statusVariantFor(budget.status)"
+                size="sm"
+              >
+                {{ budget.status }}
+              </mnl-badge>
             </div>
 
-            <div class="space-y-5">
-              <div class="space-y-3">
-                <mnl-progress
-                  [ariaLabel]="budget.name + ' utilization'"
-                  [attr.data-testid]="'budget-progress-' + budget.id"
-                  [value]="budget.spentPercentage"
-                  [variant]="progressVariantFor(budget.spentPercentage)"
-                />
+            @let spent = spentPercentage(budget);
+            <div class="space-y-3">
+              <mnl-progress
+                [ariaLabel]="'Budget ' + budget.year + ' spending this month'"
+                [attr.data-testid]="'budget-progress-' + budget.id"
+                [value]="spent"
+                [variant]="progressVariantFor(spent)"
+              />
 
-                <div class="flex items-center justify-between gap-3 text-sm text-mnl-subtext">
-                  <span
-                    >R{{ budget.spent | number: '1.0-0' }} of R{{
-                      budget.total | number: '1.0-0'
-                    }}</span
-                  >
-                  <span class="font-semibold text-mnl-text">
-                    {{ budget.spentPercentage | number: '1.0-0' }}%
-                  </span>
-                </div>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-3">
-                <mnl-badge
-                  [attr.data-testid]="'budget-status-' + budget.id"
-                  [leadingDot]="true"
-                  [variant]="statusVariantFor(budget.status)"
-                  size="sm"
-                >
-                  {{ budget.statusText }}
-                </mnl-badge>
-                <span aria-hidden="true" class="text-lg">{{ budget.statusIcon }}</span>
+              <div
+                class="flex items-center justify-between gap-3 text-sm text-mnl-subtext"
+                [attr.data-testid]="'budget-spend-' + budget.id"
+              >
+                <span>
+                  {{ (budget.spentExpenses | money) || 'Nothing' }} spent of
+                  {{ budget.plannedExpenses | money }} planned this month
+                </span>
+                <span class="font-semibold text-mnl-text">{{ spent | number: '1.0-0' }}%</span>
               </div>
             </div>
 
@@ -79,15 +102,6 @@
                 (pressed)="openBudget(budget.id)"
               >
                 View Details
-              </mnl-button>
-              <mnl-button
-                class="w-full sm:w-auto"
-                [attr.data-testid]="'budget-edit-' + budget.id"
-                size="sm"
-                variant="secondary"
-                (pressed)="openBudget(budget.id)"
-              >
-                Edit
               </mnl-button>
             </div>
           </mnl-card>
@@ -106,8 +120,13 @@
           </div>
 
           <div class="mx-auto w-full max-w-xs">
-            <mnl-button data-testid="empty-create-budget-button" variant="primary">
-              Create Your First Budget
+            <mnl-button
+              data-testid="empty-create-budget-button"
+              variant="primary"
+              [disabled]="creating()"
+              (pressed)="createBudget()"
+            >
+              {{ creating() ? 'Creating...' : 'Create Your First Budget' }}
             </mnl-button>
           </div>
         </div>
