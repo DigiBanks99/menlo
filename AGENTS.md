@@ -60,3 +60,4 @@ Update your learnings as you progress but keep them brief.
 - A stray `Menlo.Api.exe` process locks backend build outputs and makes `dotnet test Menlo.slnx` fail even when the test suite itself is green; stop the specific PID before rerunning.
 - `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
 - `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
+- Branch protection lives in `.github/rulesets/protected-branches.json` and requires the `Quality Gate` job by name; renaming that job or removing its `if: always()` blocks every merge.
