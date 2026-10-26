@@ -36,6 +36,15 @@ export interface BudgetResponse {
   totalPlannedMonthlyAmount: { amount: number; currency: string };
 }
 
+export interface BudgetListItemResponse {
+  id: string;
+  year: number;
+  status: BudgetResponse['status'];
+  plannedExpenses: { amount: number; currency: string };
+  spentExpenses: { amount: number; currency: string } | null;
+  categoryCount: number;
+}
+
 export interface CategoryDto {
   id: string;
   budgetId: string;

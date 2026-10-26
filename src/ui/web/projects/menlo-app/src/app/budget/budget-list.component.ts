@@ -1,6 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { BudgetApiService, BudgetListItemResponse, BudgetResponse } from 'data-access-menlo-api';
 import {
   MnlBadgeComponent,
   type MnlBadgeVariant,
@@ -9,21 +17,10 @@ import {
   MnlPageHeaderComponent,
   MnlProgressComponent,
   type MnlProgressVariant,
+  MnlToastService,
+  MoneyPipe,
 } from 'menlo-lib';
-
-type BudgetStatus = 'danger' | 'good' | 'warning';
-
-interface BudgetListItem {
-  readonly id: string;
-  readonly name: string;
-  readonly period: string;
-  readonly spent: number;
-  readonly spentPercentage: number;
-  readonly status: BudgetStatus;
-  readonly statusIcon: string;
-  readonly statusText: string;
-  readonly total: number;
-}
+import { ApiError, Result, getErrorMessage, isSuccess } from 'shared-util';
 
 @Component({
   selector: 'app-budget-list',
@@ -35,51 +32,85 @@ interface BudgetListItem {
     MnlCardComponent,
     MnlPageHeaderComponent,
     MnlProgressComponent,
+    MoneyPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './budget-list/budget-list.component.html',
 })
-export class BudgetListComponent {
+export class BudgetListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly budgetApiService = inject(BudgetApiService);
+  private readonly toastService = inject(MnlToastService);
 
-  readonly budgets = signal<readonly BudgetListItem[]>([
-    {
-      id: '1',
-      name: 'Monthly Household Budget',
-      period: 'December 2025',
-      spent: 8750,
-      total: 12000,
-      spentPercentage: 73,
-      status: 'good',
-      statusIcon: '✅',
-      statusText: 'On track',
-    },
-    {
-      id: '2',
-      name: 'Holiday Spending',
-      period: 'December 2025',
-      spent: 2100,
-      total: 2500,
-      spentPercentage: 84,
-      status: 'warning',
-      statusIcon: '⚠️',
-      statusText: 'Watch spending',
-    },
-    {
-      id: '3',
-      name: 'Emergency Fund',
-      period: 'December 2025',
-      spent: 500,
-      total: 5000,
-      spentPercentage: 10,
-      status: 'good',
-      statusIcon: '💰',
-      statusText: 'Healthy reserve',
-    },
-  ]);
+  readonly currentYear = new Date().getFullYear();
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly budgets = signal<readonly BudgetListItemResponse[]>([]);
+  readonly creating = signal(false);
+  readonly createError = signal<string | null>(null);
+
+  /**
+   * The next budget year to create: the current year, then next year (the only years the API
+   * creates), or null once both exist.
+   */
+  readonly nextBudgetYear = computed<number | null>(() => {
+    const years = new Set(this.budgets().map((budget) => budget.year));
+    return [this.currentYear, this.currentYear + 1].find((year) => !years.has(year)) ?? null;
+  });
+
+  ngOnInit(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.budgetApiService
+      .listBudgets()
+      .subscribe((result: Result<BudgetListItemResponse[], ApiError>) => {
+        this.loading.set(false);
+        if (isSuccess(result)) {
+          this.budgets.set(result.value);
+        } else {
+          this.error.set(getErrorMessage(result.error));
+        }
+      });
+  }
+
+  protected createBudget(): void {
+    const year = this.nextBudgetYear();
+    if (year === null) {
+      return;
+    }
+
+    this.creating.set(true);
+    this.createError.set(null);
+
+    this.budgetApiService
+      .createOrEnsureBudget(year)
+      .subscribe((result: Result<BudgetResponse, ApiError>) => {
+        this.creating.set(false);
+        if (isSuccess(result)) {
+          this.toastService.show(`Budget ${year} created.`, { variant: 'success' });
+          void this.router.navigate(['/budgets', result.value.id]);
+        } else {
+          const message = getErrorMessage(result.error);
+          this.createError.set(message);
+          this.toastService.show(message, { variant: 'error' });
+        }
+      });
+  }
 
   protected openBudget(budgetId: string): void {
     void this.router.navigate(['/budgets', budgetId]);
+  }
+
+  protected spentPercentage(budget: BudgetListItemResponse): number {
+    const spent = budget.spentExpenses?.amount ?? 0;
+    const planned = budget.plannedExpenses.amount;
+    if (planned <= 0) {
+      // Unplanned spending counts as fully over budget
+      return spent > 0 ? 100 : 0;
+    }
+
+    return (spent / planned) * 100;
   }
 
   protected progressVariantFor(spentPercentage: number): MnlProgressVariant {
@@ -94,14 +125,14 @@ export class BudgetListComponent {
     return 'success';
   }
 
-  protected statusVariantFor(status: BudgetStatus): MnlBadgeVariant {
+  protected statusVariantFor(status: BudgetListItemResponse['status']): MnlBadgeVariant {
     switch (status) {
-      case 'danger':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      default:
+      case 'Active':
         return 'success';
+      case 'Closed':
+        return 'neutral';
+      default:
+        return 'warning';
     }
   }
 }

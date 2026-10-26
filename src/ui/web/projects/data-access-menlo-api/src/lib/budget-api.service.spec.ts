@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isFailure, isSuccess } from 'shared-util';
 import { BudgetApiService } from './budget-api.service';
-import { BudgetResponse } from './menlo-api.client';
+import { BudgetListItemResponse, BudgetResponse } from './menlo-api.client';
 
 const mockBudget: BudgetResponse = {
   id: 'budget-1',
@@ -35,6 +35,34 @@ describe('BudgetApiService', () => {
 
   afterEach(() => {
     httpController.verify();
+  });
+
+  describe('listBudgets', () => {
+    it('makes GET to /api/budgets and wraps response in success', () => {
+      const budgets: BudgetListItemResponse[] = [
+        {
+          id: 'budget-1',
+          year: 2025,
+          status: 'Active',
+          plannedExpenses: { amount: 8000, currency: 'ZAR' },
+          spentExpenses: null,
+          categoryCount: 3,
+        },
+      ];
+      let resultValue: BudgetListItemResponse[] | undefined;
+
+      service.listBudgets().subscribe((r) => {
+        if (isSuccess(r)) {
+          resultValue = r.value;
+        }
+      });
+
+      const req = httpController.expectOne('/api/budgets');
+      expect(req.request.method).toBe('GET');
+      req.flush(budgets);
+
+      expect(resultValue).toEqual(budgets);
+    });
   });
 
   describe('createOrEnsureBudget', () => {
