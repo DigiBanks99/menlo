@@ -60,4 +60,5 @@ Update your learnings as you progress but keep them brief.
 - `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
 - `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
 - Branch protection lives in `.github/rulesets/protected-branches.json` and requires the `Quality Gate` job by name; renaming that job or removing its `if: always()` blocks every merge.
+- The home-server deploy job runs on the self-hosted runner labelled `menlo-deploy` and only for `main` on `DigiBanks99/menlo`; add that label to any replacement runner.
 - Update Aspire only with `aspire update`: it bumps the `Aspire.AppHost.Sdk` version in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill: stop the AppHost first.

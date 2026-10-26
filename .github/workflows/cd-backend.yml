@@ -167,8 +167,9 @@ jobs:
 
   deploy-to-home-server:
     name: Deploy to Home Server
-    runs-on: self-hosted
+    runs-on: [self-hosted, menlo-deploy]
     needs: [build-and-push, download-certificate]
+    if: github.ref == 'refs/heads/main' && github.repository == 'DigiBanks99/menlo'
     environment:
       name: 'Production'
 
