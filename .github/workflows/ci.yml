@@ -534,33 +534,35 @@ jobs:
           use-verbose-mode: 'no'
 
   quality-gate:
+    # Required status check on the Protected Branches ruleset (.github/rulesets/protected-branches.json).
+    # Keep the job name in sync with the ruleset, and keep `if: always()` so path-filtered skips still report.
     name: Quality Gate
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests, backend-security, frontend-security, integration-tests, docs-validation]
+    needs: [detect-changes, backend-tests, frontend-tests, backend-security, frontend-security, integration-tests, docs-validation]
     if: always()
 
     steps:
-      - name: Check test results
+      - name: Check job results
+        shell: bash
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
-          echo "Backend Tests: ${{ needs.backend-tests.result }}"
-          echo "Frontend Tests: ${{ needs.frontend-tests.result }}"
-          echo "Backend Security: ${{ needs.backend-security.result }}"
-          echo "Frontend Security: ${{ needs.frontend-security.result }}"
-          echo "Integration Tests: ${{ needs.integration-tests.result }}"
-          echo "Docs Validation: ${{ needs.docs-validation.result }}"
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
 
-          # Check if any required job failed
-          if [[ "${{ needs.backend-tests.result }}" == "failure" ]] || \
-             [[ "${{ needs.frontend-tests.result }}" == "failure" ]] || \
-             [[ "${{ needs.backend-security.result }}" == "failure" ]] || \
-             [[ "${{ needs.frontend-security.result }}" == "failure" ]] || \
-             [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
-             [[ "${{ needs.docs-validation.result }}" == "failure" ]]; then
-            echo "❌ Quality gate failed - one or more required checks failed"
+          # detect-changes must succeed; every other job must succeed or be skipped (cancelled counts as a failure)
+          FAILED=$(echo "$NEEDS_JSON" | jq -r '
+            to_entries[]
+            | select(
+                if .key == "detect-changes"
+                then .value.result != "success"
+                else (.value.result | IN("success", "skipped") | not)
+                end)
+            | .key')
+
+          if [ -n "$FAILED" ]; then
+            echo "❌ Quality gate failed - these jobs did not succeed:"
+            echo "$FAILED"
             exit 1
           fi
 
-          echo "✅ Quality gate passed - all checks successful"
-
-      - name: Update status
-        run: echo "CI pipeline completed successfully"
+          echo "✅ Quality gate passed - all checks successful or skipped"
