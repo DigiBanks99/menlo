@@ -18,7 +18,7 @@ To start a local development server, run:
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+For the full app, run it with `aspire` and open the **api** resource URL (e.g. `https://localhost:7298/`). The API proxies the Angular dev server same-origin so sign-in and `/auth`/`/api` calls work; opening `http://localhost:4200/` directly loops on the sign-in page. The application will automatically reload whenever you modify any of the source files.
 
 ## Code scaffolding
 
