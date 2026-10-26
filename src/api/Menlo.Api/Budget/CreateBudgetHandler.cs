@@ -64,17 +64,13 @@ public static class CreateBudgetHandler
             return Results.Ok(MapToDto(existing));
         }
 
-        // When creating next year's budget, clone from the current year's budget if one exists
-        Lib.Budget.Entities.Budget? sourceForClone = null;
-        if (year == currentYear + 1)
-        {
-            sourceForClone = await budgetContext.Budgets
-                .Include(b => b.Categories)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    b => b.HouseholdId == userContext.HouseholdId && b.Year == currentYear,
-                    cancellationToken);
-        }
+        // Clone from the previous year's budget if one exists (Y-1 → Y)
+        Lib.Budget.Entities.Budget? sourceForClone = await budgetContext.Budgets
+            .Include(b => b.Categories)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                b => b.HouseholdId == userContext.HouseholdId && b.Year == year - 1,
+                cancellationToken);
 
         Result<Lib.Budget.Entities.Budget, Lib.Budget.Errors.BudgetError> createResult = sourceForClone is not null
             ? Lib.Budget.Entities.Budget.CloneForYear(sourceForClone, year, auditStampFactory)

@@ -27,6 +27,12 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     private static readonly HouseholdId NestedCategoriesHousehold =
         new(Guid.Parse("72727272-7272-7272-7272-727272727272"));
 
+    private static readonly HouseholdId LastYearSourceHousehold =
+        new(Guid.Parse("5e5e5e5e-5e5e-5e5e-5e5e-5e5e5e5e5e5e"));
+
+    private static readonly HouseholdId StaleSourceHousehold =
+        new(Guid.Parse("7e7e7e7e-7e7e-7e7e-7e7e-7e7e7e7e7e7e"));
+
     // -------------------------------------------------------------------------
     // Clone with categories
     // -------------------------------------------------------------------------
@@ -116,6 +122,52 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     }
 
     // -------------------------------------------------------------------------
+    // Previous-year budget → current year clones from it
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task GivenLastYearBudgetExists_WhenCreateCurrentYearBudget_ThenReturns201WithClonedCategories()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(LastYearSourceHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        int currentYear = DateTimeOffset.UtcNow.Year;
+
+        // The API only creates current/next year, so last year's budget is seeded directly
+        Guid lastYearBudgetId = await SeedBudgetAsync(factory, LastYearSourceHousehold, currentYear - 1);
+        Guid sourceCategoryId = await SeedCategoryWithPlannedAmountAsync(factory, lastYearBudgetId, "Utilities", 800m, "ZAR");
+
+        HttpResponseMessage response =
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+        BudgetDto? dto = await DeserializeBudgetDto(response);
+
+        ItShouldHaveReturned201Created(response);
+        ItShouldHaveYear(dto, currentYear);
+        ItShouldHaveExactlyOneCategory(dto);
+        ItShouldHaveCategoryNamed(dto, "Utilities");
+        ItShouldHaveNewCategoryId(dto, sourceCategoryId);
+    }
+
+    [Fact]
+    public async Task GivenOnlyAnOlderBudgetExists_WhenCreateCurrentYearBudget_ThenReturns201WithEmptyCategories()
+    {
+        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(StaleSourceHousehold);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        int currentYear = DateTimeOffset.UtcNow.Year;
+
+        // Only Y-1 is a clone source; a budget from two years back is not
+        Guid staleBudgetId = await SeedBudgetAsync(factory, StaleSourceHousehold, currentYear - 2);
+        await SeedCategoryWithPlannedAmountAsync(factory, staleBudgetId, "Utilities", 800m, "ZAR");
+
+        HttpResponseMessage response =
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+        BudgetDto? dto = await DeserializeBudgetDto(response);
+
+        ItShouldHaveReturned201Created(response);
+        ItShouldHaveYear(dto, currentYear);
+        ItShouldHaveNoCategories(dto);
+    }
+
+    // -------------------------------------------------------------------------
     // Factory helper
     // -------------------------------------------------------------------------
 
@@ -159,6 +211,22 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return category.Id.Value;
+    }
+
+    private static async Task<Guid> SeedBudgetAsync(
+        BudgetTestWebApplicationFactory factory,
+        HouseholdId householdId,
+        int year)
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
+
+        Lib.Budget.Entities.Budget budget = Lib.Budget.Entities.Budget.Create(householdId, year, auditFactory).Value;
+        db.Budgets.Add(budget);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return budget.Id.Value;
     }
 
     private static async Task SeedNestedCategoriesAsync(
