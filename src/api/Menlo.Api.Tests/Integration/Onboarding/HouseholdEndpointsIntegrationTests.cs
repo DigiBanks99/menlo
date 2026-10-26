@@ -1,5 +1,6 @@
 using Menlo.Api.Endpoints.Onboarding;
 using Menlo.Lib.Auth.Entities;
+using Menlo.Lib.Onboarding;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -105,6 +106,51 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         persistedUser.HouseholdId.ShouldBe(household.Id);
+        onboardingState.HasSelectedHousehold.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task GivenUserWithoutOnboardingState_WhenJoiningExistingHousehold_CreatesOnboardingStateAndMarksComplete()
+    {
+        string externalId = Guid.NewGuid().ToString();
+        string email = $"{Guid.NewGuid():N}@menlo.test";
+        string displayName = $"User {Guid.NewGuid():N}";
+        string householdName = $"Joinable {Guid.NewGuid():N}";
+
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
+        User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
+        await OnboardingApiTestData.RemoveOnboardingStateAsync(fixture.Services, createdUser.Id);
+        Household household = await OnboardingApiTestData.CreateHouseholdAsync(fixture.Services, householdName);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsync($"/api/households/{household.Id.Value}/join", null, TestContext.Current.CancellationToken);
+
+        OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        onboardingState.HasSelectedHousehold.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task GivenUserWithoutOnboardingState_WhenCreatingHousehold_CreatesOnboardingStateAndMarksComplete()
+    {
+        string externalId = Guid.NewGuid().ToString();
+        string email = $"{Guid.NewGuid():N}@menlo.test";
+        string displayName = $"User {Guid.NewGuid():N}";
+
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
+        User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
+        await OnboardingApiTestData.RemoveOnboardingStateAsync(fixture.Services, createdUser.Id);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            "/api/households",
+            new CreateHouseholdRequest($"My Family {Guid.NewGuid():N}"),
+            TestContext.Current.CancellationToken);
+
+        OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 

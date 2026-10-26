@@ -100,15 +100,7 @@ public static class HouseholdEndpoints
         householdContext.Households.Add(household);
         user.AssignToHousehold(household.Id.Value);
 
-        OnboardingState? onboardingState = await onboardingContext.OnboardingStates
-            .FirstOrDefaultAsync(state => state.UserId == user.Id, cancellationToken);
-
-        onboardingState?.CompleteTask(
-            OnboardingTaskType.SelectedHousehold,
-            new Dictionary<string, object>
-            {
-                ["householdId"] = household.Id.Value.ToString()
-            });
+        await CompleteHouseholdSelectionAsync(onboardingContext, user, household, cancellationToken);
 
         await householdContext.SaveChangesAsync(cancellationToken);
         await userContext.SaveChangesAsync(cancellationToken);
@@ -150,20 +142,36 @@ public static class HouseholdEndpoints
 
         user.AssignToHousehold(household.Id.Value);
 
-        OnboardingState? onboardingState = await onboardingContext.OnboardingStates
-            .FirstOrDefaultAsync(state => state.UserId == user.Id, cancellationToken);
-
-        onboardingState?.CompleteTask(
-            OnboardingTaskType.SelectedHousehold,
-            new Dictionary<string, object>
-            {
-                ["householdId"] = household.Id.Value.ToString()
-            });
+        await CompleteHouseholdSelectionAsync(onboardingContext, user, household, cancellationToken);
 
         await userContext.SaveChangesAsync(cancellationToken);
         await onboardingContext.SaveChangesAsync(cancellationToken);
 
         return Results.NoContent();
+    }
+
+    // Users provisioned before onboarding state existed have no row, so create one rather than skipping completion.
+    private static async Task CompleteHouseholdSelectionAsync(
+        IOnboardingContext onboardingContext,
+        User user,
+        Household household,
+        CancellationToken cancellationToken)
+    {
+        OnboardingState? onboardingState = await onboardingContext.OnboardingStates
+            .FirstOrDefaultAsync(state => state.UserId == user.Id, cancellationToken);
+
+        if (onboardingState is null)
+        {
+            onboardingState = OnboardingState.Create(user.Id);
+            onboardingContext.OnboardingStates.Add(onboardingState);
+        }
+
+        onboardingState.CompleteTask(
+            OnboardingTaskType.SelectedHousehold,
+            new Dictionary<string, object>
+            {
+                ["householdId"] = household.Id.Value.ToString()
+            });
     }
 }
 
