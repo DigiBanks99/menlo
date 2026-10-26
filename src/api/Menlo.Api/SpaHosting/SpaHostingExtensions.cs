@@ -47,7 +47,7 @@ internal static class SpaHostingExtensions
                 "/{**catch-all}",
                 ResolveDevelopmentServerUri(configuration),
                 SpaForwarderRequestConfig,
-                HttpTransformer.Default,
+                SpaDevelopmentServerTransformer.Instance,
                 CreateProxyHttpClient());
 
             return app;

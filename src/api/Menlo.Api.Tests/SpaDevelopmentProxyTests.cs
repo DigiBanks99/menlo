@@ -28,6 +28,27 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
     }
 
     [Fact]
+    public async Task GetAsync_WithLargeSessionCookieInDevelopment_DoesNotForwardCredentialsToSpaBackend()
+    {
+        await using DevelopmentSpaBackend spaBackend = await DevelopmentSpaBackend.StartAsync();
+        using TestWebApplicationFactory factory = CreateDevelopmentFactory(spaBackend.BaseAddress);
+        using HttpClient client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        using HttpRequestMessage request = new(HttpMethod.Get, "/budgets");
+        request.Headers.Add("Cookie", $".Menlo.SessionC1={new string('a', 20_000)}");
+        request.Headers.Add("Authorization", "Bearer token");
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        ItShouldHaveSucceeded(response);
+        ItShouldHaveBeenProxied(response, body, "/budgets");
+        ItShouldNotHaveForwardedCredentials(response);
+    }
+
+    [Fact]
     public async Task GetAsync_WithApiAuthOrHealthRouteInDevelopment_DoesNotProxyToSpaBackend()
     {
         await using DevelopmentSpaBackend spaBackend = await DevelopmentSpaBackend.StartAsync();
@@ -71,6 +92,12 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
         body.ShouldContain($"SPA BACKEND: {requestPathAndQuery}");
     }
 
+    private static void ItShouldNotHaveForwardedCredentials(HttpResponseMessage response)
+    {
+        response.Headers.GetValues("X-Spa-Backend-Received-Cookie").ShouldBe(["false"]);
+        response.Headers.GetValues("X-Spa-Backend-Received-Authorization").ShouldBe(["false"]);
+    }
+
     private static void ItShouldNotHaveBeenProxied(HttpResponseMessage response, string body)
     {
         response.Headers.Contains("X-Spa-Backend").ShouldBeFalse();
@@ -98,6 +125,8 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
                 context.Response.StatusCode = StatusCodes.Status200OK;
                 context.Response.ContentType = "text/plain";
                 context.Response.Headers["X-Spa-Backend"] = "true";
+                context.Response.Headers["X-Spa-Backend-Received-Cookie"] = context.Request.Headers.Cookie.Count > 0 ? "true" : "false";
+                context.Response.Headers["X-Spa-Backend-Received-Authorization"] = context.Request.Headers.Authorization.Count > 0 ? "true" : "false";
                 await context.Response.WriteAsync($"SPA BACKEND: {requestPathAndQuery}", TestContext.Current.CancellationToken);
             });
 
