@@ -25,7 +25,7 @@ The CD workflow (`.github/workflows/cd-backend.yml`) writes its own `docker-comp
 
 ### Prerequisites
 
-- Linux distribution with systemd (e.g. Ubuntu 24.04, Oracle Linux 9)
+- Linux distribution with systemd (e.g. Ubuntu 24.04, Oracle Linux 9), on `arm64`. CD only publishes `menlo-api` for `linux/arm64`; `postgres` and `ollama` images are multi-arch
 - `sudo` access for setup
 - `curl` and GNU coreutils
 - Stable internet connection (for model downloads)
@@ -291,6 +291,7 @@ BACKUP_KEEP_DAYS=14
 - `Neither podman nor docker is installed` / `CONTAINER_RUNTIME is '...' but it is not installed`: install the runtime (Step 1) or fix the variable
 - `permission denied ... docker.sock`: add the runner user to the `docker` group and restart the runner service
 - `podman compose` errors about a missing provider: install `podman-compose`
+- `no matching manifest for linux/arm64/v8`: the image was built for a different architecture; `menlo-api` is only built for `linux/arm64`, so an `amd64` host (`uname -m` prints `x86_64`) needs that platform added to `platforms` in `cd-backend.yml`
 
 ### Container Runtime Issues
 

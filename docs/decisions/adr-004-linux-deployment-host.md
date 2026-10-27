@@ -69,7 +69,7 @@ Windows remains a supported **development** platform. Developer tooling such as 
 
 ### Host prerequisites
 
-- Linux distribution with systemd
+- Linux distribution with systemd, on `arm64`. CD only publishes a `linux/arm64` image, built natively on an `ubuntu-24.04-arm` runner; moving to an `amd64` host means adding that platform back
 - Docker Engine with the compose plugin, or Podman with a compose provider (`podman compose`)
 - `curl` and GNU coreutils (`base64 -w0`)
 - GitHub Actions runner registered with the `menlo-deploy` label
