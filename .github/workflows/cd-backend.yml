@@ -1,27 +1,30 @@
 name: CD - Deploy Backend
 
+# Deploys the image CI built and pushed for a commit on main (sha-<full commit sha>).
+# CD never builds images; re-running it for an older commit is the rollback path.
 on:
-  push:
+  workflow_run:
+    workflows: [ 'CI - Build and Test' ]
+    types: [ completed ]
     branches: [ main ]
-    paths:
-      - 'src/api/**'
-      - 'src/lib/**'
-      - 'Menlo.slnx'
-      - 'Directory.Build.props'
-      - 'Directory.Packages.props'
-      - '.github/workflows/cd-backend.yml'
-      - 'Dockerfile'
-      - 'infra/**'
   workflow_dispatch:
     inputs:
+      sha:
+        description: 'Full commit SHA on main to deploy (leave empty to redeploy the current production image)'
+        required: false
+        type: string
       deploy-infra:
         description: 'Deploy infrastructure before backend'
         required: false
         default: false
         type: boolean
 
+# Never run two production deploys at once; queue the newer one instead
+concurrency:
+  group: cd-backend-production
+  cancel-in-progress: false
+
 env:
-  DOTNET_VERSION: '10.0.x'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/menlo-api
   KEY_VAULT_NAME: kv-menlo-prod
@@ -29,15 +32,75 @@ env:
 
 jobs:
   # ============================================================================
+  # Resolve Image
+  # ============================================================================
+  # Finds the image CI pushed for the commit. A CI run that built no image
+  # (e.g. docs-only changes) skips the deploy; a manual run for a SHA with no
+  # image fails.
+
+  resolve-image:
+    name: Resolve Image
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+
+    permissions:
+      packages: read
+
+    outputs:
+      image: ${{ steps.resolve.outputs.image }}
+      exists: ${{ steps.resolve.outputs.exists }}
+      sha: ${{ steps.resolve.outputs.sha }}
+
+    steps:
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve image for commit
+        id: resolve
+        shell: bash
+        env:
+          SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.sha || github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$SHA" && "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            # No SHA given: redeploy the image currently in production
+            IMAGE="${REGISTRY}/${IMAGE_NAME,,}:main"
+          elif [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            IMAGE="${REGISTRY}/${IMAGE_NAME,,}:sha-${SHA}"
+          else
+            echo "::error::Expected a full 40-character commit SHA, got '$SHA'"
+            exit 1
+          fi
+
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+          if docker buildx imagetools inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "✅ Found $IMAGE"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "::error::No image $IMAGE; CI only pushes images for commits on main that change the image"
+            exit 1
+          else
+            echo "::notice::CI built no image for $SHA, skipping deployment"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ============================================================================
   # Infrastructure Deployment (Optional)
   # ============================================================================
-  # Only runs on workflow_dispatch with deploy-infra=true or when infra/ changes
+  # Only runs on workflow_dispatch with deploy-infra=true
 
   deploy-infrastructure:
     name: Deploy Infrastructure
-    if: |
-      github.event_name == 'workflow_dispatch' && inputs.deploy-infra == true ||
-      contains(github.event.head_commit.modified, 'infra/')
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy-infra == true
     uses: ./.github/workflows/cd-infra.yml
     with:
       environment: Production
@@ -48,57 +111,6 @@ jobs:
       contents: read
 
   # ============================================================================
-  # Build and Push Container
-  # ============================================================================
-
-  build-and-push:
-    name: Build and Push Container
-    # The deploy host is arm64, so build natively on an arm64 runner
-    runs-on: ubuntu-24.04-arm
-    outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/arm64
-
-  # ============================================================================
   # Download Certificate from Key Vault
   # ============================================================================
   # Downloads the certificate for use by the home server deployment
@@ -106,7 +118,11 @@ jobs:
   download-certificate:
     name: Download Certificate
     runs-on: ubuntu-latest
-    needs: [build-and-push]
+    needs: [resolve-image, deploy-infrastructure]
+    # Run after an optional infra deploy, but not when it was skipped for being unrequested
+    if: |
+      always() && needs.resolve-image.outputs.exists == 'true' &&
+      (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
 
     permissions:
       id-token: write
@@ -169,18 +185,15 @@ jobs:
   deploy-to-home-server:
     name: Deploy to Home Server
     runs-on: [self-hosted, menlo-deploy]
-    needs: [build-and-push, download-certificate]
-    if: github.ref == 'refs/heads/main' && github.repository == 'DigiBanks99/menlo'
+    needs: [resolve-image, download-certificate]
+    # Explicit result checks: a skipped deploy-infrastructure upstream would otherwise skip this job
+    if: |
+      !cancelled() && needs.download-certificate.result == 'success' &&
+      github.ref == 'refs/heads/main' && github.repository == 'DigiBanks99/menlo'
     environment:
       name: 'Production'
 
     steps:
-      - name: Checkout deployment scripts
-        uses: actions/checkout@v7
-        with:
-          sparse-checkout: |
-            deployment/
-
       - name: Download Certificate Artifact
         uses: actions/download-artifact@v8
         with:
@@ -190,7 +203,7 @@ jobs:
       - name: Deploy application
         shell: bash
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
+          IMAGE: ${{ needs.resolve-image.outputs.image }}
           CERTIFICATE_THUMBPRINT: ${{ needs.download-certificate.outputs.certificate-thumbprint }}
           CERTIFICATE_PATH: ${{ runner.temp }}/cert/cert.pfx
           AZURE_AD_INSTANCE: ${{ vars.AZURE_AD_INSTANCE }}
@@ -206,9 +219,7 @@ jobs:
 
           echo "🚀 Starting Menlo deployment..."
 
-          # Extract the first tag (main image tag) from the multi-line output
-          IMAGE_TAG_CLEAN=$(printf '%s\n' "$IMAGE_TAG" | head -n1 | xargs)
-          echo "📦 Using image: $IMAGE_TAG_CLEAN"
+          echo "📦 Using image: $IMAGE"
 
           # Use CONTAINER_RUNTIME (docker or podman) when set, otherwise
           # detect what is installed, preferring Podman
@@ -245,7 +256,7 @@ jobs:
           cat > docker-compose.prod.yml <<EOF
           services:
             menlo-api:
-              image: ${IMAGE_TAG_CLEAN}
+              image: ${IMAGE}
               container_name: menlo-api
               restart: unless-stopped
               environment:
@@ -328,7 +339,7 @@ jobs:
 
           # Pull new image
           echo "📥 Pulling new image..."
-          "$RUNTIME" pull "$IMAGE_TAG_CLEAN"
+          "$RUNTIME" pull "$IMAGE"
 
           # Stop existing services
           echo "⏸️ Stopping existing services..."
@@ -384,8 +395,12 @@ jobs:
   post-deployment:
     name: Post-Deployment Checks
     runs-on: ubuntu-latest
-    needs: [build-and-push, deploy-to-home-server]
-    if: success()
+    needs: [resolve-image, deploy-to-home-server]
+    if: ${{ !cancelled() && needs.deploy-to-home-server.result == 'success' }}
+
+    # Moves the main tag to the image that is now in production
+    permissions:
+      packages: write
 
     steps:
       - name: External health check
@@ -426,12 +441,29 @@ jobs:
             echo "⚠️ Domain variables (DOMAIN, SUBDOMAIN) or API_BASE_URL not configured, skipping external health check"
           fi
 
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag deployed image as main
+        env:
+          IMAGE: ${{ needs.resolve-image.outputs.image }}
+        run: |
+          MAIN_TAG="${IMAGE%:*}:main"
+          if [[ "$IMAGE" == "$MAIN_TAG" ]]; then
+            echo "Redeployed $MAIN_TAG, nothing to retag"
+            exit 0
+          fi
+          docker buildx imagetools create --tag "$MAIN_TAG" "$IMAGE"
+          echo "🏷️ $MAIN_TAG -> $IMAGE"
+
       - name: Deployment summary
         env:
-          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
+          IMAGE_TAG_CLEAN: ${{ needs.resolve-image.outputs.image }}
         run: |
-          # Extract the first tag (main image tag) from the multi-line output
-          IMAGE_TAG_CLEAN=$(echo "$IMAGE_TAG" | head -n1 | xargs)
 
           echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
