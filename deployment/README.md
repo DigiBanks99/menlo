@@ -1,13 +1,13 @@
-# Menlo Deployment - Linux + Podman + Ollama
+# Menlo Deployment - Linux + Docker/Podman + Ollama
 
-Deployment guide for the Menlo Home Management application on a **Linux host** using **Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
+Deployment guide for the Menlo Home Management application on a **Linux host** using **Docker or Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
 
 ## 🎯 Quick Start
 
 This setup is designed for:
 
 - **Linux host with systemd** (see [ADR-004](../docs/decisions/adr-004-linux-deployment-host.md))
-- **Podman containers** (rootless; Docker with the compose plugin also works)
+- **Docker or Podman** (pick one with the `CONTAINER_RUNTIME` variable)
 - **Local Ollama AI** (phi4-mini, phi4-vision models)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
 - **Cloudflare Pages** (frontend hosting with Angular 21)
@@ -30,13 +30,31 @@ The CD workflow (`.github/workflows/cd-backend.yml`) writes its own `docker-comp
 - `curl` and GNU coreutils
 - Stable internet connection (for model downloads)
 
-### Step 1: Create the Runner User and Install Podman
+### Step 1: Create the Runner User and Install a Container Runtime
 
 ```bash
 # Dedicated user for the GitHub Actions runner (matches the runner's working dir)
 sudo useradd --create-home --shell /bin/bash ghrunner
+```
 
-# Podman and a compose provider
+Install **one** of the following, then set the `CONTAINER_RUNTIME` repository variable to match (see Step 3).
+
+#### Option A: Docker
+
+```bash
+# Docker Engine + compose plugin (see https://docs.docker.com/engine/install/ for your distribution)
+curl -fsSL https://get.docker.com | sudo sh
+sudo systemctl enable --now docker
+
+# Let the runner user talk to the Docker daemon
+sudo usermod -aG docker ghrunner
+```
+
+Docker's daemon restarts `unless-stopped` containers after a reboot, so nothing else is needed.
+
+#### Option B: Podman (rootless)
+
+```bash
 sudo apt-get install -y podman podman-compose      # Debian/Ubuntu
 # sudo dnf install -y podman podman-compose        # Oracle Linux/RHEL/Fedora
 
@@ -45,11 +63,13 @@ sudo loginctl enable-linger ghrunner
 sudo -iu ghrunner systemctl --user enable --now podman-restart.service
 ```
 
-Check it works as the runner user:
+Check it works as the runner user (restart the runner service after adding the `docker` group):
 
 ```bash
-sudo -iu ghrunner podman compose version
+sudo -iu ghrunner docker compose version     # or: podman compose version
 ```
+
+> **Switching runtimes:** Docker and Podman keep separate volumes. Before switching, back up the database (see [Database Backup & Restore](#️-database-backup--restore)), stop the old stack, and restore into the new one.
 
 ### Step 2: Configure Cloudflare Tunnel
 
@@ -122,6 +142,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 | Variable Name | Value | Description | Required |
 |---------------|-------|-------------|----------|
 | `CLOUDFLARE_PAGES_PROJECT_NAME` | `menlo-ui-web` | Cloudflare Pages project name | ✅ |
+| `CONTAINER_RUNTIME` | `docker` or `podman` | Container runtime on the host; unset auto-detects, preferring Podman | - |
 | `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
 | `API_BASE_URL` | `https://menlo.yourdomain.com` | External API URL | - |
 | `FRONTEND_URL` | `https://menlo.yourdomain.com` | Cloudflare Pages frontend URL | - |
@@ -153,28 +174,28 @@ To restart the current stack on the host without a new image:
 ```bash
 sudo -iu ghrunner
 cd ~/menlo
-podman compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## 🏥 Health Monitoring
 
-Run these as the runner user (`sudo -iu ghrunner`) from `~/menlo`.
+Run these as the runner user (`sudo -iu ghrunner`) from `~/menlo`. The examples use `docker`; with Podman, the same commands work with `podman` in place of `docker`.
 
 ### Check Service Status
 
 ```bash
-podman compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps
 ```
 
 ### View Logs
 
 ```bash
 # All services
-podman compose -f docker-compose.prod.yml logs -f
+docker compose -f docker-compose.prod.yml logs -f
 
 # Specific service
-podman compose -f docker-compose.prod.yml logs -f menlo-api
-podman compose -f docker-compose.prod.yml logs -f ollama
+docker compose -f docker-compose.prod.yml logs -f menlo-api
+docker compose -f docker-compose.prod.yml logs -f ollama
 ```
 
 ### Health Check URLs
@@ -191,19 +212,19 @@ podman compose -f docker-compose.prod.yml logs -f ollama
 ### Check Downloaded Models
 
 ```bash
-podman exec menlo-ollama ollama list
+docker exec menlo-ollama ollama list
 ```
 
 ### Download Additional Models
 
 ```bash
 # Text processing models
-podman exec menlo-ollama ollama pull phi4-mini
-podman exec menlo-ollama ollama pull phi3.5:3.8b
+docker exec menlo-ollama ollama pull phi4-mini
+docker exec menlo-ollama ollama pull phi3.5:3.8b
 
 # Vision models (image analysis)
-podman exec menlo-ollama ollama pull phi4-vision
-podman exec menlo-ollama ollama pull llava:latest
+docker exec menlo-ollama ollama pull phi4-vision
+docker exec menlo-ollama ollama pull llava:latest
 ```
 
 ### Model Storage
@@ -220,7 +241,7 @@ The reference [`docker-compose.prod.yml`](docker-compose.prod.yml) defines a `db
 
 ```bash
 # List backup files in the volume
-podman exec menlo-db-backup ls -lh /backups/daily/
+docker exec menlo-db-backup ls -lh /backups/daily/
 ```
 
 You should see `.sql.gz` files named with a date (e.g., `menlo-20260417.sql.gz`) and a `menlo-latest.sql.gz` symlink pointing to the most recent one.
@@ -229,19 +250,19 @@ You should see `.sql.gz` files named with a date (e.g., `menlo-20260417.sql.gz`)
 
 ```bash
 # Copy the latest backup out of the volume (or use a specific dated file)
-podman cp menlo-db-backup:/backups/last/menlo-latest.sql.gz .
+docker cp menlo-db-backup:/backups/last/menlo-latest.sql.gz .
 
 # Decompress
 gunzip menlo-latest.sql.gz
 
 # Stop the API first to avoid conflicts
-podman stop menlo-api
+docker stop menlo-api
 
 # Restore into the running postgres container
-podman exec -i menlo-postgres psql -U menlo -d menlo < menlo-latest.sql
+docker exec -i menlo-postgres psql -U menlo -d menlo < menlo-latest.sql
 
 # Restart the API
-podman start menlo-api
+docker start menlo-api
 ```
 
 > **Note:** To restore a specific point-in-time backup, replace `menlo-latest.sql.gz` with a timestamped file from `/backups/last/` (e.g., `menlo-20260417-020000.sql.gz`).
@@ -267,16 +288,19 @@ BACKUP_KEEP_DAYS=14
 ### Deploy Job Fails Immediately
 
 - `pwsh: command not found`: the workflow is older than the bash migration ([#516](https://github.com/DigiBanks99/menlo/issues/516)); rebase onto `main`
-- `Neither podman nor docker is installed`: install Podman for the runner user (Step 1)
-- `podman compose` errors about a missing provider: install `podman-compose` (or `docker-compose`)
+- `Neither podman nor docker is installed` / `CONTAINER_RUNTIME is '...' but it is not installed`: install the runtime (Step 1) or fix the variable
+- `permission denied ... docker.sock`: add the runner user to the `docker` group and restart the runner service
+- `podman compose` errors about a missing provider: install `podman-compose`
 
-### Podman Issues
+### Container Runtime Issues
 
 ```bash
-# Check Podman status
-podman --version
-podman info
+# Docker
+docker info
+systemctl status docker
 
+# Podman
+podman info
 # Containers not coming back after a reboot
 loginctl show-user ghrunner --property=Linger
 systemctl --user status podman-restart.service
@@ -286,12 +310,12 @@ systemctl --user status podman-restart.service
 
 ```bash
 # Reset database (WARNING: destroys data)
-podman compose -f docker-compose.prod.yml down
-podman volume rm menlo_postgres_data
+docker compose -f docker-compose.prod.yml down
+docker volume rm menlo_postgres_data
 gh workflow run cd-backend.yml --ref main
 
 # Check database connection
-podman exec menlo-postgres pg_isready -U menlo -d menlo
+docker exec menlo-postgres pg_isready -U menlo -d menlo
 ```
 
 ### Ollama Model Issues
@@ -301,12 +325,12 @@ podman exec menlo-postgres pg_isready -U menlo -d menlo
 curl http://localhost:11434/api/tags
 
 # Restart Ollama container
-podman restart menlo-ollama
+docker restart menlo-ollama
 
 # Clear models and re-download
-podman compose -f docker-compose.prod.yml down
-podman volume rm menlo_ollama_data
-podman compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml down
+docker volume rm menlo_ollama_data
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### Network/Cloudflare Issues
