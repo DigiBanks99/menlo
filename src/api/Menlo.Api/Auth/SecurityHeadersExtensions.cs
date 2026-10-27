@@ -43,13 +43,17 @@ internal static class SecurityHeadersExtensions
         // Configure CSP for API
         policies.AddContentSecurityPolicy(builder =>
         {
-            builder.AddScriptSrc()
-                .Self()
-                .UnsafeInline(); // for Scalar
+            builder.AddScriptSrc().Self();
+            if (environment.IsDevelopment())
+            {
+                builder.AddScriptSrc().UnsafeInline(); // for Scalar, which is only mapped in Development
+            }
+
+            // Angular injects component styles at runtime, so style-src still needs unsafe-inline
             builder.AddStyleSrc()
                 .Self()
-                .UnsafeInline(); // for Scalar
-            builder.AddImgSrc().Self();
+                .UnsafeInline();
+            builder.AddImgSrc().Self().Data(); // data: SVGs back <select> dropdown arrows
             builder.AddFontSrc().Self().From("https://fonts.scalar.com");
             builder.AddConnectSrc().Self().From("https://login.microsoftonline.com");
 

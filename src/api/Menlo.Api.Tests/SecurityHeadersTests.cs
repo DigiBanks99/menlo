@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace Menlo.Api.Tests;
 
@@ -37,6 +38,56 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveXContentTypeOptionsHeader(response);
+    }
+
+    [Fact]
+    public async Task GivenProduction_WhenMakingRequest_ThenCspAllowsDataImagesAndNoInlineScripts()
+    {
+        HttpClient client = factory.CreateClient();
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+
+        string imgSrc = GetCspDirective(response, "img-src");
+        string scriptSrc = GetCspDirective(response, "script-src");
+        ItShouldAllowDataImages(imgSrc);
+        ItShouldNotAllowUnsafeInline(scriptSrc);
+    }
+
+    [Fact]
+    public async Task GivenDevelopment_WhenMakingRequest_ThenCspAllowsDataImagesAndInlineScripts()
+    {
+        using TestWebApplicationFactory devFactory = new()
+        {
+            EnvironmentName = Environments.Development,
+            ConfigurationOverrides = new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:web-ui"] = "http://localhost:4200"
+            }
+        };
+        HttpClient client = devFactory.CreateClient();
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+
+        string imgSrc = GetCspDirective(response, "img-src");
+        string scriptSrc = GetCspDirective(response, "script-src");
+        ItShouldAllowDataImages(imgSrc);
+        scriptSrc.ShouldContain("'unsafe-inline'");
+    }
+
+    private static string GetCspDirective(HttpResponseMessage response, string directive)
+    {
+        string csp = response.Headers.GetValues("Content-Security-Policy").Single();
+        return csp.Split(';', StringSplitOptions.TrimEntries)
+            .Single(d => d.StartsWith(directive + " ", StringComparison.Ordinal));
+    }
+
+    private static void ItShouldAllowDataImages(string imgSrc)
+    {
+        imgSrc.ShouldContain("data:");
+        imgSrc.ShouldContain("'self'");
+    }
+
+    private static void ItShouldNotAllowUnsafeInline(string scriptSrc)
+    {
+        scriptSrc.ShouldNotContain("'unsafe-inline'");
     }
 
     private static void ItShouldHaveStrictTransportSecurityHeader(HttpContext ctx)
