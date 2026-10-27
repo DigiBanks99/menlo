@@ -51,7 +51,8 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         await CreateItemAsync(client, currentYearId, incomeLeafId, "Income", currentMonth, 9000m);
         (_, Guid expenseLeafId) = await CreateRootAndLeafAsync(client, currentYearId, "Housing", "Expense");
         Guid rentId = await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", currentMonth, 1500m);
-        await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", currentMonth, 500m);
+        (_, Guid foodLeafId) = await CreateRootAndLeafAsync(client, currentYearId, "Food", "Expense");
+        await CreateItemAsync(client, currentYearId, foodLeafId, "Expense", currentMonth, 500m);
         await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", otherMonth, 700m);
         await RecordSpentAsync(client, currentYearId, expenseLeafId, rentId, 1400m);
 
@@ -69,7 +70,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             budget.Status.ShouldBe("Draft");
             budget.PlannedExpenses.ShouldBe(new MoneyDto(2000m, "ZAR"));
             budget.SpentExpenses.ShouldBe(new MoneyDto(1400m, "ZAR"));
-            budget.CategoryCount.ShouldBe(4);
+            budget.CategoryCount.ShouldBe(6);
         }
     }
 
@@ -189,7 +190,8 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             SkipMigration = true,
             ConfigurationOverrides = new Dictionary<string, string?>
             {
-                ["Features:Budget"] = "true"
+                ["Features:Budget"] = "true",
+                ["Features:BudgetItems"] = "true"
             }
         };
 

@@ -257,8 +257,9 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
             .Include(b => b.Categories)
             .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
 
-        budget.AddCategory("Housing", BudgetFlow.Expense);
-        CategoryNode category = budget.Categories.First(c => c.Name.Value == "Housing");
+        // Not "Housing": a budget cloned from a seeded previous year already has that category
+        budget.AddCategory("Groceries", BudgetFlow.Expense);
+        CategoryNode category = budget.Categories.First(c => c.Name.Value == "Groceries");
 
         CanonicalCategory canonical = CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value);
         canonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
