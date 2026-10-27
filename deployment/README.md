@@ -1,13 +1,13 @@
-# Menlo Deployment - Windows 10 + Podman + Ollama
+# Menlo Deployment - Linux + Podman + Ollama
 
-Streamlined deployment guide for the Menlo Home Management application on **Windows 10 Home** using **Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
+Deployment guide for the Menlo Home Management application on a **Linux host** using **Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
 
 ## 🎯 Quick Start
 
-This setup is designed specifically for:
+This setup is designed for:
 
-- **Windows 10 Home** (primary development/server environment)
-- **Podman containers** (rootless, secure container runtime)
+- **Linux host with systemd** (see [ADR-004](../docs/decisions/adr-004-linux-deployment-host.md))
+- **Podman containers** (rootless; Docker with the compose plugin also works)
 - **Local Ollama AI** (phi4-mini, phi4-vision models)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
 - **Cloudflare Pages** (frontend hosting with Angular 21)
@@ -16,91 +16,97 @@ This setup is designed specifically for:
 
 | File | Purpose |
 |------|---------|
-| `setup-windows-podman.ps1` | Complete Windows 10 + Podman setup automation |
-| `deploy-windows.ps1` | Deployment script for local testing |
+| `docker-compose.prod.yml` | Reference production stack (API, PostgreSQL, backups, Ollama) |
 | `README.md` | This guide |
+
+The CD workflow (`.github/workflows/cd-backend.yml`) writes its own `docker-compose.prod.yml` to `~/menlo` on the host on every deploy, with the image tag, Entra settings and certificate filled in.
 
 ## 🚀 Initial Setup
 
 ### Prerequisites
 
-- Windows 10 Home (build 19041 or later)
-- PowerShell 5.1 or later
-- Administrator access
+- Linux distribution with systemd (e.g. Ubuntu 24.04, Oracle Linux 9)
+- `sudo` access for setup
+- `curl` and GNU coreutils
 - Stable internet connection (for model downloads)
 
-### Step 1: Run Setup Script
+### Step 1: Create the Runner User and Install Podman
 
-**Open PowerShell as Administrator** and run:
+```bash
+# Dedicated user for the GitHub Actions runner (matches the runner's working dir)
+sudo useradd --create-home --shell /bin/bash ghrunner
 
-```powershell
-cd deployment
+# Podman and a compose provider
+sudo apt-get install -y podman podman-compose      # Debian/Ubuntu
+# sudo dnf install -y podman podman-compose        # Oracle Linux/RHEL/Fedora
 
-# Basic setup with default domain (yourdomain.com)
-.\setup-windows-podman.ps1
-
-# Or specify your actual domain
-.\setup-windows-podman.ps1 -Domain "example.com" -Subdomain "api.menlo"
-
-# Example with your own domain
-.\setup-windows-podman.ps1 -Domain "mydomain.co.za" -Subdomain "menlo-api"
+# Let rootless containers keep running and restart after reboots
+sudo loginctl enable-linger ghrunner
+sudo -iu ghrunner systemctl --user enable --now podman-restart.service
 ```
 
-This script will:
+Check it works as the runner user:
 
-- ✅ Install/configure WSL2
-- ✅ Install Podman Desktop
-- ✅ Install podman-compose
-- ✅ Install Cloudflare tunnel client
-- ✅ Create application directories
-- ✅ Validate the complete setup
-
-> **Note:** If WSL2 is not installed, the script will require a restart. Run the script again after restart with `-SkipWSL2Install`.
+```bash
+sudo -iu ghrunner podman compose version
+```
 
 ### Step 2: Configure Cloudflare Tunnel
 
 Replace `YOUR_DOMAIN` and `YOUR_SUBDOMAIN` with your actual values:
 
-```powershell
-# Set your domain variables
-$Domain = "example.com"  # Replace with your domain
-$Subdomain = "api.menlo"  # Or your preferred subdomain
+```bash
+DOMAIN="example.com"     # Replace with your domain
+SUBDOMAIN="api.menlo"    # Or your preferred subdomain
 
-# Login to Cloudflare (opens browser)
+# Install cloudflared (see https://pkg.cloudflare.com for your distribution)
+
+# Login to Cloudflare (prints a URL to open in a browser)
 cloudflared tunnel login
 
 # Create tunnel for your API
 cloudflared tunnel create menlo-api
 
-# Configure DNS (use your actual domain)
-cloudflared tunnel route dns menlo-api "$Subdomain.$Domain"
+# Configure DNS
+cloudflared tunnel route dns menlo-api "$SUBDOMAIN.$DOMAIN"
 
-# Create config file
-mkdir $env:USERPROFILE\.cloudflared
-@"
+# Create config file (use the credentials file path printed by `tunnel create`)
+mkdir -p ~/.cloudflared
+cat > ~/.cloudflared/config.yml <<EOF
 tunnel: menlo-api
-credentials-file: $env:USERPROFILE\.cloudflared\menlo-api.json
+credentials-file: $HOME/.cloudflared/<TUNNEL_ID>.json
 
 ingress:
-  - hostname: $Subdomain.$Domain
+  - hostname: $SUBDOMAIN.$DOMAIN
     service: http://localhost:8080
   - service: http_status:404
-"@ | Out-File -FilePath "$env:USERPROFILE\.cloudflared\config.yml" -Encoding UTF8
+EOF
 
-# Install as Windows service
-cloudflared service install
+# Install as a systemd service (copies the config to /etc/cloudflared)
+sudo cloudflared service install
+sudo systemctl enable --now cloudflared
 ```
+
+If `CLOUDFLARE_TUNNEL_ENABLED` is `true`, the deploy job restarts the tunnel with `sudo -n systemctl restart cloudflared`. Allow the runner user to do that without a password:
+
+```bash
+echo 'ghrunner ALL=(root) NOPASSWD: /usr/bin/systemctl restart cloudflared' | sudo tee /etc/sudoers.d/ghrunner-cloudflared
+sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
+```
+
+> Check the `systemctl` path with `command -v systemctl`; some distributions use `/bin/systemctl`.
 
 ### Step 3: Configure GitHub Actions Self-Hosted Runner
 
-> **Current Deployment Strategy**: Menlo uses a self-hosted GitHub Actions runner for deployments,  
+> **Current Deployment Strategy**: Menlo uses a self-hosted GitHub Actions runner on the Linux host for deployments,
 > providing direct line-of-sight to local services without SSH requirements.
 
 **Set up the self-hosted runner:**
 
-1. **Install GitHub Actions Runner**: Follow [GitHub's guide](https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners) to install the runner on your Windows machine
-2. **Configure the runner**: Register the runner with your repository
-3. **Configure GitHub repository secrets** (see table below)
+1. **Install GitHub Actions Runner**: Follow [GitHub's guide](https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners) to install the Linux runner as the `ghrunner` user
+2. **Register the runner** with the repository and add the `menlo-deploy` label (the deploy job targets `[self-hosted, menlo-deploy]`)
+3. **Run it as a service**: `sudo ./svc.sh install ghrunner && sudo ./svc.sh start`
+4. **Configure GitHub repository secrets** (see table below)
 
 **Add these secrets to your GitHub repository:**
 
@@ -122,45 +128,53 @@ cloudflared service install
 | `DOMAIN` | `yourdomain.com` | Your domain name | - |
 | `SUBDOMAIN` | `api` | API subdomain | - |
 
-## � Deployment
-
-### Local Deployment (Testing)
-
-```powershell
-# Test with a sample image
-.\deploy-windows.ps1 -ImageTag "latest" -ImageName "hello-world"
-
-# Deploy from GitHub Container Registry
-.\deploy-windows.ps1 -ImageTag "main-abc123" -ImageName "digibanks99/menlo/menlo-api"
-```
+## 🚢 Deployment
 
 ### Production Deployment (via GitHub Actions)
 
-Push to the `main` branch or manually trigger the deployment workflow. The GitHub Actions will:
+Push to the `main` branch or manually trigger the `CD - Deploy Backend` workflow. The GitHub Actions will:
 
 1. Build and push container image to GitHub Container Registry
-2. Deploy directly to local services via self-hosted runner
-3. Verify health checks
-4. Update Cloudflare tunnel (if configured)
+2. Download the Entra client certificate from Key Vault
+3. Write `~/menlo/docker-compose.prod.yml` on the host and restart the stack via the self-hosted runner
+4. Verify the local health check (the job fails if `/health` never returns 200)
+5. Restart the Cloudflare tunnel (if configured)
+
+### Redeploying Manually
+
+To redeploy, re-run the workflow:
+
+```bash
+gh workflow run cd-backend.yml --ref main
+```
+
+To restart the current stack on the host without a new image:
+
+```bash
+sudo -iu ghrunner
+cd ~/menlo
+podman compose -f docker-compose.prod.yml up -d
+```
 
 ## 🏥 Health Monitoring
 
+Run these as the runner user (`sudo -iu ghrunner`) from `~/menlo`.
+
 ### Check Service Status
 
-```powershell
-cd $env:USERPROFILE\menlo
-podman-compose -f docker-compose.prod.yml ps
+```bash
+podman compose -f docker-compose.prod.yml ps
 ```
 
 ### View Logs
 
-```powershell
+```bash
 # All services
-podman-compose -f docker-compose.prod.yml logs -f
+podman compose -f docker-compose.prod.yml logs -f
 
 # Specific service
-podman-compose -f docker-compose.prod.yml logs -f menlo-api
-podman-compose -f docker-compose.prod.yml logs -f menlo-ollama
+podman compose -f docker-compose.prod.yml logs -f menlo-api
+podman compose -f docker-compose.prod.yml logs -f ollama
 ```
 
 ### Health Check URLs
@@ -176,13 +190,13 @@ podman-compose -f docker-compose.prod.yml logs -f menlo-ollama
 
 ### Check Downloaded Models
 
-```powershell
+```bash
 podman exec menlo-ollama ollama list
 ```
 
 ### Download Additional Models
 
-```powershell
+```bash
 # Text processing models
 podman exec menlo-ollama ollama pull phi4-mini
 podman exec menlo-ollama ollama pull phi3.5:3.8b
@@ -194,15 +208,17 @@ podman exec menlo-ollama ollama pull llava:latest
 
 ### Model Storage
 
-Models are stored in the `ollama_data` volume and persist across container restarts.
+Models are stored in the `menlo_ollama_data` volume and persist across container restarts.
 
 ## 🗄️ Database Backup & Restore
 
-Automated daily backups are handled by the `db-backup` service using [`prodrigestivill/postgres-backup-local`](https://github.com/prodrigestivill/docker-postgres-backup-local). Backups are written to the `menlo_postgres_backups` volume and the last 7 daily backups are retained automatically.
+The reference [`docker-compose.prod.yml`](docker-compose.prod.yml) defines a `db-backup` service using [`prodrigestivill/postgres-backup-local`](https://github.com/prodrigestivill/docker-postgres-backup-local). It writes daily backups to the `menlo_postgres_backups` volume and keeps the last 7.
+
+> **Note:** The compose file generated by the CD workflow does not include `db-backup` yet. The commands below apply when the backup service is running.
 
 ### Verify a Backup Ran
 
-```powershell
+```bash
 # List backup files in the volume
 podman exec menlo-db-backup ls -lh /backups/daily/
 ```
@@ -211,7 +227,7 @@ You should see `.sql.gz` files named with a date (e.g., `menlo-20260417.sql.gz`)
 
 ### Restore from a Backup
 
-```powershell
+```bash
 # Copy the latest backup out of the volume (or use a specific dated file)
 podman cp menlo-db-backup:/backups/last/menlo-latest.sql.gz .
 
@@ -222,7 +238,7 @@ gunzip menlo-latest.sql.gz
 podman stop menlo-api
 
 # Restore into the running postgres container
-Get-Content menlo-latest.sql | podman exec -i menlo-postgres psql -U menlo -d menlo
+podman exec -i menlo-postgres psql -U menlo -d menlo < menlo-latest.sql
 
 # Restart the API
 podman start menlo-api
@@ -240,6 +256,7 @@ Set these environment variables before bringing the stack up (e.g., in a `.env` 
 | `BACKUP_KEEP_DAYS` | `7` | Number of daily backups to retain |
 
 Example `.env` override:
+
 ```env
 BACKUP_SCHEDULE=0 2 * * *
 BACKUP_KEEP_DAYS=14
@@ -247,24 +264,31 @@ BACKUP_KEEP_DAYS=14
 
 ## 🛠️ Troubleshooting
 
+### Deploy Job Fails Immediately
+
+- `pwsh: command not found`: the workflow is older than the bash migration ([#516](https://github.com/DigiBanks99/menlo/issues/516)); rebase onto `main`
+- `Neither podman nor docker is installed`: install Podman for the runner user (Step 1)
+- `podman compose` errors about a missing provider: install `podman-compose` (or `docker-compose`)
+
 ### Podman Issues
 
-```powershell
-# Restart Podman machine
-podman machine stop
-podman machine start
-
+```bash
 # Check Podman status
-podman machine list
 podman --version
+podman info
+
+# Containers not coming back after a reboot
+loginctl show-user ghrunner --property=Linger
+systemctl --user status podman-restart.service
 ```
 
 ### Database Issues
 
-```powershell
+```bash
 # Reset database (WARNING: destroys data)
+podman compose -f docker-compose.prod.yml down
 podman volume rm menlo_postgres_data
-.\deploy-windows.ps1 -ImageTag "latest" -ImageName "your-image"
+gh workflow run cd-backend.yml --ref main
 
 # Check database connection
 podman exec menlo-postgres pg_isready -U menlo -d menlo
@@ -272,7 +296,7 @@ podman exec menlo-postgres pg_isready -U menlo -d menlo
 
 ### Ollama Model Issues
 
-```powershell
+```bash
 # Check Ollama status
 curl http://localhost:11434/api/tags
 
@@ -280,18 +304,21 @@ curl http://localhost:11434/api/tags
 podman restart menlo-ollama
 
 # Clear models and re-download
+podman compose -f docker-compose.prod.yml down
 podman volume rm menlo_ollama_data
-podman restart menlo-ollama
+podman compose -f docker-compose.prod.yml up -d
 ```
 
 ### Network/Cloudflare Issues
 
-```powershell
+```bash
 # Check tunnel status
 cloudflared tunnel info menlo-api
+systemctl status cloudflared
+journalctl -u cloudflared -n 100
 
 # Restart tunnel service
-Restart-Service cloudflared
+sudo systemctl restart cloudflared
 
 # Test local connectivity
 curl http://localhost:8080/health
@@ -304,7 +331,7 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 
 ### Minimum System Requirements
 
-- **CPU**: 4 cores (Intel i5 or AMD equivalent)
+- **CPU**: 4 cores
 - **RAM**: 16GB (8GB for models + 8GB for OS/apps)
 - **Storage**: 100GB free space (models require 20-30GB)
 - **Network**: Stable broadband for model downloads
@@ -358,33 +385,32 @@ For automatic deployment, push changes to the `main` branch which triggers the C
 ### Network Security
 
 - Ollama and PostgreSQL are not exposed externally
-- Only Menlo API exposed via Cloudflare Tunnel  
+- Only Menlo API exposed via Cloudflare Tunnel
 - Self-hosted GitHub Actions runner provides secure deployment access
-- Windows Firewall configured appropriately
+- Host firewall (e.g. `ufw`/`firewalld`) should block inbound 5432, 8080 and 11434; the tunnel connects outbound only
 
 ### Data Security
 
 - All data remains local (no cloud databases)
 - AI processing happens locally (no external AI APIs)
-- Database backups stored locally in `$env:USERPROFILE\menlo\backups`
+- `~/menlo/docker-compose.prod.yml` contains database credentials and the Entra certificate; the deploy job writes it with owner-only permissions
 
 ### Access Control
 
 - Cloudflare Access can be configured for additional authentication
 - MFA recommended for Cloudflare account
-- GitHub Actions runner access should be properly secured
+- The runner user only needs passwordless `sudo` for `systemctl restart cloudflared`
 
 ## 📞 Support
 
 For issues specific to this deployment:
 
 1. **Check logs** using the commands above
-2. **Verify setup** by running `setup-windows-podman.ps1 -WhatIf`
+2. **Review GitHub Actions** logs for the `Deploy to Home Server` job
 3. **Test connectivity** using health check URLs
-4. **Review GitHub Actions** logs for deployment issues
 
 For general Menlo application issues, see the main [documentation](../docs/README.md).
 
 ---
 
-*This deployment implements the cost-conscious, privacy-first architecture defined in [ADR-001](../docs/decisions/adr-001-hosting-strategy.md) specifically for Windows 10 Home environments.*
+*This deployment implements the cost-conscious, privacy-first architecture defined in [ADR-001](../docs/decisions/adr-001-hosting-strategy.md) on the Linux host described in [ADR-004](../docs/decisions/adr-004-linux-deployment-host.md).*

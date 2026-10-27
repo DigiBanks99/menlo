@@ -187,7 +187,7 @@ jobs:
           path: ${{ runner.temp }}/cert
 
       - name: Deploy application
-        shell: pwsh
+        shell: bash
         env:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
           CERTIFICATE_THUMBPRINT: ${{ needs.download-certificate.outputs.certificate-thumbprint }}
@@ -196,50 +196,58 @@ jobs:
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
           FEATURES_BUDGET: ${{ vars.FEATURES_BUDGET || 'true' }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: menlo
         run: |
-          $ErrorActionPreference = "Stop"
+          set -euo pipefail
 
-          Write-Host "🚀 Starting Menlo deployment..." -ForegroundColor Green
+          echo "🚀 Starting Menlo deployment..."
 
           # Extract the first tag (main image tag) from the multi-line output
-          $imageTag = ($env:IMAGE_TAG -split "`n")[0].Trim()
-          Write-Host "📦 Using image: $imageTag" -ForegroundColor Cyan
+          IMAGE_TAG_CLEAN=$(printf '%s\n' "$IMAGE_TAG" | head -n1 | xargs)
+          echo "📦 Using image: $IMAGE_TAG_CLEAN"
 
-          # Set environment variables
-          $env:POSTGRES_USER = "${{ secrets.POSTGRES_USER }}"
-          $env:POSTGRES_PASSWORD = "${{ secrets.POSTGRES_PASSWORD }}"
-          $env:POSTGRES_DB = "menlo"
+          # Prefer Podman, fall back to Docker
+          if command -v podman >/dev/null 2>&1; then
+            RUNTIME=podman
+          elif command -v docker >/dev/null 2>&1; then
+            RUNTIME=docker
+          else
+            echo "::error::Neither podman nor docker is installed on the deploy host"
+            exit 1
+          fi
+          echo "🐳 Using container runtime: $RUNTIME"
 
           # Application paths
-          $AppPath = "$env:USERPROFILE\menlo"
-          New-Item -ItemType Directory -Path $AppPath -Force | Out-Null
-          Set-Location $AppPath
+          APP_PATH="$HOME/menlo"
+          mkdir -p "$APP_PATH"
+          cd "$APP_PATH"
 
           # Encode certificate as Base64 for passing to container
-          Write-Host "📜 Encoding certificate..." -ForegroundColor Yellow
-          $CertBase64 = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes("$env:CERTIFICATE_PATH"))
+          echo "📜 Encoding certificate..."
+          CERT_BASE64=$(base64 -w0 "$CERTIFICATE_PATH")
 
-          # Create docker-compose.prod.yml
-          $composeContent = @"
-          version: '3.8'
-
+          # Create docker-compose.prod.yml (contains secrets, so keep it owner-only)
+          umask 077
+          cat > docker-compose.prod.yml <<EOF
           services:
             menlo-api:
-              image: $imageTag
+              image: ${IMAGE_TAG_CLEAN}
               container_name: menlo-api
               restart: unless-stopped
               environment:
                 - ASPNETCORE_ENVIRONMENT=Production
                 - ASPNETCORE_URLS=http://+:8080
-                - ConnectionStrings__menlo=Host=postgres;Database=menlo;Username=$env:POSTGRES_USER;Password=$env:POSTGRES_PASSWORD;SSL Mode=Disable
+                - ConnectionStrings__menlo=Host=postgres;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
                 - Ollama__BaseUrl=http://ollama:11434
                 - Logging__LogLevel__Default=Information
-                - Features__Budget=$env:FEATURES_BUDGET
-                - AzureAd__Instance=$env:AZURE_AD_INSTANCE
-                - AzureAd__TenantId=$env:AZURE_AD_TENANT_ID
-                - AzureAd__ClientId=$env:AZURE_AD_CLIENT_ID
+                - Features__Budget=${FEATURES_BUDGET}
+                - AzureAd__Instance=${AZURE_AD_INSTANCE}
+                - AzureAd__TenantId=${AZURE_AD_TENANT_ID}
+                - AzureAd__ClientId=${AZURE_AD_CLIENT_ID}
                 - AzureAd__ClientCertificates__0__SourceType=Base64Encoded
-                - AzureAd__ClientCertificates__0__Base64EncodedValue=${CertBase64}
+                - AzureAd__ClientCertificates__0__Base64EncodedValue=${CERT_BASE64}
               ports:
                 - "8080:8080"
               networks:
@@ -259,9 +267,9 @@ jobs:
               container_name: menlo-postgres
               restart: unless-stopped
               environment:
-                - POSTGRES_DB=menlo
-                - POSTGRES_USER=$env:POSTGRES_USER
-                - POSTGRES_PASSWORD=$env:POSTGRES_PASSWORD
+                - POSTGRES_DB=${POSTGRES_DB}
+                - POSTGRES_USER=${POSTGRES_USER}
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
               volumes:
                 - postgres_data:/var/lib/postgresql/data
               ports:
@@ -269,7 +277,7 @@ jobs:
               networks:
                 - menlo-network
               healthcheck:
-                test: ["CMD-SHELL", "pg_isready -U $env:POSTGRES_USER -d menlo"]
+                test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
                 interval: 30s
                 timeout: 10s
                 retries: 5
@@ -304,69 +312,62 @@ jobs:
             menlo-network:
               name: menlo_network
               driver: bridge
-          "@
-
-          $composeContent | Out-File -FilePath "docker-compose.prod.yml" -Encoding UTF8
+          EOF
 
           # Pull new image
-          Write-Host "📥 Pulling new image..." -ForegroundColor Yellow
-          podman pull "$imageTag"
+          echo "📥 Pulling new image..."
+          "$RUNTIME" pull "$IMAGE_TAG_CLEAN"
 
           # Stop existing services
-          Write-Host "⏸️ Stopping existing services..." -ForegroundColor Yellow
-          podman compose -f docker-compose.prod.yml down 2>$null
+          echo "⏸️ Stopping existing services..."
+          "$RUNTIME" compose -f docker-compose.prod.yml down 2>/dev/null || true
 
           # Start services
-          Write-Host "▶️ Starting services..." -ForegroundColor Yellow
-          podman compose -f docker-compose.prod.yml up -d
+          echo "▶️ Starting services..."
+          "$RUNTIME" compose -f docker-compose.prod.yml up -d
 
           # Wait for health checks
-          Write-Host "🏥 Waiting for services..." -ForegroundColor Yellow
-          Start-Sleep -Seconds 30
+          echo "🏥 Waiting for services..."
+          sleep 30
 
           # Check service status
-          Write-Host "📊 Service Status:" -ForegroundColor Cyan
-          podman compose -f docker-compose.prod.yml ps
+          echo "📊 Service Status:"
+          "$RUNTIME" compose -f docker-compose.prod.yml ps
 
-          Write-Host "✅ Deployment completed!" -ForegroundColor Green
+          echo "✅ Deployment completed!"
 
       - name: Verify deployment
-        shell: pwsh
+        shell: bash
         run: |
-          Write-Host "🔍 Verifying deployment..." -ForegroundColor Yellow
-          Start-Sleep -Seconds 30
+          echo "🔍 Verifying deployment..."
+          sleep 30
 
           # Test API health
-          for ($i = 1; $i -le 5; $i++) {
-            try {
-              $response = Invoke-WebRequest -Uri 'http://localhost:8080/health' -TimeoutSec 5 -UseBasicParsing
-              if ($response.StatusCode -eq 200) {
-                Write-Host "✅ API health check passed" -ForegroundColor Green
-                break
-              }
-            } catch {
-              Write-Host "⏳ API not ready yet... ($i/5)" -ForegroundColor Yellow
-              Start-Sleep -Seconds 10
-            }
-          }
+          for i in {1..5}; do
+            if curl -fsS --max-time 5 -o /dev/null http://localhost:8080/health; then
+              echo "✅ API health check passed"
+              exit 0
+            fi
+            echo "⏳ API not ready yet... ($i/5)"
+            sleep 10
+          done
+
+          echo "::error::API health check failed after 5 attempts"
+          exit 1
 
       - name: Update Cloudflare Tunnel
         if: vars.CLOUDFLARE_TUNNEL_ENABLED == 'true'
-        shell: pwsh
+        shell: bash
         run: |
-          Write-Host "🌐 Restarting Cloudflare Tunnel..." -ForegroundColor Yellow
-          # Restart cloudflared service if running
-          try {
-            $service = Get-Service cloudflared -ErrorAction SilentlyContinue
-            if ($service) {
-              Restart-Service cloudflared -Force
-              Write-Host "✅ Cloudflare Tunnel restarted" -ForegroundColor Green
-            } else {
-              Write-Host "⚠️ Cloudflare Tunnel service not found" -ForegroundColor Yellow
-            }
-          } catch {
-            Write-Host "❌ Failed to restart Cloudflare Tunnel: $_" -ForegroundColor Red
-          }
+          echo "🌐 Restarting Cloudflare Tunnel..."
+          # Restart the cloudflared systemd service if it is installed
+          if ! systemctl cat cloudflared.service >/dev/null 2>&1; then
+            echo "⚠️ Cloudflare Tunnel service not found"
+          elif sudo -n systemctl restart cloudflared; then
+            echo "✅ Cloudflare Tunnel restarted"
+          else
+            echo "::warning::Failed to restart Cloudflare Tunnel (does the runner user have passwordless sudo for systemctl restart cloudflared?)"
+          fi
 
   post-deployment:
     name: Post-Deployment Checks
