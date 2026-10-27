@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Setting up Menlo Ralph devcontainer ==="
+echo "=== Setting up Menlo devcontainer ==="
 
 WORKSPACE_DIR="/workspaces/menlo"
 cd "$WORKSPACE_DIR"
@@ -135,10 +135,6 @@ echo "claude: $(claude --version 2>/dev/null || echo 'not found')"
 echo "git: $(git --version 2>/dev/null || echo 'not found')"
 echo "mise: $(mise --version 2>/dev/null || echo 'not found')"
 
-echo ""
-echo "=== Ready! ==="
-echo "./ralph.sh plan  - Generate fix_plan.md"
-echo "./ralph.sh build - Start build loop"
 echo ""
 echo "=== Verify Setup ==="
 echo "dotnet build     - Build the solution"
