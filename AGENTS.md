@@ -14,7 +14,7 @@ Menlo is an AI-enhanced family home management application designed for a South 
 - .NET 10, C# 12, Entity Framework Core, PostgreSQL
 - Angular 21, TypeScript, Vite, Vitest
 - Aspire for local dev loop
-- Deployed via GitHub Actions to a Windows local server via CloudFlare tunnels
+- Deployed via GitHub Actions to a Linux local server via CloudFlare tunnels (see ADR-004)
 
 ## Running
 
@@ -60,7 +60,7 @@ Update your learnings as you progress but keep them brief.
 - `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
 - `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
 - Branch protection lives in `.github/rulesets/protected-branches.json` and requires the `Quality Gate` job by name; renaming that job or removing its `if: always()` blocks every merge.
-- The home-server deploy job runs on the self-hosted runner labelled `menlo-deploy` and only for `main` on `DigiBanks99/menlo`; add that label to any replacement runner.
+- The home-server deploy job runs on the self-hosted Linux runner labelled `menlo-deploy` and only for `main` on `DigiBanks99/menlo`; add that label to any replacement runner and keep its steps `shell: bash` (no pwsh on the host, see ADR-004).
 - Update Aspire only with `aspire update`: it bumps the `Aspire.AppHost.Sdk` version in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill: stop the AppHost first.
 - Aspire 13.6 runs `postgres:18` locally with the volume at `/var/lib/postgresql`; a `postgres-menlo` volume from PG 17 must be dumped and restored (an image tag change alone fails). Prod compose stays pinned to `postgres:17` separately.
 - `menlo-app` resolves `data-access-menlo-api` from `dist/` (tsconfig paths) and `nx serve` doesn't rebuild it; if `web-ui` is unhealthy with `TS2305` missing exports, run `pnpm exec nx build data-access-menlo-api` and restart the resource.

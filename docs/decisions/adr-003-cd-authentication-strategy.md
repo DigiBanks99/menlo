@@ -6,7 +6,7 @@
 
 ## Context
 
-The Menlo backend application deploys to a Windows 10 home server via a self-hosted GitHub Actions runner. The CD pipeline requires authentication to Azure resources (specifically Microsoft Entra ID) to:
+The Menlo backend application deploys to a Linux home server via a self-hosted GitHub Actions runner (see [ADR-004](adr-004-linux-deployment-host.md); originally a Windows 10 host). The CD pipeline requires authentication to Azure resources (specifically Microsoft Entra ID) to:
 
 1. Access Azure Container Registry (if used)
 2. Configure the application's authentication settings
