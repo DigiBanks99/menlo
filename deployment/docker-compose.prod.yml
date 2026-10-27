@@ -1,5 +1,5 @@
 # Menlo Production Docker Compose Configuration
-# Optimized for Windows 10 + Podman + Ollama setup
+# For a Linux host running Podman (or Docker) + Ollama (see ADR-004)
 
 version: '3.8'
 
