@@ -41,6 +41,11 @@
             }
           ],
           "outputHashing": "all",
+          "optimization": {
+            "styles": {
+              "inlineCritical": false
+            }
+          },
           "fileReplacements": [
             {
               "replace": "projects/menlo-app/src/environments/environment.ts",
