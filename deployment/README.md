@@ -153,21 +153,33 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 
 ### Production Deployment (via GitHub Actions)
 
-Push to the `main` branch or manually trigger the `CD - Deploy Backend` workflow. The GitHub Actions will:
+The image is built once, in CI, and CD deploys that exact image:
 
-1. Build and push container image to GitHub Container Registry
-2. Download the Entra client certificate from Key Vault
-3. Write `~/menlo/docker-compose.prod.yml` on the host and restart the stack via the self-hosted runner
-4. Verify the local health check (the job fails if `/health` never returns 200)
-5. Restart the Cloudflare tunnel (if configured)
+1. **CI** (`ci.yml`, `Container Image` job) builds the `linux/arm64` image on every PR to check the `Dockerfile`. On `main` it also pushes `ghcr.io/digibanks99/menlo/menlo-api:sha-<full commit sha>`. It only builds when the API, SPA, `Dockerfile` or pipeline files change.
+2. **CD** (`cd-backend.yml`) starts when CI succeeds on `main`. It looks up `sha-<commit>`; if CI built no image for that commit (e.g. docs-only changes), the deploy is skipped. Otherwise it:
+   1. Downloads the Entra client certificate from Key Vault
+   2. Writes `~/menlo/docker-compose.prod.yml` on the host and restarts the stack via the self-hosted runner
+   3. Verifies the local health check (the job fails if `/health` never returns 200)
+   4. Restarts the Cloudflare tunnel (if configured)
+   5. Moves the `main` tag to the deployed image, so `menlo-api:main` is always what's in production
 
-### Redeploying Manually
+CD never builds images, and only one production deploy runs at a time.
 
-To redeploy, re-run the workflow:
+### Redeploying and Rolling Back
+
+Redeploy the image currently in production (no SHA):
 
 ```bash
 gh workflow run cd-backend.yml --ref main
 ```
+
+Roll back (or forward) to the image CI built for a specific commit on `main`:
+
+```bash
+gh workflow run cd-backend.yml --ref main -f sha=$(git rev-parse <commit>)
+```
+
+The SHA must be the full 40 characters, and that commit must have an image (`docker buildx imagetools inspect ghcr.io/digibanks99/menlo/menlo-api:sha-<sha>`). Rolling back the code doesn't roll back database migrations.
 
 To restart the current stack on the host without a new image:
 
@@ -291,7 +303,7 @@ BACKUP_KEEP_DAYS=14
 - `Neither podman nor docker is installed` / `CONTAINER_RUNTIME is '...' but it is not installed`: install the runtime (Step 1) or fix the variable
 - `permission denied ... docker.sock`: add the runner user to the `docker` group and restart the runner service
 - `podman compose` errors about a missing provider: install `podman-compose`
-- `no matching manifest for linux/arm64/v8`: the image was built for a different architecture; `menlo-api` is only built for `linux/arm64`, so an `amd64` host (`uname -m` prints `x86_64`) needs that platform added to `platforms` in `cd-backend.yml`
+- `no matching manifest for linux/arm64/v8`: the image was built for a different architecture; `menlo-api` is only built for `linux/arm64`, so an `amd64` host (`uname -m` prints `x86_64`) needs that platform added to the `Container Image` job in `ci.yml`
 
 ### Container Runtime Issues
 
@@ -403,7 +415,7 @@ pnpm nx build menlo-app
 wrangler pages deploy dist/menlo-app --project-name menlo-ui-web --branch main
 ```
 
-For automatic deployment, push changes to the `main` branch which triggers the CD workflow.
+For automatic deployment, push changes to the `main` branch which triggers the `cd-frontend.yml` workflow.
 
 ## 🔐 Security Considerations
 
