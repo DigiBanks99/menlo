@@ -532,6 +532,9 @@ jobs:
         with:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'no'
+          config-file: '.config/markdown-link-check.json'
+          check-modified-files-only: 'yes'
+          base-branch: 'main'
 
   quality-gate:
     # Required status check on the Protected Branches ruleset (.github/rulesets/protected-branches.json).
