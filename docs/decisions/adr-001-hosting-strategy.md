@@ -272,6 +272,10 @@ The Home Management Application requires a hosting strategy that balances cost-c
 - VPN solutions (Tailscale, ZeroTier)
 - Traditional static IP from ISPs
 
+**Home Server Operating System:**
+
+- The home server runs Linux; see [ADR-004](adr-004-linux-deployment-host.md) (this replaced the earlier Windows 10 + Podman/WSL2 setup)
+
 **Hardware Requirements for Home Server:**
 
 - Minimum: 8GB RAM, 4-core CPU, 500GB SSD

@@ -28,7 +28,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 **Backend Deployment**: `cd-backend.yml`
 
 - Builds and pushes Docker containers to GitHub Container Registry
-- Deploys to home server via SSH with zero-downtime strategy
+- Deploys to the Linux home server through the `menlo-deploy` self-hosted runner (bash steps, see [ADR-004](../../docs/decisions/adr-004-linux-deployment-host.md))
 - Manages PostgreSQL and Ollama containers
 - Configures Cloudflare Tunnel integration
 
@@ -104,7 +104,7 @@ Configure these secrets in GitHub repository settings:
 - `POSTGRES_USER`: PostgreSQL username  
 - `POSTGRES_PASSWORD`: PostgreSQL password
 
-> **Note**: The backend deployment now uses a self-hosted GitHub Actions runner with direct line-of-sight to local services.  
+> **Note**: The backend deployment uses a self-hosted GitHub Actions runner on the Linux home server, with direct line-of-sight to local services.  
 > SSH-based deployment has been replaced with direct local execution for improved security and simplicity.
 
 ### Frontend Deployment
