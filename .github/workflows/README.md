@@ -15,6 +15,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 - **Frontend Testing**: Angular tests, builds, and Storybook generation
 - **Integration Testing**: End-to-end testing across the full stack
 - **Documentation**: Markdown linting and link checking
+- **Container Image**: Builds the arm64 `menlo-api` image on every PR (no push) and pushes `sha-<full commit sha>` on `main` for CD to deploy
 - **Quality Gate**: Required status check that blocks merging (including Dependabot auto-merge) unless every job succeeded or was skipped by change detection
 
 ### Continuous Deployment (CD)
@@ -27,22 +28,11 @@ Comprehensive CI pipeline that runs on every push and pull request:
 
 **Backend Deployment**: `cd-backend.yml`
 
-- Builds and pushes Docker containers to GitHub Container Registry
+- Starts when CI succeeds on `main` and deploys the exact image CI built for that commit (`menlo-api:sha-<full commit sha>`); it never builds images itself
+- Skips commits that produced no image (e.g. docs-only); a manual run redeploys production, or deploys a given `sha` for rollback
 - Deploys to the Linux home server through the `menlo-deploy` self-hosted runner (bash steps, see [ADR-004](../../docs/decisions/adr-004-linux-deployment-host.md))
 - Manages PostgreSQL and Ollama containers
 - Configures Cloudflare Tunnel integration
-
-### Release Management
-
-**File**: `release.yml`
-
-Automated release process for versioned deployments:
-
-- **Semantic Versioning**: Validates version format and creates releases
-- **Multi-Platform Builds**: Creates release artifacts for multiple architectures
-- **Docker Images**: Builds and publishes versioned container images
-- **Release Notes**: Auto-generates changelog from git history
-- **Production Deployment**: Triggers production deployment for stable releases
 
 ### Dependency Management
 
@@ -144,16 +134,12 @@ Configure these variables in GitHub repository settings:
 ### Production Deployment
 
 1. **Frontend**: Automatically deployed to Cloudflare Pages
-2. **Backend**: Blue-green deployment to home server
-3. **Health Checks**: Automated verification of deployment
-4. **Rollback**: Automatic rollback on deployment failure
+2. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64) for commits on `main`
+3. **Backend**: CD deploys that exact image to the home server once CI succeeds, then moves the `main` tag to it
+4. **Health Checks**: The deploy job fails if `/health` never returns 200
+5. **Rollback**: Re-run CD for an earlier commit: `gh workflow run cd-backend.yml --ref main -f sha=<full sha>`
 
-### Release Process
-
-1. **Create Tag**: Push semantic version tag (e.g., `v1.0.0`)
-2. **Automated Build**: Release workflow creates artifacts
-3. **GitHub Release**: Creates release with artifacts and notes
-4. **Production Deploy**: Stable releases automatically deploy
+There are no versioned releases; every successful commit on `main` that changes the image is deployed.
 
 ## 🔍 Monitoring and Observability
 
