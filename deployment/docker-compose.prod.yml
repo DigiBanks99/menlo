@@ -1,5 +1,5 @@
 # Menlo Production Docker Compose Configuration
-# For a Linux host running Podman (or Docker) + Ollama (see ADR-004)
+# For a Linux host running Docker or Podman + Ollama (see ADR-004)
 
 version: '3.8'
 
@@ -141,14 +141,15 @@ networks:
 #
 # Model Management:
 # After first startup, download required models:
-# podman exec menlo-ollama ollama pull phi4-mini
-# podman exec menlo-ollama ollama pull phi4-vision
+# <docker|podman> exec menlo-ollama ollama pull phi4-mini
+# <docker|podman> exec menlo-ollama ollama pull phi4-vision
 #
 # For development/testing with smaller models:
-# podman exec menlo-ollama ollama pull phi3.5:3.8b
-# podman exec menlo-ollama ollama pull llava:latest
+# <docker|podman> exec menlo-ollama ollama pull phi3.5:3.8b
+# <docker|podman> exec menlo-ollama ollama pull llava:latest
 #
-# Volume Locations (Podman):
-# - postgres_data: ~/.local/share/containers/storage/volumes/menlo_postgres_data
-# - ollama_data: ~/.local/share/containers/storage/volumes/menlo_ollama_data
-# - menlo_logs: ~/.local/share/containers/storage/volumes/menlo_logs
+# Volume Locations:
+# - Docker: /var/lib/docker/volumes/<name>/_data
+# - Rootless Podman: ~/.local/share/containers/storage/volumes/<name>
+# Volume names: menlo_postgres_data, menlo_postgres_backups,
+# menlo_ollama_data, menlo_logs

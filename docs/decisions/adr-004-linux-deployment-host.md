@@ -37,7 +37,7 @@ The `menlo-deploy` self-hosted runner has since been replaced by a Linux host. P
 
 ### 3. Run on Linux and write the deploy steps in bash (Selected)
 
-- **Pros**: Containers run natively without a VM; bash, `curl`, `base64` and `systemd` are on every distribution; `cloudflared` runs as a standard systemd service
+- **Pros**: Containers run natively without a VM, under either Docker or Podman; bash, `curl`, `base64` and `systemd` are on every distribution; `cloudflared` runs as a standard systemd service
 - **Cons**: Windows-specific docs and scripts have to be rewritten or removed
 - **Assessment**: Matches the real host and keeps the deploy toolchain to the basics
 
@@ -46,7 +46,7 @@ The `menlo-deploy` self-hosted runner has since been replaced by a Linux host. P
 Production runs on a **Linux host**. The `menlo-deploy` self-hosted runner lives on that host and deploys to it directly.
 
 - Deploy steps in `cd-backend.yml` that run on `menlo-deploy` use `shell: bash`
-- Containers run under Podman (preferred) or Docker, through `<runtime> compose`
+- Containers run under Docker or Podman, through `<runtime> compose`. The `CONTAINER_RUNTIME` repository variable (`docker` or `podman`) picks one; when it is unset the job uses whichever is installed, preferring Podman
 - `cloudflared` runs as a systemd service
 - Windows-only deployment scripts are removed from `deployment/`
 
@@ -70,7 +70,7 @@ Windows remains a supported **development** platform. Developer tooling such as 
 ### Host prerequisites
 
 - Linux distribution with systemd
-- Podman with a compose provider (`podman compose`), or Docker with the compose plugin
+- Docker Engine with the compose plugin, or Podman with a compose provider (`podman compose`)
 - `curl` and GNU coreutils (`base64 -w0`)
 - GitHub Actions runner registered with the `menlo-deploy` label
 - `cloudflared` installed as a systemd service, with passwordless `sudo` for `systemctl restart cloudflared` for the runner user if `CLOUDFLARE_TUNNEL_ENABLED=true`

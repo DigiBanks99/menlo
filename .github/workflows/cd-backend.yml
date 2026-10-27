@@ -199,6 +199,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: menlo
+          CONTAINER_RUNTIME: ${{ vars.CONTAINER_RUNTIME }}
         run: |
           set -euo pipefail
 
@@ -208,13 +209,23 @@ jobs:
           IMAGE_TAG_CLEAN=$(printf '%s\n' "$IMAGE_TAG" | head -n1 | xargs)
           echo "📦 Using image: $IMAGE_TAG_CLEAN"
 
-          # Prefer Podman, fall back to Docker
-          if command -v podman >/dev/null 2>&1; then
-            RUNTIME=podman
-          elif command -v docker >/dev/null 2>&1; then
-            RUNTIME=docker
-          else
-            echo "::error::Neither podman nor docker is installed on the deploy host"
+          # Use CONTAINER_RUNTIME (docker or podman) when set, otherwise
+          # detect what is installed, preferring Podman
+          RUNTIME="${CONTAINER_RUNTIME:-}"
+          if [[ -z "$RUNTIME" ]]; then
+            if command -v podman >/dev/null 2>&1; then
+              RUNTIME=podman
+            elif command -v docker >/dev/null 2>&1; then
+              RUNTIME=docker
+            else
+              echo "::error::Neither podman nor docker is installed on the deploy host"
+              exit 1
+            fi
+          elif [[ "$RUNTIME" != "docker" && "$RUNTIME" != "podman" ]]; then
+            echo "::error::CONTAINER_RUNTIME must be 'docker' or 'podman', got '$RUNTIME'"
+            exit 1
+          elif ! command -v "$RUNTIME" >/dev/null 2>&1; then
+            echo "::error::CONTAINER_RUNTIME is '$RUNTIME' but it is not installed on the deploy host"
             exit 1
           fi
           echo "🐳 Using container runtime: $RUNTIME"
