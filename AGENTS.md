@@ -29,8 +29,8 @@ Use `aspire` to run the application
 ## Linting and formatting
 
 - Web:
-    - Linting: `pnpm lint`
-    - Formatting: `pnpm format`
+  - Linting: `pnpm lint`
+  - Formatting: `pnpm format`
 - All .NET: `dotnet format`
 
 ## API Coverage

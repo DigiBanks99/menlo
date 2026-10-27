@@ -69,7 +69,7 @@ Check it works as the runner user (restart the runner service after adding the `
 sudo -iu ghrunner docker compose version     # or: podman compose version
 ```
 
-> **Switching runtimes:** Docker and Podman keep separate volumes. Before switching, back up the database (see [Database Backup & Restore](#️-database-backup--restore)), stop the old stack, and restore into the new one.
+> **Switching runtimes:** Docker and Podman keep separate volumes. Before switching, back up the database (see Database Backup & Restore below), stop the old stack, and restore into the new one.
 
 ### Step 2: Configure Cloudflare Tunnel
 
@@ -200,9 +200,9 @@ docker compose -f docker-compose.prod.yml logs -f ollama
 
 ### Health Check URLs
 
-- **API Health**: <http://localhost:8080/health>
-- **API Documentation**: <http://localhost:8080/swagger>
-- **Ollama API**: <http://localhost:11434/api/tags>
+- **API Health**: `http://localhost:8080/health`
+- **API Documentation**: `http://localhost:8080/swagger`
+- **Ollama API**: `http://localhost:11434/api/tags`
 - **External (via Cloudflare)**: `https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health`
 
 > Replace `YOUR_SUBDOMAIN.YOUR_DOMAIN` with your actual configured domain (e.g., `https://api.menlo.example.com/health`)
@@ -381,7 +381,7 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 
 As per [ADR-001](../docs/decisions/adr-001-hosting-strategy.md), the frontend hosting has been migrated from Azure Static Web Apps to Cloudflare Pages for improved performance and cost optimization.
 
-### Key Changes:
+### Key Changes
 
 - **Frontend Hosting**: Now deployed to Cloudflare Pages using Direct Upload deployment
 - **Angular Version**: Upgraded to Angular 21 with modern control flow syntax (`@if`, `@for`, `@defer`)
@@ -389,7 +389,7 @@ As per [ADR-001](../docs/decisions/adr-001-hosting-strategy.md), the frontend ho
 - **CI/CD**: GitHub Actions workflow updated to use `cloudflare/wrangler-action@v3`
 - **Domain**: Frontend accessible via `https://menlo.yourdomain.com`
 
-### Deployment Commands:
+### Deployment Commands
 
 For manual deployment using wrangler CLI:
 

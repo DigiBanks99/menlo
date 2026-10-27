@@ -1,6 +1,6 @@
 # Menlo GitHub Actions Workflows
 
-This directory contains the CI/CD workflows for the Menlo Home Management application, implementing the hybrid cloud-local architecture defined in [ADR-001](../docs/decisions/adr-001-hosting-strategy.md).
+This directory contains the CI/CD workflows for the Menlo Home Management application, implementing the hybrid cloud-local architecture defined in [ADR-001](../../docs/decisions/adr-001-hosting-strategy.md).
 
 ## 🔄 Workflow Overview
 
@@ -186,9 +186,9 @@ act push --eventpath .github/test-events/push.json
 
 ## 📚 Related Documentation
 
-- [Hosting Strategy ADR](../docs/decisions/adr-001-hosting-strategy.md) - Architecture decisions
-- [Implementation Roadmap](../docs/requirements/implementation-roadmap.md) - Development plan
-- [Architecture Document](../docs/explanations/architecture-document.md) - System architecture
+- [Hosting Strategy ADR](../../docs/decisions/adr-001-hosting-strategy.md) - Architecture decisions
+- [Implementation Roadmap](../../docs/requirements/implementation-roadmap.md) - Development plan
+- [Architecture Document](../../docs/explanations/architecture-document.md) - System architecture
 
 ---
 
