@@ -16,9 +16,10 @@ internal static class EntraIdExtensions
     /// In production the API container receives <c>AzureAd__*</c> environment variables
     /// directly (see cd-backend.yml), so the AppHost / these parameters are not involved.
     /// </summary>
-    public static IResourceBuilder<ProjectResource> WithEntraIdCredentials(
-        this IResourceBuilder<ProjectResource> projectBuilder,
+    public static IResourceBuilder<T> WithEntraIdCredentials<T>(
+        this IResourceBuilder<T> projectBuilder,
         IDistributedApplicationBuilder appBuilder)
+        where T : IResourceWithEnvironment
     {
         IResourceBuilder<ParameterResource> instance =
             appBuilder.AddParameter("azure-ad-instance");

@@ -21,7 +21,35 @@ IResourceBuilder<OllamaResource> ollama = builder.AddOllama("ollama")
 IResourceBuilder<OllamaModelResource> textModel = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
 IResourceBuilder<OllamaModelResource> visionModel = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
 
+// Opt-in: run the API from the production Dockerfile, which bundles the built SPA into wwwroot.
+// Slower to iterate on than the Vite dev server, but exercises the real deployment (Production
+// environment, production CSP, same-origin SPA). Enable with `aspire secret set Menlo:BundledUi true`
+// or the `Menlo__BundledUi` environment variable.
+bool bundledUi = bool.TryParse(builder.Configuration["Menlo:BundledUi"], out bool bundled) && bundled;
+
 #pragma warning disable ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+if (bundledUi)
+{
+    string repoRoot = Path.GetFullPath(Path.Join(builder.AppHostDirectory, "..", "..", ".."));
+
+    builder
+        .AddDockerfile("api-bundled", repoRoot)
+        .WithHttpEndpoint(name: "http", port: 8080, targetPort: 8080)
+        .WithHttpHealthCheck("/health")
+        // Mirrors deployment/docker-compose.prod.yml, where Postgres does not offer SSL
+        .WithEnvironment("ConnectionStrings__menlo", ReferenceExpression.Create($"{db.Resource.ConnectionStringExpression};SSL Mode=Disable"))
+        .WaitFor(db)
+        .WithReference(textModel)
+        .WaitFor(textModel)
+        .WithReference(visionModel)
+        .WaitFor(visionModel)
+        .WithEntraIdCredentials(builder)
+        .WithExternalHttpEndpoints();
+
+    builder.Build().Run();
+    return;
+}
+
 IResourceBuilder<ProjectResource> api = builder
     .AddProject<Projects.Menlo_Api>("api")
     .WithHttpHealthCheck("health")
