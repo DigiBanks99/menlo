@@ -69,6 +69,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
         string imgSrc = GetCspDirective(response, "img-src");
         string scriptSrc = GetCspDirective(response, "script-src");
         ItShouldAllowDataImages(imgSrc);
+        scriptSrc.ShouldContain("'self'");
         scriptSrc.ShouldContain("'unsafe-inline'");
     }
 
@@ -87,6 +88,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
 
     private static void ItShouldNotAllowUnsafeInline(string scriptSrc)
     {
+        scriptSrc.ShouldContain("'self'");
         scriptSrc.ShouldNotContain("'unsafe-inline'");
     }
 

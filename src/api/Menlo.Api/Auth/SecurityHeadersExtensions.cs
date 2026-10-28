@@ -43,10 +43,14 @@ internal static class SecurityHeadersExtensions
         // Configure CSP for API
         policies.AddContentSecurityPolicy(builder =>
         {
-            builder.AddScriptSrc().Self();
+            // Each AddScriptSrc() call replaces the previous directive, so it must be a single chain
             if (environment.IsDevelopment())
             {
-                builder.AddScriptSrc().UnsafeInline(); // for Scalar, which is only mapped in Development
+                builder.AddScriptSrc().Self().UnsafeInline(); // for Scalar, which is only mapped in Development
+            }
+            else
+            {
+                builder.AddScriptSrc().Self();
             }
 
             // Angular injects component styles at runtime, so style-src still needs unsafe-inline
