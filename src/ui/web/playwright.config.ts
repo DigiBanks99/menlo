@@ -8,7 +8,7 @@ export default defineConfig({
     ['junit', { outputFile: './test-results/playwright/results.xml' }],
   ],
   use: {
-    baseURL: 'http://localhost:4200',
+    baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:4200',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -18,7 +18,8 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
+  // Targeting an already running stack (e.g. the bundled API image) needs no dev server.
+  webServer: process.env['E2E_BASE_URL'] ? undefined : {
     command: 'pnpm run start',
     url: 'http://localhost:4200',
     reuseExistingServer: !process.env['CI'],
