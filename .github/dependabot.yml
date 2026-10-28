@@ -7,6 +7,9 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
+    # Wait before proposing fresh releases (security updates bypass cooldown)
+    cooldown:
+      default-days: 3
     # Group minor and patch updates to reduce PR noise
     groups:
       dotnet-minor-patch:
@@ -28,6 +31,9 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
+    # Wait before proposing fresh releases (security updates bypass cooldown)
+    cooldown:
+      default-days: 3
     # Group framework updates separately from other dependencies
     groups:
       angular-ecosystem:
@@ -52,6 +58,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    # Wait before proposing fresh releases (security updates bypass cooldown)
+    cooldown:
+      default-days: 3
     groups:
       github-actions:
         patterns: ["*"]
