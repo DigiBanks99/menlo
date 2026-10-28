@@ -41,6 +41,7 @@ jobs:
   resolve-image:
     name: Resolve Image
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
@@ -97,6 +98,7 @@ jobs:
   # Infrastructure Deployment (Optional)
   # ============================================================================
   # Only runs on workflow_dispatch with deploy-infra=true
+  # Jobs that call a reusable workflow can't set timeout-minutes; cd-infra.yml sets its own
 
   deploy-infrastructure:
     name: Deploy Infrastructure
@@ -118,6 +120,7 @@ jobs:
   download-certificate:
     name: Download Certificate
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [resolve-image, deploy-infrastructure]
     # Run after an optional infra deploy, but not when it was skipped for being unrequested
     if: |
@@ -185,6 +188,8 @@ jobs:
   deploy-to-home-server:
     name: Deploy to Home Server
     runs-on: [self-hosted, menlo-deploy]
+    # Self-hosted jobs otherwise run for up to 5 days and hold the deploy concurrency group
+    timeout-minutes: 20
     needs: [resolve-image, download-certificate]
     # Explicit result checks: a skipped deploy-infrastructure upstream would otherwise skip this job
     if: |
@@ -202,6 +207,7 @@ jobs:
 
       - name: Deploy application
         shell: bash
+        timeout-minutes: 15
         env:
           IMAGE: ${{ needs.resolve-image.outputs.image }}
           CERTIFICATE_THUMBPRINT: ${{ needs.download-certificate.outputs.certificate-thumbprint }}
@@ -361,6 +367,7 @@ jobs:
 
       - name: Verify deployment
         shell: bash
+        timeout-minutes: 5
         run: |
           echo "🔍 Verifying deployment..."
           sleep 30
@@ -381,6 +388,7 @@ jobs:
       - name: Update Cloudflare Tunnel
         if: vars.CLOUDFLARE_TUNNEL_ENABLED == 'true'
         shell: bash
+        timeout-minutes: 2
         run: |
           echo "🌐 Restarting Cloudflare Tunnel..."
           # Restart the cloudflared systemd service if it is installed
@@ -395,6 +403,7 @@ jobs:
   post-deployment:
     name: Post-Deployment Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [resolve-image, deploy-to-home-server]
     if: ${{ !cancelled() && needs.deploy-to-home-server.result == 'success' }}
 
