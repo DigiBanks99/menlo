@@ -412,43 +412,29 @@ jobs:
       packages: write
 
     steps:
-      - name: External health check
+      - name: Checkout smoke check
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: deployment/smoke-check.sh
+          sparse-checkout-cone-mode: false
+
+      # Runs before the retag below, so a failing smoke check leaves the main tag on the previous image
+      - name: Smoke check production
+        shell: bash
+        env:
+          APP_URL: ${{ vars.FRONTEND_URL }}
         run: |
-          echo "🏥 Running external health check..."
-
-          if [[ -n "${{ vars.DOMAIN }}" && -n "${{ vars.SUBDOMAIN }}" ]]; then
-            API_URL="https://${{ vars.SUBDOMAIN }}.${{ vars.DOMAIN }}"
-
-            # Wait for Cloudflare tunnel to stabilize
-            sleep 60
-
-            # Check external API health
-            for i in {1..3}; do
-              if curl -f "$API_URL/health" -H "User-Agent: GitHub-Actions-Health-Check" -s; then
-                echo "✅ External API health check passed for $API_URL"
-                break
-              else
-                echo "⏳ External API at $API_URL not ready yet... ($i/3)"
-                sleep 30
-              fi
-            done
-          elif [[ -n "${{ vars.API_BASE_URL }}" ]]; then
-            # Fallback to legacy API_BASE_URL variable
-            sleep 60
-
-            # Check external API health
-            for i in {1..3}; do
-              if curl -f "${{ vars.API_BASE_URL }}/health" -H "User-Agent: GitHub-Actions-Health-Check" -s; then
-                echo "✅ External API health check passed"
-                break
-              else
-                echo "⏳ External API not ready yet... ($i/3)"
-                sleep 30
-              fi
-            done
-          else
-            echo "⚠️ Domain variables (DOMAIN, SUBDOMAIN) or API_BASE_URL not configured, skipping external health check"
+          if [[ -z "$APP_URL" ]]; then
+            echo "::error::FRONTEND_URL is not set; it must be the production URL the smoke check runs against"
+            exit 1
           fi
+          bash deployment/smoke-check.sh "$APP_URL" 180
+
+      - name: Rollback hint
+        if: failure()
+        shell: bash
+        run: |
+          echo "::error::Production failed its smoke check. The main tag still points at the previous image; roll back with: gh workflow run cd-backend.yml --ref main"
 
       - name: Log in to Container Registry
         uses: docker/login-action@v4
@@ -482,8 +468,4 @@ jobs:
           echo "- **Deployed By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
 
-          if [[ -n "${{ vars.DOMAIN }}" && -n "${{ vars.SUBDOMAIN }}" ]]; then
-            echo "- **External URL**: https://${{ vars.SUBDOMAIN }}.${{ vars.DOMAIN }}" >> $GITHUB_STEP_SUMMARY
-          elif [[ -n "${{ vars.API_BASE_URL }}" ]]; then
-            echo "- **External URL**: ${{ vars.API_BASE_URL }}" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "- **External URL**: ${{ vars.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY
