@@ -1,21 +1,11 @@
 import { expect, Page, test } from '@playwright/test';
+import { budgetDetail, emptySummary, mockAuthUser } from './fixtures/mocks';
 
 // ─── Test fixture data ───────────────────────────────────────────────────────
 
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_BUDGET_ID = 'budget-e2e-list-current';
 const CREATED_BUDGET_ID = 'budget-e2e-list-created';
-
-const mockUser = {
-  id: 'user-e2e-001',
-  email: 'test@menlo.local',
-  displayName: 'E2E Test User',
-  roles: ['Menlo.User'],
-  onboarding: {
-    isComplete: true,
-    pendingTasks: [],
-  },
-};
 
 const mockCurrentBudgetListItem = {
   id: CURRENT_BUDGET_ID,
@@ -26,30 +16,6 @@ const mockCurrentBudgetListItem = {
   categoryCount: 4,
 };
 
-function budgetDetail(id: string, year: number, status: string) {
-  return {
-    id,
-    year,
-    householdId: 'hh-e2e-001',
-    status,
-    categories: [],
-    totalPlannedMonthlyAmount: { amount: 0, currency: 'ZAR' },
-  };
-}
-
-function emptySummary(budgetId: string, year: number) {
-  return {
-    budgetId,
-    year,
-    month: null,
-    income: [],
-    expenses: [],
-    netPlanned: 0,
-    netRealized: null,
-    netSpent: null,
-  };
-}
-
 // ─── Mock setup helper ────────────────────────────────────────────────────────
 
 /**
@@ -59,7 +25,7 @@ function emptySummary(budgetId: string, year: number) {
 async function setupMocks(page: Page, budgets: unknown[]): Promise<number[]> {
   const createdYears: number[] = [];
 
-  await page.route('**/auth/user', (route) => route.fulfill({ json: mockUser }));
+  await mockAuthUser(page);
 
   // Budget list
   await page.route(/\/api\/budgets$/, (route) => route.fulfill({ json: budgets }));
