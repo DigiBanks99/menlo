@@ -11,14 +11,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      # Trust X-Forwarded-* only from the compose bridge (cloudflared reaches the API via the host gateway)
+      - ForwardedHeaders__KnownNetworks__0=172.20.0.0/16
       - ConnectionStrings__menlo=Host=postgres;Database=${POSTGRES_DB:-menlo};Username=${POSTGRES_USER:-menlo};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
       - Ollama__BaseUrl=http://ollama:11434
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
       - Logging__LogLevel__Microsoft.SemanticKernel=Information
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     networks:
       - menlo-network
     depends_on:

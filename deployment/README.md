@@ -425,6 +425,7 @@ For automatic deployment, push changes to the `main` branch which triggers the `
 - Only Menlo API exposed via Cloudflare Tunnel
 - Self-hosted GitHub Actions runner provides secure deployment access
 - Host firewall (e.g. `ufw`/`firewalld`) should block inbound 5432, 8080 and 11434; the tunnel connects outbound only
+- The API port is published on `127.0.0.1:8080` only, and `X-Forwarded-For`/`X-Forwarded-Proto` are trusted only from loopback and `ForwardedHeaders__KnownNetworks__0` (the compose bridge, `172.20.0.0/16`). Do not set `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`; it makes the framework trust every source. With rootless Podman, check the source address the API sees and adjust the network
 
 ### Data Security
 
