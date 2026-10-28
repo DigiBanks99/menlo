@@ -109,10 +109,8 @@ Configure these variables in GitHub repository settings:
 ### Application Configuration
 
 - `API_BASE_URL`: Base URL for the API (e.g., `https://menlo.yourdomain.com`)
-- `FRONTEND_URL`: Frontend application URL
+- `FRONTEND_URL`: Production URL (API with the bundled SPA); CD smoke-checks it after every deploy
 - `CLOUDFLARE_PAGES_PROJECT_NAME`: Frontend Cloudflare project name (e.g., `menlo-ui-web`)
-- `DOMAIN`: Your domain name (e.g., `yourdomain.com`)
-- `SUBDOMAIN`: API subdomain (e.g., `menlo`)
 
 ### Optional Features
 
@@ -136,7 +134,7 @@ Configure these variables in GitHub repository settings:
 1. **Frontend**: Automatically deployed to Cloudflare Pages
 2. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64) for commits on `main`
 3. **Backend**: CD deploys that exact image to the home server once CI succeeds, then moves the `main` tag to it
-4. **Health Checks**: The deploy job fails if `/health` never returns 200
+4. **Health Checks**: The deploy job fails if `/health` never returns 200 on the host; then `deployment/smoke-check.sh` checks `FRONTEND_URL` from outside, and the `main` tag only moves if it passes
 5. **Rollback**: Re-run CD for an earlier commit: `gh workflow run cd-backend.yml --ref main -f sha=<full sha>`
 
 There are no versioned releases; every successful commit on `main` that changes the image is deployed.
