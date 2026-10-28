@@ -6,10 +6,10 @@ using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
 using Menlo.Api.Endpoints.Onboarding;
+using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
 using Menlo.Api.SpaHosting;
 using Menlo.Application.Common;
-using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -20,6 +20,7 @@ builder.AddServiceDefaults();
 
 builder
     .AddMenloAuthentication()
+    .AddMenloForwardedHeaders()
     .AddMenloAntiforgery()
     .AddSpaReverseProxy()
     .AddMenloAiWithAspire()
@@ -28,13 +29,7 @@ builder
 
 WebApplication app = builder.Build();
 
-ForwardedHeadersOptions forwardedHeadersOptions = new()
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-};
-forwardedHeadersOptions.KnownIPNetworks.Clear();
-forwardedHeadersOptions.KnownProxies.Clear();
-app.UseForwardedHeaders(forwardedHeadersOptions);
+app.UseForwardedHeaders();
 
 app.UseHttpsRedirection();
 
