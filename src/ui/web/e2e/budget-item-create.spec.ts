@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
+import { mockAuthUser } from './fixtures/mocks';
 
 // ─── Test fixture data ───────────────────────────────────────────────────────
 
@@ -6,17 +7,6 @@ const BUDGET_ID = 'budget-e2e-create-001';
 const PARENT_CAT_ID = 'cat-e2e-food';
 const LEAF_CAT_ID = 'cat-e2e-groceries';
 const NEW_ITEM_ID = 'item-e2e-created-001';
-
-const mockUser = {
-  id: 'user-e2e-001',
-  email: 'test@menlo.local',
-  displayName: 'E2E Test User',
-  roles: ['Menlo.User'],
-  onboarding: {
-    isComplete: true,
-    pendingTasks: [],
-  },
-};
 
 const mockBudget = {
   id: BUDGET_ID,
@@ -83,25 +73,21 @@ const mockCreatedItem = {
 // ─── Mock setup helper ────────────────────────────────────────────────────────
 
 async function setupMocks(page: Page): Promise<void> {
-  // Auth: BFF-style — app initializer calls this before rendering any route
-  await page.route('**/auth/user', (route) => route.fulfill({ json: mockUser }));
+  await mockAuthUser(page);
 
   // Budget detail
-  await page.route(
-    new RegExp(`/api/budgets/${BUDGET_ID}$`),
-    (route) => route.fulfill({ json: mockBudget }),
+  await page.route(new RegExp(`/api/budgets/${BUDGET_ID}$`), (route) =>
+    route.fulfill({ json: mockBudget }),
   );
 
   // Category tree (used by CategoryTreeComponent)
-  await page.route(
-    new RegExp(`/api/budgets/${BUDGET_ID}/categories(\\?.*)?$`),
-    (route) => route.fulfill({ json: mockCategoryTree }),
+  await page.route(new RegExp(`/api/budgets/${BUDGET_ID}/categories(\\?.*)?$`), (route) =>
+    route.fulfill({ json: mockCategoryTree }),
   );
 
   // Budget summary (monthly — includes ?month=N query param)
-  await page.route(
-    new RegExp(`/api/budgets/${BUDGET_ID}/summary`),
-    (route) => route.fulfill({ json: mockSummary }),
+  await page.route(new RegExp(`/api/budgets/${BUDGET_ID}/summary`), (route) =>
+    route.fulfill({ json: mockSummary }),
   );
 
   // Items list + single-item create — same URL, different methods
