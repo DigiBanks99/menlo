@@ -145,9 +145,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 | `CONTAINER_RUNTIME` | `docker` or `podman` | Container runtime on the host; unset auto-detects, preferring Podman | - |
 | `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
 | `API_BASE_URL` | `https://menlo.yourdomain.com` | External API URL | - |
-| `FRONTEND_URL` | `https://menlo.yourdomain.com` | Cloudflare Pages frontend URL | - |
-| `DOMAIN` | `yourdomain.com` | Your domain name | - |
-| `SUBDOMAIN` | `api` | API subdomain | - |
+| `FRONTEND_URL` | `https://menlo.yourdomain.com` | Production URL (API with the bundled SPA); CD smoke-checks it after every deploy | ✅ |
 
 ## 🚢 Deployment
 
@@ -161,7 +159,10 @@ The image is built once, in CI, and CD deploys that exact image:
    2. Writes `~/menlo/docker-compose.prod.yml` on the host and restarts the stack via the self-hosted runner
    3. Verifies the local health check (the job fails if `/health` never returns 200)
    4. Restarts the Cloudflare tunnel (if configured)
-   5. Moves the `main` tag to the deployed image, so `menlo-api:main` is always what's in production
+   5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/budgets` 401 without auth, `/` and a deep link return the SPA with a CSP header), retrying for up to 3 minutes
+   6. Moves the `main` tag to the deployed image only if the smoke check passed, so `menlo-api:main` is always the last image that passed
+
+If the smoke check fails, the `main` tag still points at the previous image, so `gh workflow run cd-backend.yml --ref main` rolls back. Run the smoke check yourself with `deployment/smoke-check.sh https://menlo.yourdomain.com`.
 
 CD never builds images, and only one production deploy runs at a time.
 
@@ -215,9 +216,7 @@ docker compose -f docker-compose.prod.yml logs -f ollama
 - **API Health**: `http://localhost:8080/health`
 - **API Documentation**: `http://localhost:8080/swagger`
 - **Ollama API**: `http://localhost:11434/api/tags`
-- **External (via Cloudflare)**: `https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health`
-
-> Replace `YOUR_SUBDOMAIN.YOUR_DOMAIN` with your actual configured domain (e.g., `https://api.menlo.example.com/health`)
+- **External (via Cloudflare)**: `https://menlo.yourdomain.com/health`, or run `deployment/smoke-check.sh https://menlo.yourdomain.com`
 
 ## 🤖 AI Models Management
 
