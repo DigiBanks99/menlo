@@ -235,10 +235,6 @@ describe('Result Monadic Operations', () => {
       }
     });
 
-    it.skip('TC-022: should support curried form', () => {
-      // Curried form not implemented - using standard two-argument form
-    });
-
     it('TC-023: should not call mapper for Failure', () => {
       const mapper = vi.fn((n: number) => n * 2);
       const result: Result<number, string> = failure('error') as Result<number, string>;
@@ -309,10 +305,6 @@ describe('Result Monadic Operations', () => {
       if (isFailure(bound)) {
         expect(bound.error).toBe('new error');
       }
-    });
-
-    it.skip('TC-030: should support curried form', () => {
-      // Curried form not implemented - using standard two-argument form
     });
 
     it('TC-031: should not call binder for Failure', () => {
@@ -463,10 +455,6 @@ describe('Result Unwrap Operations', () => {
 
       // unwrap throws the error value directly
       expect(() => unwrap(result)).toThrow('error');
-    });
-
-    it.skip('TC-045: should throw with custom message', () => {
-      // Custom message parameter not implemented
     });
 
     it('TC-046: should return complex value for Success', () => {
