@@ -1,0 +1,50 @@
+name: Requirement
+description: What we want and why. Specs are added as sub-issues.
+title: 'Requirement: '
+labels: ['requirement']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              A Requirement describes **what** and **why**, not how. The how goes in Spec sub-issues.
+              See [Work Items](https://github.com/DigiBanks99/menlo/blob/main/docs/reference/work-items.md) for the model and the Definition of Done.
+    - type: textarea
+      id: problem
+      attributes:
+          label: Problem
+          description: What problem does this solve? What happens today?
+      validations:
+          required: true
+    - type: textarea
+      id: audience
+      attributes:
+          label: Who it's for
+          description: Which family members or roles, and in what situation.
+      validations:
+          required: true
+    - type: textarea
+      id: outcomes
+      attributes:
+          label: Outcomes
+          description: What is true once this ships? Prefer observable outcomes.
+      validations:
+          required: true
+    - type: textarea
+      id: business-rules
+      attributes:
+          label: Business rules
+          description: Rules, invariants and calculations the solution must respect.
+    - type: textarea
+      id: acceptance-criteria
+      attributes:
+          label: Acceptance criteria
+          description: Testable criteria, as a checklist.
+          placeholder: |
+              - [ ] Given ..., when ..., then ...
+      validations:
+          required: true
+    - type: textarea
+      id: out-of-scope
+      attributes:
+          label: Out of scope
+          description: What this deliberately does not cover.

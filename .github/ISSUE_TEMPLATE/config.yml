@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+    - name: Work item model
+      url: https://github.com/DigiBanks99/menlo/blob/main/docs/reference/work-items.md
+      about: How Requirements, Specs and Tasks fit together, with the Definitions of Ready and Done.
+    - name: Menlo Roadmap
+      url: https://github.com/users/DigiBanks99/projects/2
+      about: The project board that tracks every Requirement and Spec.

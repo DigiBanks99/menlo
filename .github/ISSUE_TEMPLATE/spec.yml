@@ -1,0 +1,71 @@
+name: Spec
+description: How to build one slice of a Requirement. Add it as a sub-issue of the Requirement.
+title: 'Spec: '
+labels: ['spec']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              A Spec describes **how** to build one shippable slice. Add it as a sub-issue of its Requirement.
+              It is ready to pick up when it meets the Definition of Ready in [Work Items](https://github.com/DigiBanks99/menlo/blob/main/docs/reference/work-items.md).
+    - type: input
+      id: requirement
+      attributes:
+          label: Requirement
+          description: The parent Requirement issue.
+          placeholder: '#123'
+      validations:
+          required: true
+    - type: textarea
+      id: slice
+      attributes:
+          label: Slice
+          description: What this slice delivers, and which acceptance criteria of the Requirement it covers.
+      validations:
+          required: true
+    - type: textarea
+      id: domain-model
+      attributes:
+          label: Domain model changes
+          description: Entities, value objects, aggregates, events and errors. Write "None" if not applicable.
+    - type: textarea
+      id: api-contract
+      attributes:
+          label: API contract
+          description: Endpoints, request and response shapes, status codes and auth policies. Write "None" if not applicable.
+    - type: textarea
+      id: ui-flow
+      attributes:
+          label: UI flow
+          description: Screens, components and interactions. Write "None" if not applicable.
+    - type: textarea
+      id: diagrams
+      attributes:
+          label: Diagrams
+          description: Mermaid diagrams (sequence, state, flow) where they help.
+          value: |
+              ```mermaid
+              ```
+    - type: textarea
+      id: test-cases
+      attributes:
+          label: Test cases
+          description: What must be tested and at which level (unit, integration, e2e).
+          placeholder: |
+              - [ ] Unit: ...
+              - [ ] Integration: ...
+              - [ ] E2E: ...
+      validations:
+          required: true
+    - type: textarea
+      id: affected-areas
+      attributes:
+          label: Affected areas
+          description: Projects, endpoints, screens and migrations this touches.
+      validations:
+          required: true
+    - type: textarea
+      id: risks
+      attributes:
+          label: Risks and open questions
+          description: Resolve open questions before marking the Spec Ready.
