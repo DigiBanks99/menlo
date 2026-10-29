@@ -6,16 +6,16 @@ Menlo uses a customized version of the [Divio documentation system](https://docs
 
 ### Documentation Types & Locations
 
-| Type                      | Purpose/Why                                                              | Location/Where                                             | Format            |
-| ------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------- | ----------------- |
-| **Tutorials**             | Step-by-step guides for onboarding, new features, and workflows.         | `/docs/tutorials/`                                         | Markdown          |
-| **How-to Guides**         | Task-focused instructions for specific use cases and integrations.       | `/docs/guides/`                                            | Markdown          |
-| **Technical Reference**   | API, architecture, domain models, configuration, and code-level details. | `/docs/reference/`                                         | Markdown          |
-| **Explanations**          | Rationale, design decisions, philosophy, and context for choices.        | `/docs/explanations/`                                      | Markdown          |
-| **Requirements & Specs**  | Intent: what and why, how to build each slice, and its test cases.       | GitHub issues ([Work Items](reference/work-items.md))      | Issue forms       |
-| **Diagrams**              | C4, process, sequence, and flowcharts for architecture and workflows.    | `/docs/diagrams/`                                          | Mermaid/Markdown |
-| **Decisions**             | Architectural decisions, rationale, and TODOs for traceability.          | `/docs/decisions/`                                         | Markdown          |
-| **Snapshots**             | Context captures for LLM/agent fast reference and debugging.             | `/docs/snapshots/`                                         | Markdown          |
+| Type                     | Purpose/Why                                                              | Location/Where                                        | Format           |
+| ------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------- | ---------------- |
+| **Tutorials**            | Step-by-step guides for onboarding, new features, and workflows.         | `/docs/tutorials/`                                    | Markdown         |
+| **How-to Guides**        | Task-focused instructions for specific use cases and integrations.       | `/docs/guides/`                                       | Markdown         |
+| **Technical Reference**  | API, architecture, domain models, configuration, and code-level details. | `/docs/reference/`                                    | Markdown         |
+| **Explanations**         | Rationale, design decisions, philosophy, and context for choices.        | `/docs/explanations/`                                 | Markdown         |
+| **Requirements & Specs** | Intent: what and why, how to build each slice, and its test cases.       | GitHub issues ([Work Items](reference/work-items.md)) | Issue forms      |
+| **Diagrams**             | C4, process, sequence, and flowcharts for architecture and workflows.    | `/docs/diagrams/`                                     | Mermaid/Markdown |
+| **Decisions**            | Architectural decisions, rationale, and TODOs for traceability.          | `/docs/decisions/`                                    | Markdown         |
+| **Snapshots**            | Context captures for LLM/agent fast reference and debugging.             | `/docs/snapshots/`                                    | Markdown         |
 
 ### Diagramming Standard
 
@@ -72,14 +72,13 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Work Items](reference/work-items.md)** - Requirements, Specs and Tasks in GitHub issues, with the Definitions of Ready and Done
 - **[Business Requirements](requirements/business-requirements.md)** - Complete feature specifications with AI integration
 - **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
-- **[Architecture Decision Record](adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
+- **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 
 ### 🏗️ Architecture & Design
 
 - **[C4 Context Diagram](diagrams/c4-context-diagram.md)** - System overview and user interactions
 - **[C4 Component Diagram](diagrams/c4-component-diagram.md)** - Internal system architecture
 - **[C4 Code Diagram](diagrams/c4-code-diagram.md)** - Detailed domain model and entity relationships
-- **[Diagrams Verification](c4-diagrams-verification.md)** - Architecture alignment verification
 
 ### 🛠️ How-to Guides
 
@@ -104,15 +103,15 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ## 🧠 Key Concepts Quick Reference
 
-| Concept                            | Description                                             | Document                                                                                      |
-| ---------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **Blueberry Muffin AI**            | AI embedded throughout workflows, not separate features | [Concepts Guide](concepts-and-terminology.md#the-blueberry-muffin-approach-to-ai-integration) |
-| **CFO-COO Dynamic**                | Strategic vs operational family roles                   | [Concepts Guide](concepts-and-terminology.md#the-cfo-coo-family-dynamic)                      |
-| **Natural Workflow Preservation**  | Enhance existing habits, don't replace them             | [Concepts Guide](concepts-and-terminology.md#natural-workflow-preservation)                   |
-| **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](concepts-and-terminology.md#privacy-first-local-ai)                          |
-| **Hybrid Cloud-Local**             | Frontend (Cloudflare Pages) + local backend/data         | [ADR-001](adr-001-hosting-strategy.md)                                                        |
-| **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](concepts-and-terminology.md#cost-conscious-experimentation)                  |
-| **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](requirements/onboarding.md)                                                      |
+| Concept                            | Description                                             | Document                                                                                                   |
+| ---------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Blueberry Muffin AI**            | AI embedded throughout workflows, not separate features | [Concepts Guide](explanations/concepts-and-terminology.md#the-blueberry-muffin-approach-to-ai-integration) |
+| **CFO-COO Dynamic**                | Strategic vs operational family roles                   | [Concepts Guide](explanations/concepts-and-terminology.md#the-cfo-coo-family-dynamic)                      |
+| **Natural Workflow Preservation**  | Enhance existing habits, don't replace them             | [Concepts Guide](explanations/concepts-and-terminology.md#natural-workflow-preservation)                   |
+| **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](explanations/concepts-and-terminology.md#privacy-first-local-ai)                          |
+| **Hybrid Cloud-Local**             | Frontend (Cloudflare Pages) + local backend/data        | [ADR-001](decisions/adr-001-hosting-strategy.md)                                                           |
+| **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](explanations/concepts-and-terminology.md#cost-conscious-experimentation)                  |
+| **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](requirements/onboarding.md)                                                                   |
 
 ## 🛤️ Reading Paths
 
@@ -135,7 +134,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 ## 🎨 Design Philosophy Highlights
 
 ### The "Blueberry Muffin" Approach
->
+
 > "AI agents embedded seamlessly into existing workflows, like blueberries distributed throughout a muffin, rather than existing as separate, distinct features."
 
 **Key Benefits:**
@@ -159,8 +158,8 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ## 📈 Architecture Evolution
 
-| Phase                 | Status     | Focus                                          |
-| --------------------- | ---------- | ---------------------------------------------- |
+| Phase                 | Status      | Focus                                          |
+| --------------------- | ----------- | ---------------------------------------------- |
 | **Documentation**     | ✅ Complete | Requirements, architecture, and philosophy     |
 | **Infrastructure**    | 🔄 Next     | Cloudflare Tunnel, PostgreSQL, Ollama setup    |
 | **MVP Development**   | ⏳ Planned  | Handwritten list capture and AI interpretation |

@@ -1,8 +1,7 @@
 {
   "ignorePatterns": [
     { "pattern": "^https?://localhost" },
-    { "pattern": "^https://dash.cloudflare.com" },
-    { "pattern": "^https://github.com/users/DigiBanks99/projects/" }
+    { "pattern": "^https://dash.cloudflare.com" }
   ],
   "retryOn429": true,
   "retryCount": 3,
