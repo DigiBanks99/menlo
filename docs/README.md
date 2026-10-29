@@ -12,10 +12,8 @@ Menlo uses a customized version of the [Divio documentation system](https://docs
 | **How-to Guides**         | Task-focused instructions for specific use cases and integrations.       | `/docs/guides/`                                            | Markdown          |
 | **Technical Reference**   | API, architecture, domain models, configuration, and code-level details. | `/docs/reference/`                                         | Markdown          |
 | **Explanations**          | Rationale, design decisions, philosophy, and context for choices.        | `/docs/explanations/`                                      | Markdown          |
-| **Business Requirements** | Feature specs, acceptance criteria, and business context.                | `/docs/requirements/<requirement>/`                        | Markdown          |
-| **Diagrams**              | C4, process, sequence, and flowcharts for architecture and workflows.    | `/docs/diagrams/` and `/docs/requirements/<req>/diagrams/` | Mermaid/Markdown |
-| **Implementation Plans**  | Stepwise breakdowns for features, LLM/agent context, and snapshots.      | `/docs/requirements/<requirement>/implementation.md`       | Markdown          |
-| **Test Cases**            | Linked to requirements, specifying what must be tested and how.          | `/docs/requirements/<requirement>/test-cases.md`           | Markdown          |
+| **Requirements & Specs**  | Intent: what and why, how to build each slice, and its test cases.       | GitHub issues ([Work Items](reference/work-items.md))      | Issue forms       |
+| **Diagrams**              | C4, process, sequence, and flowcharts for architecture and workflows.    | `/docs/diagrams/`                                          | Mermaid/Markdown |
 | **Decisions**             | Architectural decisions, rationale, and TODOs for traceability.          | `/docs/decisions/`                                         | Markdown          |
 | **Snapshots**             | Context captures for LLM/agent fast reference and debugging.             | `/docs/snapshots/`                                         | Markdown          |
 
@@ -23,7 +21,7 @@ Menlo uses a customized version of the [Divio documentation system](https://docs
 
 - **All diagrams must use [Mermaid](https://mermaid-js.github.io/mermaid/#/) syntax embedded in markdown files.**
 - Mermaid is preferred for its native markdown compatibility and seamless rendering on GitHub Pages.
-- Store diagrams in `/docs/diagrams/` or `/docs/requirements/<requirement>/diagrams/` as `.md` files containing Mermaid code blocks.
+- Store as-built diagrams in `/docs/diagrams/` as `.md` files containing Mermaid code blocks. Diagrams for planned work go in the Spec issue.
 
 Example:
 
@@ -34,22 +32,17 @@ graph TD
     B -->|No| D[Do something else]
 ```
 
-### LLM/Agent Enablement
+### Issues Hold Intent, Docs Hold As-Built Truth
 
-- Documentation is structured for rapid context extraction by LLMs and agents.
-- Each requirement folder contains:
-  - `specifications.md` (detailed spec)
-  - `test-cases.md` (testable criteria)
-  - `implementation.md` (stepwise plan)
-  - `diagrams/` (visuals)
-- Snapshots folder provides point-in-time context for debugging and agent state.
-- All documentation sections are referenced in GitHub issues for traceability.
+Planned work lives in GitHub issues on the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) project, in three levels. See [Work Items](reference/work-items.md) for the full model.
 
-### GitHub Issue Integration
+- **Requirement** (`requirement`): what and why, with acceptance criteria.
+- **Spec** (`spec`, a sub-issue of a Requirement): how to build one slice, with its test cases and diagrams.
+- **Task** (`task`, a sub-issue of a Spec): only when a Spec is too big for one PR.
 
-- Issues must link to relevant documentation sections (requirements, diagrams, decisions).
-- Use checklists and references to ensure definition of done is met.
-- Documentation updates are part of the issue workflow.
+There are no implementation plans; whoever picks up a Spec plans it then. Once work ships, `docs/` describes how it works, and the issue is not updated again. [Work Items](reference/work-items.md) also holds the Definitions of Ready and Done.
+
+> `docs/requirements/` predates this model. Shipped modules are being distilled into as-built docs and unshipped ones moved to issues (#494, #496); don't add new folders there.
 
 ### Consistency Guidelines
 
@@ -76,6 +69,7 @@ graph TD
 ### 🎯 Core Documents
 
 - **[Concepts & Terminology Guide](explanations/concepts-and-terminology.md)** - Start here! Core philosophy, design patterns, and terminology
+- **[Work Items](reference/work-items.md)** - Requirements, Specs and Tasks in GitHub issues, with the Definitions of Ready and Done
 - **[Business Requirements](requirements/business-requirements.md)** - Complete feature specifications with AI integration
 - **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
