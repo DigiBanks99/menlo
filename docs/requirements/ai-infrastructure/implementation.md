@@ -1580,7 +1580,7 @@ public class AiFallbackHandler : IAiFallbackHandler
 
 ---
 
-For more details, see the [Implementation Roadmap](../../requirements/implementation-roadmap.md) and [Concepts & Terminology](../../explanations/concepts-and-terminology.md).
+For more details, see the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) and [Concepts & Terminology](../../explanations/concepts-and-terminology.md).
 
 ### 2.2. Ollama Bootstrapping Timeline & Expectations ✅
 

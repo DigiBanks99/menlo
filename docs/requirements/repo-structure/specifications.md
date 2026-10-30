@@ -33,12 +33,12 @@ Define and enforce the directory layout, naming conventions, and architectural r
 - Use standalone components and organize code by feature/domain.
 - Shared UI components and libraries should be placed under `src/ui/web/projects/menlo-lib/`.
 - The main Angular application should be under `src/ui/web/projects/menlo-app/`.
-- Follow Angular best practices for state management, signals, and strict typing as per [Angular Instructions](../../../.github/instructions/angular.instructions.md).
+- Follow Angular best practices for state management, signals, and strict typing.
 
 ## References
 
 - [Architecture Document](../../explanations/architecture-document.md#code-organization-structure)
-- [Implementation Roadmap](../implementation-roadmap.md#infrastructure--database)
+- [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)
 - [C4 Code Diagram](../../diagrams/c4-code-diagram.md)
 
 ## Non-Functional Requirements

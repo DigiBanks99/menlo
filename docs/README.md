@@ -99,7 +99,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ### 📊 Project Status
 
-- **[Implementation Roadmap](requirements/implementation-roadmap.md)** - Comprehensive development plan with phases
+- **[Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)** - GitHub Project tracking requirements, specs and tasks by phase and status
 
 ## 🧠 Key Concepts Quick Reference
 
@@ -118,7 +118,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 ### For Developers
 
 1. [Concepts & Terminology Guide](explanations/concepts-and-terminology.md) - Understand the philosophy
-2. [Implementation Roadmap](requirements/implementation-roadmap.md) - Start here for implementation details
+2. [Work Items](reference/work-items.md) - Start here: how requirements, specs and tasks flow through the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)
 3. [Business Requirements](requirements/business-requirements.md) - Learn the features
 4. [User Onboarding Flow](requirements/onboarding.md) - Understand first-login experience and authentication
 5. [C4 Component Diagram](diagrams/c4-component-diagram.md) - Understand the architecture

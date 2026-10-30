@@ -48,7 +48,7 @@ Ready to begin development? Follow these paths based on your focus:
 
 #### **🚀 Development Roadmaps**
 
-- **[Implementation Roadmap](docs/requirements/implementation-roadmap.md)** - High-level strategic approach and family validation criteria
+- **[Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)** - GitHub Project tracking requirements, specs and tasks by phase and status
 
 #### **🔧 Development Environment**
 
