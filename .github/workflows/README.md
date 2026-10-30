@@ -171,7 +171,7 @@ act push --eventpath .github/test-events/push.json
 ## 📚 Related Documentation
 
 - [Hosting Strategy ADR](../../docs/decisions/adr-001-hosting-strategy.md) - Architecture decisions
-- [Implementation Roadmap](../../docs/requirements/implementation-roadmap.md) - Development plan
+- [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) - Development plan
 - [Architecture Document](../../docs/explanations/architecture-document.md) - System architecture
 
 ---
