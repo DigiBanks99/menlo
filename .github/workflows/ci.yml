@@ -51,14 +51,14 @@ jobs:
           echo "$CHANGED_FILES"
 
           # Backend detection
-          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|\.github/workflows/ci\.yml|\.github/workflows/cd-backend\.yml)'; then
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
           else
             echo "backend=false" >> "$GITHUB_OUTPUT"
           fi
 
           # Frontend detection
-          if echo "$CHANGED_FILES" | grep -qE '^(src/ui/|package\.json|pnpm-lock\.yaml|\.github/workflows/ci\.yml|\.github/workflows/cd-frontend\.yml)'; then
+          if echo "$CHANGED_FILES" | grep -qE '^(src/ui/|package\.json|pnpm-lock\.yaml|\.github/workflows/ci\.yml)'; then
             echo "frontend=true" >> "$GITHUB_OUTPUT"
           else
             echo "frontend=false" >> "$GITHUB_OUTPUT"
@@ -72,7 +72,7 @@ jobs:
           fi
 
           # Container image detection (the image bundles both the API and the SPA)
-          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|src/ui/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|Dockerfile|\.dockerignore|\.github/workflows/ci\.yml|\.github/workflows/cd-backend\.yml)'; then
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|src/ui/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|Dockerfile|\.dockerignore|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
             echo "image=true" >> "$GITHUB_OUTPUT"
           else
             echo "image=false" >> "$GITHUB_OUTPUT"
@@ -397,12 +397,6 @@ jobs:
           path: |
             src/ui/web/dist/**/*
             src/ui/web/storybook-static/**/*
-
-      - name: Upload Pages deployment artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: frontend-pages-dist
-          path: src/ui/web/dist/menlo-app/**/*
 
   frontend-security:
     name: Frontend - Security Scan

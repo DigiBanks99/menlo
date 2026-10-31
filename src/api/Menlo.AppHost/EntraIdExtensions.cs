@@ -14,7 +14,7 @@ internal static class EntraIdExtensions
     ///   aspire secret set Parameters:azure-ad-client-secret "&lt;client-secret&gt;"
     ///
     /// In production the API container receives <c>AzureAd__*</c> environment variables
-    /// directly (see cd-backend.yml), so the AppHost / these parameters are not involved.
+    /// directly (see cd.yml), so the AppHost / these parameters are not involved.
     /// </summary>
     public static IResourceBuilder<T> WithEntraIdCredentials<T>(
         this IResourceBuilder<T> projectBuilder,

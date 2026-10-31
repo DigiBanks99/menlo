@@ -1,4 +1,4 @@
-name: CD - Deploy Backend
+name: CD
 
 # Deploys the image CI built and pushed for a commit on main (sha-<full commit sha>).
 # CD never builds images; re-running it for an older commit is the rollback path.
@@ -21,7 +21,7 @@ on:
 
 # Never run two production deploys at once; queue the newer one instead
 concurrency:
-  group: cd-backend-production
+  group: cd-production
   cancel-in-progress: false
 
 env:
@@ -434,7 +434,7 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "::error::Production failed its smoke check. The main tag still points at the previous image; roll back with: gh workflow run cd-backend.yml --ref main"
+          echo "::error::Production failed its smoke check. The main tag still points at the previous image; roll back with: gh workflow run cd.yml --ref main"
 
       - name: Log in to Container Registry
         uses: docker/login-action@v4
