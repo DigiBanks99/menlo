@@ -89,3 +89,4 @@ Update your learnings as you progress but keep them brief.
 - Prod is one host: the API image serves the bundled SPA at `vars.FRONTEND_URL` (the `api-menlo` subdomain is dead). CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
 - E2E specs share `src/ui/web/e2e/fixtures/mocks.ts` (auth + budget/summary builders). `mnl-button`/`mnl-input` put `testId` on the inner element, so click/fill it directly; Playwright cannot launch `pnpm run start` under corepack here, so start `nx serve menlo-app` yourself and it will be reused.
 - `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work; after changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
+- CI's docs link check (`markdown-link-check`) scans the whole of every modified `.md` file, so a pre-existing broken link fails your docs PR; run `npx markdown-link-check -c .config/markdown-link-check.json <file>` on changed files first.

@@ -139,11 +139,11 @@ The system is organized into **5 primary bounded contexts**:
 
 ### Hosting Strategy
 
-**ARCHITECTURAL DECISION**: **Hybrid Cloud-Local Architecture** (per [ADR-001](../decisions/adr-001-hosting-strategy.md))
+**ARCHITECTURAL DECISION**: **Hybrid Cloud-Local Architecture** (per [ADR-001](../decisions/adr-001-hosting-strategy.md), with the frontend bundled into the API per [ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
 
 ```md
-[Cloudflare Pages] → [Cloudflare Tunnel] → [Home Server]
-  (Angular PWA)       (Secure Proxy)     (Backend + AI)
+[Browser] → [Cloudflare Tunnel] → [Home Server]
+               (Secure Proxy)     (API + bundled Angular PWA + AI)
 ```
 
 **Benefits**:
@@ -324,7 +324,7 @@ flowchart TD
 
 **Authentication Flow**:
 
-1. User accesses application via Cloudflare Pages
+1. User opens the application, which the API serves through Cloudflare Tunnel
 2. Azure AD authentication redirect for unauthenticated users
 3. JWT token issued by Azure AD upon successful authentication
 4. Home server validates JWT token signature and claims
@@ -686,10 +686,11 @@ builder.Services.AddHealthChecks()
 
 This document serves as the master architecture guide. Specific technical decisions are documented in individual ADRs:
 
-- **[ADR-001](adr-001-hosting-strategy.md)**: Hybrid Cloud-Local Hosting Strategy
-- **ADR-002** (Future): PostgreSQL Migration Strategy  
-- **ADR-003** (Future): AI Model Selection and Local Deployment
-- **ADR-004** (Future): Event-Driven Architecture Implementation
+- **[ADR-001](../decisions/adr-001-hosting-strategy.md)**: Hybrid Cloud-Local Hosting Strategy
+- **[ADR-002](../decisions/adr-002-dependency-management.md)**: Dependency Management Strategy
+- **[ADR-003](../decisions/adr-003-cd-authentication-strategy.md)**: CD Pipeline Authentication Strategy
+- **[ADR-004](../decisions/adr-004-linux-deployment-host.md)**: Linux Deployment Host
+- **[ADR-005](../decisions/adr-005-bundled-spa-hosting.md)**: Bundled SPA Hosting
 
 ---
 

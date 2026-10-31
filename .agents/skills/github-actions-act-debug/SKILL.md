@@ -25,7 +25,7 @@ Use this skill for prompts like:
 
 - "CI is failing on GitHub, reproduce it locally."
 - "Use act to debug why this workflow broke."
-- "The `cd-frontend` job fails in Actions but I want to fix it from my machine."
+- "The `cd` deploy fails in Actions but I want to fix it from my machine."
 - "A PR check is red, figure out the exact failing step and get it green locally."
 
 Do not use this skill for general GitHub Actions authoring when there is no failure to investigate. It is specifically for failure analysis, local reproduction, and iterative debugging.
@@ -40,7 +40,7 @@ act pull_request -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
 - Use that script first for broad CI reproduction when the failure is in the main CI workflow.
-- For deployment workflows such as `cd-frontend.yml` and `cd-backend.yml`, prefer a direct `act` invocation scoped to the specific workflow and job.
+- For deployment workflows such as `cd.yml` and `cd-infra.yml`, prefer a direct `act` invocation scoped to the specific workflow and job.
 
 ## Standard Workflow
 
@@ -83,8 +83,8 @@ Common patterns:
 
 ```powershell
 act pull_request -W .github/workflows/ci.yml -j detect-changes -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
-act push -W .github/workflows/cd-frontend.yml -j build-and-deploy -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
-act workflow_dispatch -W .github/workflows/cd-backend.yml -j deploy-infrastructure -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+act pull_request -W .github/workflows/ci.yml -j frontend-tests -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+act workflow_dispatch -W .github/workflows/cd.yml -j resolve-image -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
 Useful flags:
@@ -148,24 +148,11 @@ pwsh ./scripts/act-ci.ps1
 
 If that is too broad, switch to the failing workflow and job directly.
 
-### Frontend CD workflow
+### CD workflows
 
-For `.github/workflows/cd-frontend.yml`, expect these friction points:
+`cd.yml` deploys the API image, which bundles the SPA; there is no separate frontend deploy. A frontend build failure shows up in CI (the `frontend-tests` and `container-image` jobs), not in CD.
 
-- Cloudflare secrets and vars
-- `wrangler-action` deployment behavior
-- Post-deploy URL checks
-
-Usually the right sequence is:
-
-1. Reproduce `validate-secrets` or `build-and-deploy` with `act`.
-2. Confirm `pnpm install` and `pnpm run build:all:prod` locally.
-3. Validate generated files like `version.json` and `_redirects`.
-4. Only then reason about the Cloudflare deployment step.
-
-### Backend or infra CD workflows
-
-These may depend on deployment credentials, environment protections, or infrastructure state that `act` cannot mirror perfectly. Reproduce the failing build, packaging, or shell logic locally first; treat the actual remote deployment boundary as the last thing to validate.
+`cd.yml` and `cd-infra.yml` may depend on deployment credentials, environment protections, or infrastructure state that `act` cannot mirror perfectly. Reproduce the failing build, packaging, or shell logic locally first; treat the actual remote deployment boundary as the last thing to validate.
 
 ## Output Expectations
 

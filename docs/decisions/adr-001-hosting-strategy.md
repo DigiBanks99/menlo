@@ -4,6 +4,8 @@
 
 **Revised** - 2025-11-29 (Original accepted 2025-06-01)
 
+**Frontend hosting superseded** - 2026-10-31 by [ADR-005](adr-005-bundled-spa-hosting.md): the API image serves the SPA, and Cloudflare Pages is retired. The Cloudflare Pages sections below are kept as history. The host OS is superseded by [ADR-004](adr-004-linux-deployment-host.md).
+
 ## Revision Summary (2025-11-29)
 
 The original decision selected Azure Static Web Apps for frontend hosting. This has been **revised** to use **Cloudflare Pages** for the following reasons:

@@ -55,8 +55,8 @@ The following secrets must be configured in the GitHub repository settings:
 
 The infrastructure is defined in:
 
-- [infra/main.bicep](infra/main.bicep): Main entry point
-- [infra/modules/secrets/main.bicep](infra/modules/secrets/main.bicep): Key Vault and Certificate resources
+- [infra/main.bicep](../../infra/main.bicep): Main entry point
+- [infra/modules/secrets/main.bicep](../../infra/modules/secrets/main.bicep): Key Vault and Certificate resources
 
 ## One-Time Setup
 
@@ -86,7 +86,7 @@ The `deploy-infra.yml` workflow ensures the Key Vault and Certificate exist.
 
 ### 2. Certificate Retrieval
 
-The `cd-backend.yml` workflow:
+The `cd.yml` workflow:
 
 - Logs in to Azure using OIDC.
 - Downloads the certificate from Key Vault as a PFX file.
@@ -104,7 +104,7 @@ The deployment job runs on the self-hosted runner:
 
 To verify the setup:
 
-1. Trigger the **CD - Deploy Backend** workflow manually.
+1. Trigger the **CD** workflow manually.
 2. Check the **Download Certificate** job logs:
    - Ensure "Azure Login (OIDC)" succeeds.
    - Ensure "Download Certificate from Key Vault" succeeds.
