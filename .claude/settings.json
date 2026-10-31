@@ -2,17 +2,62 @@
     "$schema": "https://json.schemastore.org/claude-code-settings.json",
     "permissions": {
         "allow": [
-            "Bash(gh issue list:*)",
-            "Bash(gh issue view:*)",
-            "Bash(gh issue create:*)",
-            "Bash(gh issue edit:*)",
-            "Bash(gh issue comment:*)",
-            "Bash(gh api repos/DigiBanks99/menlo/issues/*/sub_issues*)",
-            "Bash(gh api repos/DigiBanks99/menlo/issues/*/parent*)",
-            "Bash(gh api repos/DigiBanks99/menlo/issues/*/dependencies/blocked_by*)",
-            "Bash(gh project item-list:*)",
-            "Bash(gh project item-add:*)",
-            "Bash(gh project item-edit:*)"
+            "Bash(dotnet *)",
+            "Bash(pnpm *)",
+            "Bash(nx *)",
+            "Bash(aspire *)",
+            "Bash(gh *)",
+            "Bash(git status *)",
+            "Bash(git diff *)",
+            "Bash(git log *)",
+            "Bash(git show *)",
+            "Bash(git branch)",
+            "Bash(git branch --show-current)",
+            "Bash(git branch --list *)",
+            "Bash(git branch -a *)",
+            "Bash(git branch -r *)",
+            "Bash(git branch -v *)",
+            "Bash(git branch -vv *)",
+            "Bash(git rev-parse *)",
+            "Bash(git fetch *)",
+            "Bash(git remote -v)",
+            "Bash(git ls-files *)",
+            "Bash(git checkout *)",
+            "Bash(git switch *)"
+        ],
+        "ask": [
+            "Bash(gh issue delete *)",
+            "Bash(gh issue transfer *)",
+            "Bash(gh repo delete *)",
+            "Bash(gh repo archive *)",
+            "Bash(gh repo rename *)",
+            "Bash(gh repo edit *)",
+            "Bash(gh release delete *)",
+            "Bash(gh secret *)",
+            "Bash(gh variable *)",
+            "Bash(gh ruleset *)",
+            "Bash(gh pr merge *)",
+            "Bash(gh run cancel *)",
+            "Bash(gh run delete *)",
+            "Bash(gh cache delete *)",
+            "Bash(gh api * -X DELETE*)",
+            "Bash(gh api * --method DELETE*)",
+            "Bash(gh api * -X PUT*)",
+            "Bash(gh api * --method PUT*)"
+        ]
+    },
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash|PowerShell",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "input=$(cat); case \"$input\" in *git*) ;; *) exit 0 ;; esac; printf '%s' \"$input\" | dotnet run --file \"$CLAUDE_PROJECT_DIR/.github/hooks/git-guard.cs\"; rc=$?; [ $rc -eq 0 ] || [ $rc -eq 2 ] || echo \"git-guard could not run (exit $rc), so git commands are blocked until it can; see .github/hooks/README.md\" >&2; [ $rc -eq 0 ] || exit 2",
+                        "timeout": 60
+                    }
+                ]
+            }
         ]
     }
 }
