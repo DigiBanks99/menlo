@@ -47,6 +47,13 @@ body:
               ```mermaid
               ```
     - type: textarea
+      id: decisions
+      attributes:
+          label: Decisions
+          description: Each choice the implementation depends on, with its answer and reason, so whoever picks it up never has to stop and ask. Write "None beyond the Requirement" if there are none.
+      validations:
+          required: true
+    - type: textarea
       id: test-cases
       attributes:
           label: Test cases
