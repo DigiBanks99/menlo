@@ -4,11 +4,11 @@ Menlo plans work in GitHub issues, tracked on the [Menlo Roadmap](https://github
 
 ## The three levels
 
-| Level           | Label         | Answers          | Contains                                                                                         | Parent                  |
-| --------------- | ------------- | ---------------- | ------------------------------------------------------------------------------------------------ | ----------------------- |
-| **Requirement** | `requirement` | What and why     | Problem, who it's for, outcomes, business rules, acceptance criteria, out of scope               | Epic or roadmap item    |
-| **Spec**        | `spec`        | How (one slice)  | Domain model changes, API contract, UI flow, Mermaid diagrams, test cases, affected areas, risks | Requirement (sub-issue) |
-| **Task**        | `task`        | One unit of work | A checklist                                                                                      | Spec (sub-issue)        |
+| Level           | Label         | Answers          | Contains                                                                                                    | Parent                  |
+| --------------- | ------------- | ---------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
+| **Requirement** | `requirement` | What and why     | Problem, who it's for, outcomes, business rules, acceptance criteria, out of scope                          | Epic or roadmap item    |
+| **Spec**        | `spec`        | How (one slice)  | Domain model changes, API contract, UI flow, Mermaid diagrams, decisions, test cases, affected areas, risks | Requirement (sub-issue) |
+| **Task**        | `task`        | One unit of work | A checklist                                                                                                 | Spec (sub-issue)        |
 
 - Open a Requirement or Spec with its issue form. The form applies the label, and the label adds the issue to the project.
 - A Spec is a slice that ships on its own. Split a Requirement into several Specs rather than writing one large Spec.
@@ -26,13 +26,14 @@ graph TD
 
 ## Definition of Ready
 
-A Spec can be picked up (Status: **Ready**, and labelled `ready-for-agent` if an agent can take it) when:
+A Spec can be picked up (Status: **Ready**, and labelled `ready-for-agent` if an agent can take it) when the checklist below is met. Agents only pick up issues that have both.
 
 - [ ] It is a sub-issue of a Requirement, and that Requirement has acceptance criteria
 - [ ] The slice is small enough to ship on its own, or is split into Tasks
 - [ ] The domain model changes, API contract and UI flow are described, or marked not applicable
 - [ ] Test cases cover each acceptance criterion it implements
 - [ ] Affected areas (projects, endpoints, screens, migrations) are listed
+- [ ] Every decision the implementation depends on is answered under Decisions, or in the Requirement
 - [ ] Open questions are resolved; risks have a mitigation or are accepted
 - [ ] Priority, Area and Phase are set on the project
 
@@ -78,3 +79,25 @@ Issues hold intent: what we want and how we plan to build it. `docs/` holds as-b
 | Shipped behaviour needs to change                              | A new Requirement or Spec, then `docs/` when it ships |
 
 Once a Requirement is closed, `docs/` is the source of truth. Don't edit closed issues to reflect later changes.
+
+## Agents and issues
+
+Agents plan and pick up work with the global `to-requirement`, `to-specs` and `work-on-spec` skills, configured in `AGENTS.md`.
+
+- Agents comment progress on the issue they are working on.
+- They edit a section of that Spec or Task only when a PR changes the plan, such as a decision taken or the approach changed. Each edit gets a comment that says what changed, why, and links the PR, so the history stays readable.
+- They never edit a Requirement body. The what and why belong to the owner; agents suggest changes in a comment.
+- They close issues only through `Closes #<n>` in a PR.
+
+The label usually adds a new issue to the project. `item-add` is safe to run either way, because it returns the existing item. To add issue `n` and mark it Ready:
+
+```shell
+n=123
+url=$(gh issue view "$n" --json url --jq .url)
+item=$(gh project item-add 2 --owner DigiBanks99 --url "$url" --format json --jq .id)
+gh project item-edit --id "$item" --project-id PVT_kwHOAAOZw84BpUot \
+  --field-id PVTSSF_lAHOAAOZw84BpUotzhnwyG8 --single-select-option-id a3e2ab66
+gh issue edit "$n" --add-label ready-for-agent
+```
+
+Leave out the last two commands to only add it. The IDs are the project's Status field and its Ready option; look them up with `gh project field-list 2 --owner DigiBanks99 --format json` if they stop working.

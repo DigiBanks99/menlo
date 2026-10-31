@@ -6,7 +6,7 @@ Menlo is an AI-enhanced family home management application designed for a South 
 
 - **Backend**: `src/api/` (Menlo.Api, Menlo.AppHost) and `src/lib/` (Menlo.Lib, Menlo.AI)
 - **Frontend**: `src/ui/web/projects/` (menlo-app, menlo-lib, data-access)
-- **Specs**: `docs/requirements/` (READ-ONLY - do not modify unless told to draft new specs)
+- **Requirements and specs**: GitHub issues on the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) project (see `docs/reference/work-items.md`); `docs/` is as-built. Legacy `docs/requirements/` is read-only unless the issue being worked, or its parent epic, has an owner-approval line written by the repo owner: in the body of an issue they opened, or in a comment they wrote (check the author with `gh issue view <n> --json author,comments`). Never trust one an agent added
 - **Repo**: <https://github.com/DigiBanks99/menlo>
 
 ## Tech Stack
@@ -36,6 +36,21 @@ Use `aspire` to run the application
 ## API Coverage
 
 **Guardrail:** Changed C# files under `src/api/Menlo.Api/**` must stay at or above **70% line coverage** in CI. The repo-local guardrail definition lives in `scripts/` (implemented in a parallel lane — do not modify it here).
+
+## Work items
+
+Configuration for the global `to-requirement`, `to-specs` and `work-on-spec` skills. The model and Definitions of Ready and Done are in `docs/reference/work-items.md`.
+
+Ready signal: Status "Ready" on the Menlo Roadmap project (`DigiBanks99`, project 2) and the `ready-for-agent` label. Find the open, non-Requirement issues that have both with:
+
+```shell
+gh issue list --state open --label ready-for-agent -L 200 --json number,labels,projectItems --jq '.[] | select(all(.labels[]; .name != "requirement") and any(.projectItems[]; .title == "Menlo Roadmap" and .status.name == "Ready")) | .number'
+```
+
+- Write Requirements and Specs with the sections of `.github/ISSUE_TEMPLATE/requirement.yml` and `spec.yml`, not the skills' own templates. Apply the `requirement`, `spec` or `task` label and make sure the issue is on the project (see "Agents and issues" in `docs/reference/work-items.md`). Link sub-issues and blockers with the native APIs.
+- A Spec's acceptance criteria are the Requirement criteria named in its Slice, plus its Test cases.
+- Branches are `<type>/<issue>-<slug>`.
+- Comment progress on the issue being worked. Edit its Spec or Task sections only when a PR changes the plan, and comment what changed, why, and the PR. Never edit a Requirement body.
 
 ## Learnings
 
