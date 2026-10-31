@@ -4,7 +4,8 @@
     "dev": "pushd src/ui/web; pnpm dev && popd",
     "format": "pushd src/ui/web; pnpm format && popd",
     "lint": "pushd src/ui/web; pnpm lint && popd",
-    "test": "pushd src/ui/web; pnpm test && popd"
+    "test": "pushd src/ui/web; pnpm test && popd",
+    "prepare": "git config --get core.hooksPath || git config core.hooksPath .githooks || exit 0"
   },
   "devDependencies": {
     "@vitest/mocker": "^4.1.12",
