@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "windows": "dotnet run --file .github/hooks/git-guard.cs",
+        "linux": "dotnet run --file .github/hooks/git-guard.cs",
+        "osx": "dotnet run --file .github/hooks/git-guard.cs",
+        "timeout": 60
+      }
+    ]
+  }
+}
