@@ -10,7 +10,7 @@ Supersedes the Windows 10 Home + Podman/WSL2 host assumption in [ADR-001](adr-00
 
 ADR-001 placed the backend, PostgreSQL and Ollama on a "home server", and the deployment tooling assumed that server was a Windows 10 Home machine running Podman inside WSL2:
 
-- `cd-backend.yml` ran its deploy steps with `shell: pwsh` and Windows-only commands (`$env:USERPROFILE`, `Restart-Service`, `Invoke-WebRequest`)
+- The backend CD workflow (now `cd.yml`) ran its deploy steps with `shell: pwsh` and Windows-only commands (`$env:USERPROFILE`, `Restart-Service`, `Invoke-WebRequest`)
 - `deployment/` shipped PowerShell scripts to set up WSL2, Podman Desktop and the `cloudflared` Windows service
 
 The `menlo-deploy` self-hosted runner has since been replaced by a Linux host. PowerShell is not installed there, so every backend deployment has failed at the first deploy step with `pwsh: command not found` ([#516](https://github.com/DigiBanks99/menlo/issues/516)).
@@ -45,12 +45,12 @@ The `menlo-deploy` self-hosted runner has since been replaced by a Linux host. P
 
 Production runs on a **Linux host**. The `menlo-deploy` self-hosted runner lives on that host and deploys to it directly.
 
-- Deploy steps in `cd-backend.yml` that run on `menlo-deploy` use `shell: bash`
+- Deploy steps in `cd.yml` that run on `menlo-deploy` use `shell: bash`
 - Containers run under Docker or Podman, through `<runtime> compose`. The `CONTAINER_RUNTIME` repository variable (`docker` or `podman`) picks one; when it is unset the job uses whichever is installed, preferring Podman
 - `cloudflared` runs as a systemd service
 - Windows-only deployment scripts are removed from `deployment/`
 
-The rest of ADR-001 stays the same: Cloudflare Pages frontend, Cloudflare Tunnel connectivity, and local PostgreSQL and Ollama. The certificate-based Entra authentication from ADR-003 also stays the same; the certificate is passed to the container as Base64, which does not depend on the host OS.
+The rest of ADR-001 stays the same: Cloudflare Tunnel connectivity, and local PostgreSQL and Ollama. (The Cloudflare Pages frontend it also kept was later retired by [ADR-005](adr-005-bundled-spa-hosting.md).) The certificate-based Entra authentication from ADR-003 also stays the same; the certificate is passed to the container as Base64, which does not depend on the host OS.
 
 Windows remains a supported **development** platform. Developer tooling such as `scripts/*.ps1` and `.github/hooks/*.ps1`, and CI jobs on GitHub-hosted runners, are not affected.
 
@@ -60,7 +60,7 @@ Windows remains a supported **development** platform. Developer tooling such as 
 
 - Backend deployments work again
 - No WSL2 or Podman machine VM between the containers and the host
-- One shell (bash) for every job in `cd-backend.yml`
+- One shell (bash) for every job in `cd.yml`
 
 ### Negative
 

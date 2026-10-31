@@ -73,6 +73,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Business Requirements](requirements/business-requirements.md)** - Complete feature specifications with AI integration
 - **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
+- **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
 
 ### 🏗️ Architecture & Design
 
@@ -82,7 +83,6 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ### 🛠️ How-to Guides
 
-- **[Cloudflare Pages Setup](guides/cloudflare-pages-setup.md)** - Configure Cloudflare Pages for frontend deployment
 - **[Use Domain Abstractions](guides/domain-abstractions-howto.md)** - Practical examples for using core domain abstractions
 - **[Add Authorization Policy](guides/auth-policy-howto.md)** - Define new roles and policies
 - **[Add Angular Auth Guard](guides/angular-auth-guard-howto.md)** - Create route guards for role-based access
@@ -109,7 +109,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 | **CFO-COO Dynamic**                | Strategic vs operational family roles                   | [Concepts Guide](explanations/concepts-and-terminology.md#the-cfo-coo-family-dynamic)                      |
 | **Natural Workflow Preservation**  | Enhance existing habits, don't replace them             | [Concepts Guide](explanations/concepts-and-terminology.md#natural-workflow-preservation)                   |
 | **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](explanations/concepts-and-terminology.md#privacy-first-local-ai)                          |
-| **Hybrid Cloud-Local**             | Frontend (Cloudflare Pages) + local backend/data        | [ADR-001](decisions/adr-001-hosting-strategy.md)                                                           |
+| **Hybrid Cloud-Local**             | Cloudflare Tunnel + home server (API with bundled SPA)  | [ADR-005](decisions/adr-005-bundled-spa-hosting.md)                                                        |
 | **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](explanations/concepts-and-terminology.md#cost-conscious-experimentation)                  |
 | **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](requirements/onboarding.md)                                                                   |
 
@@ -170,7 +170,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **Microsoft Semantic Kernel**: AI orchestration framework
 - **Ollama**: Local AI model hosting
 - **Cloudflare Tunnel**: Secure home server connectivity
-- **Cloudflare Pages**: Frontend hosting (free tier)
+- **Bundled SPA**: The API image serves the Angular frontend ([ADR-005](decisions/adr-005-bundled-spa-hosting.md))
 
 ---
 

@@ -4,11 +4,6 @@ This diagram shows the internal architecture of the Menlo Home Management Applic
 
 ```mermaid
 graph TB
-    %% Azure Cloud
-    subgraph CloudflarePages["🌐 Cloudflare Pages"]
-        Pages[📱 Cloudflare Pages<br/>Angular 21 PWA<br/>Globally distributed edge<br/>static asset hosting]
-    end
-    
     %% Cloudflare Edge
     subgraph CloudflareEdge["🌐 Cloudflare Edge"]
         CFTunnel[🔒 Cloudflare Tunnel<br/>Cloudflared<br/>Secure tunnel to home server<br/>without static IP]
@@ -18,6 +13,7 @@ graph TB
     subgraph HomeServer["🏠 Home Server"]
         %% API Host
         APIHost[🌐 API Host<br/>ASP.NET Core Minimal APIs<br/>Hosts feature endpoints with<br/>authentication middleware]
+        SPA[📱 Angular 21 PWA<br/>Bundled in the API image<br/>and served by the API Host<br/>from the same origin]
         
         %% Budget Feature
         subgraph BudgetFeature["💰 Budget Management Feature"]
@@ -111,9 +107,9 @@ graph TB
     BankSystem[🏦 Banking System<br/>External<br/>Source of transaction data]
     
     %% Main Flow
-    FamilyDevices -->|Accesses PWA<br/>HTTPS| Pages
-    Pages -->|API calls via tunnel<br/>HTTPS| CFTunnel
+    FamilyDevices -->|Loads PWA and calls API<br/>HTTPS| CFTunnel
     CFTunnel -->|Forwards to home server<br/>Encrypted tunnel| APIHost
+    APIHost -->|Serves static files<br/>index.html fallback| SPA
     
     %% API Host to Features
     APIHost --> BudgetEndpoints
@@ -196,7 +192,7 @@ graph TB
     
     %% External Integrations
     ImportProcessor --> BankSystem
-    NotificationService --> Pages
+    NotificationService --> SPA
     
     %% Cross-feature Dependencies (via slice context interfaces)
     BudgetImpactAnalyser --> IBudgetContext
@@ -220,7 +216,7 @@ graph TB
     classDef dbClass fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
     classDef externalClass fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000
     
-    class Pages azureClass
+    class SPA apiClass
     class CFTunnel cloudflareClass
     class APIHost apiClass
     class BudgetEndpoints,BudgetHandlers,BudgetModels,BudgetAnalyser,TransactionCategorizer,RentalCostAnalyser budgetClass
@@ -239,7 +235,7 @@ graph TB
 
 ### Hybrid Cloud-Local Architecture
 
-- **Frontend**: Cloudflare Pages (global edge)
+- **Frontend**: Bundled in the API image and served from the same origin ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
 - **Backend**: Home server via Cloudflare Tunnel (no static IP needed)
 - **Database**: PostgreSQL with EF Core
 - **AI**: Local Ollama with Phi models

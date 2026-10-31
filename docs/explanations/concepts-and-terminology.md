@@ -138,7 +138,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 **Architecture Components**:
 
-- **Global Frontend**: Cloudflare Pages (Angular PWA) for fast, distributed UI delivery
+- **Bundled Frontend**: The API image serves the Angular PWA from the same origin, so one deploy ships both
 - **Secure Tunnel**: Cloudflare Tunnel eliminates static IP requirement
 - **Local Backend**: Home server provides full data control and AI processing
 - **Cost Optimization**: ~80% cost reduction vs. full cloud hosting
@@ -346,7 +346,7 @@ This guide serves multiple audiences and use cases:
 
 - **Study [Technical Philosophy](#technical-philosophy)** for infrastructure decisions
 - **Understand [South African Context](#south-african-context)** for local considerations
-- **Cross-reference with [ADR-001](adr-001-hosting-strategy.md)** for detailed hosting decisions
+- **Cross-reference with [ADR-001](../decisions/adr-001-hosting-strategy.md)** for detailed hosting decisions
 
 ### Quick Lookups
 

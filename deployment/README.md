@@ -10,7 +10,7 @@ This setup is designed for:
 - **Docker or Podman** (pick one with the `CONTAINER_RUNTIME` variable)
 - **Local Ollama AI** (phi4-mini, phi4-vision models)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
-- **Cloudflare Pages** (frontend hosting with Angular 21)
+- **Bundled SPA** (the API image serves the Angular 21 frontend, see [ADR-005](../docs/decisions/adr-005-bundled-spa-hosting.md))
 
 ## 📁 Files Overview
 
@@ -19,7 +19,7 @@ This setup is designed for:
 | `docker-compose.prod.yml` | Reference production stack (API, PostgreSQL, backups, Ollama) |
 | `README.md` | This guide |
 
-The CD workflow (`.github/workflows/cd-backend.yml`) writes its own `docker-compose.prod.yml` to `~/menlo` on the host on every deploy, with the image tag, Entra settings and certificate filled in.
+The CD workflow (`.github/workflows/cd.yml`) writes its own `docker-compose.prod.yml` to `~/menlo` on the host on every deploy, with the image tag, Entra settings and certificate filled in.
 
 ## 🚀 Initial Setup
 
@@ -134,17 +134,13 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 |-------------|-------|-------------|----------|
 | `POSTGRES_USER` | `menlo` | Database user | ✅ |
 | `POSTGRES_PASSWORD` | `secure_password_here` | Database password | ✅ |
-| `CLOUDFLARE_API_TOKEN` | Token from Cloudflare | Cloudflare Pages deployment | ✅ |
-| `CLOUDFLARE_ACCOUNT_ID` | Account ID from Cloudflare | Cloudflare Pages deployment | ✅ |
 
 **Add these variables to your GitHub repository:**
 
 | Variable Name | Value | Description | Required |
 |---------------|-------|-------------|----------|
-| `CLOUDFLARE_PAGES_PROJECT_NAME` | `menlo-ui-web` | Cloudflare Pages project name | ✅ |
 | `CONTAINER_RUNTIME` | `docker` or `podman` | Container runtime on the host; unset auto-detects, preferring Podman | - |
 | `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
-| `API_BASE_URL` | `https://menlo.yourdomain.com` | External API URL | - |
 | `FRONTEND_URL` | `https://menlo.yourdomain.com` | Production URL (API with the bundled SPA); CD smoke-checks it after every deploy | ✅ |
 
 ## 🚢 Deployment
@@ -154,7 +150,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 The image is built once, in CI, and CD deploys that exact image:
 
 1. **CI** (`ci.yml`, `Container Image` job) builds the `linux/arm64` image on every PR to check the `Dockerfile`. On `main` it also pushes `ghcr.io/digibanks99/menlo/menlo-api:sha-<full commit sha>`. It only builds when the API, SPA, `Dockerfile` or pipeline files change.
-2. **CD** (`cd-backend.yml`) starts when CI succeeds on `main`. It looks up `sha-<commit>`; if CI built no image for that commit (e.g. docs-only changes), the deploy is skipped. Otherwise it:
+2. **CD** (`cd.yml`) starts when CI succeeds on `main`. It looks up `sha-<commit>`; if CI built no image for that commit (e.g. docs-only changes), the deploy is skipped. Otherwise it:
    1. Downloads the Entra client certificate from Key Vault
    2. Writes `~/menlo/docker-compose.prod.yml` on the host and restarts the stack via the self-hosted runner
    3. Verifies the local health check (the job fails if `/health` never returns 200)
@@ -162,7 +158,7 @@ The image is built once, in CI, and CD deploys that exact image:
    5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/budgets` 401 without auth, `/` and a deep link return the SPA with a CSP header), retrying for up to 3 minutes
    6. Moves the `main` tag to the deployed image only if the smoke check passed, so `menlo-api:main` is always the last image that passed
 
-If the smoke check fails, the `main` tag still points at the previous image, so `gh workflow run cd-backend.yml --ref main` rolls back. Run the smoke check yourself with `deployment/smoke-check.sh https://menlo.yourdomain.com`.
+If the smoke check fails, the `main` tag still points at the previous image, so `gh workflow run cd.yml --ref main` rolls back. Run the smoke check yourself with `deployment/smoke-check.sh https://menlo.yourdomain.com`.
 
 CD never builds images, and only one production deploy runs at a time.
 
@@ -171,13 +167,13 @@ CD never builds images, and only one production deploy runs at a time.
 Redeploy the image currently in production (no SHA):
 
 ```bash
-gh workflow run cd-backend.yml --ref main
+gh workflow run cd.yml --ref main
 ```
 
 Roll back (or forward) to the image CI built for a specific commit on `main`:
 
 ```bash
-gh workflow run cd-backend.yml --ref main -f sha=$(git rev-parse <commit>)
+gh workflow run cd.yml --ref main -f sha=$(git rev-parse <commit>)
 ```
 
 The SHA must be the full 40 characters, and that commit must have an image (`docker buildx imagetools inspect ghcr.io/digibanks99/menlo/menlo-api:sha-<sha>`). Rolling back the code doesn't roll back database migrations.
@@ -324,7 +320,7 @@ systemctl --user status podman-restart.service
 # Reset database (WARNING: destroys data)
 docker compose -f docker-compose.prod.yml down
 docker volume rm menlo_postgres_data
-gh workflow run cd-backend.yml --ref main
+gh workflow run cd.yml --ref main
 
 # Check database connection
 docker exec menlo-postgres pg_isready -U menlo -d menlo
@@ -387,34 +383,13 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 - **Subsequent startups**: ~30 seconds to full readiness
 - **AI inference**: 2-10 seconds per request (depending on model and query)
 
-## 🔄 Frontend Hosting Revision
+## 🌐 Frontend Hosting
 
-**Migration to Cloudflare Pages** (December 2025)
+The Angular SPA is not deployed separately. The root `Dockerfile` builds it in its `spa-build` stage and copies it into the API's `wwwroot`. The API then serves the SPA and `/api` from one origin (`FRONTEND_URL`), falling back to `index.html` for client-side routes. Deploying the API image deploys the frontend.
 
-As per [ADR-001](../docs/decisions/adr-001-hosting-strategy.md), the frontend hosting has been migrated from Azure Static Web Apps to Cloudflare Pages for improved performance and cost optimization.
+Cloudflare Pages hosted the frontend until 2026; [ADR-005](../docs/decisions/adr-005-bundled-spa-hosting.md) records why it was retired.
 
-### Key Changes
-
-- **Frontend Hosting**: Now deployed to Cloudflare Pages using Direct Upload deployment
-- **Angular Version**: Upgraded to Angular 21 with modern control flow syntax (`@if`, `@for`, `@defer`)
-- **Build Process**: NX workspace with pnpm for package management
-- **CI/CD**: GitHub Actions workflow updated to use `cloudflare/wrangler-action@v3`
-- **Domain**: Frontend accessible via `https://menlo.yourdomain.com`
-
-### Deployment Commands
-
-For manual deployment using wrangler CLI:
-
-```bash
-# Build the frontend
-cd src/ui/web
-pnpm nx build menlo-app
-
-# Deploy to Cloudflare Pages
-wrangler pages deploy dist/menlo-app --project-name menlo-ui-web --branch main
-```
-
-For automatic deployment, push changes to the `main` branch which triggers the `cd-frontend.yml` workflow.
+To run the production image locally, see `Menlo__BundledUi` in `AGENTS.md`.
 
 ## 🔐 Security Considerations
 

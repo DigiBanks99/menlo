@@ -20,13 +20,9 @@ Comprehensive CI pipeline that runs on every push and pull request:
 
 ### Continuous Deployment (CD)
 
-**Frontend Deployment**: `cd-frontend.yml`
+**File**: `cd.yml`
 
-- Deploys Angular PWA to Cloudflare pages
-- Includes Storybook documentation deployment
-- Configures routing for API proxy to home server
-
-**Backend Deployment**: `cd-backend.yml`
+The only deploy workflow. The API image bundles the Angular SPA, so one deploy ships both (see [ADR-005](../../docs/decisions/adr-005-bundled-spa-hosting.md)).
 
 - Starts when CI succeeds on `main` and deploys the exact image CI built for that commit (`menlo-api:sha-<full commit sha>`); it never builds images itself
 - Skips commits that produced no image (e.g. docs-only); a manual run redeploys production, or deploys a given `sha` for rollback
@@ -51,18 +47,18 @@ These workflows implement the **Hybrid Cloud-Local Architecture**:
 
 ```mermaid
 graph LR
-    A[GitHub Actions] --> B[Cloudflare Pages]
-    A --> C[Home Server]
-    B --> D[Cloudflare Tunnel]
+    A[GitHub Actions] --> C[Home Server]
+    U[Browser] --> D[Cloudflare Tunnel]
     D --> C
     C --> E[PostgreSQL]
     C --> F[Ollama AI]
 ```
 
+The home server runs the API container, which serves the bundled SPA and `/api` from one origin.
+
 ### Cost Optimization
 
-- **Frontend**: Cloudflare Pages
-- **Backend**: Home server deployment with minimal cloud costs
+- **App**: Home server deployment (API with the bundled SPA) with minimal cloud costs
 - **Container Registry**: Free GitHub Container Registry
 - **CI/CD**: GitHub Actions free tier (generous limits)
 
@@ -97,25 +93,16 @@ Configure these secrets in GitHub repository settings:
 > **Note**: The backend deployment uses a self-hosted GitHub Actions runner on the Linux home server, with direct line-of-sight to local services.  
 > SSH-based deployment has been replaced with direct local execution for improved security and simplicity.
 
-### Frontend Deployment
-
-- `CLOUDFLARE_API_TOKEN`: Cloudflare Pages deployment token
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account identifier
-
 ## 📊 Required Variables
 
 Configure these variables in GitHub repository settings:
 
 ### Application Configuration
 
-- `API_BASE_URL`: Base URL for the API (e.g., `https://menlo.yourdomain.com`)
 - `FRONTEND_URL`: Production URL (API with the bundled SPA); CD smoke-checks it after every deploy
-- `CLOUDFLARE_PAGES_PROJECT_NAME`: Frontend Cloudflare project name (e.g., `menlo-ui-web`)
 
 ### Optional Features
 
-- `DEPLOY_STORYBOOK`: Set to `true` to enable Storybook deployment
-- `STORYBOOK_URL`: Storybook documentation URL
 - `CONTAINER_RUNTIME`: `docker` or `podman` on the deploy host (unset auto-detects, preferring Podman)
 - `CLOUDFLARE_TUNNEL_ENABLED`: Set to `true` if using Cloudflare Tunnel
 - `FEATURES_BUDGET`: Set to `true`/`false` to control budget endpoints in production
@@ -131,11 +118,10 @@ Configure these variables in GitHub repository settings:
 
 ### Production Deployment
 
-1. **Frontend**: Automatically deployed to Cloudflare Pages
-2. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64) for commits on `main`
-3. **Backend**: CD deploys that exact image to the home server once CI succeeds, then moves the `main` tag to it
-4. **Health Checks**: The deploy job fails if `/health` never returns 200 on the host; then `deployment/smoke-check.sh` checks `FRONTEND_URL` from outside, and the `main` tag only moves if it passes
-5. **Rollback**: Re-run CD for an earlier commit: `gh workflow run cd-backend.yml --ref main -f sha=<full sha>`
+1. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64, API plus bundled SPA) for commits on `main`
+2. **Deploy**: CD deploys that exact image to the home server once CI succeeds, then moves the `main` tag to it
+3. **Health Checks**: The deploy job fails if `/health` never returns 200 on the host; then `deployment/smoke-check.sh` checks `FRONTEND_URL` from outside, and the `main` tag only moves if it passes
+4. **Rollback**: Re-run CD for an earlier commit: `gh workflow run cd.yml --ref main -f sha=<full sha>`
 
 There are no versioned releases; every successful commit on `main` that changes the image is deployed.
 
@@ -171,6 +157,7 @@ act push --eventpath .github/test-events/push.json
 ## 📚 Related Documentation
 
 - [Hosting Strategy ADR](../../docs/decisions/adr-001-hosting-strategy.md) - Architecture decisions
+- [Bundled SPA Hosting ADR](../../docs/decisions/adr-005-bundled-spa-hosting.md) - Why the API serves the frontend
 - [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) - Development plan
 - [Architecture Document](../../docs/explanations/architecture-document.md) - System architecture
 

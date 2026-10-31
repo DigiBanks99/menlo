@@ -47,7 +47,7 @@ graph TB
 
 ### Hybrid Architecture
 
-- **Frontend**: Cloudflare Pages
+- **Frontend**: Bundled in the API image, served from the home server ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
 - **Backend**: Home server via Cloudflare Tunnel  
 - **Database**: PostgreSQL
 - **AI**: Local Ollama with Phi models
