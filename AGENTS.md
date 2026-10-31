@@ -32,6 +32,7 @@ Use `aspire` to run the application
   - Linting: `pnpm lint`
   - Formatting: `pnpm format`
 - All .NET: `dotnet format`
+- A git `pre-commit` hook formats staged files. Agent hooks and permissions: `.github/hooks/README.md`
 
 ## API Coverage
 
@@ -87,3 +88,4 @@ Update your learnings as you progress but keep them brief.
 - Forwarded headers are trusted only from loopback or `ForwardedHeaders:KnownNetworks`/`KnownProxies`; `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` makes the framework trust every source, so keep it out of compose files.
 - Prod is one host: the API image serves the bundled SPA at `vars.FRONTEND_URL` (the `api-menlo` subdomain is dead). CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
 - E2E specs share `src/ui/web/e2e/fixtures/mocks.ts` (auth + budget/summary builders). `mnl-button`/`mnl-input` put `testId` on the inner element, so click/fill it directly; Playwright cannot launch `pnpm run start` under corepack here, so start `nx serve menlo-app` yourself and it will be reused.
+- `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work; after changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
