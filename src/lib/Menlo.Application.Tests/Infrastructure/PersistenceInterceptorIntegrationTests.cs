@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Menlo.Application.Tests.Infrastructure;
 
-[Collection("InterceptorPersistence")]
+[ClassDataSource<InterceptorPersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("InterceptorPersistence")]
 public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithNewAuditableEntity()
     {
         await ResetDatabaseAsync();
@@ -18,18 +19,18 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
         };
 
         writeContext.AuditableEntities.Add(entity);
-        await writeContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await writeContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         await using InterceptorTestDbContext readContext = CreateContext();
         TestAuditableEntity? persistedEntity = await readContext.AuditableEntities
-            .SingleOrDefaultAsync(x => x.Id == entity.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == entity.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHavePersistedAuditableEntity(persistedEntity);
         ItShouldHaveCreatedAuditFields(persistedEntity);
         ItShouldHaveModifiedAuditFields(persistedEntity);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithModifiedAuditableEntity()
     {
         await ResetDatabaseAsync();
@@ -40,7 +41,7 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
             Name = "Before update"
         };
         seedContext.AuditableEntities.Add(entity);
-        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await seedContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         Guid entityId = entity.Id;
         Menlo.Lib.Common.ValueObjects.UserId? createdBy = entity.CreatedBy;
@@ -49,20 +50,20 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
 
         await using InterceptorTestDbContext updateContext = CreateContext();
         TestAuditableEntity entityToUpdate = await updateContext.AuditableEntities
-            .SingleAsync(x => x.Id == entityId, TestContext.Current.CancellationToken);
+            .SingleAsync(x => x.Id == entityId, TestContext.Current!.Execution.CancellationToken);
         entityToUpdate.Name = "After update";
-        await updateContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await updateContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         await using InterceptorTestDbContext readContext = CreateContext();
         TestAuditableEntity? persistedEntity = await readContext.AuditableEntities
-            .SingleOrDefaultAsync(x => x.Id == entityId, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == entityId, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHavePersistedUpdatedEntity(persistedEntity);
         ItShouldHavePreservedCreatedAuditFields(persistedEntity, createdBy, createdAt);
         ItShouldHaveRefreshedModifiedAuditFields(persistedEntity, originalModifiedAt);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithDeletedSoftDeletableEntity()
     {
         await ResetDatabaseAsync();
@@ -73,19 +74,19 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
             Name = "Soft deletable"
         };
         seedContext.SoftDeletableEntities.Add(entity);
-        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await seedContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         Guid entityId = entity.Id;
 
         await using InterceptorTestDbContext deleteContext = CreateContext();
         TestSoftDeletableEntity entityToDelete = await deleteContext.SoftDeletableEntities
-            .SingleAsync(x => x.Id == entityId, TestContext.Current.CancellationToken);
+            .SingleAsync(x => x.Id == entityId, TestContext.Current!.Execution.CancellationToken);
         deleteContext.SoftDeletableEntities.Remove(entityToDelete);
-        await deleteContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await deleteContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         await using InterceptorTestDbContext readContext = CreateContext();
         TestSoftDeletableEntity? persistedEntity = await readContext.SoftDeletableEntities
-            .SingleOrDefaultAsync(x => x.Id == entityId, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == entityId, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveRetainedSoftDeletedRow(persistedEntity);
         ItShouldHaveMarkedEntityAsDeleted(persistedEntity);
@@ -100,10 +101,10 @@ public sealed class PersistenceInterceptorIntegrationTests(InterceptorPersistenc
     private async Task ResetDatabaseAsync()
     {
         await using InterceptorTestDbContext context = CreateContext();
-        await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
+        await context.Database.EnsureCreatedAsync(TestContext.Current!.Execution.CancellationToken);
         await context.Database.ExecuteSqlRawAsync(
             "TRUNCATE TABLE test_soft_deletable_entities, test_auditable_entities",
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
     }
 
     private static void ItShouldHavePersistedAuditableEntity(TestAuditableEntity? persistedEntity)

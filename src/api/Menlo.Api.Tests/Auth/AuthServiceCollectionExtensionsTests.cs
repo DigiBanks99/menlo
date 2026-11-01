@@ -18,7 +18,7 @@ namespace Menlo.Api.Tests.Auth;
 /// </summary>
 public sealed class AuthServiceCollectionExtensionsTests : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task OnRedirectToIdentityProvider_WithHttpSchemeRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -29,13 +29,13 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
 
         // Send request with http:// scheme to trigger redirect URI rewrite
         HttpResponseMessage response = await client.GetAsync(
-            "http://localhost/auth/login", TestContext.Current.CancellationToken);
+            "http://localhost/auth/login", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirectToOidc(response);
         ItShouldHaveHttpsRedirectUri(response);
     }
 
-    [Fact]
+    [Test]
     public async Task OnRedirectToIdentityProvider_WithHttpsSchemeRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -45,13 +45,13 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
         });
 
         HttpResponseMessage response = await client.GetAsync(
-            "https://localhost/auth/login", TestContext.Current.CancellationToken);
+            "https://localhost/auth/login", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirectToOidc(response);
         ItShouldHaveHttpsRedirectUri(response);
     }
 
-    [Fact]
+    [Test]
     public async Task OnRedirectToIdentityProvider_WithAcceptJsonHeader()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -64,13 +64,13 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
 
         // /auth/login triggers OIDC challenge, Accept: application/json triggers XHR detection
         HttpResponseMessage response = await client.GetAsync(
-            "/auth/login", TestContext.Current.CancellationToken);
+            "/auth/login", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public async Task OnRedirectToLogin_WithXhrRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory(
@@ -83,13 +83,13 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
         client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
 
         HttpResponseMessage response = await client.GetAsync(
-            "/test/cookie-challenge", TestContext.Current.CancellationToken);
+            "/test/cookie-challenge", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public async Task OnRedirectToLogin_WithNonXhrBrowserRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory(
@@ -103,12 +103,12 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
             new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/html"));
 
         HttpResponseMessage response = await client.GetAsync(
-            "/test/cookie-challenge", TestContext.Current.CancellationToken);
+            "/test/cookie-challenge", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public void AddMenloAuthentication_WithMissingConfiguration()
     {
         // Build a minimal host with no AzureAd configuration to trigger the guard clause
@@ -123,7 +123,7 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
             .Message.ShouldContain("MenloAuthOptions");
     }
 
-    [Fact]
+    [Test]
     public void CookieOptions_WithExpectedSecurityConfiguration()
     {
         using TestWebApplicationFactory factory = new();
@@ -140,7 +140,7 @@ public sealed class AuthServiceCollectionExtensionsTests : TestFixture
         ItShouldUseCorrectCookieName(options);
     }
 
-    [Fact]
+    [Test]
     public void OpenIdConnectOptions_WithExpectedScopes()
     {
         using TestWebApplicationFactory factory = new();

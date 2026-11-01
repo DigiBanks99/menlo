@@ -8,7 +8,7 @@ namespace Menlo.Lib.Tests.Common.ValueObjects;
 /// </summary>
 public sealed class SoftDeleteStampTests
 {
-    [Fact]
+    [Test]
     public void GivenActorIdAndTimestamp_WhenCreatingSoftDeleteStamp()
     {
         // Arrange
@@ -28,7 +28,7 @@ public sealed class SoftDeleteStampTests
         stamp.Timestamp.ShouldBe(expectedTimestamp);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoStampsWithSameValues_WhenComparing()
     {
         // Arrange
@@ -48,7 +48,7 @@ public sealed class SoftDeleteStampTests
         stamp1.ShouldBe(stamp2);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoStampsWithDifferentValues_WhenComparing()
     {
         // Arrange
@@ -69,7 +69,7 @@ public sealed class SoftDeleteStampTests
         stamp1.ShouldNotBe(stamp2);
     }
 
-    [Fact]
+    [Test]
     public void GivenSoftDeleteStamp_WhenDeconstructing()
     {
         // Arrange

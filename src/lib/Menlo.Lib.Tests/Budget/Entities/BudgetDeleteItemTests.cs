@@ -18,7 +18,7 @@ public sealed class BudgetDeleteItemTests
     // Budget.DeleteItem — Valid scenarios
     // =========================================================================
 
-    [Fact]
+    [Test]
     public void DeleteItem_WithExistingItem()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class BudgetDeleteItemTests
         ItShouldSetDeletedAtAndDeletedBy(item);
     }
 
-    [Fact]
+    [Test]
     public void DeleteItem_WithNonExistentItemId()
     {
         // Arrange
@@ -50,7 +50,7 @@ public sealed class BudgetDeleteItemTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void DeleteItem_WithAlreadyDeletedItem()
     {
         // Arrange
@@ -66,7 +66,7 @@ public sealed class BudgetDeleteItemTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void DeleteItem_AllowsAddItemForSameCategoryAndMonth()
     {
         // Arrange

@@ -8,7 +8,7 @@ namespace Menlo.Lib.Tests.Auth.ValueObjects;
 /// </summary>
 public sealed class ExternalUserIdTests
 {
-    [Fact]
+    [Test]
     public void GivenExternalUserId_WhenCallingToString()
     {
         // Arrange
@@ -27,7 +27,7 @@ public sealed class ExternalUserIdTests
         result.ShouldBe(expected);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoExternalUserIdsWithSameValue_WhenComparing()
     {
         // Arrange
@@ -46,7 +46,7 @@ public sealed class ExternalUserIdTests
         id1.ShouldBe(id2);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoExternalUserIdsWithDifferentValues_WhenComparing()
     {
         // Arrange

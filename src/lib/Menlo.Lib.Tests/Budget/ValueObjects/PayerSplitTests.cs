@@ -15,7 +15,7 @@ public sealed class PayerSplitTests
     // PayerSplit.Create — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenSingleAllocationAt100Percent_WhenCreate_ThenSucceeds()
     {
         // Arrange
@@ -30,7 +30,7 @@ public sealed class PayerSplitTests
         ItShouldHaveAllocationCount(result, 1);
     }
 
-    [Fact]
+    [Test]
     public void GivenMultipleAllocations_WhenSumIs100_ThenSucceeds()
     {
         // Arrange
@@ -52,7 +52,7 @@ public sealed class PayerSplitTests
     // PayerSplit.Create — Invalid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenEmptyAllocations_WhenCreate_ThenReturnsError()
     {
         // Arrange
@@ -66,7 +66,7 @@ public sealed class PayerSplitTests
         ItShouldBeInvalidPayerSplitError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNullAllocations_WhenCreate_ThenReturnsError()
     {
         // Act
@@ -77,7 +77,7 @@ public sealed class PayerSplitTests
         ItShouldBeInvalidPayerSplitError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNegativePercent_WhenCreate_ThenReturnsError()
     {
         // Arrange
@@ -95,7 +95,7 @@ public sealed class PayerSplitTests
         ItShouldBeInvalidPayerSplitError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenZeroPercent_WhenCreate_ThenReturnsError()
     {
         // Arrange
@@ -113,9 +113,9 @@ public sealed class PayerSplitTests
         ItShouldBeInvalidPayerSplitError(result);
     }
 
-    [Theory]
-    [InlineData(50, 40)] // Under 100
-    [InlineData(60, 50)] // Over 100
+    [Test]
+    [Arguments(50, 40)] // Under 100
+    [Arguments(60, 50)] // Over 100
     public void GivenSumNot100_WhenCreate_ThenReturnsError(int percent1, int percent2)
     {
         // Arrange
@@ -133,7 +133,7 @@ public sealed class PayerSplitTests
         ItShouldBeInvalidPayerSplitError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateUserIds_WhenCreate_ThenReturnsError()
     {
         // Arrange
@@ -156,7 +156,7 @@ public sealed class PayerSplitTests
     // PayerSplit — Equality
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenValidSplit_WhenCheckEquality_ThenEqualSplitsAreEqual()
     {
         // Arrange

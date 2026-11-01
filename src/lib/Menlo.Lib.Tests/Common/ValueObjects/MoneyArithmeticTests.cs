@@ -15,7 +15,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-006: Add Money with same currency
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithSameCurrency_WhenAdding()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-006: Reject addition with currency mismatch
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithDifferentCurrency_WhenAdding()
     {
         // Arrange
@@ -51,7 +51,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-007: Subtract Money with same currency
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithSameCurrency_WhenSubtracting()
     {
         // Arrange
@@ -70,7 +70,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-007: Allow negative result from subtraction
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenSmallerMinuend_WhenSubtracting()
     {
         // Arrange
@@ -88,7 +88,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-007: Reject subtraction with currency mismatch
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithDifferentCurrency_WhenSubtracting()
     {
         // Arrange
@@ -105,7 +105,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-008: Multiply Money by factor
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenMultiplyingByFactor()
     {
         // Arrange
@@ -123,7 +123,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-008: Multiply by negative factor
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenMultiplyingByNegativeFactor()
     {
         // Arrange
@@ -140,7 +140,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-008: Multiply by zero
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenMultiplyingByZero()
     {
         // Arrange
@@ -156,7 +156,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-009: Divide Money by divisor
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenDividingByDivisor()
     {
         // Arrange
@@ -175,7 +175,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-009: Round division result to 2 decimal places
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenDividingWithRemainder()
     {
         // Arrange
@@ -193,7 +193,7 @@ public sealed class MoneyArithmeticTests
     /// <summary>
     /// TC-MON-010: Reject division by zero
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenDividingByZero()
     {
         // Arrange

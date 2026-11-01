@@ -52,7 +52,7 @@ public sealed class AuditingContractsTests
         }
     }
 
-    [Fact]
+    [Test]
     public void GivenEntityWithNullAuditFields_WhenAuditingWithCreate()
     {
         // Arrange
@@ -87,7 +87,7 @@ public sealed class AuditingContractsTests
         entity.ModifiedAt.ShouldBe(expectedTimestamp);
     }
 
-    [Fact]
+    [Test]
     public void GivenEntityWithExistingCreatedFields_WhenAuditingWithUpdate()
     {
         // Arrange
@@ -126,7 +126,7 @@ public sealed class AuditingContractsTests
         entity.ModifiedAt.ShouldBe(updateTimestamp);
     }
 
-    [Fact]
+    [Test]
     public void GivenNullFactory_WhenAuditing()
     {
         // Arrange

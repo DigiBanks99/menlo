@@ -5,60 +5,40 @@ using System.Text.Json;
 
 namespace Menlo.Api.Tests.Budget;
 
-[Collection("Budget")]
+[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Budget")]
 public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixture
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new() { PropertyNameCaseInsensitive = true };
 
-    // Dedicated HouseholdIds that are never used by CreateBudgetEndpointTests (which uses
-    // BudgetApiFixture.TestHouseholdId = "aaaa..."), so these tests can run in any order
-    // without conflicting with the shared fixture's budget rows.
-    private static readonly HouseholdId VerifiedHousehold =
-        new(Guid.Parse("cccccccc-a1a1-a1a1-a1a1-cccccccccccc"));
-
-    private static readonly HouseholdId WrongHouseholdOwner =
-        new(Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"));
-
-    private static readonly HouseholdId WrongHouseholdAccessor =
-        new(Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"));
-
     // -------------------------------------------------------------------------
     // DB-backed happy-path scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenVerifiedBudget_WhenGetBudget_ThenReturns200WithBudgetDto()
     {
-        // Use an isolated household so this test never conflicts with CreateBudgetEndpointTests.
-        await using BudgetTestWebApplicationFactory factory = new(VerifiedHousehold)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
-        };
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage createResponse =
-            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? createdDto = await DeserializeBudgetDto(createResponse);
 
         createResponse.IsSuccessStatusCode.ShouldBeTrue();
         createdDto.ShouldNotBeNull();
 
         HttpResponseMessage getResponse =
-            await client.GetAsync($"/api/budgets/{createdDto.Id}", TestContext.Current.CancellationToken);
+            await client.GetAsync($"/api/budgets/{createdDto.Id}", TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(getResponse);
 
         ItShouldHaveReturned200Ok(getResponse);
         ItShouldHaveMatchingId(dto, createdDto.Id);
         ItShouldHaveTheCorrectYear(dto, year);
         ItShouldHaveTheDraftStatus(dto);
-        ItShouldBelongToHousehold(dto, VerifiedHousehold);
+        ItShouldBelongToHousehold(dto, factory.HouseholdId);
         ItShouldHaveZeroTotalPlannedMonthlyAmount(dto);
         ItShouldHaveNoCategories(dto);
     }
@@ -67,55 +47,38 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
     // Not found scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenUnknownBudgetId_WhenGetBudget_ThenReturns404()
     {
         using HttpClient client = fixture.CreateClient();
         Guid unknownId = Guid.NewGuid();
 
         HttpResponseMessage response =
-            await client.GetAsync($"/api/budgets/{unknownId}", TestContext.Current.CancellationToken);
+            await client.GetAsync($"/api/budgets/{unknownId}", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturned404NotFound(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenWrongHousehold_WhenGetBudget_ThenReturns404()
     {
-        // Create a budget under a dedicated isolated household.
-        await using BudgetTestWebApplicationFactory ownerFactory = new(WrongHouseholdOwner)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
-        };
-        using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory();
+        using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage createResponse =
-            await ownerClient.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+            await ownerClient.PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? createdDto = await DeserializeBudgetDto(createResponse);
 
         createResponse.IsSuccessStatusCode.ShouldBeTrue();
         createdDto.ShouldNotBeNull();
 
         // Try to retrieve that budget from a completely different household → 404.
-        await using BudgetTestWebApplicationFactory otherFactory = new(WrongHouseholdAccessor)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
-        };
+        await using BudgetTestWebApplicationFactory otherFactory = fixture.CreateIsolatedFactory();
         using HttpClient otherClient = otherFactory.CreateClient();
 
         HttpResponseMessage getResponse =
-            await otherClient.GetAsync($"/api/budgets/{createdDto.Id}", TestContext.Current.CancellationToken);
+            await otherClient.GetAsync($"/api/budgets/{createdDto.Id}", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturned404NotFound(getResponse);
     }
@@ -124,7 +87,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
     // Standalone factory tests — no DB needed
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenUnauthenticatedUser_WhenGetBudget_ThenReturns401()
     {
         await using TestWebApplicationFactory factory = new()
@@ -136,12 +99,12 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
         Guid anyId = Guid.NewGuid();
 
         HttpResponseMessage response =
-            await client.GetAsync($"/api/budgets/{anyId}", TestContext.Current.CancellationToken);
+            await client.GetAsync($"/api/budgets/{anyId}", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenFeatureToggleOff_WhenGetBudget_ThenReturns404()
     {
         await using TestWebApplicationFactory factory = new()
@@ -155,7 +118,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
         Guid anyId = Guid.NewGuid();
 
         HttpResponseMessage response =
-            await client.GetAsync($"/api/budgets/{anyId}", TestContext.Current.CancellationToken);
+            await client.GetAsync($"/api/budgets/{anyId}", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturned404NotFound(response);
     }

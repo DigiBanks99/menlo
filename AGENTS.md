@@ -24,7 +24,7 @@ Use `aspire` to run the application
 ## Testing
 
 - Use `aspire` and `playwright-cli` for interactive feature testing and validation
-- Use `dotnet` for back-end unit and integration tests
+- Use `dotnet` for back-end unit and integration tests (TUnit; see `docs/guides/testing-howto.md`)
 - Use `pnpm` for front-end tests
 
 ### Signed-in testing
@@ -73,7 +73,7 @@ Update your learnings as you progress but keep them brief.
 <!-- Agent updates this section with discoveries - keep brief -->
 
 - Local GitHub Actions reproduction already has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
-- Household IDs in shared-fixture API tests must be unique across test classes to avoid cross-test contamination.
+- Budget API tests get their household from `BudgetApiFixture.CreateIsolatedFactory()` (one new household per test); hand-picked household GUIDs caused cross-test contamination.
 - Tailwind v4 in `src/ui/web` should be wired through PostCSS, and `@tailwindcss/forms` should use `strategy: "class"` to avoid reset regressions during the design-system rollout.
 - Storybook foundations can preview Latte and Mocha together by scoping Menlo's semantic CSS variables on per-story containers instead of relying on global `html.dark`.
 - `src/ui/web/projects/menlo-lib/package.json` must point `types` to `types/menlo-lib.d.ts`; otherwise Vite dev overlays report `TS2307` for `menlo-lib` imports even when the dist package exists.
@@ -101,4 +101,4 @@ Update your learnings as you progress but keep them brief.
 - E2E specs share `src/ui/web/e2e/fixtures/mocks.ts` (auth + budget/summary builders). `mnl-button`/`mnl-input` put `testId` on the inner element, so click/fill it directly; Playwright cannot launch `pnpm run start` under corepack here, so start `nx serve menlo-app` yourself and it will be reused.
 - `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work; after changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
 - CI's docs link check (`markdown-link-check`) scans the whole of every modified `.md` file, so a pre-existing broken link fails your docs PR; run `npx markdown-link-check -c .config/markdown-link-check.json <file>` on changed files first.
-- `dotnet test` runs on Microsoft.Testing.Platform (`global.json` `test.runner`), not VSTest: coverage is `--coverage --coverage-output-format cobertura` (Microsoft code coverage, `<guid>.cobertura.xml` with absolute paths), TRX is `--report-trx`, and filters are per framework (xunit `--filter-trait`, TUnit `--treenode-filter`). A run that finds zero tests exits 8.
+- `dotnet test` runs TUnit on Microsoft.Testing.Platform (`global.json` `test.runner`), not VSTest: coverage is `--coverage --coverage-output-format cobertura` (`<guid>.cobertura.xml` with absolute paths), TRX is `--report-trx`, filters are `--treenode-filter`, and a run that finds zero tests exits 8. `TestContext.Current` is null off the test's async flow (e.g. in a fake server's request handler).

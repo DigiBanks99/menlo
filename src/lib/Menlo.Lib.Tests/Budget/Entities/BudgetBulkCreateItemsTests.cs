@@ -19,7 +19,7 @@ public sealed class BudgetBulkCreateItemsTests
     // Budget.BulkCreateItems — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenEmptyCategory_WhenBulkCreateItems_ThenCreates12Items()
     {
         // Arrange
@@ -42,7 +42,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldHaveCorrectAttributionSplitOnAllItems(result, attributionSplit);
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyCategory_WhenBulkCreateItems_ThenAllItemsHaveCorrectBudgetFlow()
     {
         // Arrange
@@ -58,7 +58,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldHaveCorrectBudgetFlowOnAllItems(result, BudgetFlow.Expense);
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyCategory_WhenBulkCreateItems_ThenEmits12BudgetItemPlannedEvents()
     {
         // Arrange
@@ -75,7 +75,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldHaveEmitted12PlannedEvents(budget);
     }
 
-    [Fact]
+    [Test]
     public void GivenExistingItemForMonth3_WhenBulkCreateItems_ThenCreates11Items()
     {
         // Arrange
@@ -97,7 +97,7 @@ public sealed class BudgetBulkCreateItemsTests
     // Budget.BulkCreateItems — Invalid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenNonLeafCategory_WhenBulkCreateItems_ThenReturnsNonLeafCategoryError()
     {
         // Arrange
@@ -113,7 +113,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldBeErrorOfType<NonLeafCategoryError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenBulkCreateItems_ThenReturnsCategoryNotFoundError()
     {
         // Arrange
@@ -129,7 +129,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldBeErrorOfType<CategoryNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenIncomeCategoryAndExpenseFlow_WhenBulkCreateItems_ThenReturnsInvalidBudgetFlowError()
     {
         // Arrange
@@ -145,7 +145,7 @@ public sealed class BudgetBulkCreateItemsTests
         ItShouldBeErrorOfType<InvalidBudgetFlowError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenBudgetFlowBoth_WhenBulkCreateItems_ThenReturnsInvalidBudgetFlowError()
     {
         // Arrange

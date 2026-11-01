@@ -8,46 +8,47 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[Collection("Onboarding")]
+[ClassDataSource<OnboardingPersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Onboarding")]
 public sealed class OnboardingStateIntegrationTests(OnboardingPersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenNewUser_WhenQueryingOnboardingState_StateExists()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
 
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService provisioningService = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
-        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
+        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         MenloDbContext db = readScope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId normalizedExternalId = new(externalId);
         User user = await db.Users
             .AsNoTracking()
-            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
         OnboardingState? onboardingState = await db.OnboardingStates
             .AsNoTracking()
-            .FirstOrDefaultAsync(state => state.UserId == user.Id, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(state => state.UserId == user.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveProvisionedState(onboardingState, user.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenOnboardingState_WhenCompleteTaskCalled_StateIsUpdated()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
 
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService provisioningService = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
-        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
+        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId normalizedExternalId = new(externalId);
         User user = await db.Users
-            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
         OnboardingState onboardingState = await db.OnboardingStates
-            .SingleAsync(state => state.UserId == user.Id, TestContext.Current.CancellationToken);
+            .SingleAsync(state => state.UserId == user.Id, TestContext.Current!.Execution.CancellationToken);
 
         onboardingState.CompleteTask(
             OnboardingTaskType.SelectedHousehold,
@@ -55,11 +56,11 @@ public sealed class OnboardingStateIntegrationTests(OnboardingPersistenceFixture
             {
                 ["householdId"] = Guid.NewGuid().ToString()
             });
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         OnboardingState persistedState = await db.OnboardingStates
             .AsNoTracking()
-            .SingleAsync(state => state.UserId == user.Id, TestContext.Current.CancellationToken);
+            .SingleAsync(state => state.UserId == user.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldShowCompletedHouseholdSelection(persistedState);
     }

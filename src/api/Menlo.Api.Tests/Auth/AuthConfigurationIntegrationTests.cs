@@ -10,7 +10,7 @@ namespace Menlo.Api.Tests.Auth;
 
 public sealed class AuthConfigurationIntegrationTests : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GetAsync_WithUnauthenticatedApiRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -19,13 +19,13 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithUnauthenticatedAuthUserRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -34,13 +34,13 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithNonXhrLoginRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -49,13 +49,13 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/auth/login", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/auth/login", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldChallengeOidc(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithXhrProtectedRequest()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory();
@@ -65,13 +65,13 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
         });
         client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
 
-        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeUnauthorized(response);
         ItShouldNotRedirect(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithCookieSignInSupport()
     {
         using TestWebApplicationFactory factory = CreateRealAuthFactory(app =>
@@ -95,7 +95,7 @@ public sealed class AuthConfigurationIntegrationTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/test-support/sign-in", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/test-support/sign-in", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveNoContent(response);
         ItShouldSetStrictSessionCookie(response);

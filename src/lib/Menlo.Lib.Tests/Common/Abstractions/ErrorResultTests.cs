@@ -19,7 +19,7 @@ public sealed class ErrorResultTests
         public string ParameterName { get; } = parameterName;
     }
 
-    [Fact]
+    [Test]
     public void GivenErrorWithCodeAndMessage_WhenCreated()
     {
         // Arrange & Act
@@ -35,7 +35,7 @@ public sealed class ErrorResultTests
         error.Message.ShouldBe("Test error message");
     }
 
-    [Fact]
+    [Test]
     public void GivenError_WhenConvertingToString()
     {
         // Arrange
@@ -53,7 +53,7 @@ public sealed class ErrorResultTests
         result.ShouldBe("[ERR_001] Test error message");
     }
 
-    [Fact]
+    [Test]
     public void GivenNullOrWhitespaceCode_WhenCreatingError()
     {
         // Act & Assert
@@ -66,7 +66,7 @@ public sealed class ErrorResultTests
         Should.Throw<ArgumentException>(() => new TestError("   ", "Message"));
     }
 
-    [Fact]
+    [Test]
     public void GivenNullOrWhitespaceMessage_WhenCreatingError()
     {
         // Act & Assert
@@ -79,7 +79,7 @@ public sealed class ErrorResultTests
         Should.Throw<ArgumentException>(() => new TestError("CODE", "   "));
     }
 
-    [Fact]
+    [Test]
     public void GivenDomainMethod_WhenProvidingInvalidInput()
     {
         // Arrange
@@ -96,7 +96,7 @@ public sealed class ErrorResultTests
         result.Error.Message.ShouldContain("input");
     }
 
-    [Fact]
+    [Test]
     public void GivenDomainMethod_WhenProvidingValidInput()
     {
         // Arrange & Act
@@ -112,7 +112,7 @@ public sealed class ErrorResultTests
         result.Value.ShouldBe("Processed: valid");
     }
 
-    [Fact]
+    [Test]
     public void GivenSpecificError_WhenAccessing()
     {
         // Arrange

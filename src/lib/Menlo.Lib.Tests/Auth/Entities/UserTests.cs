@@ -15,7 +15,7 @@ namespace Menlo.Lib.Tests.Auth.Entities;
 /// </summary>
 public sealed class UserTests
 {
-    [Fact]
+    [Test]
     public void GivenValidUserData_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -32,7 +32,7 @@ public sealed class UserTests
         ItShouldHaveInitialLoginTimestamp(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenEmailWithWhitespace_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -45,7 +45,7 @@ public sealed class UserTests
         ItShouldHaveTrimmedEmail(result, "test@example.com");
     }
 
-    [Fact]
+    [Test]
     public void GivenDisplayNameWithWhitespace_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -58,7 +58,7 @@ public sealed class UserTests
         ItShouldHaveTrimmedDisplayName(result, "Test User");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyExternalId_WhenCreatingUser()
     {
         ExternalUserId externalId = new("");
@@ -72,7 +72,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "External ID");
     }
 
-    [Fact]
+    [Test]
     public void GivenWhitespaceExternalId_WhenCreatingUser()
     {
         ExternalUserId externalId = new("   ");
@@ -86,7 +86,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "External ID");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyEmail_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -100,7 +100,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "Email");
     }
 
-    [Fact]
+    [Test]
     public void GivenWhitespaceEmail_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -114,7 +114,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "Email");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyDisplayName_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -128,7 +128,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "Display name");
     }
 
-    [Fact]
+    [Test]
     public void GivenWhitespaceDisplayName_WhenCreatingUser()
     {
         ExternalUserId externalId = new("external-123");
@@ -142,7 +142,7 @@ public sealed class UserTests
         ItShouldHaveReasonContaining(result, "Display name");
     }
 
-    [Fact]
+    [Test]
     public void GivenValidUser_WhenRecordingLogin()
     {
         ExternalUserId externalId = new("external-123");
@@ -160,7 +160,7 @@ public sealed class UserTests
         ItShouldHaveUserLoggedInEvent(user, loginTime);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidUser_WhenRecordingMultipleLogins()
     {
         ExternalUserId externalId = new("external-123");
@@ -179,7 +179,7 @@ public sealed class UserTests
         ItShouldHaveMultipleDomainEvents(user, 2);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidUser_WhenClearingDomainEvents()
     {
         ExternalUserId externalId = new("external-123");
@@ -195,7 +195,7 @@ public sealed class UserTests
         ItShouldHaveNoDomainEvents(user);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidUser_WhenAuditingForCreate()
     {
         ExternalUserId externalId = new("external-123");
@@ -213,7 +213,7 @@ public sealed class UserTests
         ItShouldHaveModifiedAt(user);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidUser_WhenAuditingForUpdate()
     {
         ExternalUserId externalId = new("external-123");

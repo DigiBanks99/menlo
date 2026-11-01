@@ -7,7 +7,7 @@ namespace Menlo.Api.Tests.Auth;
 
 public sealed class CookieAuthenticationConfigurationTests
 {
-    [Fact]
+    [Test]
     public void GivenTheAuthenticationCookieConfiguration_WhenResolvingCookieOptions()
     {
         using TestWebApplicationFactory factory = new();

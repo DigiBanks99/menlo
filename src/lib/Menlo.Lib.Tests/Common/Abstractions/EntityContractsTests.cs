@@ -36,7 +36,7 @@ public sealed class EntityContractsTests
         }
     }
 
-    [Fact]
+    [Test]
     public void GivenEntityImplementation_WhenAccessingId()
     {
         // Arrange
@@ -56,7 +56,7 @@ public sealed class EntityContractsTests
         actualId.Value.ShouldNotBe(Guid.Empty);
     }
 
-    [Fact]
+    [Test]
     public void GivenAggregateRootImplementation_WhenCheckingInterfaces()
     {
         // Arrange
@@ -72,7 +72,7 @@ public sealed class EntityContractsTests
         aggregate.ShouldBeAssignableTo<IAggregateRoot<TestEntityId>>();
     }
 
-    [Fact]
+    [Test]
     public void GivenAggregateRootImplementation_WhenAccessingId()
     {
         // Arrange

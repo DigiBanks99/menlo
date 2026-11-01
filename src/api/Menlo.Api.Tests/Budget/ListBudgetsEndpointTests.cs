@@ -8,37 +8,22 @@ using System.Text.Json;
 
 namespace Menlo.Api.Tests.Budget;
 
-[Collection("Budget")]
+[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Budget")]
 public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFixture
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new() { PropertyNameCaseInsensitive = true };
 
-    // Unique household IDs per scenario — prefixes 1e–4e and 6e avoid all existing test conflicts.
-    private static readonly HouseholdId MultipleYearsHousehold =
-        new(Guid.Parse("1e1e1e1e-1e1e-1e1e-1e1e-1e1e1e1e1e1e"));
-
-    private static readonly HouseholdId EmptyHousehold =
-        new(Guid.Parse("2e2e2e2e-2e2e-2e2e-2e2e-2e2e2e2e2e2e"));
-
-    private static readonly HouseholdId ForeignHouseholdOwner =
-        new(Guid.Parse("3e3e3e3e-3e3e-3e3e-3e3e-3e3e3e3e3e3e"));
-
-    private static readonly HouseholdId ForeignHouseholdViewer =
-        new(Guid.Parse("4e4e4e4e-4e4e-4e4e-4e4e-4e4e4e4e4e4e"));
-
-    private static readonly HouseholdId ItemsFeatureOffHousehold =
-        new(Guid.Parse("6e6e6e6e-6e6e-6e6e-6e6e-6e6e6e6e6e6e"));
-
     // -------------------------------------------------------------------------
     // DB-backed scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenBudgetsForTwoYears_WhenListBudgets_ThenReturnsNewestFirstWithCurrentMonthExpenses()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(MultipleYearsHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
         int currentMonth = DateTime.UtcNow.Month;
         int otherMonth = currentMonth == 12 ? 1 : currentMonth + 1;
@@ -56,7 +41,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", otherMonth, 700m);
         // Recorded spend is not persisted yet (#515), so no spent figure is asserted here
 
-        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
         List<BudgetListItem>? budgets = await DeserializeAsync(response);
 
         ItShouldHaveReturned200Ok(response);
@@ -73,13 +58,13 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         }
     }
 
-    [Fact]
+    [Test]
     public async Task GivenNoBudgets_WhenListBudgets_ThenReturnsEmptyList()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(EmptyHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
         List<BudgetListItem>? budgets = await DeserializeAsync(response);
 
         ItShouldHaveReturned200Ok(response);
@@ -87,19 +72,19 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         budgets.ShouldBeEmpty();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnotherHouseholdsBudget_WhenListBudgets_ThenItIsNotReturned()
     {
-        await using (BudgetTestWebApplicationFactory ownerFactory = CreateIsolatedFactory(ForeignHouseholdOwner))
+        await using (BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true))
         {
-            using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+            using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
             await CreateBudgetAsync(ownerClient, DateTimeOffset.UtcNow.Year);
         }
 
-        await using BudgetTestWebApplicationFactory viewerFactory = CreateIsolatedFactory(ForeignHouseholdViewer);
-        using HttpClient viewerClient = await viewerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory viewerFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        using HttpClient viewerClient = await viewerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await viewerClient.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await viewerClient.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
         List<BudgetListItem>? budgets = await DeserializeAsync(response);
 
         ItShouldHaveReturned200Ok(response);
@@ -107,31 +92,24 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         budgets.ShouldBeEmpty();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenBudgetItemsFeatureOff_WhenListBudgets_ThenItemFiguresAreNotExposed()
     {
-        await using (BudgetTestWebApplicationFactory seedFactory = CreateIsolatedFactory(ItemsFeatureOffHousehold))
+        HouseholdId household = HouseholdId.NewId();
+        await using (BudgetTestWebApplicationFactory seedFactory =
+            fixture.CreateIsolatedFactory(household, budgetItemsEnabled: true))
         {
-            using HttpClient seedClient = await seedFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+            using HttpClient seedClient = await seedFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
             Guid budgetId = await CreateBudgetAsync(seedClient, DateTimeOffset.UtcNow.Year);
             (_, Guid leafId) = await CreateRootAndLeafAsync(seedClient, budgetId, "Housing", "Expense");
             Guid itemId = await CreateItemAsync(seedClient, budgetId, leafId, "Expense", DateTime.UtcNow.Month, 1500m);
             await RecordSpentAsync(seedClient, budgetId, leafId, itemId, 1000m);
         }
 
-        await using BudgetTestWebApplicationFactory factory = new(ItemsFeatureOffHousehold)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true",
-                ["Features:BudgetItems"] = "false"
-            }
-        };
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(household);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
         List<BudgetListItem>? budgets = await DeserializeAsync(response);
 
         ItShouldHaveReturned200Ok(response);
@@ -146,7 +124,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
     // Standalone factory tests — no DB needed
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenUnauthenticatedUser_WhenListBudgets_ThenReturns401()
     {
         await using TestWebApplicationFactory factory = new()
@@ -154,14 +132,14 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             SimulateUnauthenticated = true,
             MenloConnectionString = null
         };
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenFeatureToggleOff_WhenListBudgets_ThenReturns404()
     {
         await using TestWebApplicationFactory factory = new()
@@ -171,9 +149,9 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
                 ["Features:Budget"] = "false"
             }
         };
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
@@ -182,26 +160,14 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
     // Helpers
     // -------------------------------------------------------------------------
 
-    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) =>
-        new(householdId)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true",
-                ["Features:BudgetItems"] = "true"
-            }
-        };
-
     private static async Task<Guid> CreateBudgetAsync(HttpClient client, int year)
     {
         HttpResponseMessage response = await client.PostAsync(
-            $"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+            $"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
         response.IsSuccessStatusCode.ShouldBeTrue(
-            $"Budget creation failed: {await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+            $"Budget creation failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
 
-        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         return JsonDocument.Parse(content).RootElement.GetProperty("id").GetGuid();
     }
 
@@ -211,19 +177,19 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         HttpResponseMessage rootResponse = await client.PostAsJsonAsync(
             $"/api/budgets/{budgetId}/categories",
             new CreateCategoryRequest(name, budgetFlow),
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
         rootResponse.IsSuccessStatusCode.ShouldBeTrue(
-            $"Root category creation failed: {await rootResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
-        string rootContent = await rootResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            $"Root category creation failed: {await rootResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
+        string rootContent = await rootResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         Guid rootId = JsonDocument.Parse(rootContent).RootElement.GetProperty("id").GetGuid();
 
         HttpResponseMessage leafResponse = await client.PostAsJsonAsync(
             $"/api/budgets/{budgetId}/categories",
             new CreateCategoryRequest($"{name} leaf", budgetFlow, ParentId: rootId),
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
         leafResponse.IsSuccessStatusCode.ShouldBeTrue(
-            $"Leaf category creation failed: {await leafResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
-        string leafContent = await leafResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            $"Leaf category creation failed: {await leafResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
+        string leafContent = await leafResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         return (rootId, JsonDocument.Parse(leafContent).RootElement.GetProperty("id").GetGuid());
     }
@@ -242,11 +208,11 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         HttpResponseMessage response = await client.PostAsJsonAsync(
             $"/api/budgets/{budgetId}/categories/{categoryId}/items",
             request,
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
         response.IsSuccessStatusCode.ShouldBeTrue(
-            $"Item creation failed: {await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+            $"Item creation failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
 
-        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         return JsonDocument.Parse(content).RootElement.GetProperty("id").GetGuid();
     }
 
@@ -256,14 +222,14 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         HttpResponseMessage response = await client.PutAsJsonAsync(
             $"/api/budgets/{budgetId}/categories/{categoryId}/items/{itemId}/spent",
             new RecordBudgetItemSpentRequest(amount),
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
         response.IsSuccessStatusCode.ShouldBeTrue(
-            $"Recording spent failed: {await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
+            $"Recording spent failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
     }
 
     private static async Task<List<BudgetListItem>?> DeserializeAsync(HttpResponseMessage response)
     {
-        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         return JsonSerializer.Deserialize<List<BudgetListItem>>(content, JsonOptions);
     }
 

@@ -8,7 +8,7 @@ namespace Menlo.Lib.Tests.Auth.Models;
 /// </summary>
 public sealed class UserProfileTests
 {
-    [Fact]
+    [Test]
     public void GivenValidData_WhenCreatingUserProfile()
     {
         // Arrange
@@ -32,7 +32,7 @@ public sealed class UserProfileTests
         profile.Roles.ShouldBe(expectedRoles);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoProfilesWithSameData_WhenComparing()
     {
         // Arrange
@@ -51,7 +51,7 @@ public sealed class UserProfileTests
         profile1.ShouldBe(profile2);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoProfilesWithDifferentData_WhenComparing()
     {
         // Arrange

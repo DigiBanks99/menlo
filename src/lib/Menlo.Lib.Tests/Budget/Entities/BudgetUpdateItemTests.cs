@@ -19,7 +19,7 @@ public sealed class BudgetUpdateItemTests
     // Budget.UpdateItem — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithPlannedAmountOnly()
     {
         // Arrange
@@ -39,7 +39,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldHaveEmittedCorrectionEvent(budget, item.Id, "PlannedAmount", originalPlanned, newPlanned, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithRealizedAmountOnly()
     {
         // Arrange
@@ -57,7 +57,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldHaveEmittedCorrectionEvent(budget, item.Id, "RealizedAmount", Money.Zero("ZAR"), newRealized, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithSpentAmountOnly()
     {
         // Arrange
@@ -75,7 +75,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldHaveEmittedCorrectionEvent(budget, item.Id, "SpentAmount", Money.Zero("ZAR"), newSpent, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithPayerSplitOnly()
     {
         // Arrange
@@ -92,7 +92,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldNotHaveEmittedNewEvents(budget, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithAttributionSplitOnly()
     {
         // Arrange
@@ -109,7 +109,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldNotHaveEmittedNewEvents(budget, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithMultipleFieldsAtOnce()
     {
         // Arrange
@@ -141,7 +141,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldHaveEmittedExactlyNCorrectionEvents(budget, eventCountBefore, 3);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithSameValuesAsExisting_NoOpNoEvents()
     {
         // Arrange
@@ -158,7 +158,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldNotHaveEmittedNewEvents(budget, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithAllNullParams_ReturnsItemUnchanged()
     {
         // Arrange
@@ -179,7 +179,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldNotHaveEmittedNewEvents(budget, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_CorrectionEventContainsOldAndNewAmounts()
     {
         // Arrange
@@ -195,7 +195,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldHaveCorrectionEventWithAmounts(budget, "PlannedAmount", oldPlanned, newPlanned);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_RealizedAmountFromNull_OldAmountIsZero()
     {
         // Arrange
@@ -215,7 +215,7 @@ public sealed class BudgetUpdateItemTests
     // Budget.UpdateItem — Error scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithNonExistentItemId_ReturnsBudgetItemNotFoundError()
     {
         // Arrange
@@ -230,7 +230,7 @@ public sealed class BudgetUpdateItemTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void UpdateItem_WithDeletedItem_ReturnsBudgetItemNotFoundError()
     {
         // Arrange

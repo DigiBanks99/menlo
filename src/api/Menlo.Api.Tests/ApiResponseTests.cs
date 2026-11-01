@@ -8,21 +8,24 @@ using System.Text.Json;
 
 namespace Menlo.Api.Tests;
 
-public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFixture, IClassFixture<TestWebApplicationFactory>
+[ClassDataSource<TestWebApplicationFactory>(Shared = SharedType.PerClass)]
+// The shared factory starts its server lazily without a lock, so this class's tests run one at a time.
+[NotInParallel(nameof(ApiResponseTests))]
+public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenCheckingAiHealth_ThenResponseHasExpectedStructure()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
-        JsonElement body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
+        JsonElement body = await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveHealthyStatus(body);
         ItShouldHaveAiResponse(body);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAiServiceThrows_WhenCheckingAiHealth_ThenReturnsProblemDetails()
     {
         IChatService throwingChatService = Substitute.For<IChatService>();
@@ -41,7 +44,7 @@ public sealed class ApiResponseTests(TestWebApplicationFactory factory) : TestFi
             BaseAddress = new Uri("https://localhost")
         });
 
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturnedInternalServerError(response);
         ItShouldHaveProblemDetailsContentType(response);

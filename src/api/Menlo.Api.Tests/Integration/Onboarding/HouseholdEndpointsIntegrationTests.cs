@@ -6,10 +6,11 @@ using System.Net.Http.Json;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[Collection("Onboarding API")]
+[ClassDataSource<OnboardingApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Onboarding API")]
 public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixture) : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenListingHouseholds_Returns200()
     {
         await OnboardingApiTestData.CreateHouseholdAsync(fixture.Services, $"Household {Guid.NewGuid():N}");
@@ -18,26 +19,26 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         await using TestWebApplicationFactory factory = fixture.CreateFactory();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/api/households", TestContext.Current.CancellationToken);
-        HouseholdListResponse? body = await response.Content.ReadFromJsonAsync<HouseholdListResponse>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/households", TestContext.Current!.Execution.CancellationToken);
+        HouseholdListResponse? body = await response.Content.ReadFromJsonAsync<HouseholdListResponse>(TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         body.ShouldNotBeNull();
         body.Households.Count.ShouldBeGreaterThanOrEqualTo(2);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUnauthenticatedRequest_WhenListingHouseholds_Returns401()
     {
         await using TestWebApplicationFactory factory = fixture.CreateFactory(simulateUnauthenticated: true);
         using HttpClient client = factory.CreateClient(new() { AllowAutoRedirect = false });
 
-        HttpResponseMessage response = await client.GetAsync("/api/households", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/households", TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenCreatingHousehold_Returns201AndMarksOnboardingComplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -47,16 +48,16 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
 
         await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(factory.Services, externalId, email, displayName);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "/api/households",
             new CreateHouseholdRequest(householdName),
-            TestContext.Current.CancellationToken);
-        HouseholdSummaryResponse? body = await response.Content.ReadFromJsonAsync<HouseholdSummaryResponse>(TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
+        HouseholdSummaryResponse? body = await response.Content.ReadFromJsonAsync<HouseholdSummaryResponse>(TestContext.Current!.Execution.CancellationToken);
 
         User persistedUser = await OnboardingApiTestData.GetUserAsync(factory.Services, createdUser.Id);
-        var onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
+        OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         body.ShouldNotBeNull();
@@ -65,7 +66,7 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenDuplicateHouseholdName_WhenCreating_Returns409()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -76,17 +77,17 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
         _ = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
         _ = await OnboardingApiTestData.CreateHouseholdAsync(fixture.Services, householdName);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "/api/households",
             new CreateHouseholdRequest(householdName),
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenJoiningExistingHousehold_Returns204AndMarksOnboardingComplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -97,19 +98,19 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
         Household household = await OnboardingApiTestData.CreateHouseholdAsync(fixture.Services, householdName);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.PostAsync($"/api/households/{household.Id.Value}/join", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsync($"/api/households/{household.Id.Value}/join", null, TestContext.Current!.Execution.CancellationToken);
 
         User persistedUser = await OnboardingApiTestData.GetUserAsync(factory.Services, createdUser.Id);
-        var onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
+        OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         persistedUser.HouseholdId.ShouldBe(household.Id);
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUserWithoutOnboardingState_WhenJoiningExistingHousehold_CreatesOnboardingStateAndMarksComplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -121,9 +122,9 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
         await OnboardingApiTestData.RemoveOnboardingStateAsync(fixture.Services, createdUser.Id);
         Household household = await OnboardingApiTestData.CreateHouseholdAsync(fixture.Services, householdName);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.PostAsync($"/api/households/{household.Id.Value}/join", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsync($"/api/households/{household.Id.Value}/join", null, TestContext.Current!.Execution.CancellationToken);
 
         OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
 
@@ -131,7 +132,7 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUserWithoutOnboardingState_WhenCreatingHousehold_CreatesOnboardingStateAndMarksComplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -141,12 +142,12 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
         await OnboardingApiTestData.RemoveOnboardingStateAsync(fixture.Services, createdUser.Id);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "/api/households",
             new CreateHouseholdRequest($"My Family {Guid.NewGuid():N}"),
-            TestContext.Current.CancellationToken);
+            TestContext.Current!.Execution.CancellationToken);
 
         OnboardingState onboardingState = await OnboardingApiTestData.GetOnboardingStateAsync(factory.Services, createdUser.Id);
 
@@ -154,7 +155,7 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenInvalidHouseholdId_WhenJoining_Returns404()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -163,9 +164,9 @@ public sealed class HouseholdEndpointsIntegrationTests(OnboardingApiFixture fixt
 
         await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email, displayName);
         _ = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage response = await client.PostAsync($"/api/households/{Guid.NewGuid()}/join", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.PostAsync($"/api/households/{Guid.NewGuid()}/join", null, TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }

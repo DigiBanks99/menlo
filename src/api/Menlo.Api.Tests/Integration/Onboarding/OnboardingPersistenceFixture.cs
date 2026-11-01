@@ -6,22 +6,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
+using TUnit.Core.Interfaces;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[CollectionDefinition("Onboarding")]
-public sealed class OnboardingCollection : ICollectionFixture<OnboardingPersistenceFixture>;
-
-public sealed class OnboardingPersistenceFixture : IAsyncLifetime
+public sealed class OnboardingPersistenceFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     public IServiceProvider Services { get; private set; } = null!;
 
-    public async ValueTask InitializeAsync()
+    public async Task InitializeAsync()
     {
-        await _container.StartAsync(TestContext.Current.CancellationToken);
+        await _container.StartAsync();
 
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
         {
@@ -41,7 +39,7 @@ public sealed class OnboardingPersistenceFixture : IAsyncLifetime
 
         using IServiceScope scope = Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
-        await db.Database.MigrateAsync(TestContext.Current.CancellationToken);
+        await db.Database.MigrateAsync();
     }
 
     public async ValueTask DisposeAsync()

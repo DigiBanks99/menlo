@@ -19,7 +19,7 @@ public sealed class BudgetLifecycleTests
     // Budget.RealizeItem — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void RealizeItem_SetsRealizedAmount()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class BudgetLifecycleTests
         ItShouldHaveRealizedAmount(result, realizedAmount);
     }
 
-    [Fact]
+    [Test]
     public void RealizeItem_EmitsBudgetItemRealizedEvent()
     {
         // Arrange
@@ -50,7 +50,7 @@ public sealed class BudgetLifecycleTests
         ItShouldHaveEmittedRealizedEvent(budget, item.Id, realizedAmount, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void RealizeItem_WithNonExistentItemId_ReturnsBudgetItemNotFoundError()
     {
         // Arrange
@@ -65,7 +65,7 @@ public sealed class BudgetLifecycleTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void RealizeItem_WithDeletedItem_ReturnsBudgetItemNotFoundError()
     {
         // Arrange
@@ -80,7 +80,7 @@ public sealed class BudgetLifecycleTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void RealizeItem_CalledMultipleTimes_OverwritesPreviousAmount()
     {
         // Arrange
@@ -101,7 +101,7 @@ public sealed class BudgetLifecycleTests
     // Budget.RecordItemSpent — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_SetsSpentAmount()
     {
         // Arrange
@@ -116,7 +116,7 @@ public sealed class BudgetLifecycleTests
         ItShouldHaveSpentAmount(result, spentAmount);
     }
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_EmitsBudgetItemSpentEvent()
     {
         // Arrange
@@ -132,7 +132,7 @@ public sealed class BudgetLifecycleTests
         ItShouldHaveEmittedSpentEvent(budget, item.Id, spentAmount, eventCountBefore);
     }
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_WithNonExistentItemId_ReturnsBudgetItemNotFoundError()
     {
         // Arrange
@@ -147,7 +147,7 @@ public sealed class BudgetLifecycleTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_WithDeletedItem_ReturnsBudgetItemNotFoundError()
     {
         // Arrange
@@ -162,7 +162,7 @@ public sealed class BudgetLifecycleTests
         ItShouldBeErrorOfType<BudgetItemNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_WithoutPriorRealization_Succeeds()
     {
         // Arrange
@@ -179,7 +179,7 @@ public sealed class BudgetLifecycleTests
         ItShouldHaveNullRealizedAmount(result);
     }
 
-    [Fact]
+    [Test]
     public void RecordItemSpent_AfterRealizeItem_BothAmountsSetIndependently()
     {
         // Arrange

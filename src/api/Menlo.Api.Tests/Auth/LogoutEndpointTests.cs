@@ -20,34 +20,34 @@ public sealed class LogoutEndpointTests : TestFixture, IDisposable
         });
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenLoggingOut()
     {
-        HttpResponseMessage response = await _client.PostAsync("/auth/logout", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.PostAsync("/auth/logout", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenLoggingOutWithReturnUrl()
     {
-        HttpResponseMessage response = await _client.PostAsync("/auth/logout?returnUrl=/home", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.PostAsync("/auth/logout?returnUrl=/home", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenLoggingOutWithEmptyReturnUrl()
     {
-        HttpResponseMessage response = await _client.PostAsync("/auth/logout?returnUrl=", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.PostAsync("/auth/logout?returnUrl=", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUnauthenticatedUser_WhenAttemptingLogout()
     {
         using TestWebApplicationFactory unauthenticatedFactory = new()
@@ -59,7 +59,7 @@ public sealed class LogoutEndpointTests : TestFixture, IDisposable
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await unauthenticatedClient.PostAsync("/auth/logout", null, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await unauthenticatedClient.PostAsync("/auth/logout", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
     }

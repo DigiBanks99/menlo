@@ -7,36 +7,58 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Testcontainers.PostgreSql;
+using TUnit.Core.Interfaces;
 
 namespace Menlo.Api.Tests.Budget;
 
-[CollectionDefinition("Budget")]
-public sealed class BudgetCollection : ICollectionFixture<BudgetApiFixture>;
-
-public sealed class BudgetApiFixture : IAsyncLifetime
+public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     private BudgetTestWebApplicationFactory _factory = null!;
 
-    public static readonly HouseholdId TestHouseholdId =
-        new(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+    /// <summary>
+    /// The household behind <see cref="CreateClient"/> and <see cref="CreateAntiforgeryClientAsync"/>. Every test
+    /// that uses those clients shares it, so only use them for requests that don't write household data.
+    /// </summary>
+    public HouseholdId SharedHouseholdId { get; } = HouseholdId.NewId();
 
     public string ConnectionString { get; private set; } = string.Empty;
 
     public HttpClient CreateClient() => _factory.CreateClient();
 
+    /// <summary>
+    /// Creates an API host on the shared database for one test, signed in to a household of its own
+    /// (<see cref="BudgetTestWebApplicationFactory.HouseholdId"/>), so no test sees another's data, whatever order they
+    /// run in. Pass <paramref name="householdId"/> only when two hosts in one test must share a household.
+    /// </summary>
+    public BudgetTestWebApplicationFactory CreateIsolatedFactory(
+        HouseholdId? householdId = null,
+        bool budgetItemsEnabled = false,
+        bool simulateUnauthenticated = false) =>
+        new(householdId ?? HouseholdId.NewId())
+        {
+            MenloConnectionString = ConnectionString,
+            SkipMigration = true,
+            SimulateUnauthenticated = simulateUnauthenticated,
+            ConfigurationOverrides = new Dictionary<string, string?>
+            {
+                ["Features:Budget"] = "true",
+                ["Features:BudgetItems"] = budgetItemsEnabled ? "true" : "false"
+            }
+        };
+
     public Task<HttpClient> CreateAntiforgeryClientAsync(CancellationToken cancellationToken = default) =>
         _factory.CreateAntiforgeryClientAsync(cancellationToken: cancellationToken);
 
-    public async ValueTask InitializeAsync()
+    public async Task InitializeAsync()
     {
         await _container.StartAsync();
 
         ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
 
-        _factory = new BudgetTestWebApplicationFactory(TestHouseholdId)
+        _factory = new BudgetTestWebApplicationFactory(SharedHouseholdId)
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = false,
@@ -66,6 +88,11 @@ public sealed class BudgetApiFixture : IAsyncLifetime
 public sealed class BudgetTestWebApplicationFactory(HouseholdId householdId)
     : TestWebApplicationFactory
 {
+    /// <summary>
+    /// Gets the household the signed-in test user belongs to.
+    /// </summary>
+    public HouseholdId HouseholdId { get; } = householdId;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -83,7 +110,7 @@ public sealed class BudgetTestWebApplicationFactory(HouseholdId householdId)
             IUserContextProvider mock = Substitute.For<IUserContextProvider>();
             mock.GetUserContextAsync(Arg.Any<CancellationToken>())
                 .Returns(Result.Success<UserContext, AuthError>(
-                    new UserContext(Menlo.Lib.Common.ValueObjects.UserId.NewId(), householdId)));
+                    new UserContext(Menlo.Lib.Common.ValueObjects.UserId.NewId(), HouseholdId)));
 
             services.AddScoped(_ => mock);
         });

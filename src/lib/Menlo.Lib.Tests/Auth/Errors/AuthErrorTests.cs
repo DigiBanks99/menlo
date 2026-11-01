@@ -8,7 +8,7 @@ namespace Menlo.Lib.Tests.Auth.Errors;
 /// </summary>
 public sealed class AuthErrorTests
 {
-    [Fact]
+    [Test]
     public void GivenCodeAndMessage_WhenCreatingAuthError()
     {
         string code = "Auth.Test";
@@ -20,7 +20,7 @@ public sealed class AuthErrorTests
         ItShouldHaveMessage(error, message);
     }
 
-    [Fact]
+    [Test]
     public void GivenExternalId_WhenCreatingUserNotFoundError()
     {
         string externalId = "external-user-123";
@@ -32,7 +32,7 @@ public sealed class AuthErrorTests
         ItShouldHaveExternalId(error, externalId);
     }
 
-    [Fact]
+    [Test]
     public void GivenNoParameters_WhenCreatingUnauthenticatedError()
     {
         UnauthenticatedError error = new();
@@ -41,7 +41,7 @@ public sealed class AuthErrorTests
         ItShouldHaveMessageContaining(error, "not authenticated");
     }
 
-    [Fact]
+    [Test]
     public void GivenNoParameters_WhenCreatingUnauthorisedError()
     {
         UnauthorisedError error = new();
@@ -50,7 +50,7 @@ public sealed class AuthErrorTests
         ItShouldHaveMessageContaining(error, "not authorised");
     }
 
-    [Fact]
+    [Test]
     public void GivenPolicy_WhenCreatingForbiddenError()
     {
         string policy = "Menlo.Admin";
@@ -62,7 +62,7 @@ public sealed class AuthErrorTests
         ItShouldHavePolicy(error, policy);
     }
 
-    [Fact]
+    [Test]
     public void GivenReason_WhenCreatingInvalidUserDataError()
     {
         string reason = "Email is invalid";

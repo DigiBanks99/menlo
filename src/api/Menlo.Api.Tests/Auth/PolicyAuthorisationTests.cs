@@ -20,15 +20,15 @@ public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
         _standardUserClient = _standardUserFactory.CreateClient();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnAuthenticatedUser_WhenAccessingProtectedApiEndpoint()
     {
-        HttpResponseMessage response = await _standardUserClient.GetAsync(ProtectedEndpoint, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _standardUserClient.GetAsync(ProtectedEndpoint, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnUnauthenticatedUser_WhenAccessingProtectedApiEndpoint()
     {
         using TestWebApplicationFactory unauthenticatedFactory = new()
@@ -40,13 +40,13 @@ public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await unauthenticatedClient.GetAsync(ProtectedEndpoint, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await unauthenticatedClient.GetAsync(ProtectedEndpoint, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
         ItShouldNotHaveRedirected(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnUnauthenticatedXhrRequest_WhenAccessingProtectedApiEndpoint()
     {
         using TestWebApplicationFactory unauthenticatedFactory = new()
@@ -61,13 +61,13 @@ public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.Add("X-Requested-With", "XMLHttpRequest");
 
-        HttpResponseMessage response = await unauthenticatedClient.SendAsync(request, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await unauthenticatedClient.SendAsync(request, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
         ItShouldNotHaveRedirected(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnAdminUser_WhenAccessingProtectedApiEndpoint()
     {
         using TestWebApplicationFactory adminFactory = new()
@@ -76,7 +76,7 @@ public sealed class PolicyAuthorisationTests : TestFixture, IDisposable
         };
         using HttpClient adminClient = adminFactory.CreateClient();
 
-        HttpResponseMessage response = await adminClient.GetAsync(ProtectedEndpoint, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await adminClient.GetAsync(ProtectedEndpoint, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
     }

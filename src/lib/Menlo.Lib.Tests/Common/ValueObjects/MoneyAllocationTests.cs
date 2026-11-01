@@ -15,7 +15,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-011: Allocate into equal parts
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenAllocatingIntoEqualParts()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-011: Allocate with remainder distribution
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenAllocatingWithRemainder()
     {
         // Arrange
@@ -52,9 +52,9 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-011: Reject zero or negative parts
     /// </summary>
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
+    [Test]
+    [Arguments(0)]
+    [Arguments(-1)]
     public void GivenZeroOrNegativeParts_WhenAllocating(int parts)
     {
         // Arrange
@@ -70,7 +70,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-012: Allocate by ratios
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenAllocatingByRatios()
     {
         // Arrange
@@ -89,7 +89,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-012: Allocate with specific ratio distribution
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenAllocatingWithSpecificRatios()
     {
         // Arrange
@@ -107,7 +107,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-012: Allocate with zero ratios (valid for some parts)
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenAllocatingWithZeroRatios()
     {
         // Arrange
@@ -125,7 +125,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-013: Reject empty ratios
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenEmptyRatios_WhenAllocating()
     {
         // Arrange
@@ -142,7 +142,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-013: Reject negative ratios
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenNegativeRatios_WhenAllocating()
     {
         // Arrange
@@ -159,7 +159,7 @@ public sealed class MoneyAllocationTests
     /// <summary>
     /// TC-MON-013: Reject all-zero ratios
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenAllZeroRatios_WhenAllocating()
     {
         // Arrange

@@ -8,7 +8,7 @@ namespace Menlo.Lib.Tests.Common.ValueObjects;
 /// </summary>
 public sealed class AuditStampTests
 {
-    [Fact]
+    [Test]
     public void GivenAuditStampWithoutCorrelationId_WhenCallingToString()
     {
         // Arrange
@@ -28,7 +28,7 @@ public sealed class AuditStampTests
         result.ShouldBe($"By {actorId} at {timestamp:yyyy-MM-dd HH:mm:ss}Z");
     }
 
-    [Fact]
+    [Test]
     public void GivenAuditStampWithCorrelationId_WhenCallingToString()
     {
         // Arrange

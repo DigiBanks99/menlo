@@ -10,10 +10,11 @@ using Shouldly;
 
 namespace Menlo.Application.Tests.Common;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenNewHousehold_WhenSaved_ThenCanBeRetrieved()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -21,11 +22,11 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
 
         Household household = Household.Create("Test Household").Value;
         ctx.Households.Add(household);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         IHouseholdContext readCtx = readScope.ServiceProvider.GetRequiredService<IHouseholdContext>();
-        Household? retrieved = await readCtx.Households.FindAsync([household.Id], TestContext.Current.CancellationToken);
+        Household? retrieved = await readCtx.Households.FindAsync([household.Id], TestContext.Current!.Execution.CancellationToken);
 
         retrieved.ShouldNotBeNull();
         retrieved.Name.ShouldBe("Test Household");
@@ -33,7 +34,7 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
         retrieved.CreatedBy.ShouldNotBeNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenExistingHousehold_WhenSoftDeleted_ThenExcludedFromStandardQuery()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -41,27 +42,27 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
 
         Household household = Household.Create("Household To Delete").Value;
         ctx.Households.Add(household);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         ctx.Households.Remove(household);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         IHouseholdContext readCtx = readScope.ServiceProvider.GetRequiredService<IHouseholdContext>();
 
-        Household? found = await readCtx.Households.FindAsync([household.Id], TestContext.Current.CancellationToken);
+        Household? found = await readCtx.Households.FindAsync([household.Id], TestContext.Current!.Execution.CancellationToken);
         found.ShouldBeNull();
 
         Household? deleted = await readCtx.Households
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(h => h.Id == household.Id, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(h => h.Id == household.Id, TestContext.Current!.Execution.CancellationToken);
         deleted.ShouldNotBeNull();
         deleted.IsDeleted.ShouldBeTrue();
         deleted.DeletedAt.ShouldNotBeNull();
         deleted.DeletedBy.ShouldNotBeNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUserAndHousehold_WhenUserAssignedToHousehold_ThenFKIsPersistedCorrectly()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -70,7 +71,7 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
 
         Household household = Household.Create("FK Test Household").Value;
         householdCtx.Households.Add(household);
-        await householdCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await householdCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         Result<Menlo.Lib.Auth.Entities.User, AuthError> userResult =
             Menlo.Lib.Auth.Entities.User.Create(
@@ -79,18 +80,18 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
                 "FK Test User");
         userResult.IsSuccess.ShouldBeTrue();
         userCtx.Users.Add(userResult.Value);
-        await userCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await userCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         IUserContext readCtx = readScope.ServiceProvider.GetRequiredService<IUserContext>();
         Menlo.Lib.Auth.Entities.User? retrievedUser =
-            await readCtx.Users.FindAsync([userResult.Value.Id], TestContext.Current.CancellationToken);
+            await readCtx.Users.FindAsync([userResult.Value.Id], TestContext.Current!.Execution.CancellationToken);
 
         retrievedUser.ShouldNotBeNull();
         retrievedUser.HouseholdId.ShouldBeNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenDefaultHouseholdSeed_WhenQueried_ThenExists()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -100,7 +101,7 @@ public sealed class HouseholdPersistenceTests(PersistenceFixture fixture)
         HouseholdId householdId = new(defaultHouseholdId);
 
         Household? defaultHousehold = await ctx.Households
-            .FirstOrDefaultAsync(h => h.Id == householdId, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(h => h.Id == householdId, TestContext.Current!.Execution.CancellationToken);
 
         defaultHousehold.ShouldNotBeNull();
         defaultHousehold.Name.ShouldBe("Default Household");

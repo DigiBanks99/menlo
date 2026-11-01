@@ -5,7 +5,7 @@ namespace Menlo.Api.Tests;
 
 public sealed class SpaProductionHostingTests : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GetAsync_WithSpaRequestsInProduction_ServesIndexHtml()
     {
         using TestWebApplicationFactory factory = CreateProductionFactory();
@@ -14,14 +14,14 @@ public sealed class SpaProductionHostingTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage rootResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
-        string rootBody = await rootResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage rootResponse = await client.GetAsync("/", TestContext.Current!.Execution.CancellationToken);
+        string rootBody = await rootResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage indexResponse = await client.GetAsync("/index.html", TestContext.Current.CancellationToken);
-        string indexBody = await indexResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage indexResponse = await client.GetAsync("/index.html", TestContext.Current!.Execution.CancellationToken);
+        string indexBody = await indexResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage fallbackResponse = await client.GetAsync("/projects/279/details", TestContext.Current.CancellationToken);
-        string fallbackBody = await fallbackResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage fallbackResponse = await client.GetAsync("/projects/279/details", TestContext.Current!.Execution.CancellationToken);
+        string fallbackBody = await fallbackResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(rootResponse);
         ItShouldHaveSucceeded(indexResponse);
@@ -31,7 +31,7 @@ public sealed class SpaProductionHostingTests : TestFixture
         ItShouldServeSpaShell(fallbackResponse, fallbackBody);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithOriginHeader_DoesNotIncludeCorsHeaders()
     {
         using TestWebApplicationFactory factory = CreateProductionFactory();
@@ -67,7 +67,7 @@ public sealed class SpaProductionHostingTests : TestFixture
         request.Headers.Add("Origin", "https://spa.example.test");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
 
-        return await client.SendAsync(request, TestContext.Current.CancellationToken);
+        return await client.SendAsync(request, TestContext.Current!.Execution.CancellationToken);
     }
 
     private static string GetSpaHostingContentRoot()

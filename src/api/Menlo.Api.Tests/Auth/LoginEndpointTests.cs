@@ -25,56 +25,56 @@ public sealed class LoginEndpointTests : TestFixture, IDisposable
         });
     }
 
-    [Fact]
+    [Test]
     public async Task GivenNoReturnUrl_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
         ItShouldChallengeTheOidcProvider(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenValidRelativeReturnUrl_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=/dashboard", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=/dashboard", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenEmptyReturnUrl_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAbsoluteReturnUrl_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=https://evil.com", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=https://evil.com", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenProtocolRelativeUrl_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=//evil.com", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=//evil.com", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenValidNestedPath_WhenInitiatingLogin()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=/budget/2024/january", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/login?returnUrl=/budget/2024/january", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldRedirect(response);
         ItShouldHaveLocationHeader(response);

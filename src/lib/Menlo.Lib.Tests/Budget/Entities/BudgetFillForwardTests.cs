@@ -19,7 +19,7 @@ public sealed class BudgetFillForwardTests
     // Budget.FillForward — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void FillForward_FromMonth1CreatesAll12Items()
     {
         // Arrange
@@ -40,7 +40,7 @@ public sealed class BudgetFillForwardTests
         ItShouldHaveCorrectAmountOnAllItems(result, amount);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_FromMonth4Creates9Items()
     {
         // Arrange
@@ -60,7 +60,7 @@ public sealed class BudgetFillForwardTests
         ItShouldCoverMonthsFromTo(result, 4, 12);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_UpdatesExistingItemsPlannedAmount()
     {
         // Arrange
@@ -85,7 +85,7 @@ public sealed class BudgetFillForwardTests
         ItShouldHaveCorrectAmountOnAllItems(result, newAmount);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_EmitsBudgetItemPlannedEventForNewItems()
     {
         // Arrange
@@ -106,7 +106,7 @@ public sealed class BudgetFillForwardTests
         ItShouldHaveEmittedPlannedEvents(budget, 12);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_EmitsBudgetItemCorrectedEventForUpdatedItems()
     {
         // Arrange
@@ -131,7 +131,7 @@ public sealed class BudgetFillForwardTests
         ItShouldHaveEmittedCorrectedEvents(budget, 3);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_DoesNotEmitCorrectedEventWhenAmountUnchanged()
     {
         // Arrange
@@ -153,7 +153,7 @@ public sealed class BudgetFillForwardTests
         ItShouldNotHaveEmittedCorrectedEvents(budget);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_PropagatesSplitsToExistingItems()
     {
         // Arrange
@@ -178,7 +178,7 @@ public sealed class BudgetFillForwardTests
         ItShouldHaveCorrectAttributionSplitOnAllItems(result, newAttributionSplit);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_CreatesNewItemsWithProvidedSplits()
     {
         // Arrange
@@ -202,9 +202,9 @@ public sealed class BudgetFillForwardTests
     // Budget.FillForward — Invalid scenarios
     // -------------------------------------------------------------------------
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(13)]
+    [Test]
+    [Arguments(0)]
+    [Arguments(13)]
     public void FillForward_WithInvalidMonthReturnsInvalidMonthError(int invalidMonth)
     {
         // Arrange
@@ -220,7 +220,7 @@ public sealed class BudgetFillForwardTests
         ItShouldBeErrorOfType<InvalidMonthError>(result);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_WithNonExistentCategoryReturnsCategoryNotFoundError()
     {
         // Arrange
@@ -236,7 +236,7 @@ public sealed class BudgetFillForwardTests
         ItShouldBeErrorOfType<CategoryNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void FillForward_WithNonLeafCategoryReturnsNonLeafCategoryError()
     {
         // Arrange

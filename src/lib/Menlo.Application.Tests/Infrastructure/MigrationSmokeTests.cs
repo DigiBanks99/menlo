@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Menlo.Application.Tests.Infrastructure;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class MigrationSmokeTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenFreshDatabase_WhenMigrationRuns_ThenMigrationHistoryTableExists()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -17,24 +18,24 @@ public sealed class MigrationSmokeTests(PersistenceFixture fixture)
         bool tableExists = await db.Database
             .SqlQueryRaw<int>(
                 "SELECT 1 FROM information_schema.tables WHERE table_name = '__EFMigrationsHistory'")
-            .AnyAsync(TestContext.Current.CancellationToken);
+            .AnyAsync(TestContext.Current!.Execution.CancellationToken);
 
         tableExists.ShouldBeTrue("__EFMigrationsHistory table should exist after migration runs");
     }
 
-    [Fact]
+    [Test]
     public async Task GivenFreshDatabase_WhenMigrationRuns_ThenInitialCreateRecordExists()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<Menlo.Application.Common.MenloDbContext>();
 
-        IEnumerable<string> migrations = await db.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken);
+        IEnumerable<string> migrations = await db.Database.GetAppliedMigrationsAsync(TestContext.Current!.Execution.CancellationToken);
 
         migrations.ShouldContain(m => m.Contains("InitialCreate"),
             "InitialCreate migration should be recorded in __EFMigrationsHistory");
     }
 
-    [Fact]
+    [Test]
     public async Task GivenFreshDatabase_WhenMigrationRuns_ThenSharedUsersTableExists()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -49,7 +50,7 @@ public sealed class MigrationSmokeTests(PersistenceFixture fixture)
                   AND table_name = 'users'
                 ORDER BY ordinal_position
                 """)
-            .ToListAsync(TestContext.Current.CancellationToken);
+            .ToListAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldContainSharedUsersColumns(columnNames);
     }
