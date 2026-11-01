@@ -9,7 +9,7 @@
     is missing from the report or falls below the threshold.
 
 .PARAMETER CoverageDir
-    Directory containing coverage.cobertura.xml file(s) (searched recursively). Default: coverage/api-baseline
+    Directory containing *.cobertura.xml file(s) (searched recursively). Default: coverage/api-baseline
 
 .PARAMETER Threshold
     Minimum line coverage percentage (0-100). Default: 70
@@ -82,10 +82,10 @@ Write-Host "Changed Menlo.Api files ($($changedFiles.Count)):"
 $changedFiles | ForEach-Object { Write-Host "  $($_.Normalized)" }
 
 # ── 3. Find coverage XML files ───────────────────────────────────────────────
-$xmlFiles = @(Get-ChildItem -Path $CoverageDir -Recurse -Filter 'coverage.cobertura.xml' -ErrorAction SilentlyContinue)
+$xmlFiles = @(Get-ChildItem -Path $CoverageDir -Recurse -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue)
 
 if ($xmlFiles.Count -eq 0) {
-    Write-Error "❌ No coverage.cobertura.xml found under '$CoverageDir'. Run tests with --collect:'XPlat Code Coverage' first."
+    Write-Error "❌ No *.cobertura.xml found under '$CoverageDir'. Run tests with 'dotnet test --coverage --coverage-output-format cobertura --results-directory $CoverageDir' first."
     exit 1
 }
 
@@ -107,9 +107,13 @@ foreach ($xmlFile in $xmlFiles) {
         if ($rawFilename -match '[/\\]obj[/\\]') { continue }
 
         $normFile = Normalize-Path $rawFilename
+        # Microsoft code coverage writes absolute filenames (local, CI or deterministic "/_/" paths); key them from
+        # the src/ folder so they match coverlet's <source>-relative "api/menlo.api/..." form.
+        if ($normFile -match '(?:^|/)src/(api/menlo\.api/.+)$') {
+            $normFile = $Matches[1]
+        }
 
-        # Only process files belonging to src/api/Menlo.Api/
-        # XML stores path relative to <source>, so it looks like "api/menlo.api/..."
+        # Only process files belonging to src/api/Menlo.Api/, keyed as "api/menlo.api/..."
         if ($normFile -notmatch '^api/menlo\.api/') { continue }
 
         if (-not $fileCoverage.ContainsKey($normFile)) {

@@ -1,35 +1,40 @@
-using Menlo.AI.Interfaces;
 using Menlo.AI.Services;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
-using NSubstitute;
-using Shouldly;
 
 namespace Menlo.AI.Tests.Services;
 
 public sealed class ChatServiceTests
 {
-    [Fact]
-    public void GivenNullKernel_WhenConstructed_ThenShouldThrowArgumentNullException()
+    [Test]
+    public void TheKernelIsMissing()
     {
-        // Given & When & Then
-        Should.Throw<ArgumentNullException>(() => new ChatService(null!));
+        Exception? exception = Catch.Exception(() => new ChatService(null!));
+
+        ItShouldRefuseToBeCreated();
+
+        void ItShouldRefuseToBeCreated() => exception.ShouldBeOfType<ArgumentNullException>();
     }
 
-    [Fact]
-    public void GivenChatServiceWithValidParameters_WhenConstructed_ThenShouldNotBeNull()
+    [Test]
+    public async Task AChatClientIsProvided()
     {
-        // Given
-        Kernel kernel = Kernel.CreateBuilder().Build();
         IChatClient chatClient = Substitute.For<IChatClient>();
+        chatClient
+            .GetResponseAsync(Arg.Any<IEnumerable<ChatMessage>>(), Arg.Any<ChatOptions?>(), Arg.Any<CancellationToken>())
+            .Returns(new ChatResponse(new ChatMessage(ChatRole.Assistant, "Sunny in Pretoria")));
+        ChatService chatService = new(Kernel.CreateBuilder().Build(), chatClient);
 
-        // When
-        var chatService = new ChatService(kernel, chatClient);
+        string response = await chatService.GetResponseAsync("What's the weather?");
 
-        // Then
-        chatService.ShouldNotBeNull();
-        chatService.ShouldBeAssignableTo<IChatService>();
+        ItShouldAskTheChatClient();
+        ItShouldReturnTheChatClientsAnswer();
+
+        void ItShouldAskTheChatClient() => chatClient.Received(1).GetResponseAsync(
+            Arg.Is<IEnumerable<ChatMessage>>(messages => messages.Single().Text == "What's the weather?"),
+            Arg.Any<ChatOptions?>(),
+            Arg.Any<CancellationToken>());
+
+        void ItShouldReturnTheChatClientsAnswer() => response.ShouldBe("Sunny in Pretoria");
     }
 }
-
-
