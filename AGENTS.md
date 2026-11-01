@@ -27,6 +27,16 @@ Use `aspire` to run the application
 - Use `dotnet` for back-end unit and integration tests
 - Use `pnpm` for front-end tests
 
+### Signed-in testing
+
+Agents can't do the Microsoft sign-in, so they reuse a session the owner saved:
+
+- The session lives in `.auth.json` at the repo root. It holds session cookies: it's gitignored, so never commit, upload, paste or print it.
+- Cookies belong to a hostname, so use one app URL throughout: the API URL from `aspire describe`, e.g. `https://localhost:7298`. `localhost` and `api-menlo.dev.localhost` don't share cookies.
+- **Owner, once:** with Aspire running, `playwright-cli open --headed <app URL>/auth/login`, sign in, then `playwright-cli state-save .auth.json`.
+- **Agent:** `playwright-cli state-load .auth.json`, `playwright-cli open <app URL>`, then check the session with `playwright-cli eval "async () => (await fetch('/auth/user', { headers: { Accept: 'application/json' } })).status"`. A 200 means signed in.
+- If `.auth.json` is missing, the check returns 401, or the app redirects to `/sign-in` or Microsoft, stop and ask the owner to sign in again. Never type credentials or drive the Microsoft login.
+
 ## Linting and formatting
 
 - Web:
