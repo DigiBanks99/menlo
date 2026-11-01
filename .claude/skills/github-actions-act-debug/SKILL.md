@@ -33,12 +33,14 @@ Do not use this skill for general GitHub Actions authoring when there is no fail
 ## Repo-Specific Starting Points
 
 - Workflows live in `.github/workflows/`.
-- The repo already includes `scripts/act-ci.ps1`, which runs:
+- The repo already includes `scripts/act-ci.ps1`. It writes a `pull_request` event for the current branch to `.act/pull_request.json` (gitignored), built from the merge base with `origin/main` and `HEAD`, then runs:
 
 ```powershell
-act pull_request -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+act pull_request -e .act/pull_request.json -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
+- Arguments it doesn't recognise go straight to `act`, e.g. `pwsh ./scripts/act-ci.ps1 -W .github/workflows/ci.yml -j frontend-tests -n`.
+- Pass `-Sender 'dependabot[bot]'` to reproduce Dependabot-only behaviour (the ephemeral Azure secret steps, auto-merge). It sets the event's `sender` and act's `--actor`, because the workflows check `github.actor`.
 - Use that script first for broad CI reproduction when the failure is in the main CI workflow.
 - For deployment workflows such as `cd.yml` and `cd-infra.yml`, prefer a direct `act` invocation scoped to the specific workflow and job.
 
@@ -108,7 +110,7 @@ If the workflow needs secrets or vars:
 - Use dummy values only when the failing step occurs before any real external call.
 - If the failure is inside a deployment action, first reproduce all steps leading up to that action.
 
-If the event payload matters, create a minimal JSON file that captures the fields the workflow actually reads. Do not fabricate a huge payload when only `ref`, `pull_request`, or changed paths matter.
+If the event payload matters, for `pull_request` runs use `scripts/act-ci.ps1` (with `-Sender` when the actor matters) rather than hand-editing JSON. For other events, create a minimal JSON file under `.act/` with only the fields the workflow actually reads.
 
 ### 5. Reproduce first, then debug
 
