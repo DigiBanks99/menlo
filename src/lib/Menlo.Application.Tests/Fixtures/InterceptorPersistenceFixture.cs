@@ -4,10 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
+using TUnit.Core.Interfaces;
 
 namespace Menlo.Application.Tests.Fixtures;
 
-public sealed class InterceptorPersistenceFixture : IAsyncLifetime
+public sealed class InterceptorPersistenceFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
@@ -18,7 +19,7 @@ public sealed class InterceptorPersistenceFixture : IAsyncLifetime
 
     public string ConnectionString => $"{_container.GetConnectionString()};SSL Mode=Disable";
 
-    public async ValueTask InitializeAsync()
+    public async Task InitializeAsync()
     {
         await _container.StartAsync();
 
@@ -54,6 +55,3 @@ public sealed class InterceptorPersistenceFixture : IAsyncLifetime
         await _container.DisposeAsync();
     }
 }
-
-[CollectionDefinition("InterceptorPersistence")]
-public sealed class InterceptorPersistenceCollection : ICollectionFixture<InterceptorPersistenceFixture>;

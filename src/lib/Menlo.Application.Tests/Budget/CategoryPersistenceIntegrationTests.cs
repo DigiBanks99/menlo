@@ -12,10 +12,11 @@ using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 
 namespace Menlo.Application.Tests.Budget;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithCanonicalCategory_PersistsCorrectly()
     {
         CanonicalCategory canonical = await CreateAndPersistCanonicalCategoryAsync("Groceries");
@@ -26,7 +27,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ItShouldHaveAuditFieldsOnCanonicalCategory(loaded);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithCategoryNodeAllFields_PersistsCorrectly()
     {
         // Arrange
@@ -52,7 +53,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         // Create canonical category for FK
         ctx.CanonicalCategories.Add(CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value));
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act - load in a fresh scope
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -60,7 +61,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         BudgetAggregate? loaded = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         CategoryNode? loadedCategory = loaded?.Categories.SingleOrDefault();
@@ -69,7 +70,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ItShouldHaveAuditFieldsOnCategoryNode(loadedCategory);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithCategoryNodeExpenseAttribution_PersistsCorrectly()
     {
         // Arrange
@@ -92,7 +93,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
 
         ctx.CanonicalCategories.Add(CanonicalCategory.Create(category.CanonicalCategoryId, category.Name.Value));
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -100,7 +101,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         BudgetAggregate? loaded = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         CategoryNode? loadedCategory = loaded?.Categories.SingleOrDefault();
@@ -112,7 +113,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         loadedCategory.Description.ShouldBeNull();
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithChildCategory_PersistsParentIdCorrectly()
     {
         // Arrange
@@ -135,7 +136,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -143,7 +144,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         BudgetAggregate? loaded = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         loaded.ShouldNotBeNull();
@@ -154,7 +155,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         loadedChild.ParentId.ShouldBe(parent.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_CategoryNodeWithNonExistentCanonicalCategoryId_ThrowsFkViolation()
     {
         // Arrange
@@ -172,11 +173,11 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ctx.Budgets.Add(budget);
 
         // Act & Assert
-        Func<Task> act = () => ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        Func<Task> act = () => ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         await act.ShouldThrowAsync<DbUpdateException>();
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_DuplicateCategoryNameSameBudgetAndParent_ThrowsUniqueConstraint()
     {
         // Arrange - create a budget with a parent and child category
@@ -198,7 +199,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Now insert a duplicate child with same (budget_id, parent_id, name) via raw SQL
         await using AsyncServiceScope scope2 = fixture.Services.CreateAsyncScope();
@@ -206,7 +207,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
 
         CanonicalCategoryId newCanonicalId = CanonicalCategoryId.NewId();
         dbContext.CanonicalCategories.Add(CanonicalCategory.Create(newCanonicalId, "Food Duplicate"));
-        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await dbContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Use raw SQL to insert a duplicate child (same budget_id, same parent_id, same name)
         Func<Task> act = () => dbContext.Database.ExecuteSqlInterpolatedAsync(
@@ -221,7 +222,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ((Npgsql.PostgresException)ex).SqlState.ShouldBe("23505");
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_SameCategoryNameWhenOneIsSoftDeleted_Succeeds()
     {
         // Arrange
@@ -243,32 +244,32 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Soft-delete the original
         using IServiceScope deleteScope = fixture.Services.CreateScope();
         IBudgetContext deleteCtx = deleteScope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate? toDelete = await deleteCtx.Budgets
             .Include(b => b.Categories)
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         toDelete.ShouldNotBeNull();
         toDelete.SoftDeleteCategory(original.Id, softDeleteStampFactory);
-        await deleteCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await deleteCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Now add a new category with the same name (should succeed because the filtered index excludes deleted)
         using IServiceScope addScope = fixture.Services.CreateScope();
         IBudgetContext addCtx = addScope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate? toAdd = await addCtx.Budgets
             .Include(b => b.Categories)
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         toAdd.ShouldNotBeNull();
         CategoryNode replacement = toAdd.AddCategory("Transport", BudgetFlow.Expense).Value;
         addCtx.CanonicalCategories.Add(CanonicalCategory.Create(replacement.CanonicalCategoryId, replacement.Name.Value));
 
         // Act - should not throw
-        await addCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await addCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Assert - verify both exist (one deleted, one active)
         using IServiceScope verifyScope = fixture.Services.CreateScope();
@@ -277,12 +278,12 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
             .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(c => EF.Property<BudgetId>(c, "budget_id") == budget.Id)
-            .ToListAsync(TestContext.Current.CancellationToken);
+            .ToListAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBothDeletedAndActiveCategories(allCategories);
     }
 
-    [Fact]
+    [Test]
     public async Task Query_WithSoftDeletedCategory_FiltersSoftDeletedFromResults()
     {
         // Arrange
@@ -305,18 +306,18 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Soft-delete one category
         using IServiceScope deleteScope = fixture.Services.CreateScope();
         IBudgetContext deleteCtx = deleteScope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate? loaded = await deleteCtx.Budgets
             .Include(b => b.Categories)
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         loaded.ShouldNotBeNull();
         loaded.SoftDeleteCategory(toDelete.Id, softDeleteStampFactory);
-        await deleteCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await deleteCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act - read with query filters
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -324,14 +325,14 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         BudgetAggregate? result = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
         ItShouldOnlyReturnActiveCategories(result);
     }
 
-    [Fact]
+    [Test]
     public async Task Query_WithSoftDeletedCategoryIgnoringFilters_ReturnsSoftDeletedWithMetadata()
     {
         // Arrange
@@ -353,18 +354,18 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Soft-delete
         using IServiceScope deleteScope = fixture.Services.CreateScope();
         IBudgetContext deleteCtx = deleteScope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate? loaded = await deleteCtx.Budgets
             .Include(b => b.Categories)
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         loaded.ShouldNotBeNull();
         loaded.SoftDeleteCategory(toDelete.Id, softDeleteStampFactory);
-        await deleteCtx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await deleteCtx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act - read with IgnoreQueryFilters
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -372,13 +373,13 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         CategoryNode? deleted = await readCtx.BudgetCategories
             .IgnoreQueryFilters()
             .AsNoTracking()
-            .SingleOrDefaultAsync(c => c.Id == toDelete.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(c => c.Id == toDelete.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         ItShouldHaveSoftDeleteMetadata(deleted);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_AuditInterceptorOnCategoryNode_SetsCreatedAndModifiedFields()
     {
         // Arrange
@@ -399,7 +400,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         // Act - read
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -407,14 +408,14 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         BudgetAggregate? loaded = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         // Assert
         CategoryNode? category = loaded?.Categories.SingleOrDefault();
         ItShouldHaveAuditFieldsOnCategoryNode(category);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_AuditInterceptorOnCanonicalCategory_SetsCreatedAndModifiedFields()
     {
         CanonicalCategory canonical = await CreateAndPersistCanonicalCategoryAsync("Audited Canonical");
@@ -433,7 +434,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
 
         CanonicalCategory canonical = CanonicalCategory.Create(CanonicalCategoryId.NewId(), name);
         ctx.CanonicalCategories.Add(canonical);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return canonical;
     }
@@ -444,7 +445,7 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
         return await ctx.CanonicalCategories
             .AsNoTracking()
-            .SingleOrDefaultAsync(c => c.Id == id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(c => c.Id == id, TestContext.Current!.Execution.CancellationToken);
     }
 
     // --- Assertion helpers ---

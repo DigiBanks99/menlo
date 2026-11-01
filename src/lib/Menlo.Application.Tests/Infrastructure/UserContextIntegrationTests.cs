@@ -7,10 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Menlo.Application.Tests.Infrastructure;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class UserContextIntegrationTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithNewUser()
     {
         User user = await CreateAndPersistUserAsync();
@@ -32,7 +33,7 @@ public sealed class UserContextIntegrationTests(PersistenceFixture fixture)
             .Value;
 
         userContext.Users.Add(user);
-        await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return user;
     }
@@ -44,7 +45,7 @@ public sealed class UserContextIntegrationTests(PersistenceFixture fixture)
 
         return await userContext.Users
             .AsNoTracking()
-            .SingleOrDefaultAsync(user => user.Id == userId, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(user => user.Id == userId, TestContext.Current!.Execution.CancellationToken);
     }
 
     private static void ItShouldHavePersistedUser(User? persistedUser, User user)

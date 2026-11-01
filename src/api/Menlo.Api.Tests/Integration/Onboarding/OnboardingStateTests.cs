@@ -7,7 +7,7 @@ namespace Menlo.Api.Tests.Integration.Onboarding;
 
 public sealed class OnboardingStateTests
 {
-    [Fact]
+    [Test]
     public void GivenNewOnboardingState_WhenQuerying_HasNoCompletedTasks()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -16,7 +16,7 @@ public sealed class OnboardingStateTests
         ItShouldNotHaveSelectedHousehold(onboardingState);
     }
 
-    [Fact]
+    [Test]
     public void GivenOnboardingState_WhenCompleteTaskCalled_TaskIsAdded()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -27,7 +27,7 @@ public sealed class OnboardingStateTests
         ItShouldBeFullyOnboarded(onboardingState);
     }
 
-    [Fact]
+    [Test]
     public void GivenOnboardingState_WhenCompleteTaskCalledTwice_TaskIsNotDuplicated()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -38,7 +38,7 @@ public sealed class OnboardingStateTests
         ItShouldContainSingleCompletedTask(onboardingState, OnboardingTaskType.SelectedHousehold);
     }
 
-    [Fact]
+    [Test]
     public void GivenOnboardingStateWithSelectedHouseholdTask_HasSelectedHousehold_ReturnsTrue()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -47,7 +47,7 @@ public sealed class OnboardingStateTests
         onboardingState.HasSelectedHousehold.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public void CompleteTask_WithMetadata_PreservesMetadata()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -58,7 +58,7 @@ public sealed class OnboardingStateTests
         ItShouldContainTaskWithMetadata(onboardingState, OnboardingTaskType.SelectedHousehold, metadata);
     }
 
-    [Fact]
+    [Test]
     public void CompleteTask_TransitioningFromIncompleteToComplete_FiresOnboardingCompletedEvent()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -69,7 +69,7 @@ public sealed class OnboardingStateTests
         ItShouldContainOnboardingTaskCompletedEvent(onboardingState);
     }
 
-    [Fact]
+    [Test]
     public void CompleteTask_AlreadyCompleted_NoEventFired()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -83,7 +83,7 @@ public sealed class OnboardingStateTests
         ItShouldHaveNoDomainEvents(onboardingState);
     }
 
-    [Fact]
+    [Test]
     public void ClearDomainEvents_WithEvents_ClearsAll()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());
@@ -96,7 +96,7 @@ public sealed class OnboardingStateTests
         ItShouldHaveNoDomainEvents(onboardingState);
     }
 
-    [Fact]
+    [Test]
     public void AddDomainEvent_WithCustomEvent_AddsToCollection()
     {
         OnboardingState onboardingState = OnboardingState.Create(UserId.NewId());

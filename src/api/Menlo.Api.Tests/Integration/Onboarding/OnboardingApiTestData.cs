@@ -25,11 +25,11 @@ internal static class OnboardingApiTestData
         IHouseholdContext householdContext = scope.ServiceProvider.GetRequiredService<IHouseholdContext>();
         IOnboardingContext onboardingContext = scope.ServiceProvider.GetRequiredService<IOnboardingContext>();
 
-        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
+        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         ExternalUserId normalizedExternalId = new(externalId);
         User user = await userContext.Users
-            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
 
         if (!completeOnboarding)
         {
@@ -41,7 +41,7 @@ internal static class OnboardingApiTestData
         user.AssignToHousehold(household.Id.Value);
 
         OnboardingState onboardingState = await onboardingContext.OnboardingStates
-            .SingleAsync(state => state.UserId == user.Id, TestContext.Current.CancellationToken);
+            .SingleAsync(state => state.UserId == user.Id, TestContext.Current!.Execution.CancellationToken);
         onboardingState.CompleteTask(
             OnboardingTaskType.SelectedHousehold,
             new Dictionary<string, object>
@@ -49,9 +49,9 @@ internal static class OnboardingApiTestData
                 ["householdId"] = household.Id.Value.ToString()
             });
 
-        await householdContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await onboardingContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await householdContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
+        await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
+        await onboardingContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return user;
     }
@@ -62,9 +62,9 @@ internal static class OnboardingApiTestData
         IOnboardingContext onboardingContext = scope.ServiceProvider.GetRequiredService<IOnboardingContext>();
 
         OnboardingState onboardingState = await onboardingContext.OnboardingStates
-            .SingleAsync(state => state.UserId == userId, TestContext.Current.CancellationToken);
+            .SingleAsync(state => state.UserId == userId, TestContext.Current!.Execution.CancellationToken);
         onboardingContext.OnboardingStates.Remove(onboardingState);
-        await onboardingContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await onboardingContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
     }
 
     public static async Task<Household> CreateHouseholdAsync(IServiceProvider services, string name)
@@ -74,7 +74,7 @@ internal static class OnboardingApiTestData
 
         Household household = Household.Create(name).Value;
         householdContext.Households.Add(household);
-        await householdContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await householdContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         return household;
     }
 
@@ -85,7 +85,7 @@ internal static class OnboardingApiTestData
 
         return await userContext.Users
             .AsNoTracking()
-            .SingleAsync(user => user.Id == userId, TestContext.Current.CancellationToken);
+            .SingleAsync(user => user.Id == userId, TestContext.Current!.Execution.CancellationToken);
     }
 
     public static async Task<OnboardingState> GetOnboardingStateAsync(IServiceProvider services, UserId userId)
@@ -95,6 +95,6 @@ internal static class OnboardingApiTestData
 
         return await onboardingContext.OnboardingStates
             .AsNoTracking()
-            .SingleAsync(state => state.UserId == userId, TestContext.Current.CancellationToken);
+            .SingleAsync(state => state.UserId == userId, TestContext.Current!.Execution.CancellationToken);
     }
 }

@@ -5,10 +5,11 @@ using System.Net.Http.Json;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[Collection("Onboarding API")]
+[ClassDataSource<OnboardingApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Onboarding API")]
 public sealed class GetUserEndpointIntegrationTests(OnboardingApiFixture fixture) : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GivenProvisionedUserWithoutHousehold_WhenFetchingProfile_OnboardingIncomplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -19,8 +20,8 @@ public sealed class GetUserEndpointIntegrationTests(OnboardingApiFixture fixture
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName);
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
-        UserProfile? profile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
+        UserProfile? profile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         profile.ShouldNotBeNull();
@@ -30,7 +31,7 @@ public sealed class GetUserEndpointIntegrationTests(OnboardingApiFixture fixture
         profile.Onboarding.PendingTasks.ShouldContain("SelectHousehold");
     }
 
-    [Fact]
+    [Test]
     public async Task GivenProvisionedUserWithHousehold_WhenFetchingProfile_OnboardingComplete()
     {
         string externalId = Guid.NewGuid().ToString();
@@ -41,8 +42,8 @@ public sealed class GetUserEndpointIntegrationTests(OnboardingApiFixture fixture
         User createdUser = await OnboardingApiTestData.ProvisionUserAsync(fixture.Services, externalId, email, displayName, completeOnboarding: true);
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
-        UserProfile? profile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
+        UserProfile? profile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         profile.ShouldNotBeNull();

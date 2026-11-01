@@ -226,6 +226,8 @@ jobs:
         if: always()
         with:
           directory: ./coverage/api-baseline
+          # MTP names each report <guid>.cobertura.xml; the top level skips the copies attached to the TRX files.
+          files: ./coverage/api-baseline/*.cobertura.xml
           flags: backend
           name: backend-coverage
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -491,23 +493,17 @@ jobs:
         run: pnpm run build:prod
 
       - name: Run integration tests
-        # Tests run on Microsoft.Testing.Platform (global.json). Trait filters are framework-specific, so this runs
-        # the xunit projects with --filter-trait until they move to TUnit (#499). Exit code 8 means no test matched.
+        # TUnit category filter. Exit code 8 means no test matched, which is ignored: no test carries
+        # [Category("Integration")] yet.
         run: |
-          for project in \
-            src/lib/Menlo.Lib.Tests \
-            src/lib/Menlo.Application.Tests \
-            src/api/Menlo.Api.Tests; do
-            dotnet test \
-              --project "$project" \
-              --no-build \
-              --configuration Release \
-              --verbosity normal \
-              --report-trx \
-              --output detailed \
-              --ignore-exit-code 8 \
-              --filter-trait "Category=Integration"
-          done
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --verbosity normal \
+            --report-trx \
+            --output detailed \
+            --ignore-exit-code 8 \
+            --treenode-filter "/*/*/*/*[Category=Integration]"
         env:
           ConnectionStrings__menlo: "Host=localhost;Port=5432;Database=menlo_test;Username=postgres;Password=postgres"
 

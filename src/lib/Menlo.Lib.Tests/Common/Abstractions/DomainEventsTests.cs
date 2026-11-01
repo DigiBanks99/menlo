@@ -29,7 +29,7 @@ public sealed class DomainEventsTests
         }
     }
 
-    [Fact]
+    [Test]
     public void GivenAggregate_WhenAddingTwoDomainEvents_AndClearingEvents()
     {
         // Arrange
@@ -63,7 +63,7 @@ public sealed class DomainEventsTests
         aggregate.DomainEvents.Count.ShouldBe(0);
     }
 
-    [Fact]
+    [Test]
     public void GivenAggregate_WhenNoDomainEvents()
     {
         // Arrange
@@ -78,7 +78,7 @@ public sealed class DomainEventsTests
         aggregate.DomainEvents.ShouldBeEmpty();
     }
 
-    [Fact]
+    [Test]
     public void GivenAggregate_WhenAddingSingleDomainEvent()
     {
         // Arrange
@@ -98,7 +98,7 @@ public sealed class DomainEventsTests
         aggregate.DomainEvents.First().ShouldBe(domainEvent);
     }
 
-    [Fact]
+    [Test]
     public void GivenDomainEvent_WhenUsingStructBasedEvent()
     {
         // Arrange

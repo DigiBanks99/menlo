@@ -3,14 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Hosting;
-using System.Net;
-using System.Net.Sockets;
 
 namespace Menlo.Api.Tests;
 
 public sealed class SpaDevelopmentProxyTests : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GetAsync_WithSpaRouteInDevelopment_ProxiesToSpaBackend()
     {
         await using DevelopmentSpaBackend spaBackend = await DevelopmentSpaBackend.StartAsync();
@@ -20,14 +18,14 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await client.GetAsync("/workspaces/279?filter=open", TestContext.Current.CancellationToken);
-        string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/workspaces/279?filter=open", TestContext.Current!.Execution.CancellationToken);
+        string body = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveBeenProxied(response, body, "/workspaces/279?filter=open");
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithLargeSessionCookieInDevelopment_DoesNotForwardCredentialsToSpaBackend()
     {
         await using DevelopmentSpaBackend spaBackend = await DevelopmentSpaBackend.StartAsync();
@@ -40,15 +38,15 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
         request.Headers.Add("Cookie", $".Menlo.SessionC1={new string('a', 20_000)}");
         request.Headers.Add("Authorization", "Bearer token");
 
-        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-        string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current!.Execution.CancellationToken);
+        string body = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveBeenProxied(response, body, "/budgets");
         ItShouldNotHaveForwardedCredentials(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_WithApiAuthOrHealthRouteInDevelopment_DoesNotProxyToSpaBackend()
     {
         await using DevelopmentSpaBackend spaBackend = await DevelopmentSpaBackend.StartAsync();
@@ -58,14 +56,14 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage apiResponse = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
-        string apiBody = await apiResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage apiResponse = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
+        string apiBody = await apiResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage authResponse = await client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
-        string authBody = await authResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage authResponse = await client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
+        string authBody = await authResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
-        HttpResponseMessage healthResponse = await client.GetAsync("/health", TestContext.Current.CancellationToken);
-        string healthBody = await healthResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        HttpResponseMessage healthResponse = await client.GetAsync("/health", TestContext.Current!.Execution.CancellationToken);
+        string healthBody = await healthResponse.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(apiResponse);
         ItShouldHaveSucceeded(authResponse);
@@ -110,13 +108,13 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
 
         public static async Task<DevelopmentSpaBackend> StartAsync()
         {
-            int port = GetAvailablePort();
             WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
                 EnvironmentName = Environments.Development
             });
 
-            builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
+            // Port 0 lets Kestrel pick a free port as it binds, so parallel tests can't race for the same one.
+            builder.WebHost.UseUrls("http://127.0.0.1:0");
 
             WebApplication app = builder.Build();
             app.Map("/{**path}", async context =>
@@ -127,25 +125,18 @@ public sealed class SpaDevelopmentProxyTests : TestFixture
                 context.Response.Headers["X-Spa-Backend"] = "true";
                 context.Response.Headers["X-Spa-Backend-Received-Cookie"] = context.Request.Headers.Cookie.Count > 0 ? "true" : "false";
                 context.Response.Headers["X-Spa-Backend-Received-Authorization"] = context.Request.Headers.Authorization.Count > 0 ? "true" : "false";
-                await context.Response.WriteAsync($"SPA BACKEND: {requestPathAndQuery}", TestContext.Current.CancellationToken);
+                await context.Response.WriteAsync($"SPA BACKEND: {requestPathAndQuery}", context.RequestAborted);
             });
 
-            await app.StartAsync(TestContext.Current.CancellationToken);
+            await app.StartAsync(TestContext.Current!.Execution.CancellationToken);
 
-            return new DevelopmentSpaBackend(app, new Uri($"http://127.0.0.1:{port}/"));
+            return new DevelopmentSpaBackend(app, new Uri($"{app.Urls.Single()}/"));
         }
 
         public async ValueTask DisposeAsync()
         {
-            await app.StopAsync(TestContext.Current.CancellationToken);
+            await app.StopAsync(TestContext.Current!.Execution.CancellationToken);
             await app.DisposeAsync();
-        }
-
-        private static int GetAvailablePort()
-        {
-            using TcpListener listener = new(IPAddress.Loopback, 0);
-            listener.Start();
-            return ((IPEndPoint)listener.LocalEndpoint).Port;
         }
     }
 }

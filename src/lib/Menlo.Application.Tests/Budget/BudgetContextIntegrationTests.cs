@@ -11,10 +11,11 @@ using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 
 namespace Menlo.Application.Tests.Budget;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithNewBudget_PersistsBudgetCorrectly()
     {
         BudgetAggregate budget = await CreateAndPersistBudgetAsync();
@@ -25,7 +26,7 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         ItShouldHavePersistedAuditFields(persisted);
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_WithBudgetAndCategories_PersistsCategoriesCorrectly()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
@@ -46,14 +47,14 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         }
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         IBudgetContext readCtx = readScope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate? loaded = await readCtx.Budgets
             .Include(b => b.Categories)
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
 
         loaded.ShouldNotBeNull();
         loaded.Categories.Count.ShouldBe(2);
@@ -61,7 +62,7 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         loaded.Categories.Any(c => c.Name.Value == "Expenses").ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task SaveChangesAsync_DuplicateHouseholdYear_ThrowsException()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -74,7 +75,7 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
                 2031,
                 scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
             ctx.Budgets.Add(budget);
-            await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         }
 
         await using AsyncServiceScope scope2 = fixture.Services.CreateAsyncScope();
@@ -85,11 +86,11 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
             scope2.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
         ctx2.Budgets.Add(duplicate);
 
-        Func<Task> act = () => ctx2.SaveChangesAsync(TestContext.Current.CancellationToken);
+        Func<Task> act = () => ctx2.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         await act.ShouldThrowAsync<DbUpdateException>();
     }
 
-    [Fact]
+    [Test]
     public async Task Query_WithSoftDeletedBudget_FiltersSoftDeletedBudgets()
     {
         BudgetAggregate budget = await CreateAndPersistBudgetAsync(year: 2032);
@@ -98,11 +99,11 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         {
             IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
             BudgetAggregate? toDelete = await ctx.Budgets.SingleOrDefaultAsync(
-                b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+                b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
             toDelete.ShouldNotBeNull();
 
             toDelete.Delete(scope.ServiceProvider.GetRequiredService<ISoftDeleteStampFactory>());
-            await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         }
 
         using IServiceScope readScope = fixture.Services.CreateScope();
@@ -110,13 +111,13 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
 
         BudgetAggregate? found = await readCtx.Budgets
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
         found.ShouldBeNull();
 
         BudgetAggregate? deleted = await readCtx.Budgets
             .IgnoreQueryFilters()
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budget.Id, TestContext.Current!.Execution.CancellationToken);
         deleted.ShouldNotBeNull();
         deleted.IsDeleted.ShouldBeTrue();
         deleted.DeletedAt.ShouldNotBeNull();
@@ -133,7 +134,7 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
             scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
 
         ctx.Budgets.Add(budget);
-        await ctx.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await ctx.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         return budget;
     }
 
@@ -143,7 +144,7 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
         return await ctx.Budgets
             .AsNoTracking()
-            .SingleOrDefaultAsync(b => b.Id == budgetId, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(b => b.Id == budgetId, TestContext.Current!.Execution.CancellationToken);
     }
 
     private static void ItShouldHavePersistedBudget(BudgetAggregate? persisted, BudgetAggregate budget)

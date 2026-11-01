@@ -15,7 +15,7 @@ namespace Menlo.Lib.Tests.Budget.Entities;
 /// </summary>
 public sealed class BudgetCloneItemsTests
 {
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenItemsAreCopied()
     {
         // Arrange
@@ -31,7 +31,7 @@ public sealed class BudgetCloneItemsTests
         result.Value.Items.Count.ShouldBe(3);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenItemsHaveNewIds()
     {
         // Arrange
@@ -48,7 +48,7 @@ public sealed class BudgetCloneItemsTests
         cloned.Id.ShouldNotBe(original.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenPlannedAmountPreserved()
     {
         // Arrange
@@ -64,7 +64,7 @@ public sealed class BudgetCloneItemsTests
         cloned.PlannedAmount.Currency.ShouldBe("ZAR");
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenMonthAndFlowPreserved()
     {
         // Arrange
@@ -80,7 +80,7 @@ public sealed class BudgetCloneItemsTests
         cloned.BudgetFlow.ShouldBe(BudgetFlow.Expense);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenPayerAndAttributionSplitsPreserved()
     {
         // Arrange
@@ -98,7 +98,7 @@ public sealed class BudgetCloneItemsTests
         cloned.AttributionSplit.Allocations[0].Percent.ShouldBe(100);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithRealizedItems_WhenCloning_ThenRealizedAndSpentAreNull()
     {
         // Arrange
@@ -119,7 +119,7 @@ public sealed class BudgetCloneItemsTests
         cloned.SpentAmount.ShouldBeNull();
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenAdjustmentRuleIsNullAndManualOverrideTrue()
     {
         // Arrange
@@ -135,7 +135,7 @@ public sealed class BudgetCloneItemsTests
         cloned.IsManualOverride.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenCategoryIdsMappedCorrectly()
     {
         // Arrange
@@ -154,7 +154,7 @@ public sealed class BudgetCloneItemsTests
         result.Value.Categories.ShouldContain(c => c.Id == cloned.CategoryId);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithItems_WhenCloning_ThenBudgetItemPlannedEventsEmitted()
     {
         // Arrange
@@ -170,7 +170,7 @@ public sealed class BudgetCloneItemsTests
         events.OfType<BudgetItemPlannedEvent>().Count().ShouldBe(3);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithDeletedItems_WhenCloning_ThenDeletedItemsNotCloned()
     {
         // Arrange
@@ -189,7 +189,7 @@ public sealed class BudgetCloneItemsTests
         result.Value.Items.First().Month.ShouldBe(1);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithNoItems_WhenCloning_ThenNewBudgetHasNoItems()
     {
         // Arrange
@@ -207,7 +207,7 @@ public sealed class BudgetCloneItemsTests
         result.Value.Items.Count.ShouldBe(0);
     }
 
-    [Fact]
+    [Test]
     public void GivenExistingCloneForYearTests_WhenCloning_ThenCategoriesStillWork()
     {
         // Verify backward compat: categories are still cloned correctly

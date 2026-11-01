@@ -8,7 +8,7 @@ public sealed class ForwardedHeadersTests : TestFixture
     private static readonly IPAddress UntrustedClient = IPAddress.Parse("203.0.113.5");
     private static readonly IPAddress SpoofedClient = IPAddress.Parse("198.51.100.7");
 
-    [Fact]
+    [Test]
     public async Task GivenUntrustedSource_WhenSendingForwardedHeaders_ThenHeadersAreIgnored()
     {
         using TestWebApplicationFactory factory = new();
@@ -18,7 +18,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldIgnoreForwardedHeaders(ctx, UntrustedClient);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenLoopbackSource_WhenSendingForwardedHeaders_ThenHeadersAreApplied()
     {
         using TestWebApplicationFactory factory = new();
@@ -28,7 +28,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldApplyForwardedHeaders(ctx);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenConfiguredKnownNetwork_WhenSourceIsInsideIt_ThenHeadersAreApplied()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("172.20.0.0/16");
@@ -38,7 +38,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldApplyForwardedHeaders(ctx);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenConfiguredKnownNetwork_WhenSourceIsOutsideIt_ThenHeadersAreIgnored()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("172.20.0.0/16");
@@ -48,7 +48,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldIgnoreForwardedHeaders(ctx, UntrustedClient);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenConfiguredKnownNetwork_WhenSourceIsLoopback_ThenHeadersAreStillApplied()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("172.20.0.0/16");
@@ -58,7 +58,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldApplyForwardedHeaders(ctx);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenConfiguredKnownNetwork_WhenSourceIsIpv4MappedInsideIt_ThenHeadersAreApplied()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("172.20.0.0/16");
@@ -68,7 +68,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldApplyForwardedHeaders(ctx);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenBlankKnownNetwork_WhenSourceIsUntrusted_ThenHeadersAreIgnored()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("");
@@ -78,7 +78,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldIgnoreForwardedHeaders(ctx, UntrustedClient);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenConfiguredKnownProxy_WhenSourceIsThatProxy_ThenHeadersAreApplied()
     {
         using TestWebApplicationFactory factory = new()
@@ -94,7 +94,7 @@ public sealed class ForwardedHeadersTests : TestFixture
         ItShouldApplyForwardedHeaders(ctx);
     }
 
-    [Fact]
+    [Test]
     public void GivenInvalidKnownNetwork_WhenStartingHost_ThenStartupFails()
     {
         using TestWebApplicationFactory factory = WithKnownNetworks("not-a-cidr");
@@ -121,7 +121,7 @@ public sealed class ForwardedHeadersTests : TestFixture
             c.Request.Headers["X-Forwarded-Proto"] = "https";
             c.Request.Headers["X-Forwarded-For"] = SpoofedClient.ToString();
             c.Connection.RemoteIpAddress = remoteIp;
-        }, TestContext.Current.CancellationToken);
+        }, TestContext.Current!.Execution.CancellationToken);
 
     private static void ItShouldIgnoreForwardedHeaders(HttpContext ctx, IPAddress expectedRemoteIp)
     {

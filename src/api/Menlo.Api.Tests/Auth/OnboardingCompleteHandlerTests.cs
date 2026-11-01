@@ -6,6 +6,7 @@ using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Onboarding;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using System.Security.Claims;
 
@@ -13,7 +14,7 @@ namespace Menlo.Api.Tests.Auth;
 
 public sealed class OnboardingCompleteHandlerTests
 {
-    [Fact]
+    [Test]
     public async Task GivenUserWithCompletedOnboarding_WhenHandlingRequirement_ContextSucceeds()
     {
         User user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
@@ -28,7 +29,7 @@ public sealed class OnboardingCompleteHandlerTests
         context.HasSucceeded.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUserWithoutCompletedOnboarding_WhenHandlingRequirement_ContextFails()
     {
         User user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
@@ -43,7 +44,7 @@ public sealed class OnboardingCompleteHandlerTests
         context.HasFailed.ShouldBeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenUnauthenticatedUser_WhenHandlingRequirement_ContextFails()
     {
         OnboardingCompleteHandler sut = new(CreateServices(CreateUserContext(), CreateOnboardingContext()));
@@ -54,7 +55,7 @@ public sealed class OnboardingCompleteHandlerTests
         AssertContextFailedWithoutSucceeding(context);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCurrentUserLookupReturnsNull_WhenHandlingRequirement_ContextFails()
     {
         User user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
@@ -69,7 +70,7 @@ public sealed class OnboardingCompleteHandlerTests
         AssertContextFailedWithoutSucceeding(context);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenOnboardingStateIsNull_WhenHandlingRequirement_ContextFails()
     {
         User user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
@@ -83,7 +84,7 @@ public sealed class OnboardingCompleteHandlerTests
         AssertContextFailedWithoutSucceeding(context);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenServiceProviderFailsToResolveUserContext_WhenHandlingRequirement_ThrowsInvalidOperationException()
     {
         IServiceProvider serviceProvider = CreateServiceProviderThatThrows();
@@ -91,13 +92,13 @@ public sealed class OnboardingCompleteHandlerTests
         OnboardingCompleteHandler sut = new(serviceProvider);
         AuthorizationHandlerContext context = CreateAuthorizationContext(TestAuthHandler.DefaultUserId);
 
-        var exception = await Should.ThrowAsync<InvalidOperationException>(
+        InvalidOperationException exception = await Should.ThrowAsync<InvalidOperationException>(
             () => sut.HandleAsync(context));
 
         exception.ShouldNotBeNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenServiceProviderFailsToResolveOnboardingContext_WhenHandlingRequirement_ThrowsInvalidOperationException()
     {
         IUserContext userContext = CreateUserContext();
@@ -108,7 +109,7 @@ public sealed class OnboardingCompleteHandlerTests
         OnboardingCompleteHandler sut = new(serviceProvider);
         AuthorizationHandlerContext context = CreateAuthorizationContext(TestAuthHandler.DefaultUserId);
 
-        var exception = await Should.ThrowAsync<InvalidOperationException>(
+        InvalidOperationException exception = await Should.ThrowAsync<InvalidOperationException>(
             () => sut.HandleAsync(context));
 
         exception.ShouldNotBeNull();
@@ -117,7 +118,7 @@ public sealed class OnboardingCompleteHandlerTests
     private static IUserContext CreateUserContext(params User[] users)
     {
         IUserContext userContext = Substitute.For<IUserContext>();
-        var userSet = DbSetMock.Create(users);
+        DbSet<User> userSet = DbSetMock.Create(users);
         userContext.Users.Returns(userSet);
         return userContext;
     }
@@ -125,7 +126,7 @@ public sealed class OnboardingCompleteHandlerTests
     private static IOnboardingContext CreateOnboardingContext(params OnboardingState[] onboardingStates)
     {
         IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
-        var onboardingSet = DbSetMock.Create(onboardingStates);
+        DbSet<OnboardingState> onboardingSet = DbSetMock.Create(onboardingStates);
         onboardingContext.OnboardingStates.Returns(onboardingSet);
         return onboardingContext;
     }

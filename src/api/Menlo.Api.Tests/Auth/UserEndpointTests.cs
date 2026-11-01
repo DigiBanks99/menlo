@@ -7,6 +7,7 @@ using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Onboarding;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using System.Net.Http.Json;
@@ -31,11 +32,11 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         _client = _factory.CreateClient();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnAuthenticatedUser_WhenRequestingUserProfile_AndUserHasRoles()
     {
-        HttpResponseMessage response = await _client.GetAsync("/auth/user", TestContext.Current.CancellationToken);
-        UserProfile? userProfile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await _client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
+        UserProfile? userProfile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveTheUserProfile(userProfile, _user);
@@ -43,7 +44,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         ItShouldShowIncompleteOnboarding(userProfile);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAnUnauthenticatedUser_WhenRequestingUserProfile()
     {
         using TestWebApplicationFactory unauthenticatedFactory = new()
@@ -55,13 +56,13 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             AllowAutoRedirect = false
         });
 
-        HttpResponseMessage response = await unauthenticatedClient.GetAsync("/auth/user", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await unauthenticatedClient.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveBeenUnauthorised(response);
         ItShouldNotHaveRedirected(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenRequestingUserProfile_AndUserHasNoRoles()
     {
         OnboardingState onboardingState = OnboardingState.Create(_user.Id);
@@ -71,8 +72,8 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         };
         using HttpClient noRolesClient = noRolesFactory.CreateClient();
 
-        HttpResponseMessage response = await noRolesClient.GetAsync("/auth/user", TestContext.Current.CancellationToken);
-        UserProfile? userProfile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await noRolesClient.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken);
+        UserProfile? userProfile = await response.Content.ReadFromJsonAsync<UserProfile>(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveTheUserProfile(userProfile, _user);
@@ -141,7 +142,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             }
 
             IUserContext userContext = Substitute.For<IUserContext>();
-            var userSet = DbSetMock.Create(currentUser);
+            DbSet<User> userSet = DbSetMock.Create(currentUser);
             userContext.Users.Returns(userSet);
             services.AddScoped(_ => userContext);
         }
@@ -155,7 +156,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             }
 
             IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
-            var onboardingSet = DbSetMock.Create(currentOnboardingState);
+            DbSet<OnboardingState> onboardingSet = DbSetMock.Create(currentOnboardingState);
             onboardingContext.OnboardingStates.Returns(onboardingSet);
             services.AddScoped(_ => onboardingContext);
         }

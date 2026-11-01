@@ -1,13 +1,13 @@
 using Menlo.Api.Budget;
 using Menlo.Api.Tests.Budget;
-using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text.Json;
 
 namespace Menlo.Api.Tests.Antiforgery;
 
-[Collection("Budget")]
+[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Budget")]
 public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : TestFixture
 {
     private const string RequestTokenCookieName = "XSRF-TOKEN";
@@ -15,52 +15,48 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private static readonly HouseholdId MissingTokenHousehold = new(Guid.Parse("af01af01-af01-af01-af01-af01af01af01"));
-
-    private static readonly HouseholdId ValidTokenHousehold = new(Guid.Parse("c1c1c1c1-a1a1-a1a1-a1a1-c1c1c1c1c1c1"));
-
-    [Fact]
+    [Test]
     public async Task GetAsync_WithAuthenticatedApiRequestWithoutAntiForgeryToken()
     {
         await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client
-            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+            .GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
     }
 
-    [Fact]
+    [Test]
     public async Task PostAsync_WithAuthenticatedBudgetMutationWithoutAntiForgeryToken()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(MissingTokenHousehold);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
         using HttpClient client = factory.CreateClient();
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage response = await client
-            .PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+            .PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
 
-        string problemDetails = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        string problemDetails = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturned400BadRequest(response);
         ItShouldDescribeTheAntiforgeryFailure(problemDetails);
     }
 
-    [Fact]
+    [Test]
     public async Task PostAsync_WithAuthenticatedBudgetMutationAndValidAntiForgeryToken()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(ValidTokenHousehold);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
         using HttpClient client = factory.CreateClient();
         int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage tokenResponse = await client
-            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+            .GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
         string requestToken = GetRequestToken(tokenResponse);
         client.DefaultRequestHeaders.Add(HeaderName, requestToken);
 
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveSucceeded(tokenResponse);
@@ -68,14 +64,14 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         ItShouldHaveTheRequestedBudgetYear(dto, year);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAsync_OnApiEndpoint()
     {
         await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client
-            .GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+            .GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         string requestTokenCookie = GetCookieHeader(response, RequestTokenCookieName);
 
@@ -83,7 +79,7 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         ItShouldSetAReadableRequestTokenCookie(requestTokenCookie);
     }
 
-    [Fact]
+    [Test]
     public async Task PostAsync_OnAuthEndpointWithoutAntiForgeryToken()
     {
         await using TestWebApplicationFactory factory = new();
@@ -93,18 +89,11 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         });
 
         HttpResponseMessage response = await client
-            .PostAsync("/auth/logout", null, TestContext.Current.CancellationToken);
+            .PostAsync("/auth/logout", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldNotHaveBeenRejectedByAntiforgery(response);
         ItShouldRedirect(response);
     }
-
-    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) => new(householdId)
-    {
-        MenloConnectionString = fixture.ConnectionString,
-        SkipMigration = true,
-        ConfigurationOverrides = new Dictionary<string, string?> { ["Features:Budget"] = "true" }
-    };
 
     private static void ItShouldHaveReturned400BadRequest(HttpResponseMessage response) =>
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -157,7 +146,7 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
 
     private static async Task<BudgetDto?> DeserializeBudgetDto(HttpResponseMessage response)
     {
-        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         return JsonSerializer.Deserialize<BudgetDto>(content, JsonOptions);
     }
 }

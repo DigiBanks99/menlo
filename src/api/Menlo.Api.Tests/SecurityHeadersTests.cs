@@ -3,9 +3,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace Menlo.Api.Tests;
 
-public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : TestFixture, IClassFixture<TestWebApplicationFactory>
+[ClassDataSource<TestWebApplicationFactory>(Shared = SharedType.PerClass)]
+// The shared factory starts its server lazily without a lock, so this class's tests run one at a time.
+[NotInParallel(nameof(SecurityHeadersTests))]
+public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenMakingRequest_ThenResponseIncludesStrictTransportSecurityHeader()
     {
         // HSTS is excluded for localhost by the library; use a real hostname + https scheme
@@ -15,36 +18,36 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
             c.Request.Scheme = "https";
             c.Request.Host = new HostString("example.com");
             c.Request.Path = "/api/ai/health";
-        }, TestContext.Current.CancellationToken);
+        }, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveStrictTransportSecurityHeader(ctx);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenMakingRequest_ThenResponseIncludesContentSecurityPolicyHeader()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveContentSecurityPolicyHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenAuthenticatedUser_WhenMakingRequest_ThenResponseIncludesXContentTypeOptionsHeader()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldHaveXContentTypeOptionsHeader(response);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenProduction_WhenMakingRequest_ThenCspAllowsDataImagesAndNoInlineScripts()
     {
         HttpClient client = factory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         string imgSrc = GetCspDirective(response, "img-src");
         string scriptSrc = GetCspDirective(response, "script-src");
@@ -52,7 +55,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
         ItShouldNotAllowUnsafeInline(scriptSrc);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenDevelopment_WhenMakingRequest_ThenCspAllowsDataImagesAndInlineScripts()
     {
         using TestWebApplicationFactory devFactory = new()
@@ -64,7 +67,7 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
             }
         };
         HttpClient client = devFactory.CreateClient();
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
         string imgSrc = GetCspDirective(response, "img-src");
         string scriptSrc = GetCspDirective(response, "script-src");

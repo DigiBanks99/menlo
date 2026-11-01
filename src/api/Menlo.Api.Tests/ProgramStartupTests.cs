@@ -8,12 +8,12 @@ namespace Menlo.Api.Tests;
 
 public sealed class ProgramStartupTests : TestFixture
 {
-    [Fact]
+    [Test]
     public async Task CreateClient_WithStartupMigrationEnabled()
     {
         await using PostgreSqlContainer container = new PostgreSqlBuilder("postgres:17")
             .Build();
-        await container.StartAsync(TestContext.Current.CancellationToken);
+        await container.StartAsync(TestContext.Current!.Execution.CancellationToken);
 
         using TestWebApplicationFactory factory = new()
         {
@@ -22,16 +22,16 @@ public sealed class ProgramStartupTests : TestFixture
         };
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
         await using AsyncServiceScope scope = factory.Services.CreateAsyncScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
-        IEnumerable<string> appliedMigrations = await db.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken);
+        IEnumerable<string> appliedMigrations = await db.Database.GetAppliedMigrationsAsync(TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(response);
         ItShouldContainInitialCreateMigration(appliedMigrations);
     }
 
-    [Fact]
+    [Test]
     public void CreateClient_WithMissingConnectionString()
     {
         using TestWebApplicationFactory factory = new()
@@ -43,7 +43,7 @@ public sealed class ProgramStartupTests : TestFixture
         Action act = () =>
         {
             using HttpClient client = factory.CreateClient();
-            _ = client.GetAsync("/api/ai/health", TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+            _ = client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken).GetAwaiter().GetResult();
         };
 
         InvalidOperationException exception = act.ShouldThrow<InvalidOperationException>();
@@ -51,7 +51,7 @@ public sealed class ProgramStartupTests : TestFixture
         ItShouldMentionMissingConnectionString(exception);
     }
 
-    [Fact]
+    [Test]
     public void CreateClient_WithInvalidAuthenticationConfiguration()
     {
         using TestWebApplicationFactory factory = new()
@@ -68,7 +68,7 @@ public sealed class ProgramStartupTests : TestFixture
         Action act = () =>
         {
             using HttpClient client = factory.CreateClient();
-            _ = client.GetAsync("/auth/user", TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+            _ = client.GetAsync("/auth/user", TestContext.Current!.Execution.CancellationToken).GetAwaiter().GetResult();
         };
 
         OptionsValidationException exception = act.ShouldThrow<OptionsValidationException>();

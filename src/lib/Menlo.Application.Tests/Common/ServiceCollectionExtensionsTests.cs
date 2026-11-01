@@ -9,10 +9,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace Menlo.Application.Tests.Common;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenSkipMigrationTrue_WhenMigrateDatabaseAsync_ThenReturnsWithoutMigrating()
     {
         string connectionString = fixture.Services
@@ -33,10 +34,10 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         using IHost host = builder.Build();
 
         // Act - should return early without migrating (no throw = pass)
-        await host.MigrateDatabaseAsync(TestContext.Current.CancellationToken);
+        await host.MigrateDatabaseAsync(TestContext.Current!.Execution.CancellationToken);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenValidConnection_WhenMigrateDatabaseAsync_ThenMigratesSuccessfully()
     {
         string connectionString = fixture.Services
@@ -56,10 +57,10 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         using IHost host = builder.Build();
 
         // Act - idempotent migration (db already migrated by fixture, so this just verifies the path)
-        await host.MigrateDatabaseAsync(TestContext.Current.CancellationToken);
+        await host.MigrateDatabaseAsync(TestContext.Current!.Execution.CancellationToken);
     }
 
-    [Fact]
+    [Test]
     public void GivenDevelopmentEnvironment_WhenResolvingDbContext_ThenConnectionStringDisablesSsl()
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
@@ -84,7 +85,7 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         ItShouldHaveSslModeDisabled(connectionString);
     }
 
-    [Fact]
+    [Test]
     public void GivenProductionEnvironment_WhenResolvingDbContext_ThenConnectionStringRequiresSsl()
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
@@ -107,7 +108,7 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         ItShouldHaveSslModeRequired(connectionString);
     }
 
-    [Fact]
+    [Test]
     public void GivenExplicitSslMode_WhenResolvingDbContext_ThenConfiguredSslModeIsPreserved()
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
@@ -130,7 +131,7 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         ItShouldHaveSslModeDisabled(connectionString);
     }
 
-    [Fact]
+    [Test]
     public void GivenMissingConnectionString_WhenResolvingDbContext_ThenThrowsInvalidOperationException()
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
@@ -149,7 +150,7 @@ public sealed class ServiceCollectionExtensionsTests(PersistenceFixture fixture)
         act.ShouldThrow<InvalidOperationException>();
     }
 
-    [Fact]
+    [Test]
     public void GivenValidConfiguration_WhenResolvingIUserContext_ThenReturnsScopedMenloDbContext()
     {
         string connectionString = fixture.Services

@@ -13,10 +13,11 @@ using System.Security.Claims;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[Collection("Onboarding")]
+[ClassDataSource<OnboardingPersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Onboarding")]
 public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenNewOidcUser_WhenTokenValidated_UserIsProvisioned()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
@@ -30,16 +31,16 @@ public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixtur
         ExternalUserId normalizedExternalId = new(externalId);
         User? user = await db.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
         OnboardingState? onboardingState = await db.OnboardingStates
             .AsNoTracking()
-            .FirstOrDefaultAsync(state => state.UserId == user!.Id, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(state => state.UserId == user!.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveProvisionedUser(user, email, displayName);
         ItShouldHaveProvisionedOnboardingState(onboardingState, user!.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenExistingUser_WhenProvisioningCalled_NoDuplicate()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
@@ -51,12 +52,12 @@ public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixtur
         using IServiceScope scope = fixture.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId normalizedExternalId = new(externalId);
-        int userCount = await db.Users.CountAsync(user => user.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+        int userCount = await db.Users.CountAsync(user => user.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
         User persistedUser = await db.Users
             .AsNoTracking()
-            .SingleAsync(user => user.ExternalId == normalizedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(user => user.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
         int onboardingStateCount = await db.OnboardingStates
-            .CountAsync(state => state.UserId == persistedUser.Id, TestContext.Current.CancellationToken);
+            .CountAsync(state => state.UserId == persistedUser.Id, TestContext.Current!.Execution.CancellationToken);
 
         userCount.ShouldBe(1);
         onboardingStateCount.ShouldBe(1);

@@ -6,17 +6,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
+using TUnit.Core.Interfaces;
 
 namespace Menlo.Application.Tests.Fixtures;
 
-public sealed class PersistenceFixture : IAsyncLifetime
+public sealed class PersistenceFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     public IServiceProvider Services { get; private set; } = null!;
 
-    public async ValueTask InitializeAsync()
+    public async Task InitializeAsync()
     {
         await _container.StartAsync();
 
@@ -56,8 +57,3 @@ public sealed class TestSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(TestAuditStampFactory.TestUserId, DateTimeOffset.UtcNow);
 }
-
-[CollectionDefinition("Persistence")]
-public sealed class PersistenceCollection : ICollectionFixture<PersistenceFixture>;
-
-

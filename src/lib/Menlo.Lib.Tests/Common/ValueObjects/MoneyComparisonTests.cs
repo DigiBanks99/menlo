@@ -12,7 +12,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-014: Compare Money with same currency
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithSameCurrency_WhenComparing()
     {
         // Arrange
@@ -27,7 +27,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-014: Compare equal Money
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenEqualMoney_WhenComparing()
     {
         // Arrange
@@ -43,7 +43,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-015: Throw exception when comparing different currencies
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoneyWithDifferentCurrency_WhenComparing()
     {
         // Arrange
@@ -59,7 +59,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-016: Test less than operator
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenSmallerMoney_WhenUsingLessThanOperator()
     {
         // Arrange
@@ -74,7 +74,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-016: Test greater than operator
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenLargerMoney_WhenUsingGreaterThanOperator()
     {
         // Arrange
@@ -89,7 +89,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-017: Test less than or equal operator
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenUsingLessThanOrEqualOperator()
     {
         // Arrange
@@ -106,7 +106,7 @@ public sealed class MoneyComparisonTests
     /// <summary>
     /// TC-MON-017: Test greater than or equal operator
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenMoney_WhenUsingGreaterThanOrEqualOperator()
     {
         // Arrange

@@ -22,7 +22,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         _transformer = new CookieSecuritySchemeTransformer(_authenticationSchemeProvider);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsRegistered_WhenTransforming()
     {
         AuthenticationScheme[] schemes =
@@ -41,7 +41,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldHaveCorrectSecuritySchemeConfiguration(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsRegistered_AndDocumentHasOperations_WhenTransforming()
     {
         AuthenticationScheme[] schemes =
@@ -59,7 +59,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldAddSecurityRequirementsToAllOperations(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsNotRegistered_WhenTransforming()
     {
         AuthenticationScheme[] schemes = [new AuthenticationScheme("Bearer", "Bearer", typeof(TestAuthHandler))];
@@ -73,7 +73,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldNotAddSecurityScheme(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenNoAuthenticationSchemes_WhenTransforming()
     {
         AuthenticationScheme[] schemes = [];
@@ -87,7 +87,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldNotAddSecurityScheme(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsRegistered_AndDocumentHasNoOperations_WhenTransforming()
     {
         AuthenticationScheme[] schemes =
@@ -106,7 +106,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldNotFailWhenNoOperationsExist(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsRegistered_AndDocumentAlreadyHasComponents_WhenTransforming()
     {
         AuthenticationScheme[] schemes =
@@ -125,7 +125,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldPreserveExistingComponents(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenCookieAuthenticationSchemeIsRegistered_AndOperationAlreadyHasSecurity_WhenTransforming()
     {
         AuthenticationScheme[] schemes =
@@ -143,7 +143,7 @@ public sealed class CookieSecuritySchemeTransformerTests
         ItShouldAddCookieSecurityRequirementToExistingSecurityList(document);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenMultipleAuthenticationSchemes_IncludingCookie_WhenTransforming()
     {
         AuthenticationScheme[] schemes =

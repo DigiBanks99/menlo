@@ -7,10 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Menlo.Application.Tests.Infrastructure;
 
-[Collection("Persistence")]
+[ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Persistence")]
 public sealed class SoftDeleteIntegrationTests(PersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task DeleteUserIntegrationTest()
     {
         // Arrange - create and persist a user
@@ -21,19 +22,19 @@ public sealed class SoftDeleteIntegrationTests(PersistenceFixture fixture)
         {
             IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
             userContext.Users.Remove(user);
-            await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         }
 
         // Assert - default queries should not return the deleted user
         using (IServiceScope scope = fixture.Services.CreateScope())
         {
             IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
-            List<User> all = await userContext.Users.ToListAsync(TestContext.Current.CancellationToken);
+            List<User> all = await userContext.Users.ToListAsync(TestContext.Current!.Execution.CancellationToken);
             all.Any(u => u.Id == user.Id).ShouldBeFalse();
         }
     }
 
-    [Fact]
+    [Test]
     public async Task DeletedUserIgnoredFilterTest()
     {
         // Arrange - create and persist a user
@@ -44,7 +45,7 @@ public sealed class SoftDeleteIntegrationTests(PersistenceFixture fixture)
         {
             IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
             userContext.Users.Remove(user);
-            await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
         }
 
         // Assert - using IgnoreQueryFilters we should see soft-delete metadata
@@ -53,7 +54,7 @@ public sealed class SoftDeleteIntegrationTests(PersistenceFixture fixture)
             IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
             User? deleted = await userContext.Users
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(u => u.Id == user.Id, TestContext.Current.CancellationToken);
+                .FirstOrDefaultAsync(u => u.Id == user.Id, TestContext.Current!.Execution.CancellationToken);
 
             deleted.ShouldNotBeNull();
             deleted.IsDeleted.ShouldBeTrue();
@@ -74,7 +75,7 @@ public sealed class SoftDeleteIntegrationTests(PersistenceFixture fixture)
             .Value;
 
         userContext.Users.Add(user);
-        await userContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return user;
     }

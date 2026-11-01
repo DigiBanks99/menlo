@@ -14,7 +14,7 @@ public sealed class MenloAuthOptionsValidatorTests
 {
     private readonly MenloAuthOptionsValidator _validator = new();
 
-    [Fact]
+    [Test]
     public void GivenValidOptionsWithClientSecret_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -24,7 +24,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidOptionsWithCertificate_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -43,7 +43,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidOptionsWithABase64Certificate_WhenValidating()
     {
         ConfigurationBuilder configBuilder = new();
@@ -67,7 +67,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidOptionsWithBothSecretAndCertificate_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -85,9 +85,9 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldSucceed(result);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
     public void GivenInvalidInstance_WhenValidating(string value)
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -99,7 +99,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "Instance");
     }
 
-    [Fact]
+    [Test]
     public void GivenNullInstance_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -111,9 +111,9 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "Instance");
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
     public void GivenInvalidTenantId_WhenValidating(string value)
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -125,7 +125,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "TenantId");
     }
 
-    [Fact]
+    [Test]
     public void GivenNullTenantId_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -137,9 +137,9 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "TenantId");
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
     public void GivenInvalidClientId_WhenValidating(string value)
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -151,7 +151,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "ClientId");
     }
 
-    [Fact]
+    [Test]
     public void GivenNullClientId_WhenValidating()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -163,9 +163,9 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "ClientId");
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
     public void GivenInvalidClientSecret_WhenValidating_AndNoCertificates(string value)
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -178,7 +178,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
-    [Fact]
+    [Test]
     public void GivenNullClientSecret_WhenValidating_AndNoCertificates()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -191,7 +191,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyClientSecret_WhenValidating_AndHasCertificates()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -210,7 +210,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyCertificates_WhenValidating_AndNoClientSecret()
     {
         MenloAuthOptions options = CreateValidOptions();
@@ -223,7 +223,7 @@ public sealed class MenloAuthOptionsValidatorTests
         ItShouldContainFailure(result, "ClientSecret or ClientCertificates");
     }
 
-    [Fact]
+    [Test]
     public void GivenMultipleInvalidFields_WhenValidating()
     {
         MenloAuthOptions options = new()

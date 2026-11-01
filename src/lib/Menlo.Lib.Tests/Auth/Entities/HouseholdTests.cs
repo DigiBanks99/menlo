@@ -14,7 +14,7 @@ namespace Menlo.Lib.Tests.Auth.Entities;
 /// </summary>
 public sealed class HouseholdTests
 {
-    [Fact]
+    [Test]
     public void GivenValidName_WhenCreatingHousehold()
     {
         string name = "Smith Family";
@@ -27,7 +27,7 @@ public sealed class HouseholdTests
         ItShouldRaiseCreatedEvent(result, name);
     }
 
-    [Fact]
+    [Test]
     public void GivenNameWithWhitespace_WhenCreatingHousehold()
     {
         string name = "  Smith Family  ";
@@ -38,7 +38,7 @@ public sealed class HouseholdTests
         ItShouldHaveName(result, "Smith Family");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyName_WhenCreatingHousehold()
     {
         Result<Household, HouseholdError> result = Household.Create("");
@@ -48,7 +48,7 @@ public sealed class HouseholdTests
         ItShouldHaveReasonContaining(result, "name");
     }
 
-    [Fact]
+    [Test]
     public void GivenWhitespaceName_WhenCreatingHousehold()
     {
         Result<Household, HouseholdError> result = Household.Create("   ");
@@ -58,7 +58,7 @@ public sealed class HouseholdTests
         ItShouldHaveReasonContaining(result, "name");
     }
 
-    [Fact]
+    [Test]
     public void GivenValidHousehold_WhenAuditingForCreate()
     {
         Result<Household, HouseholdError> createResult = Household.Create("Smith Family");
@@ -73,7 +73,7 @@ public sealed class HouseholdTests
         household.ModifiedAt.ShouldNotBeNull();
     }
 
-    [Fact]
+    [Test]
     public void GivenValidHousehold_WhenAuditingForUpdate()
     {
         Result<Household, HouseholdError> createResult = Household.Create("Smith Family");
@@ -88,7 +88,7 @@ public sealed class HouseholdTests
         household.ModifiedAt.ShouldNotBeNull();
     }
 
-    [Fact]
+    [Test]
     public void GivenValidHousehold_WhenClearingDomainEvents()
     {
         Result<Household, HouseholdError> createResult = Household.Create("Smith Family");

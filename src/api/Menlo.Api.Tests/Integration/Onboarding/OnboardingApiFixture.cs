@@ -6,13 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
+using TUnit.Core.Interfaces;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[CollectionDefinition("Onboarding API")]
-public sealed class OnboardingApiCollection : ICollectionFixture<OnboardingApiFixture>;
-
-public sealed class OnboardingApiFixture : IAsyncLifetime
+public sealed class OnboardingApiFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
@@ -21,9 +19,9 @@ public sealed class OnboardingApiFixture : IAsyncLifetime
 
     public IServiceProvider Services { get; private set; } = null!;
 
-    public async ValueTask InitializeAsync()
+    public async Task InitializeAsync()
     {
-        await _container.StartAsync(TestContext.Current.CancellationToken);
+        await _container.StartAsync();
         ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
 
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
@@ -44,11 +42,11 @@ public sealed class OnboardingApiFixture : IAsyncLifetime
 
         using IServiceScope scope = Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
-        await db.Database.MigrateAsync(TestContext.Current.CancellationToken);
+        await db.Database.MigrateAsync();
 
         await using TestWebApplicationFactory factory = CreateFactory();
         using HttpClient client = factory.CreateClient();
-        _ = await client.GetAsync("/health", TestContext.Current.CancellationToken);
+        _ = await client.GetAsync("/health");
     }
 
     public async ValueTask DisposeAsync()

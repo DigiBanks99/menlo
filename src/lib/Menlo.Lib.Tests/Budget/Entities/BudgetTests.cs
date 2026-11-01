@@ -19,7 +19,7 @@ public sealed class BudgetTests
     // Budget.Create
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenValidHouseholdAndYear_WhenCreatingBudget()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -37,7 +37,7 @@ public sealed class BudgetTests
         ItShouldRaiseBudgetCreatedEvent(result, year);
     }
 
-    [Fact]
+    [Test]
     public void GivenYearOfZero_WhenCreatingBudget()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -50,7 +50,7 @@ public sealed class BudgetTests
         ItShouldBeInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNegativeYear_WhenCreatingBudget()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -63,7 +63,7 @@ public sealed class BudgetTests
         ItShouldBeInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidYear_WhenCreatingBudget_StatusIsDraft()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -76,7 +76,7 @@ public sealed class BudgetTests
         ItShouldHaveStatus(result, BudgetStatus.Draft);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidYear_WhenCreatingBudget_TotalPlannedMonthlyAmountIsZero()
     {
         HouseholdId householdId = HouseholdId.NewId();
@@ -93,7 +93,7 @@ public sealed class BudgetTests
     // Budget.AddCategory
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenValidName_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -106,7 +106,7 @@ public sealed class BudgetTests
         ItShouldRaiseBudgetCategoryAddedEvent(budget, result.Value, null);
     }
 
-    [Fact]
+    [Test]
     public void GivenNameWithWhitespace_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -117,7 +117,7 @@ public sealed class BudgetTests
         ItShouldHaveCategoryName(result, "Groceries");
     }
 
-    [Fact]
+    [Test]
     public void GivenEmptyName_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -128,7 +128,7 @@ public sealed class BudgetTests
         ItShouldBeCategoryInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateSiblingName_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -140,7 +140,7 @@ public sealed class BudgetTests
         ItShouldBeDuplicateCategoryNameError(result, "GROCERIES");
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateNameUnderDifferentParent_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -154,7 +154,7 @@ public sealed class BudgetTests
         ItShouldHaveCategoryName(result, "Groceries");
     }
 
-    [Fact]
+    [Test]
     public void GivenParentId_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -167,7 +167,7 @@ public sealed class BudgetTests
         ItShouldHaveParentId(result, parentId);
     }
 
-    [Fact]
+    [Test]
     public void GivenChildCategory_WhenAddingGrandchild_ThenDepthErrorReturned()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -180,7 +180,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryDepthError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenValidCategory_WhenAddingCategory_DefaultPlannedAmountIsZeroZar()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -196,7 +196,7 @@ public sealed class BudgetTests
     // Budget.Activate
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenDraftBudgetWithCategory_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -208,7 +208,7 @@ public sealed class BudgetTests
         budget.Status.ShouldBe(BudgetStatus.Active);
     }
 
-    [Fact]
+    [Test]
     public void GivenDraftBudgetWithNoCategories_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -219,7 +219,7 @@ public sealed class BudgetTests
         budget.Status.ShouldBe(BudgetStatus.Active);
     }
 
-    [Fact]
+    [Test]
     public void GivenActiveBudget_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateActiveBudget();
@@ -230,7 +230,7 @@ public sealed class BudgetTests
         ItShouldBeInvalidBudgetStatusErrorForActivate(result, "Active");
     }
 
-    [Fact]
+    [Test]
     public void GivenClosedBudget_WhenActivating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateClosedBudget();
@@ -245,7 +245,7 @@ public sealed class BudgetTests
     // Budget.Close
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenActiveBudget_WhenClosing()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateActiveBudget();
@@ -256,7 +256,7 @@ public sealed class BudgetTests
         budget.Status.ShouldBe(BudgetStatus.Closed);
     }
 
-    [Fact]
+    [Test]
     public void GivenDraftBudget_WhenClosing()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -267,7 +267,7 @@ public sealed class BudgetTests
         ItShouldBeInvalidBudgetStatusErrorForClose(result, "Draft");
     }
 
-    [Fact]
+    [Test]
     public void GivenAlreadyClosedBudget_WhenClosing()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateClosedBudget();
@@ -282,7 +282,7 @@ public sealed class BudgetTests
     // ISoftDeletable
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenValidBudget_WhenDeleting()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -299,7 +299,7 @@ public sealed class BudgetTests
     // TotalPlannedMonthlyAmount
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenMultipleCategories_TotalPlannedMonthlyAmountIsAlwaysZero()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -314,7 +314,7 @@ public sealed class BudgetTests
     // CloneForYear
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenSourceBudget_WhenCloningForYear()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -332,7 +332,7 @@ public sealed class BudgetTests
         ItShouldHaveClonedCategories(result, source);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceBudgetWithNestedCategories_WhenCloningForYear_ThenParentChildRelationshipsPreserved()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -347,7 +347,7 @@ public sealed class BudgetTests
         ItShouldHaveClonedCategoriesWithParentChildRelationships(result, source);
     }
 
-    [Fact]
+    [Test]
     public void GivenClone_WhenModifyingSource_ThenCloneIsNotAffected()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -605,7 +605,7 @@ public sealed class BudgetTests
     // Budget.AddCategory — extended tests
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenAllOptionalFields_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -628,7 +628,7 @@ public sealed class BudgetTests
         ItShouldHaveCanonicalCategoryId(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentParent_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -640,7 +640,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryNotFoundError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenSoftDeletedParent_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -653,7 +653,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<DeletedParentError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateNameButExistingSiblingIsDeleted_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -666,7 +666,7 @@ public sealed class BudgetTests
         ItShouldHaveCategoryName(result, "Groceries");
     }
 
-    [Fact]
+    [Test]
     public void GivenWhitespaceOnlyName_WhenAddingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -677,7 +677,7 @@ public sealed class BudgetTests
         ItShouldBeCategoryInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenBudgetFlowIncome_WhenAddingCategory_ThenBudgetFlowIsIncome()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -688,7 +688,7 @@ public sealed class BudgetTests
         ItShouldHaveBudgetFlow(result, BudgetFlow.Income);
     }
 
-    [Fact]
+    [Test]
     public void GivenBudgetFlowBoth_WhenAddingCategory_ThenBudgetFlowIsBoth()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -699,7 +699,7 @@ public sealed class BudgetTests
         ItShouldHaveBudgetFlow(result, BudgetFlow.Both);
     }
 
-    [Fact]
+    [Test]
     public void GivenSubcategory_WhenAddingCategory_ThenRaisesEventWithParentId()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -715,7 +715,7 @@ public sealed class BudgetTests
     // Budget.UpdateCategory
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenValidCategory_WhenUpdatingName()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -728,7 +728,7 @@ public sealed class BudgetTests
         ItShouldHaveCategoryName(result, "NewName");
     }
 
-    [Fact]
+    [Test]
     public void GivenValidCategory_WhenUpdatingAllFields()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -752,7 +752,7 @@ public sealed class BudgetTests
         ItShouldHaveResponsiblePayer(result, "Corp");
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateSiblingName_WhenUpdatingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -766,7 +766,7 @@ public sealed class BudgetTests
         ItShouldBeDuplicateCategoryNameError(result, "Existing");
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenUpdating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -779,7 +779,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryNotFoundError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenSoftDeletedCategory_WhenUpdating()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -793,7 +793,7 @@ public sealed class BudgetTests
         ItShouldBeCategoryInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidCategory_WhenUpdating_ThenRaisesCategoryUpdatedEvent()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -805,7 +805,7 @@ public sealed class BudgetTests
         ItShouldRaiseCategoryUpdatedEvent(budget, category.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidCategory_WhenUpdating_ThenCanonicalCategoryIdIsPreserved()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -819,7 +819,7 @@ public sealed class BudgetTests
         result.Value.CanonicalCategoryId.ShouldBe(originalCanonicalId);
     }
 
-    [Fact]
+    [Test]
     public void GivenSameNameAsSelf_WhenUpdatingCategory_ThenSucceeds()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -836,7 +836,7 @@ public sealed class BudgetTests
     // Budget.ReparentCategory
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenChildCategory_WhenReparentingToDifferentRoot()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -852,7 +852,7 @@ public sealed class BudgetTests
         ItShouldRaiseCategoryReparentedEvent(budget, child.Id, root1.Id, root2.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenChildCategory_WhenPromotingToRoot()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -867,7 +867,7 @@ public sealed class BudgetTests
         ItShouldRaiseCategoryReparentedEvent(budget, child.Id, root.Id, null);
     }
 
-    [Fact]
+    [Test]
     public void GivenRootWithChildren_WhenReparentingUnderAnotherRoot_ThenDepthError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -881,7 +881,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryDepthError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenCategory_WhenReparentingUnderAChild_ThenDepthError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -895,7 +895,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryDepthError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenCategory_WhenReparentingToSelf_ThenInvalidBudgetDataError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -907,7 +907,7 @@ public sealed class BudgetTests
         ItShouldBeCategoryInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenDeletedParent_WhenReparentingCategory_ThenDeletedParentError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -921,7 +921,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<DeletedParentError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentNewParent_WhenReparentingCategory()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -934,7 +934,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryNotFoundError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenReparenting()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -947,7 +947,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<CategoryNotFoundError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenSoftDeletedCategory_WhenReparenting()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -961,7 +961,7 @@ public sealed class BudgetTests
         ItShouldBeCategoryInvalidBudgetDataError(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenDuplicateNameInNewScope_WhenReparenting_ThenDuplicateNameError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -980,7 +980,7 @@ public sealed class BudgetTests
     // Budget.SoftDeleteCategory
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenLeafCategory_WhenSoftDeleting()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -994,7 +994,7 @@ public sealed class BudgetTests
         ItShouldRaiseCategorySoftDeletedEvent(budget, leaf.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenParentCategory_WhenSoftDeleting_ThenCascadesToChildren()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1009,7 +1009,7 @@ public sealed class BudgetTests
         ItShouldHaveDeletedCategory(budget, child.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenAlreadyDeletedCategory_WhenSoftDeleting_ThenNoOpSuccess()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1023,7 +1023,7 @@ public sealed class BudgetTests
         budget.DomainEvents.ShouldBeEmpty(); // No event for no-op
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenSoftDeleting()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1039,7 +1039,7 @@ public sealed class BudgetTests
     // Budget.RestoreCategory
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenDeletedCategory_WhenRestoring()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1054,7 +1054,7 @@ public sealed class BudgetTests
         ItShouldRaiseCategoryRestoredEvent(budget, category.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenDeletedParentWithChildren_WhenRestoring_ThenCascadesToChildren()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1070,7 +1070,7 @@ public sealed class BudgetTests
         ItShouldHaveActiveCategory(budget, child.Id);
     }
 
-    [Fact]
+    [Test]
     public void GivenAlreadyActiveCategory_WhenRestoring_ThenNoOpSuccess()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1083,7 +1083,7 @@ public sealed class BudgetTests
         budget.DomainEvents.ShouldBeEmpty();
     }
 
-    [Fact]
+    [Test]
     public void GivenDeletedChild_WhenRestoringWhileParentIsDeleted_ThenInvalidBudgetDataError()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1098,7 +1098,7 @@ public sealed class BudgetTests
         result.Error.ShouldBeOfType<InvalidBudgetDataError>();
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenRestoring()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1114,7 +1114,7 @@ public sealed class BudgetTests
     // Budget.CloneForYear — extended tests
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenSourceWithDeletedCategories_WhenCloningForYear_ThenDeletedCategoriesAreNotCloned()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -1131,7 +1131,7 @@ public sealed class BudgetTests
         result.Value.Categories.First().Name.Value.ShouldBe("Active");
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithCategories_WhenCloningForYear_ThenCanonicalCategoryIdsArePreserved()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -1146,7 +1146,7 @@ public sealed class BudgetTests
         clonedCategory.CanonicalCategoryId.ShouldBe(sourceCategory.CanonicalCategoryId);
     }
 
-    [Fact]
+    [Test]
     public void GivenSourceWithAllFields_WhenCloningForYear_ThenAllFieldsArePreserved()
     {
         Menlo.Lib.Budget.Entities.Budget source = CreateDraftBudget(year: 2024);
@@ -1175,7 +1175,7 @@ public sealed class BudgetTests
     // Budget.Activate — extended tests
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenDraftBudgetWithNoAmounts_WhenActivating_ThenSucceeds()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();
@@ -1190,7 +1190,7 @@ public sealed class BudgetTests
     // CategoryNode.PlannedMonthlyAmount
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenCategoryNode_PlannedMonthlyAmountIsAlwaysZero()
     {
         Menlo.Lib.Budget.Entities.Budget budget = CreateDraftBudget();

@@ -1,5 +1,6 @@
 using Shouldly;
 using System.Reflection;
+using Assembly = System.Reflection.Assembly;
 
 namespace Menlo.Lib.Tests;
 
@@ -9,7 +10,7 @@ namespace Menlo.Lib.Tests;
 /// </summary>
 public sealed class ConstraintVerificationTests
 {
-    [Fact]
+    [Test]
     public void GivenMenloLibAssembly_WhenSearchingForClaimsPrincipal()
     {
         // Arrange
@@ -63,7 +64,7 @@ public sealed class ConstraintVerificationTests
         violatingTypes.ShouldBeEmpty($"Found ClaimsPrincipal references: {string.Join(", ", violatingTypes)}");
     }
 
-    [Fact]
+    [Test]
     public void GivenMenloLibAssembly_WhenSearchingForSecurityClaimsNamespace()
     {
         // Arrange
@@ -83,7 +84,7 @@ public sealed class ConstraintVerificationTests
         hasSecurityClaimsReference.ShouldBeFalse("Menlo.Lib should not reference System.Security.Claims");
     }
 
-    [Fact]
+    [Test]
     public void GivenMenloLibAssembly_WhenSearchingForAspNetCore()
     {
         // Arrange
@@ -103,7 +104,7 @@ public sealed class ConstraintVerificationTests
         hasAspNetCoreReference.ShouldBeFalse("Menlo.Lib should not reference ASP.NET Core");
     }
 
-    [Fact]
+    [Test]
     public void GivenMenloLibAssembly_WhenSearchingForEntityFramework()
     {
         // Arrange

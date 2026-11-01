@@ -9,7 +9,7 @@ namespace Menlo.Lib.Tests.Auth.Events;
 /// </summary>
 public sealed class UserLoggedInEventTests
 {
-    [Fact]
+    [Test]
     public void GivenUserIdAndTimestamp_WhenCreatingEvent()
     {
         UserId userId = UserId.NewId();
@@ -21,7 +21,7 @@ public sealed class UserLoggedInEventTests
         ItShouldHaveTimestamp(loginEvent, timestamp);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoEventsWithSameData_WhenComparingEvents()
     {
         UserId userId = UserId.NewId();
@@ -32,7 +32,7 @@ public sealed class UserLoggedInEventTests
         ItShouldBeEqual(event1, event2);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoEventsWithDifferentUserIds_WhenComparingEvents()
     {
         UserId userId1 = UserId.NewId();
@@ -44,7 +44,7 @@ public sealed class UserLoggedInEventTests
         ItShouldNotBeEqual(event1, event2);
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoEventsWithDifferentTimestamps_WhenComparingEvents()
     {
         UserId userId = UserId.NewId();

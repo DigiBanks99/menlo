@@ -12,41 +12,27 @@ using System.Text.Json;
 
 namespace Menlo.Api.Tests.Budget;
 
-[Collection("Budget")]
+[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Budget")]
 public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFixture
 {
     private static readonly JsonSerializerOptions JsonOptions =
         new() { PropertyNameCaseInsensitive = true };
 
-    private static readonly HouseholdId CloneWithCategoriesHousehold =
-        new(Guid.Parse("70707070-7070-7070-7070-707070707070"));
-
-    private static readonly HouseholdId NoCurrentYearHousehold =
-        new(Guid.Parse("71717171-7171-7171-7171-717171717171"));
-
-    private static readonly HouseholdId NestedCategoriesHousehold =
-        new(Guid.Parse("72727272-7272-7272-7272-727272727272"));
-
-    private static readonly HouseholdId LastYearSourceHousehold =
-        new(Guid.Parse("5e5e5e5e-5e5e-5e5e-5e5e-5e5e5e5e5e5e"));
-
-    private static readonly HouseholdId StaleSourceHousehold =
-        new(Guid.Parse("7e7e7e7e-7e7e-7e7e-7e7e-7e7e7e7e7e7e"));
-
     // -------------------------------------------------------------------------
     // Clone with categories
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenCurrentYearBudgetExists_WhenCreateNextYearBudget_ThenReturns201WithClonedCategories()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(CloneWithCategoriesHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Create current-year budget via API
         HttpResponseMessage createResponse =
-            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? createdDto = await DeserializeBudgetDto(createResponse);
         createResponse.IsSuccessStatusCode.ShouldBeTrue();
         createdDto.ShouldNotBeNull();
@@ -56,7 +42,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
         // Create next-year budget via API (should clone)
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveReturned201Created(response);
@@ -72,16 +58,16 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     // No current-year budget → empty clone fallback
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenNoCurrentYearBudget_WhenCreateNextYearBudget_ThenReturns201WithEmptyCategories()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NoCurrentYearHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Do NOT create any current-year budget — go straight to next year
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveReturned201Created(response);
@@ -93,16 +79,16 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     // Nested categories — parent/child relationships preserved after clone
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenNestedCategoriesInCurrentYear_WhenCreateNextYearBudget_ThenParentChildRelationshipsPreserved()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(NestedCategoriesHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Create current-year budget via API
         HttpResponseMessage createResponse =
-            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? createdDto = await DeserializeBudgetDto(createResponse);
         createResponse.IsSuccessStatusCode.ShouldBeTrue();
         createdDto.ShouldNotBeNull();
@@ -112,7 +98,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
         // Create next-year budget via API (should clone with hierarchy)
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear + 1}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveReturned201Created(response);
@@ -125,19 +111,19 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     // Previous-year budget → current year clones from it
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public async Task GivenLastYearBudgetExists_WhenCreateCurrentYearBudget_ThenReturns201WithClonedCategories()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(LastYearSourceHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // The API only creates current/next year, so last year's budget is seeded directly
-        Guid lastYearBudgetId = await SeedBudgetAsync(factory, LastYearSourceHousehold, currentYear - 1);
+        Guid lastYearBudgetId = await SeedBudgetAsync(factory, factory.HouseholdId, currentYear - 1);
         Guid sourceCategoryId = await SeedCategoryWithPlannedAmountAsync(factory, lastYearBudgetId, "Utilities", 800m, "ZAR");
 
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveReturned201Created(response);
@@ -147,19 +133,19 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         ItShouldHaveNewCategoryId(dto, sourceCategoryId);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenOnlyAnOlderBudgetExists_WhenCreateCurrentYearBudget_ThenReturns201WithEmptyCategories()
     {
-        await using BudgetTestWebApplicationFactory factory = CreateIsolatedFactory(StaleSourceHousehold);
-        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Only Y-1 is a clone source; a budget from two years back is not
-        Guid staleBudgetId = await SeedBudgetAsync(factory, StaleSourceHousehold, currentYear - 2);
+        Guid staleBudgetId = await SeedBudgetAsync(factory, factory.HouseholdId, currentYear - 2);
         await SeedCategoryWithPlannedAmountAsync(factory, staleBudgetId, "Utilities", 800m, "ZAR");
 
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current.CancellationToken);
+            await client.PostAsync($"/api/budgets/{currentYear}", null, TestContext.Current!.Execution.CancellationToken);
         BudgetDto? dto = await DeserializeBudgetDto(response);
 
         ItShouldHaveReturned201Created(response);
@@ -170,17 +156,6 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
     // -------------------------------------------------------------------------
     // Factory helper
     // -------------------------------------------------------------------------
-
-    private BudgetTestWebApplicationFactory CreateIsolatedFactory(HouseholdId householdId) =>
-        new(householdId)
-        {
-            MenloConnectionString = fixture.ConnectionString,
-            SkipMigration = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
-        };
 
     // -------------------------------------------------------------------------
     // DB seeding helpers
@@ -199,7 +174,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
         Lib.Budget.Entities.Budget budget = await db.Budgets
             .Include(b => b.Categories)
-            .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
+            .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current!.Execution.CancellationToken);
 
         budget.AddCategory(categoryName, BudgetFlow.Expense);
         CategoryNode category = budget.Categories.First(c => c.Name.Value == categoryName);
@@ -208,7 +183,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         canonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
         db.CanonicalCategories.Add(canonical);
 
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return category.Id.Value;
     }
@@ -224,7 +199,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
         Lib.Budget.Entities.Budget budget = Lib.Budget.Entities.Budget.Create(householdId, year, auditFactory).Value;
         db.Budgets.Add(budget);
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         return budget.Id.Value;
     }
@@ -241,7 +216,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
         Lib.Budget.Entities.Budget budget = await db.Budgets
             .Include(b => b.Categories)
-            .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current.CancellationToken);
+            .FirstAsync(b => b.Id == new BudgetId(budgetId), TestContext.Current!.Execution.CancellationToken);
 
         budget.AddCategory(parentName, BudgetFlow.Expense);
         CategoryNode parent = budget.Categories.First(c => c.Name.Value == parentName);
@@ -257,7 +232,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         childCanonical.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
         db.CanonicalCategories.Add(childCanonical);
 
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
     }
 
     // -------------------------------------------------------------------------

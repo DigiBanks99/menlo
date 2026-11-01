@@ -5,22 +5,19 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
-    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
     <PackageReference Include="Shouldly" />
+    <PackageReference Include="TUnit.Core" />
+    <PackageReference Include="TUnit.Engine" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Menlo.Lib\Menlo.Lib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
 
 </Project>

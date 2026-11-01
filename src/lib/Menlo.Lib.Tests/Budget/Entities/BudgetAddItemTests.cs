@@ -19,7 +19,7 @@ public sealed class BudgetAddItemTests
     // Budget.AddItem — Valid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenLeafCategory_WhenAddItemWithValidData_ThenSucceeds()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class BudgetAddItemTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenLeafCategory_WhenAddItem_ThenItemHasCorrectProperties()
     {
         // Arrange
@@ -59,7 +59,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeManualOverride(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenLeafCategory_WhenAddItem_ThenBudgetItemPlannedEventEmitted()
     {
         // Arrange
@@ -76,7 +76,7 @@ public sealed class BudgetAddItemTests
         ItShouldRaiseBudgetItemPlannedEvent(budget, result.Value, leafId, 6, amount);
     }
 
-    [Fact]
+    [Test]
     public void GivenBothFlowCategory_WhenAddExpenseItem_ThenSucceeds()
     {
         // Arrange
@@ -91,7 +91,7 @@ public sealed class BudgetAddItemTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenBothFlowCategory_WhenAddIncomeItem_ThenSucceeds()
     {
         // Arrange
@@ -106,7 +106,7 @@ public sealed class BudgetAddItemTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenDeletedItemForMonth_WhenAddNew_ThenSucceeds()
     {
         // Arrange
@@ -126,7 +126,7 @@ public sealed class BudgetAddItemTests
         ItShouldSucceed(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenValidData_WhenAddItemForEachMonth_ThenAll12Succeed()
     {
         // Arrange
@@ -148,7 +148,7 @@ public sealed class BudgetAddItemTests
     // Budget.AddItem — Invalid scenarios
     // -------------------------------------------------------------------------
 
-    [Fact]
+    [Test]
     public void GivenInvalidMonth0_WhenAddItem_ThenReturnsInvalidMonthError()
     {
         // Arrange
@@ -164,7 +164,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<InvalidMonthError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenInvalidMonth13_WhenAddItem_ThenReturnsInvalidMonthError()
     {
         // Arrange
@@ -180,7 +180,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<InvalidMonthError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNonExistentCategory_WhenAddItem_ThenReturnsCategoryNotFoundError()
     {
         // Arrange
@@ -196,7 +196,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<CategoryNotFoundError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenNonLeafCategory_WhenAddItem_ThenReturnsNonLeafCategoryError()
     {
         // Arrange — use the root category (which has a child)
@@ -212,7 +212,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<NonLeafCategoryError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenExpenseOnlyCategory_WhenAddIncomeItem_ThenReturnsInvalidBudgetFlowError()
     {
         // Arrange
@@ -228,7 +228,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<InvalidBudgetFlowError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenIncomeOnlyCategory_WhenAddExpenseItem_ThenReturnsInvalidBudgetFlowError()
     {
         // Arrange
@@ -244,7 +244,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<InvalidBudgetFlowError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenBudgetFlowBoth_WhenAddItemWithBothFlow_ThenReturnsInvalidBudgetFlowError()
     {
         // Arrange
@@ -260,7 +260,7 @@ public sealed class BudgetAddItemTests
         ItShouldBeErrorOfType<InvalidBudgetFlowError>(result);
     }
 
-    [Fact]
+    [Test]
     public void GivenExistingItemForMonth_WhenAddDuplicate_ThenReturnsDuplicateError()
     {
         // Arrange

@@ -15,7 +15,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-001: Create Money with valid amount and currency
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenValidAmountAndCurrency_WhenCreatingMoney()
     {
         // Arrange
@@ -34,7 +34,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-002: Create Money with negative amount (allowed for budgeting)
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenNegativeAmount_WhenCreatingMoney()
     {
         // Arrange
@@ -52,7 +52,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-003: Create Money with zero amount
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenZeroAmount_WhenCreatingMoney()
     {
         // Arrange
@@ -69,7 +69,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-003: Create Money.Zero helper
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenCurrency_WhenCreatingZeroMoney()
     {
         // Arrange
@@ -86,9 +86,9 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-004: Reject empty or null currency
     /// </summary>
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
     public void GivenEmptyOrNullCurrency_WhenCreatingMoney(string currency)
     {
         // Arrange
@@ -104,7 +104,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-004: Reject null currency
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenNullCurrency_WhenCreatingMoney()
     {
         // Arrange
@@ -121,7 +121,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-005: Currency should be uppercase
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenLowercaseCurrency_WhenCreatingMoney()
     {
         // Arrange
@@ -139,10 +139,10 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-005: Amount should be rounded to 2 decimal places
     /// </summary>
-    [Theory]
-    [InlineData(100.125, 100.12)]  // Rounds down (banker's rounding)
-    [InlineData(100.135, 100.14)]  // Rounds up
-    [InlineData(100.115, 100.12)]  // Rounds to even (banker's rounding)
+    [Test]
+    [Arguments(100.125, 100.12)]  // Rounds down (banker's rounding)
+    [Arguments(100.135, 100.14)]  // Rounds up
+    [Arguments(100.115, 100.12)]  // Rounds to even (banker's rounding)
     public void GivenAmountWithMoreThanTwoDecimals_WhenCreatingMoney(decimal input, decimal expected)
     {
         // Arrange
@@ -159,7 +159,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-005: Test Money equality
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenSameAmountAndCurrency_WhenComparingMoney()
     {
         // Arrange
@@ -173,7 +173,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-005: Test Money inequality with different amounts
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenDifferentAmounts_WhenComparingMoney()
     {
         // Arrange
@@ -187,7 +187,7 @@ public sealed class MoneyCreationTests
     /// <summary>
     /// TC-MON-005: Test Money inequality with different currencies
     /// </summary>
-    [Fact]
+    [Test]
     public void GivenDifferentCurrencies_WhenComparingMoney()
     {
         // Arrange

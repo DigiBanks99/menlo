@@ -8,10 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Menlo.Api.Tests.Integration.Onboarding;
 
-[Collection("Onboarding")]
+[ClassDataSource<OnboardingPersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Onboarding")]
 public sealed class UserProvisioningServiceTests(OnboardingPersistenceFixture fixture)
 {
-    [Fact]
+    [Test]
     public async Task GivenNewExternalUser_WhenProvisioningCalled_UserAndOnboardingStateAreCreated()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
@@ -19,23 +20,23 @@ public sealed class UserProvisioningServiceTests(OnboardingPersistenceFixture fi
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
+        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         MenloDbContext db = readScope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId persistedExternalId = new(externalId);
         User? user = await db.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(candidate => candidate.ExternalId == persistedExternalId, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(candidate => candidate.ExternalId == persistedExternalId, TestContext.Current!.Execution.CancellationToken);
         OnboardingState? onboardingState = await db.OnboardingStates
             .AsNoTracking()
-            .FirstOrDefaultAsync(state => state.UserId == user!.Id, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(state => state.UserId == user!.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveProvisionedUser(user, email, displayName, persistedExternalId);
         ItShouldHaveProvisionedOnboardingState(onboardingState, user!.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenExistingExternalUser_WhenProvisioningCalled_NoNewRecordIsCreated()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
@@ -43,24 +44,24 @@ public sealed class UserProvisioningServiceTests(OnboardingPersistenceFixture fi
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
-        await service.ProvisionOrUpdateAsync(externalId, $"updated-{email}", $"Updated {displayName}", TestContext.Current.CancellationToken);
+        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
+        await service.ProvisionOrUpdateAsync(externalId, $"updated-{email}", $"Updated {displayName}", TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         MenloDbContext db = readScope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId persistedExternalId = new(externalId);
-        int userCount = await db.Users.CountAsync(user => user.ExternalId == persistedExternalId, TestContext.Current.CancellationToken);
+        int userCount = await db.Users.CountAsync(user => user.ExternalId == persistedExternalId, TestContext.Current!.Execution.CancellationToken);
         User persistedUser = await db.Users
             .AsNoTracking()
-            .SingleAsync(user => user.ExternalId == persistedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(user => user.ExternalId == persistedExternalId, TestContext.Current!.Execution.CancellationToken);
         int onboardingStateCount = await db.OnboardingStates
-            .CountAsync(state => state.UserId == persistedUser.Id, TestContext.Current.CancellationToken);
+            .CountAsync(state => state.UserId == persistedUser.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSingleProvisionedRecord(userCount, onboardingStateCount);
         ItShouldRetainOriginalUserDetails(persistedUser, email, displayName);
     }
 
-    [Fact]
+    [Test]
     public async Task GivenProvisionedUser_WhenQuerying_OnboardingStateExists()
     {
         (string externalId, string email, string displayName) = CreateProvisioningInput();
@@ -68,17 +69,17 @@ public sealed class UserProvisioningServiceTests(OnboardingPersistenceFixture fi
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current.CancellationToken);
+        await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         using IServiceScope readScope = fixture.Services.CreateScope();
         MenloDbContext db = readScope.ServiceProvider.GetRequiredService<MenloDbContext>();
         ExternalUserId persistedExternalId = new(externalId);
         User user = await db.Users
             .AsNoTracking()
-            .SingleAsync(candidate => candidate.ExternalId == persistedExternalId, TestContext.Current.CancellationToken);
+            .SingleAsync(candidate => candidate.ExternalId == persistedExternalId, TestContext.Current!.Execution.CancellationToken);
         OnboardingState? onboardingState = await db.OnboardingStates
             .AsNoTracking()
-            .FirstOrDefaultAsync(state => state.UserId == user.Id, TestContext.Current.CancellationToken);
+            .FirstOrDefaultAsync(state => state.UserId == user.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveProvisionedOnboardingState(onboardingState, user.Id);
     }

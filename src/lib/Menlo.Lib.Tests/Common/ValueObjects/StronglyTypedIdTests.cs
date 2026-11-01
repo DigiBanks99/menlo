@@ -14,7 +14,7 @@ public sealed class StronglyTypedIdTests
         public static BudgetId New() => new(Guid.NewGuid());
     }
 
-    [Fact]
+    [Test]
     public void GivenTwoDifferentStronglyTypedIds_WhenComparing()
     {
         // Arrange
@@ -35,7 +35,7 @@ public sealed class StronglyTypedIdTests
         budgetId.GetType().ShouldNotBe(userId.GetType());
     }
 
-    [Fact]
+    [Test]
     public void GivenBudgetId_WhenCreatingNew()
     {
         // Arrange & Act
@@ -53,7 +53,7 @@ public sealed class StronglyTypedIdTests
         id2.Value.ShouldNotBe(Guid.Empty);
     }
 
-    [Fact]
+    [Test]
     public void GivenUserId_WhenCreatingNew()
     {
         // Arrange & Act
@@ -71,7 +71,7 @@ public sealed class StronglyTypedIdTests
         id2.Value.ShouldNotBe(Guid.Empty);
     }
 
-    [Fact]
+    [Test]
     public void GivenSameGuidValue_WhenCreatingStronglyTypedIds()
     {
         // Arrange
@@ -91,7 +91,7 @@ public sealed class StronglyTypedIdTests
         id1.Value.ShouldBe(value);
     }
 
-    [Fact]
+    [Test]
     public void GivenUserId_WhenConvertingToString()
     {
         // Arrange

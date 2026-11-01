@@ -15,14 +15,15 @@ namespace Menlo.Application.Tests.Common;
 /// Tests the full migration lifecycle including rollback, exercising InitialCreate.Down().
 /// Uses its own container to avoid interfering with the shared Persistence fixture.
 /// </summary>
-public sealed class MigrationTests : IAsyncLifetime
+public sealed class MigrationTests : IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     private IHost _host = null!;
 
-    public async ValueTask InitializeAsync()
+    [Before(Test)]
+    public async Task InitializeAsync()
     {
         await _container.StartAsync();
 
@@ -45,23 +46,24 @@ public sealed class MigrationTests : IAsyncLifetime
         using IServiceScope scope = _host.Services.CreateScope();
         await scope.ServiceProvider
             .GetRequiredService<MenloDbContext>()
-            .Database.MigrateAsync(TestContext.Current.CancellationToken);
+            .Database.MigrateAsync(TestContext.Current!.Execution.CancellationToken);
     }
 
     public async ValueTask DisposeAsync()
     {
+        // _host is null when setup failed before building it; don't hide that failure behind a NullReferenceException.
         if (_host is IAsyncDisposable asyncDisposable)
         {
             await asyncDisposable.DisposeAsync();
         }
         else
         {
-            _host.Dispose();
+            _host?.Dispose();
         }
         await _container.DisposeAsync();
     }
 
-    [Fact]
+    [Test]
     public async Task GivenMigratedDatabase_WhenRolledBackToBaseline_ThenMigrationsTableIsEmpty()
     {
         using IServiceScope scope = _host.Services.CreateScope();
@@ -69,10 +71,10 @@ public sealed class MigrationTests : IAsyncLifetime
         IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
 
         // Act - rollback all migrations (exercises InitialCreate.Down())
-        await migrator.MigrateAsync("0", TestContext.Current.CancellationToken);
+        await migrator.MigrateAsync("0", TestContext.Current!.Execution.CancellationToken);
 
         // Assert - no applied migrations remain
-        IEnumerable<string> applied = await ctx.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken);
+        IEnumerable<string> applied = await ctx.Database.GetAppliedMigrationsAsync(TestContext.Current!.Execution.CancellationToken);
         ItShouldHaveNoAppliedMigrations(applied);
     }
 
