@@ -180,10 +180,11 @@ jobs:
             --no-build \
             --configuration Release \
             --verbosity normal \
-            --collect:"XPlat Code Coverage" \
+            --coverage \
+            --coverage-output-format cobertura \
             --results-directory ./coverage/api-baseline \
-            --logger trx \
-            --logger "console;verbosity=detailed"
+            --report-trx \
+            --output detailed
 
       # Always delete the ephemeral secret, even if tests fail
       # Only runs if the secret was created (skipped for Dependabot PRs)
@@ -490,14 +491,23 @@ jobs:
         run: pnpm run build:prod
 
       - name: Run integration tests
+        # Tests run on Microsoft.Testing.Platform (global.json). Trait filters are framework-specific, so this runs
+        # the xunit projects with --filter-trait until they move to TUnit (#499). Exit code 8 means no test matched.
         run: |
-          dotnet test \
-            --no-build \
-            --configuration Release \
-            --filter "Category=Integration" \
-            --verbosity normal \
-            --logger trx \
-            --logger "console;verbosity=detailed"
+          for project in \
+            src/lib/Menlo.Lib.Tests \
+            src/lib/Menlo.Application.Tests \
+            src/api/Menlo.Api.Tests; do
+            dotnet test \
+              --project "$project" \
+              --no-build \
+              --configuration Release \
+              --verbosity normal \
+              --report-trx \
+              --output detailed \
+              --ignore-exit-code 8 \
+              --filter-trait "Category=Integration"
+          done
         env:
           ConnectionStrings__menlo: "Host=localhost;Port=5432;Database=menlo_test;Username=postgres;Password=postgres"
 
