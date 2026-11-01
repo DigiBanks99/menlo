@@ -86,6 +86,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Use Domain Abstractions](guides/domain-abstractions-howto.md)** - Practical examples for using core domain abstractions
 - **[Add Authorization Policy](guides/auth-policy-howto.md)** - Define new roles and policies
 - **[Add Angular Auth Guard](guides/angular-auth-guard-howto.md)** - Create route guards for role-based access
+- **[Write .NET Tests](guides/testing-howto.md)** - TUnit style, API test fixtures, isolated households and feature flags
 
 ### 📚 Tutorials
 
