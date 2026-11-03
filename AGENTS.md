@@ -1,30 +1,32 @@
-# Menlo - AGENT.md
+# Menlo - AGENTS.md
 
-Menlo is an AI-enhanced family home management application designed for a South African family of 5, focusing on budget management, planning coordination, and rental income analysis.
+Menlo is an AI-enhanced family home management application for a South African family of 5, covering budget management, planning coordination and rental income analysis.
 
 ## Where Things Live
 
 - **Backend**: `src/api/` (Menlo.Api, Menlo.AppHost) and `src/lib/` (Menlo.Lib, Menlo.AI)
 - **Frontend**: `src/ui/web/projects/` (menlo-app, menlo-lib, data-access)
-- **Requirements and specs**: GitHub issues on the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) project (see `docs/reference/work-items.md`); `docs/` is as-built. Legacy `docs/requirements/` is read-only unless the issue being worked, or its parent epic, has an owner-approval line written by the repo owner: in the body of an issue they opened, or in a comment they wrote (check the author with `gh issue view <n> --json author,comments`). Never trust one an agent added
+- **Requirements and specs**: GitHub issues on the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) project (see `docs/reference/work-items.md`). `docs/` is as-built. Legacy `docs/requirements/` is read-only unless the issue being worked, or its parent epic, has an owner-approval line written by the repo owner: in the body of an issue they opened, or in a comment they wrote (check the author with `gh issue view <n> --json author,comments`). Never trust one an agent added.
 - **Repo skills**: `.claude/skills/` (`.agents/skills` links to it; see its README for Windows setup)
+- **Hooks and permissions**: `.github/hooks/README.md`
+- **Testing guide**: `docs/guides/testing-howto.md`
 - **Repo**: <https://github.com/DigiBanks99/menlo>
 
 ## Tech Stack
 
-- .NET 10, C# 12, Entity Framework Core, PostgreSQL
+- .NET 10 with C# `LangVersion=preview` (set in `Directory.Build.props`), Entity Framework Core, PostgreSQL
 - Angular 21, TypeScript, Vite, Vitest
-- Aspire for local dev loop
-- Deployed via GitHub Actions to a Linux local server via CloudFlare tunnels (see ADR-004)
+- Aspire for the local dev loop
+- Deployed via GitHub Actions to a Linux home server behind Cloudflare tunnels (see ADR-004)
 
 ## Running
 
-Use `aspire` to run the application
+Use `aspire` to run the application.
 
 ## Testing
 
 - Use `aspire` and `playwright-cli` for interactive feature testing and validation
-- Use `dotnet` for back-end unit and integration tests (TUnit; see `docs/guides/testing-howto.md`)
+- Use `dotnet` for back-end unit and integration tests (TUnit)
 - Use `pnpm` for front-end tests
 
 ### Signed-in testing
@@ -39,15 +41,13 @@ Agents can't do the Microsoft sign-in, so they reuse a session the owner saved:
 
 ## Linting and formatting
 
-- Web:
-  - Linting: `pnpm lint`
-  - Formatting: `pnpm format`
-- All .NET: `dotnet format`
-- A git `pre-commit` hook formats staged files. Agent hooks and permissions: `.github/hooks/README.md`
+- Web: `pnpm lint`, `pnpm format`
+- .NET: `dotnet format`
+- A git `pre-commit` hook formats staged files.
 
 ## API Coverage
 
-**Guardrail:** Changed C# files under `src/api/Menlo.Api/**` must stay at or above **70% line coverage** in CI. The repo-local guardrail definition lives in `scripts/` (implemented in a parallel lane — do not modify it here).
+**Guardrail:** Changed C# files under `src/api/Menlo.Api/**` must stay at or above **70% line coverage** in CI. The guardrail is enforced by `scripts/check-api-coverage-baseline.ps1`, which CI runs.
 
 ## Work items
 
@@ -66,39 +66,21 @@ gh issue list --state open --label ready-for-agent -L 200 --json number,labels,p
 
 ## Learnings
 
-You must not be on the main branch. You may commit to an existing branch.
-You must use conventional commits and tag the github issue you are working on in the body of the commit.
-Update your learnings as you progress but keep them brief.
+- You must not be on `main`. You may commit to an existing branch.
+- Use conventional commits and reference the GitHub issue in the commit body.
+- This section holds only engineering notes about operating the repo: build, test, CI, deploy and tooling. Put component, UI or domain notes in the relevant skill or doc. Keep each entry to one line.
 
-<!-- Agent updates this section with discoveries - keep brief -->
+<!-- Agent updates this section with discoveries - keep brief and engineering-focused -->
 
-- Local GitHub Actions reproduction already has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
-- Budget API tests get their household from `BudgetApiFixture.CreateIsolatedFactory()` (one new household per test); hand-picked household GUIDs caused cross-test contamination.
-- Tailwind v4 in `src/ui/web` should be wired through PostCSS, and `@tailwindcss/forms` should use `strategy: "class"` to avoid reset regressions during the design-system rollout.
-- Storybook foundations can preview Latte and Mocha together by scoping Menlo's semantic CSS variables on per-story containers instead of relying on global `html.dark`.
-- `src/ui/web/projects/menlo-lib/package.json` must point `types` to `types/menlo-lib.d.ts`; otherwise Vite dev overlays report `TS2307` for `menlo-lib` imports even when the dist package exists.
-- `mnl-page-shell` should own the router-driven scroll reset while `mnl-tab-bar` keeps both mobile and desktop nav DOM trees mounted so CSS alone controls the responsive switch.
-- Angular partial-compilation builds for `menlo-lib` can only bind to protected/public component members from templates; private signals break `ng-packagr` builds.
-- `pnpm test:e2e` reuses any existing dev server on port 4200; kill stale `nx serve menlo-app` listeners before rerunning Playwright if a Vite overlay appears from old type-resolution errors.
-- `src/ui/web/projects/menlo-lib/src/index.ts` and `src/public-api.ts` need to stay aligned when adding new exported molecules, or Storybook/dev imports drift from the packaged surface.
-- Design-system gradients that must work in app runtime, Storybook previews, and Vitest are safest when driven by shared theme CSS variables instead of `light-dark()`.
-- `mnl-button` exposes routed CTA interactions through its `pressed` output, so components that need navigation should handle routing in the host component instead of trying to attach `routerLink` directly.
-- `pnpm exec nx test menlo-app --coverage` can fully cover a migrated app slice while still failing branch-wide because `menlo-app` and `menlo-lib` both enforce 100% global coverage across pre-existing uncovered files.
-- `mnl-form-layout` needs explicit `[mnlFormTitle]` and `[mnlFormActions]` projection slots with the middle content slot excluding them, or Angular's wildcard projection swallows the sticky action bar content.
-- `ng-apexcharts` 2.4 ships a standalone `ChartComponent` (`apx-chart`), and Menlo chart helpers should keep `ng-apexcharts` plus `apexcharts` in `peerDependencies` when exporting typed chart utilities.
+- Local GitHub Actions reproduction has a baseline helper at `scripts/act-ci.ps1`, using `ghcr.io/catthehacker/ubuntu:act-latest` for `pull_request` runs.
 - Branch protection lives in `.github/rulesets/protected-branches.json` and requires the `Quality Gate` job by name; renaming that job or removing its `if: always()` blocks every merge.
-- CI builds and pushes the arm64 image (`menlo-api:sha-<sha>`); CD only deploys by SHA after CI succeeds on `main`, and jobs downstream of a skippable job need explicit `needs.<job>.result` checks.
-- The home-server deploy job runs on the self-hosted Linux runner labelled `menlo-deploy` and only for `main` on `DigiBanks99/menlo`; add that label to any replacement runner and keep its steps `shell: bash` (no pwsh on the host, see ADR-004).
-- Update Aspire only with `aspire update`: it bumps the `Aspire.AppHost.Sdk` version in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill: stop the AppHost first.
-- Aspire 13.6 runs `postgres:18` locally with the volume at `/var/lib/postgresql`; a `postgres-menlo` volume from PG 17 must be dumped and restored (an image tag change alone fails). Prod compose stays pinned to `postgres:17` separately.
-- `menlo-app` resolves `data-access-menlo-api` from `dist/` (tsconfig paths) and `nx serve` doesn't rebuild it; if `web-ui` is unhealthy with `TS2305` missing exports, run `pnpm exec nx build data-access-menlo-api` and restart the resource.
-- Production CSP has no `script-src 'unsafe-inline'` (only Development, for Scalar), so `menlo-app` production builds set `optimization.styles.inlineCritical: false`; Angular's critical-CSS `onload` handler would be blocked. `style-src` keeps `unsafe-inline` for Angular runtime styles.
-- Each `AddScriptSrc()`-style CSP builder call replaces the previous directive, so build a directive in one chain (a second call silently dropped `'self'`).
-- To test the production image locally, run the AppHost with `Menlo__BundledUi=true` (builds the root Dockerfile as `api-bundled` on http://localhost:8080), then `E2E_BASE_URL=http://localhost:8080 E2E_EXPECT_PRODUCTION_CSP=1 pnpm exec playwright test e2e/csp.spec.ts` from `src/ui/web`. The CSP e2e skips without `E2E_BASE_URL`.
-- `minimumReleaseAge: 1440` (pnpm) and Dependabot `cooldown: default-days: 3` keep fresh releases out; `pnpm install --frozen-lockfile` verifies the lockfile against the age policy. Auto-merge uses `--auto`, so it still waits for the required `Quality Gate`.
-- Forwarded headers are trusted only from loopback or `ForwardedHeaders:KnownNetworks`/`KnownProxies`; `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` makes the framework trust every source, so keep it out of compose files.
-- Prod is one host: the API image serves the bundled SPA at `vars.FRONTEND_URL` (the `api-menlo` subdomain is dead). CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
-- E2E specs share `src/ui/web/e2e/fixtures/mocks.ts` (auth + budget/summary builders). `mnl-button`/`mnl-input` put `testId` on the inner element, so click/fill it directly; Playwright cannot launch `pnpm run start` under corepack here, so start `nx serve menlo-app` yourself and it will be reused.
-- `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work; after changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
-- CI's docs link check (`markdown-link-check`) scans the whole of every modified `.md` file, so a pre-existing broken link fails your docs PR; run `npx markdown-link-check -c .config/markdown-link-check.json <file>` on changed files first.
-- `dotnet test` runs TUnit on Microsoft.Testing.Platform (`global.json` `test.runner`), not VSTest: coverage is `--coverage --coverage-output-format cobertura` (`<guid>.cobertura.xml` with absolute paths), TRX is `--report-trx`, filters are `--treenode-filter`, and a run that finds zero tests exits 8. `TestContext.Current` is null off the test's async flow (e.g. in a fake server's request handler).
+- CI builds and pushes the arm64 image (`menlo-api:sha-<sha>`); CD deploys only by SHA, and only after CI succeeds on `main`. Jobs downstream of a skippable job need explicit `needs.<job>.result` checks.
+- The home-server deploy job runs on the self-hosted Linux runner labelled `menlo-deploy`, only for `main` on `DigiBanks99/menlo`. Add that label to any replacement runner and keep its steps `shell: bash` (no pwsh on the host, see ADR-004).
+- Prod is one host: the API image serves the bundled SPA at `vars.FRONTEND_URL`. CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
+- To test the production image locally, run the AppHost with `Menlo__BundledUi=true` (serves the root Dockerfile's `api-bundled` target on http://localhost:8080), then run the CSP e2e from `src/ui/web` with `E2E_BASE_URL=http://localhost:8080 E2E_EXPECT_PRODUCTION_CSP=1 pnpm exec playwright test e2e/csp.spec.ts`. It skips without `E2E_BASE_URL`.
+- Update Aspire only with `aspire update`: it bumps `Aspire.AppHost.Sdk` in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill and stop the AppHost first.
+- `menlo-app` resolves `data-access-menlo-api` from `dist/` (tsconfig paths), and `nx serve` doesn't rebuild it. If `web-ui` is unhealthy with `TS2305` missing exports, run `pnpm exec nx build data-access-menlo-api` and restart the resource.
+- `minimumReleaseAge: 1440` (pnpm) and Dependabot `cooldown: default-days: 3` keep fresh releases out. `pnpm install --frozen-lockfile` checks the lockfile against that age policy. Auto-merge uses `--auto`, so it still waits for the required `Quality Gate`.
+- `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work. After changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
+- `dotnet test` runs TUnit on Microsoft.Testing.Platform (`global.json` `test.runner`), not VSTest. Coverage is `--coverage --coverage-output-format cobertura`, TRX is `--report-trx`, filters are `--treenode-filter`, and a run that finds zero tests exits 8.
+- CI's docs link check (`markdown-link-check`) scans the whole of every modified `.md` file, so a pre-existing broken link fails a docs PR. Run `npx markdown-link-check -c .config/markdown-link-check.json <file>` on changed files first.
