@@ -268,6 +268,10 @@ jobs:
               environment:
                 - ASPNETCORE_ENVIRONMENT=Production
                 - ASPNETCORE_URLS=http://+:8080
+                # Trust X-Forwarded-* only from the compose bridge: cloudflared on the host
+                # reaches the API through its gateway. Without this the API sees http and
+                # Entra rejects the http://.../signin-oidc reply address (AADSTS500112)
+                - ForwardedHeaders__KnownNetworks__0=172.20.0.0/16
                 - ConnectionStrings__menlo=Host=postgres;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
                 - Ollama__BaseUrl=http://ollama:11434
                 - Logging__LogLevel__Default=Information
@@ -278,7 +282,7 @@ jobs:
                 - AzureAd__ClientCertificates__0__SourceType=Base64Encoded
                 - AzureAd__ClientCertificates__0__Base64EncodedValue=${CERT_BASE64}
               ports:
-                - "8080:8080"
+                - "127.0.0.1:8080:8080"
               networks:
                 - menlo-network
               depends_on:
@@ -341,6 +345,9 @@ jobs:
             menlo-network:
               name: menlo_network
               driver: bridge
+              ipam:
+                config:
+                  - subnet: 172.20.0.0/16
           EOF
 
           # Pull new image
