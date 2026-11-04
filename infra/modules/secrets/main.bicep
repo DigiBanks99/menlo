@@ -68,7 +68,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-
 // Key Vault
 // ============================================================================
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' = {
   name: keyVaultName
   location: location
   tags: tags
@@ -158,7 +158,7 @@ resource createCertificateScript 'Microsoft.Resources/deploymentScripts@2023-08-
     }
   }
   properties: {
-    azCliVersion: '2.63.0'
+    azCliVersion: '2.91.0'
     retentionInterval: 'P1D'
     timeout: 'PT30M'
     cleanupPreference: 'OnSuccess'
