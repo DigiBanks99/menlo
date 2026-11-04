@@ -18,7 +18,7 @@ namespace Menlo.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -277,26 +277,6 @@ namespace Menlo.Application.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("payer_split");
 
-                    b.Property<decimal?>("realized_amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("realized_amount");
-
-                    b.Property<string>("realized_currency")
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("realized_currency");
-
-                    b.Property<decimal?>("spent_amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("spent_amount");
-
-                    b.Property<string>("spent_currency")
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("spent_currency");
-
                     b.ComplexProperty(typeof(Dictionary<string, object>), "PlannedAmount", "Menlo.Lib.Budget.Entities.BudgetItem.PlannedAmount#Money", b1 =>
                         {
                             b1.IsRequired();
@@ -311,6 +291,32 @@ namespace Menlo.Application.Migrations
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
                                 .HasColumnName("planned_currency");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "RealizedAmount", "Menlo.Lib.Budget.Entities.BudgetItem.RealizedAmount#Money", b1 =>
+                        {
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric(18,4)")
+                                .HasColumnName("realized_amount_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("realized_amount_currency");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "SpentAmount", "Menlo.Lib.Budget.Entities.BudgetItem.SpentAmount#Money", b1 =>
+                        {
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric(18,4)")
+                                .HasColumnName("spent_amount_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("spent_amount_currency");
                         });
 
                     b.HasKey("Id")

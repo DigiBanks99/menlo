@@ -92,6 +92,11 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
         (_, Guid expenseLeafId) = await CreateRootAndLeafAsync(client, budgetId, "Housing", "Expense");
         Guid expenseItemId = await CreateItemAsync(client, budgetId, expenseLeafId, "Expense", month: 1, amount: 1500m);
 
+        await RealizeItemAsync(client, budgetId, incomeLeafId, incomeItemId, 5000m);
+        await RealizeItemAsync(client, budgetId, expenseLeafId, expenseItemId, 1500m);
+        await RecordSpentAsync(client, budgetId, incomeLeafId, incomeItemId, 4800m);
+        await RecordSpentAsync(client, budgetId, expenseLeafId, expenseItemId, 1400m);
+
         HttpResponseMessage response = await client.GetAsync(
             $"/api/budgets/{budgetId}/summary?month=1", TestContext.Current!.Execution.CancellationToken);
 
@@ -102,9 +107,12 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
         ItShouldHaveIncomeTotal(dto, 5000m);
         ItShouldHaveExpenseTotal(dto, 1500m);
         ItShouldHaveNetPlanned(dto, 3500m); // 5000 - 1500
-        // NetRealized and NetSpent are null until items are explicitly realized/spent
-        dto.NetRealized.ShouldBeNull();
-        dto.NetSpent.ShouldBeNull();
+        ItShouldHaveNetRealized();
+        ItShouldHaveNetSpent();
+
+        void ItShouldHaveNetRealized() => dto.NetRealized.ShouldBe(3500m); // 5000 - 1500
+
+        void ItShouldHaveNetSpent() => dto.NetSpent.ShouldBe(3400m); // 4800 - 1400
     }
 
     // =========================================================================
@@ -328,6 +336,28 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
 
         string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
         return JsonDocument.Parse(content).RootElement.GetProperty("id").GetGuid();
+    }
+
+    private static async Task RealizeItemAsync(
+        HttpClient client, Guid budgetId, Guid categoryId, Guid itemId, decimal amount)
+    {
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{itemId}/realize",
+            new RealizeBudgetItemRequest(amount),
+            TestContext.Current!.Execution.CancellationToken);
+        response.IsSuccessStatusCode.ShouldBeTrue(
+            $"Realizing failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
+    }
+
+    private static async Task RecordSpentAsync(
+        HttpClient client, Guid budgetId, Guid categoryId, Guid itemId, decimal amount)
+    {
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items/{itemId}/spent",
+            new RecordBudgetItemSpentRequest(amount),
+            TestContext.Current!.Execution.CancellationToken);
+        response.IsSuccessStatusCode.ShouldBeTrue(
+            $"Recording spent failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
     }
 
     // =========================================================================

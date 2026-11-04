@@ -549,6 +549,32 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
     }
 
     [Test]
+    public async Task GivenRealizedAndSpentItem_WhenUpdateRealizedAndSpentAmounts_ThenNewAmountsAreSaved()
+    {
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(
+            cancellationToken: TestContext.Current!.Execution.CancellationToken);
+
+        (Guid budgetId, Guid categoryId, BudgetItemDto createdItem) = await CreateItemForUpdateAsync(client);
+        string itemUrl = $"/api/budgets/{budgetId}/categories/{categoryId}/items/{createdItem.Id}";
+        (await client.PutAsJsonAsync($"{itemUrl}/realize", new RealizeBudgetItemRequest(1450.00m),
+            TestContext.Current!.Execution.CancellationToken)).EnsureSuccessStatusCode();
+        (await client.PutAsJsonAsync($"{itemUrl}/spent", new RecordBudgetItemSpentRequest(1500.00m),
+            TestContext.Current!.Execution.CancellationToken)).EnsureSuccessStatusCode();
+
+        UpdateBudgetItemRequest updateRequest = new(
+            RealizedAmount: 1600.00m, RealizedCurrency: "ZAR", SpentAmount: 1550.00m, SpentCurrency: "ZAR");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            itemUrl, updateRequest, TestContext.Current!.Execution.CancellationToken);
+        BudgetItemDto? reloaded = await GetSavedItemAsync(client, budgetId, categoryId, createdItem);
+
+        ItShouldHaveReturned200Ok(response);
+        ItShouldHaveRealizedAmount(reloaded, 1600.00m, "ZAR");
+        ItShouldHaveSpentAmount(reloaded, 1550.00m, "ZAR");
+    }
+
+    [Test]
     public async Task GivenExistingItem_WhenUpdatePayerSplit_ThenReturns200WithUpdatedSplit()
     {
         await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
@@ -787,10 +813,12 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             TestContext.Current!.Execution.CancellationToken);
 
         BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+        BudgetItemDto? reloaded = await GetSavedItemAsync(client, budgetId, categoryId, createdItem);
 
         ItShouldHaveReturned200Ok(response);
         ItShouldHaveRealizedAmount(dto, 1450.00m, "ZAR");
         ItShouldHavePlannedAmount(dto, createdItem.PlannedAmount, createdItem.PlannedCurrency);
+        ItShouldHaveRealizedAmount(reloaded, 1450.00m, "ZAR");
     }
 
     [Test]
@@ -871,9 +899,11 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
             TestContext.Current!.Execution.CancellationToken);
 
         BudgetItemDto? dto = await DeserializeBudgetItemDto(response);
+        BudgetItemDto? reloaded = await GetSavedItemAsync(client, budgetId, categoryId, createdItem);
 
         ItShouldHaveReturned200Ok(response);
         ItShouldHaveSpentAmount(dto, 1500.00m, "ZAR");
+        ItShouldHaveSpentAmount(reloaded, 1500.00m, "ZAR");
     }
 
     [Test]
@@ -1734,6 +1764,19 @@ public sealed class BudgetItemEndpointTests(BudgetApiFixture fixture) : TestFixt
         item.ShouldNotBeNull();
 
         return (budgetId, categoryId, item);
+    }
+
+    private static async Task<BudgetItemDto?> GetSavedItemAsync(
+        HttpClient client, Guid budgetId, Guid categoryId, BudgetItemDto item)
+    {
+        HttpResponseMessage response = await client.GetAsync(
+            $"/api/budgets/{budgetId}/categories/{categoryId}/items?month={item.Month}",
+            TestContext.Current!.Execution.CancellationToken);
+        response.IsSuccessStatusCode.ShouldBeTrue(
+            $"Listing items failed: {await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken)}");
+
+        List<BudgetItemDto>? items = await DeserializeBudgetItemList(response);
+        return items?.SingleOrDefault(i => i.Id == item.Id);
     }
 
     // =========================================================================

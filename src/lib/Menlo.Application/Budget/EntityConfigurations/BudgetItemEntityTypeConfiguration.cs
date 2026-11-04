@@ -46,22 +46,10 @@ public sealed class BudgetItemEntityTypeConfiguration : IEntityTypeConfiguration
                 .IsRequired();
         });
 
-        // Nullable Money? properties cannot use ComplexProperty in EF Core 8.
-        // Store as shadow properties for schema correctness; entity manages them internally.
-        builder.Ignore(i => i.RealizedAmount);
-        builder.Ignore(i => i.SpentAmount);
-
-        builder.Property<decimal?>("realized_amount")
-            .HasPrecision(18, 2);
-
-        builder.Property<string?>("realized_currency")
-            .HasMaxLength(3);
-
-        builder.Property<decimal?>("spent_amount")
-            .HasPrecision(18, 2);
-
-        builder.Property<string?>("spent_currency")
-            .HasMaxLength(3);
+        // Money? value objects: RealizedAmount and SpentAmount, as optional complex properties.
+        // The columns are nullable; Money always writes both Amount and Currency, and EF reads null when they are null.
+        builder.ComplexProperty(i => i.RealizedAmount, ConfigureOptionalMoney);
+        builder.ComplexProperty(i => i.SpentAmount, ConfigureOptionalMoney);
 
         // PayerSplit as JSONB
         builder.Property(i => i.PayerSplit)
@@ -119,6 +107,14 @@ public sealed class BudgetItemEntityTypeConfiguration : IEntityTypeConfiguration
             .IsUnique()
             .HasFilter("is_deleted = false")
             .HasDatabaseName("ix_budget_items_budget_category_month");
+    }
+
+    private static void ConfigureOptionalMoney(ComplexPropertyBuilder<Money> money)
+    {
+        money.Property(m => m.Amount)
+            .HasColumnType("numeric(18,4)");
+        money.Property(m => m.Currency)
+            .HasMaxLength(3);
     }
 
     private static PayerSplit DeserializePayerSplit(string json)
