@@ -85,8 +85,10 @@ Once a Requirement is closed, `docs/` is the source of truth. Don't edit closed 
 Agents plan and pick up work with the global `to-requirement`, `to-specs` and `work-on-spec` skills, configured in `AGENTS.md`.
 
 - Agents comment progress on the issue they are working on.
-- They edit a section of that Spec or Task only when a PR changes the plan, such as a decision taken or the approach changed. Each edit gets a comment that says what changed, why, and links the PR, so the history stays readable.
-- They never edit a Requirement body. The what and why belong to the owner; agents suggest changes in a comment.
+- What agents may edit depends on whether the work is being shaped or being built:
+    - **Shaping** (planning, triage, wayfinding, refinement): the Requirement is open, and neither it nor any of its Specs is **In progress** or **Done** on the project. Agents may edit the Requirement and Spec bodies to record what the owner decided. Each edit gets a comment that says what changed and why.
+    - **Building**: from the moment the Requirement or any of its Specs is **In progress**. Agents edit a Spec or Task section only when a PR changes the plan, such as a decision taken or the approach changed, and comment what changed, why, and the PR. They don't edit the Requirement body. The what and why are now settled with the owner, so agents suggest changes in a comment.
+- They never edit a closed issue, and never add or change an owner-approval line.
 - They close issues only through `Closes #<n>` in a PR.
 
 The label usually adds a new issue to the project. `item-add` is safe to run either way, because it returns the existing item. To add issue `n` and mark it Ready:
