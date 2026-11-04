@@ -62,7 +62,7 @@ gh issue list --state open --label ready-for-agent -L 200 --json number,labels,p
 - Write Requirements and Specs with the sections of `.github/ISSUE_TEMPLATE/requirement.yml` and `spec.yml`, not the skills' own templates. Apply the `requirement`, `spec` or `task` label and make sure the issue is on the project (see "Agents and issues" in `docs/reference/work-items.md`). Link sub-issues and blockers with the native APIs.
 - A Spec's acceptance criteria are the Requirement criteria named in its Slice, plus its Test cases.
 - Branches are `<type>/<issue>-<slug>`.
-- Comment progress on the issue being worked. Edit its Spec or Task sections only when a PR changes the plan, and comment what changed, why, and the PR. Never edit a Requirement body.
+- Comment progress on the issue being worked. While shaping (planning, triage, wayfinding, refinement: the Requirement is open and neither it nor any of its Specs is In progress or Done), agents may edit Requirement and Spec bodies, with a comment saying what changed and why. Once building starts, edit Spec or Task sections only when a PR changes the plan, comment what changed, why, and the PR, and suggest Requirement changes in a comment instead. Never edit a closed issue. See "Agents and issues" in `docs/reference/work-items.md`.
 
 ## Learnings
 
