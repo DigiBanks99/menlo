@@ -35,11 +35,11 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
         (_, Guid incomeLeafId) = await CreateRootAndLeafAsync(client, currentYearId, "Salary", "Income");
         await CreateItemAsync(client, currentYearId, incomeLeafId, "Income", currentMonth, 9000m);
         (_, Guid expenseLeafId) = await CreateRootAndLeafAsync(client, currentYearId, "Housing", "Expense");
-        await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", currentMonth, 1500m);
+        Guid housingItemId = await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", currentMonth, 1500m);
         (_, Guid foodLeafId) = await CreateRootAndLeafAsync(client, currentYearId, "Food", "Expense");
         await CreateItemAsync(client, currentYearId, foodLeafId, "Expense", currentMonth, 500m);
         await CreateItemAsync(client, currentYearId, expenseLeafId, "Expense", otherMonth, 700m);
-        // Recorded spend is not persisted yet (#515), so no spent figure is asserted here
+        await RecordSpentAsync(client, currentYearId, expenseLeafId, housingItemId, 1200m);
 
         HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
         List<BudgetListItem>? budgets = await DeserializeAsync(response);
@@ -54,6 +54,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             budget.Year.ShouldBe(currentYear);
             budget.Status.ShouldBe("Draft");
             budget.PlannedExpenses.ShouldBe(new MoneyDto(2000m, "ZAR"));
+            budget.SpentExpenses.ShouldBe(new MoneyDto(1200m, "ZAR"));
             budget.CategoryCount.ShouldBe(6);
         }
     }

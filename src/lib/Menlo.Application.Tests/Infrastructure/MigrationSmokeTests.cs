@@ -55,6 +55,20 @@ public sealed class MigrationSmokeTests(PersistenceFixture fixture)
         ItShouldContainSharedUsersColumns(columnNames);
     }
 
+    [Test]
+    public void GivenCurrentModel_WhenComparedWithMigrationSnapshot_ThenThereAreNoPendingModelChanges()
+    {
+        using IServiceScope scope = fixture.Services.CreateScope();
+        MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        bool hasPendingModelChanges = db.Database.HasPendingModelChanges();
+
+        ItShouldMatchTheSnapshot();
+
+        void ItShouldMatchTheSnapshot() => hasPendingModelChanges.ShouldBeFalse(
+            "The EF model has changes that no migration captures; add a migration");
+    }
+
     private static void ItShouldContainSharedUsersColumns(IReadOnlyCollection<string> columnNames)
     {
         columnNames.ShouldContain("id");
