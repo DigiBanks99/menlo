@@ -141,12 +141,9 @@ class PanelStoryPreviewComponent {
   private readonly previousDarkMode = this.document.documentElement.classList.contains('dark');
 
   constructor() {
-    effect(
-      () => {
-        this.activeTheme.set(this.themeMode());
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.activeTheme.set(this.themeMode());
+    });
 
     effect(() => {
       this.document.documentElement.classList.toggle('dark', this.activeTheme() === 'dark');
