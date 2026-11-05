@@ -40,9 +40,9 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     alias: {
-      'menlo-lib': path.resolve(__dirname, '../../dist/menlo-lib'),
-      'data-access-menlo-api': path.resolve(__dirname, '../../dist/data-access-menlo-api'),
-      'shared-util': path.resolve(__dirname, '../../dist/shared-util'),
+      'menlo-lib': path.resolve(import.meta.dirname, '../../dist/menlo-lib'),
+      'data-access-menlo-api': path.resolve(import.meta.dirname, '../../dist/data-access-menlo-api'),
+      'shared-util': path.resolve(import.meta.dirname, '../../dist/shared-util'),
     },
   },
 }));

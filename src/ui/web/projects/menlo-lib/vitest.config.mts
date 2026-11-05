@@ -4,17 +4,17 @@ import { defineConfig } from 'vite';
 import angular from '@analogjs/vite-plugin-angular';
 
 export default defineConfig(({ mode }) => ({
-  root: __dirname,
+  root: import.meta.dirname,
   plugins: [
     angular({
-      tsconfig: path.resolve(__dirname, './tsconfig.spec.json'),
+      tsconfig: path.resolve(import.meta.dirname, './tsconfig.spec.json'),
       include: ['/src/**/*.{spec,test}.{ts,mts,cts,tsx,jsx}'],
-      workspaceRoot: __dirname,
+      workspaceRoot: import.meta.dirname,
     }),
   ],
   resolve: {
     alias: {
-      'shared-util': path.resolve(__dirname, '../../dist/shared-util'),
+      'shared-util': path.resolve(import.meta.dirname, '../../dist/shared-util'),
     },
   },
   test: {
