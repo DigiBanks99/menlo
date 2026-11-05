@@ -32,7 +32,7 @@ export const onboardingGuard: CanActivateFn = async (_route, state) => {
   });
 };
 
-export const noReenterOnboardingGuard: CanActivateFn = (_route, _state) => {
+export const noReenterOnboardingGuard: CanActivateFn = () => {
   const onboardingService = inject(OnboardingService);
   const router = inject(Router);
 

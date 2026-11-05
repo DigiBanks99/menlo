@@ -6,7 +6,6 @@ import type {
   ApexGrid,
   ApexLegend,
   ApexNoData,
-  ApexOptions,
   ApexStroke,
   ApexTheme,
   ApexTooltip,

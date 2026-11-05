@@ -8,7 +8,7 @@ import {
   BudgetItemDto,
   FillForwardBudgetItemRequest,
 } from 'data-access-menlo-api';
-import { ApiError, Result, failure, networkError, success } from 'shared-util';
+import { failure, networkError, success } from 'shared-util';
 import { BudgetItemFillForwardComponent } from './budget-item-fill-forward.component';
 
 const mockBudgetId = 'budget-1';

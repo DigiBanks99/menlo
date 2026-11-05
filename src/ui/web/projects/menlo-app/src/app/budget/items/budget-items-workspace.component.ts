@@ -182,7 +182,7 @@ import { BudgetItemLifecycleComponent } from './budget-item-lifecycle.component'
                         [budgetId]="budgetId()"
                         [categoryId]="categoryId()"
                         [item]="item"
-                        (saved)="onItemSaved($event)"
+                        (saved)="onItemSaved()"
                         (cancelled)="cancelEdit()"
                       />
                     </mnl-panel>
@@ -209,7 +209,7 @@ import { BudgetItemLifecycleComponent } from './budget-item-lifecycle.component'
                         [budgetId]="budgetId()"
                         [categoryId]="categoryId()"
                         [item]="item"
-                        (filled)="onFillForwardDone($event)"
+                        (filled)="onFillForwardDone()"
                         (cancelled)="cancelFillForward()"
                       />
                     </mnl-panel>
@@ -234,7 +234,7 @@ import { BudgetItemLifecycleComponent } from './budget-item-lifecycle.component'
             <app-budget-item-form
               [budgetId]="budgetId()"
               [categoryId]="categoryId()"
-              (saved)="onSingleCreateSaved($event)"
+              (saved)="onSingleCreateSaved()"
               (cancelled)="closeSingleCreate()"
             />
           </mnl-panel>
@@ -254,7 +254,7 @@ import { BudgetItemLifecycleComponent } from './budget-item-lifecycle.component'
             <app-budget-item-bulk-create
               [budgetId]="budgetId()"
               [categoryId]="categoryId()"
-              (saved)="onBulkCreateSaved($event)"
+              (saved)="onBulkCreateSaved()"
               (cancelled)="closeBulkCreate()"
             />
           </mnl-panel>
@@ -351,7 +351,7 @@ export class BudgetItemsWorkspaceComponent {
     this.showSingleCreate.set(false);
   }
 
-  onItemSaved(_updated: BudgetItemDto): void {
+  onItemSaved(): void {
     this.editingItemId.set(null);
     this.loadItems();
   }
@@ -364,17 +364,17 @@ export class BudgetItemsWorkspaceComponent {
     this.items.update((items) => items.map((item) => (item.id === updated.id ? updated : item)));
   }
 
-  onFillForwardDone(_items: BudgetItemDto[]): void {
+  onFillForwardDone(): void {
     this.fillForwardItemId.set(null);
     this.loadItems();
   }
 
-  onBulkCreateSaved(_items: BudgetItemDto[]): void {
+  onBulkCreateSaved(): void {
     this.showBulkCreate.set(false);
     this.loadItems();
   }
 
-  onSingleCreateSaved(_item: BudgetItemDto): void {
+  onSingleCreateSaved(): void {
     this.showSingleCreate.set(false);
     this.loadItems();
   }
