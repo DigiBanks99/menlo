@@ -51,7 +51,7 @@ jobs:
           echo "$CHANGED_FILES"
 
           # Backend detection
-          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|scripts/ci/|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
           else
             echo "backend=false" >> "$GITHUB_OUTPUT"
@@ -125,8 +125,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # Unit tests for the script below, run against a fake `az`
+      - name: Test ephemeral secret script
+        run: bash scripts/ci/ephemeral-aad-secret.tests.sh
+
       # Create an ephemeral client secret for testing
-      # This secret is short-lived (1 hour) and automatically deleted after tests
+      # This secret is short-lived (1 hour) and automatically deleted after tests.
+      # The script retries transient Entra ID throttling and deletes orphans from a reset whose response was lost.
       # Skip for Dependabot PRs which don't have access to secrets
       - name: Create ephemeral Azure AD client secret
         if: github.actor != 'dependabot[bot]'
@@ -135,30 +140,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            DISPLAY_NAME="CI-Ephemeral-${{ github.run_id }}"
-
-            # Create a new client secret with 1 hour expiry
-            SECRET_OUTPUT=$(az ad app credential reset \
-              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
-              --display-name "$DISPLAY_NAME" \
-              --end-date "$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%M:%S+00:00')" \
-              --append \
-              --query "password" \
-              --output tsv)
-
-            # Mask the secret to prevent it appearing in logs
-            echo "::add-mask::$SECRET_OUTPUT"
-
-            # List credentials to find the keyId by display name
-            KEY_ID=$(az ad app credential list \
-              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
-              --query "[?displayName=='$DISPLAY_NAME'].keyId | [0]" \
-              --output tsv)
-
-            # Set outputs for use in subsequent steps
-            echo "client-secret=$SECRET_OUTPUT" >> "$GITHUB_OUTPUT"
-            echo "key-id=$KEY_ID" >> "$GITHUB_OUTPUT"
-            echo "✅ Created ephemeral client secret with Key ID: $KEY_ID (expires in 1 hour)"
+            bash "$GITHUB_WORKSPACE/scripts/ci/ephemeral-aad-secret.sh" create "${{ secrets.AZUREAD_APP_CLIENT_ID }}" "CI-Ephemeral-${{ github.run_id }}"
 
       - name: Restore dependencies
         run: dotnet restore
@@ -186,18 +168,16 @@ jobs:
             --report-trx \
             --output detailed
 
-      # Always delete the ephemeral secret, even if tests fail
-      # Only runs if the secret was created (skipped for Dependabot PRs)
+      # Always delete the ephemeral secret, even if tests fail or the create step failed part-way
+      # Deletes every credential with the run's display name, including any orphan a retried create left behind
+      # Skipped only when the create step was (Dependabot PRs, or an earlier step failed)
       - name: Delete ephemeral Azure AD client secret
-        if: always() && github.actor != 'dependabot[bot]' && steps.create-secret.outcome == 'success' && steps.create-secret.outputs.key-id != ''
+        if: always() && github.actor != 'dependabot[bot]' && steps.create-secret.outcome != 'skipped'
         uses: azure/cli@v3
         with:
           azcliversion: latest
           inlineScript: |
-            az ad app credential delete \
-              --id ${{ secrets.AZUREAD_APP_CLIENT_ID }} \
-              --key-id ${{ steps.create-secret.outputs.key-id }}
-            echo "✅ Ephemeral client secret deleted successfully"
+            bash "$GITHUB_WORKSPACE/scripts/ci/ephemeral-aad-secret.sh" delete "${{ secrets.AZUREAD_APP_CLIENT_ID }}" "CI-Ephemeral-${{ github.run_id }}"
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
