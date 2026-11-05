@@ -167,12 +167,9 @@ class FoundationsChartsStoryComponent {
   private readonly initialTheme = this.themeService.currentTheme();
 
   constructor() {
-    effect(
-      () => {
-        this.themeService.setTheme(this.themeMode());
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      this.themeService.setTheme(this.themeMode());
+    });
 
     this.destroyRef.onDestroy(() => {
       this.themeService.setTheme(this.initialTheme);

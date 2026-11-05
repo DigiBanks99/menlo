@@ -170,17 +170,14 @@ export class MnlPanelComponent {
     this.registerMediaQuery('(min-width: 1024px)', this.isDesktopViewport);
     this.registerMediaQuery('(prefers-reduced-motion: reduce)', this.prefersReducedMotion);
 
-    effect(
-      () => {
-        if (this.open()) {
-          this.mountPanel();
-          return;
-        }
+    effect(() => {
+      if (this.open()) {
+        this.mountPanel();
+        return;
+      }
 
-        this.beginClose();
-      },
-      { allowSignalWrites: true },
-    );
+      this.beginClose();
+    });
 
     effect(() => {
       if (this.isRendered()) {
