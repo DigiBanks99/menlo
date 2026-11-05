@@ -1,0 +1,2 @@
+# Markdown is linted by markdownlint (.config/.markdownlint-cli2.jsonc), not formatted by Prettier
+*.md
