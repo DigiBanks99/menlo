@@ -1,0 +1,2 @@
+# Shell scripts run on Linux runners; CRLF breaks bash.
+*.sh text eol=lf
