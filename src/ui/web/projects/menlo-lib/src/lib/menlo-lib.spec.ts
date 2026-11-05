@@ -8,7 +8,7 @@ import { MenloLib } from './menlo-lib';
 const mockMenloApiClient: MenloApiClient = {
   forecasts: vi.fn(() => null) as unknown as Signal<WeatherForecast[] | null>,
   loadWeather: vi.fn(),
-} as any;
+} as unknown as MenloApiClient;
 
 // Mock the data-access-menlo-api module
 vi.mock('data-access-menlo-api', () => ({
@@ -22,18 +22,14 @@ describe('MenloLib', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MenloLib],
-      providers: [
-        { provide: 'MenloApiClient', useValue: mockMenloApiClient }
-      ]
+      providers: [{ provide: 'MenloApiClient', useValue: mockMenloApiClient }],
     })
-    .overrideComponent(MenloLib, {
-      set: {
-        providers: [
-          { provide: 'MenloApiClient', useValue: mockMenloApiClient }
-        ]
-      }
-    })
-    .compileComponents();
+      .overrideComponent(MenloLib, {
+        set: {
+          providers: [{ provide: 'MenloApiClient', useValue: mockMenloApiClient }],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MenloLib);
     component = fixture.componentInstance;

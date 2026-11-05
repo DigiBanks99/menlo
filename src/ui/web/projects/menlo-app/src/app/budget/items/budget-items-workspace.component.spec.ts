@@ -64,7 +64,11 @@ describe('BudgetItemsWorkspaceComponent', () => {
     }).compileComponents();
   });
 
-  function createComponent(budgetId = mockBudgetId, categoryId = mockCategoryId, categoryName = '') {
+  function createComponent(
+    budgetId = mockBudgetId,
+    categoryId = mockCategoryId,
+    categoryName = '',
+  ) {
     const fixture = TestBed.createComponent(BudgetItemsWorkspaceComponent);
     fixture.componentRef.setInput('budgetId', budgetId);
     fixture.componentRef.setInput('categoryId', categoryId);
@@ -184,9 +188,7 @@ describe('BudgetItemsWorkspaceComponent', () => {
     editBtn.click();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`)).toBeNull();
   });
 
   it('hides the edit panel when edit is cancelled', () => {
@@ -201,9 +203,7 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.componentInstance.cancelEdit();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`)).toBeNull();
   });
 
   // ── Fill-forward panel ─────────────────────────────────────────────────────
@@ -241,9 +241,7 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.nativeElement.querySelector(`[data-testid="btn-fill-forward-${item.id}"]`).click();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`)).toBeNull();
     expect(
       fixture.nativeElement.querySelector(`[data-testid="fill-forward-panel-${item.id}"]`),
     ).toBeTruthy();
@@ -384,17 +382,14 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.nativeElement.querySelector(`[data-testid="btn-edit-${item.id}"]`).click();
     fixture.detectChanges();
 
-    fixture.componentInstance.onItemSaved(item);
+    fixture.componentInstance.onItemSaved();
     fixture.detectChanges();
 
     expect(mockApi.listItems).toHaveBeenCalledTimes(2);
-    expect(
-      fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector(`[data-testid="edit-panel-${item.id}"]`)).toBeNull();
   });
 
   it('reloads items and hides panel after bulk-create success', () => {
-    const createdItems = [mockItem({ id: 'x1', month: 1 })];
     mockApi.listItems.mockReturnValue(of(success([])));
 
     const fixture = createComponent();
@@ -405,7 +400,7 @@ describe('BudgetItemsWorkspaceComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="bulk-create-panel"]')).toBeTruthy();
 
     // Simulate a successful bulk-create event from the child component
-    fixture.componentInstance.onBulkCreateSaved(createdItems);
+    fixture.componentInstance.onBulkCreateSaved();
     fixture.detectChanges();
 
     expect(mockApi.listItems).toHaveBeenCalledTimes(2);
@@ -414,7 +409,6 @@ describe('BudgetItemsWorkspaceComponent', () => {
 
   it('reloads items and hides fill-forward panel after a successful fill-forward', () => {
     const item = mockItem();
-    const createdItems = [mockItem({ id: 'x1', month: 4 })];
     mockApi.listItems.mockReturnValue(of(success([item])));
 
     const fixture = createComponent();
@@ -422,7 +416,7 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.nativeElement.querySelector(`[data-testid="btn-fill-forward-${item.id}"]`).click();
     fixture.detectChanges();
 
-    fixture.componentInstance.onFillForwardDone(createdItems);
+    fixture.componentInstance.onFillForwardDone();
     fixture.detectChanges();
 
     expect(mockApi.listItems).toHaveBeenCalledTimes(2);
@@ -436,16 +430,12 @@ describe('BudgetItemsWorkspaceComponent', () => {
   it('shows single-create panel when "Add Item" is clicked', () => {
     const fixture = createComponent();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="single-create-panel"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="single-create-panel"]')).toBeNull();
 
     fixture.nativeElement.querySelector('[data-testid="btn-open-single-create"]').click();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="single-create-panel"]'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="single-create-panel"]')).toBeTruthy();
   });
 
   it('hides single-create panel when single create is cancelled', () => {
@@ -457,13 +447,10 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.componentInstance.closeSingleCreate();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="single-create-panel"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="single-create-panel"]')).toBeNull();
   });
 
   it('reloads items and hides single-create panel after successful create', () => {
-    const newItem = mockItem({ id: 'new-1' });
     mockApi.listItems.mockReturnValue(of(success([])));
 
     const fixture = createComponent();
@@ -471,16 +458,12 @@ describe('BudgetItemsWorkspaceComponent', () => {
     fixture.nativeElement.querySelector('[data-testid="btn-open-single-create"]').click();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="single-create-panel"]'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="single-create-panel"]')).toBeTruthy();
 
-    fixture.componentInstance.onSingleCreateSaved(newItem);
+    fixture.componentInstance.onSingleCreateSaved();
     fixture.detectChanges();
 
     expect(mockApi.listItems).toHaveBeenCalledTimes(2);
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="single-create-panel"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="single-create-panel"]')).toBeNull();
   });
 });
