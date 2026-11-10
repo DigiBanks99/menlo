@@ -1,10 +1,14 @@
 using Menlo.AI.Configuration;
 using Menlo.AI.Interfaces;
 using Menlo.AI.Services;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-#pragma warning disable SKEXP0070 // Ollama connector is experimental
+using Microsoft.Extensions.Options;
+using OpenAI;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 
 namespace Menlo.AI.Extensions;
 
@@ -13,48 +17,49 @@ namespace Menlo.AI.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    // llama.cpp ignores the key unless it was started with --api-key, but the OpenAI client requires one.
+    private const string NoApiKey = "no-key";
+
     extension(IHostApplicationBuilder builder)
     {
         /// <summary>
-        /// Add Menlo AI services to the service collection
+        /// Add Menlo AI services, talking to the OpenAI-compatible llama.cpp server configured in <c>Menlo:AI</c>.
         /// </summary>
-        public IServiceCollection AddMenloAi()
+        /// <remarks>
+        /// The OpenAI client uses its own HTTP transport, not <c>IHttpClientFactory</c>, so the service defaults'
+        /// resilience handler (and its short attempt timeout) does not apply to model calls. Register a
+        /// <see cref="PipelineTransport"/> to replace the transport, for example with a stub in tests.
+        /// </remarks>
+        public IHostApplicationBuilder AddMenloAi()
         {
-            // Configure AI settings
-            builder.Services.Configure<AiSettings>(builder.Configuration.GetSection(AiSettings.SectionName));
+            builder.Services
+                .AddOptions<AiSettings>()
+                .Bind(builder.Configuration.GetSection(AiSettings.SectionName))
+                .Validate(settings => settings.Endpoint is not null, $"{AiSettings.SectionName}:Endpoint is required.")
+                .Validate(
+                    settings => settings.Endpoint is null || (settings.Endpoint.IsAbsoluteUri && settings.Endpoint.Scheme is "http" or "https"),
+                    $"{AiSettings.SectionName}:Endpoint must be an absolute http or https URL.")
+                .Validate(settings => !string.IsNullOrWhiteSpace(settings.ChatModel), $"{AiSettings.SectionName}:ChatModel is required.")
+                .ValidateOnStart();
 
-            // Register AI services
+            builder.Services.AddSingleton<IChatClient>(sp =>
+            {
+                AiSettings settings = sp.GetRequiredService<IOptions<AiSettings>>().Value;
+                OpenAIClientOptions clientOptions = new() { Endpoint = settings.Endpoint };
+                if (sp.GetService<PipelineTransport>() is { } transport)
+                {
+                    clientOptions.Transport = transport;
+                }
+
+                OpenAIClient client = new(new ApiKeyCredential(string.IsNullOrWhiteSpace(settings.ApiKey) ? NoApiKey : settings.ApiKey), clientOptions);
+                return client.GetChatClient(settings.ChatModel).AsIChatClient();
+            });
+            builder.Services.AddSingleton<AIAgent>(sp => sp.GetRequiredService<IChatClient>().AsAIAgent());
+
             builder.Services.AddScoped<IChatService, ChatService>();
-            builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
             builder.Services.AddScoped<IVisionService, VisionService>();
-
-            // Register Semantic Kernel
-            builder.Services.AddKernel();
-
-            return builder.Services;
-        }
-
-        /// <summary>
-        /// Add Menlo AI services with Aspire Ollama integration
-        /// </summary>
-        public IHostApplicationBuilder AddMenloAiWithAspire()
-        {
-            // Configure AI settings
-            builder.Services.Configure<AiSettings>(builder.Configuration.GetSection(AiSettings.SectionName));
-
-            // Register AI services
-            builder.Services.AddScoped<IChatService, ChatService>();
-            builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
-            builder.Services.AddScoped<IVisionService, VisionService>();
-
-            // Register Semantic Kernel with Ollama connection from Aspire configuration
-            builder.Services.AddKernel();
-            builder.Services.AddOllamaChatClient("text");
-            builder.Services.AddOllamaEmbeddingGenerator("text");
 
             return builder;
         }
     }
 }
-
-

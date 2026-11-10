@@ -26,6 +26,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     public string[] UserRoles { get; init; } = ["Menlo.User"];
 
     /// <summary>
+    /// Gets whether the AI services are replaced with substitutes. Turn off only to call a real model server.
+    /// </summary>
+    public bool UseMockAiServices { get; init; } = true;
+
+    /// <summary>
     /// Gets the external identifier claim value for the test user.
     /// </summary>
     public string UserId { get; init; } = Fixtures.TestAuthHandler.DefaultUserId;
@@ -106,8 +111,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            RemoveAiServices(services);
-            AddMockAiServices(services);
+            if (UseMockAiServices)
+            {
+                RemoveAiServices(services);
+                AddMockAiServices(services);
+            }
 
             services.AddScoped<IAuditStampFactory, NoOpAuditStampFactory>();
             services.AddScoped<ISoftDeleteStampFactory, NoOpSoftDeleteStampFactory>();
@@ -211,7 +219,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             ["AzureAd:TenantId"] = "test-tenant-id",
             ["AzureAd:ClientId"] = "test-client-id",
             ["AzureAd:ClientSecret"] = "test-client-secret",
-            ["AzureAd:ResponseType"] = "code"
+            ["AzureAd:ResponseType"] = "code",
+            // Placeholder: the API fails at startup without an endpoint, and the substituted AI services never call it
+            ["Menlo:AI:Endpoint"] = "http://localhost:65535/v1"
         };
 
         if (MenloConnectionString is not null)
@@ -233,7 +243,6 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         [
             .. services
                 .Where(d => d.ServiceType == typeof(IChatService)
-                    || d.ServiceType == typeof(IEmbeddingService)
                     || d.ServiceType == typeof(IVisionService))
         ];
 
@@ -250,11 +259,9 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             .GetResponseAsync(Arg.Any<string>())
             .Returns(Task.FromResult("AI service is working"));
 
-        IEmbeddingService mockEmbeddingService = Substitute.For<IEmbeddingService>();
         IVisionService mockVisionService = Substitute.For<IVisionService>();
 
         services.AddSingleton(mockChatService);
-        services.AddSingleton(mockEmbeddingService);
         services.AddSingleton(mockVisionService);
     }
 }

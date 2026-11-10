@@ -1,41 +1,29 @@
 namespace Menlo.AI.Configuration;
 
 /// <summary>
-/// Configuration settings for AI services
+/// Configuration settings for AI services, bound from <c>Menlo:AI</c>.
 /// </summary>
 public sealed class AiSettings
 {
     public const string SectionName = "Menlo:AI";
 
     /// <summary>
-    /// Ollama connection name for Aspire integration
+    /// Base URL of the OpenAI-compatible llama.cpp server, including <c>/v1</c>. Required.
     /// </summary>
-    public string OllamaConnectionName { get; init; } = "ollama";
+    public Uri? Endpoint { get; init; }
 
     /// <summary>
-    /// Text model name for chat completion
+    /// Model name the server serves for chat. Matches a section name in the llama.cpp preset.
     /// </summary>
-    public string TextModelName { get; init; } = "phi4-mini";
+    public string ChatModel { get; init; } = "qwen3.5-4b";
 
     /// <summary>
-    /// Vision model name for image analysis
+    /// Optional API key for the server. llama.cpp needs none unless started with <c>--api-key</c>.
     /// </summary>
-    public string VisionModelName { get; init; } = "phi4-vision";
+    public string? ApiKey { get; init; }
 
     /// <summary>
-    /// Embedding model name for vector generation
+    /// Let the model think before answering. Off by default: each request asks the chat template not to think.
     /// </summary>
-    public string EmbeddingModelName { get; init; } = "phi4-mini";
-
-    /// <summary>
-    /// Enable health checks for AI services
-    /// </summary>
-    public bool EnableHealthChecks { get; init; } = true;
-
-    /// <summary>
-    /// Enable telemetry and logging for AI operations
-    /// </summary>
-    public bool EnableTelemetry { get; init; } = true;
+    public bool EnableThinking { get; init; }
 }
-
-
