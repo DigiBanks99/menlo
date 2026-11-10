@@ -29,6 +29,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}/menlo-api
   KEY_VAULT_NAME: kv-menlo-prod
   CERTIFICATE_NAME: menlo-cd-cert
+  # The llama.cpp server already running on the VM (shared with the knowledge base).
+  # The API reaches it on the host loopback; it needs no API key. Change the model here only.
+  MENLO_AI_ENDPOINT: http://127.0.0.1:9931/v1
+  MENLO_AI_CHAT_MODEL: qwen3.5-4b
+  MENLO_AI_VISION_MODEL: qwen3.5-4b
 
 jobs:
   # ============================================================================
@@ -220,15 +225,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: menlo
           CONTAINER_RUNTIME: ${{ vars.CONTAINER_RUNTIME }}
-          # The home server's llama.cpp server, base URL including /v1. The API refuses to start without it.
-          MENLO_AI_ENDPOINT: ${{ vars.MENLO_AI_ENDPOINT }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${MENLO_AI_ENDPOINT:-}" ]]; then
-            echo "::error::MENLO_AI_ENDPOINT is not set; it must be the home server's llama.cpp URL including /v1"
-            exit 1
-          fi
 
           echo "🚀 Starting Menlo deployment..."
 
@@ -272,16 +270,21 @@ jobs:
               image: ${IMAGE}
               container_name: menlo-api
               restart: unless-stopped
+              # Host networking so the API reaches llama-server on the VM's loopback
+              # without opening it to containers. Listen on loopback only: cloudflared
+              # on the host is the only client
+              network_mode: host
               environment:
                 - ASPNETCORE_ENVIRONMENT=Production
-                - ASPNETCORE_URLS=http://+:8080
-                # Trust X-Forwarded-* only from the compose bridge: cloudflared on the host
-                # reaches the API through its gateway. Without this the API sees http and
-                # Entra rejects the http://.../signin-oidc reply address (AADSTS500112)
-                - ForwardedHeaders__KnownNetworks__0=172.20.0.0/16
-                - ConnectionStrings__menlo=Host=postgres;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
-                - Ollama__BaseUrl=http://ollama:11434
+                - ASPNETCORE_URLS=http://127.0.0.1:8080
+                # Trust X-Forwarded-* only from loopback, where cloudflared's requests arrive.
+                # Without this the API sees http and Entra rejects the
+                # http://.../signin-oidc reply address (AADSTS500112)
+                - ForwardedHeaders__KnownNetworks__0=127.0.0.0/8
+                - ConnectionStrings__menlo=Host=127.0.0.1;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
                 - Menlo__AI__Endpoint=${MENLO_AI_ENDPOINT}
+                - Menlo__AI__ChatModel=${MENLO_AI_CHAT_MODEL}
+                - Menlo__AI__VisionModel=${MENLO_AI_VISION_MODEL}
                 - Logging__LogLevel__Default=Information
                 - Features__Budget=${FEATURES_BUDGET}
                 - AzureAd__Instance=${AZURE_AD_INSTANCE}
@@ -289,13 +292,8 @@ jobs:
                 - AzureAd__ClientId=${AZURE_AD_CLIENT_ID}
                 - AzureAd__ClientCertificates__0__SourceType=Base64Encoded
                 - AzureAd__ClientCertificates__0__Base64EncodedValue=${CERT_BASE64}
-              ports:
-                - "127.0.0.1:8080:8080"
-              networks:
-                - menlo-network
               depends_on:
                 - postgres
-                - ollama
               healthcheck:
                 test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
                 interval: 30s
@@ -313,8 +311,9 @@ jobs:
                 - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
               volumes:
                 - postgres_data:/var/lib/postgresql/data
+              # Loopback only: the API reaches it from the host network
               ports:
-                - "5432:5432"
+                - "127.0.0.1:5432:5432"
               networks:
                 - menlo-network
               healthcheck:
@@ -323,39 +322,14 @@ jobs:
                 timeout: 10s
                 retries: 5
 
-            ollama:
-              image: ollama/ollama:latest
-              container_name: menlo-ollama
-              restart: unless-stopped
-              volumes:
-                - ollama_data:/root/.ollama
-              ports:
-                - "11434:11434"
-              networks:
-                - menlo-network
-              environment:
-                - OLLAMA_KEEP_ALIVE=24h
-                - OLLAMA_NUM_PARALLEL=2
-              healthcheck:
-                test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
-                interval: 60s
-                timeout: 30s
-                retries: 3
-                start_period: 120s
-
           volumes:
             postgres_data:
               name: menlo_postgres_data
-            ollama_data:
-              name: menlo_ollama_data
 
           networks:
             menlo-network:
               name: menlo_network
               driver: bridge
-              ipam:
-                config:
-                  - subnet: 172.20.0.0/16
           EOF
 
           # Pull new image
@@ -366,9 +340,10 @@ jobs:
           echo "⏸️ Stopping existing services..."
           "$RUNTIME" compose -f docker-compose.prod.yml down 2>/dev/null || true
 
-          # Start services
+          # Start services. --remove-orphans removes containers of services no longer
+          # in the file (e.g. the old menlo-ollama), which down leaves running
           echo "▶️ Starting services..."
-          "$RUNTIME" compose -f docker-compose.prod.yml up -d
+          "$RUNTIME" compose -f docker-compose.prod.yml up -d --remove-orphans
 
           # Wait for health checks
           echo "🏥 Waiting for services..."
