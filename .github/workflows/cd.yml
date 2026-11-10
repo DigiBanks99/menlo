@@ -336,12 +336,13 @@ jobs:
           echo "📥 Pulling new image..."
           "$RUNTIME" pull "$IMAGE"
 
-          # Stop existing services
+          # Stop existing services. --remove-orphans also removes containers of services
+          # no longer in the file (e.g. the old menlo-ollama); left running, they hold
+          # the compose network and up cannot recreate it
           echo "⏸️ Stopping existing services..."
-          "$RUNTIME" compose -f docker-compose.prod.yml down 2>/dev/null || true
+          "$RUNTIME" compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
 
-          # Start services. --remove-orphans removes containers of services no longer
-          # in the file (e.g. the old menlo-ollama), which down leaves running
+          # Start services
           echo "▶️ Starting services..."
           "$RUNTIME" compose -f docker-compose.prod.yml up -d --remove-orphans
 
