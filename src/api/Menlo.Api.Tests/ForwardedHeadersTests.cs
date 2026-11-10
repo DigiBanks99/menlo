@@ -8,6 +8,9 @@ public sealed class ForwardedHeadersTests : TestFixture
     private static readonly IPAddress UntrustedClient = IPAddress.Parse("203.0.113.5");
     private static readonly IPAddress SpoofedClient = IPAddress.Parse("198.51.100.7");
 
+    // Production value: under host networking cloudflared reaches the API from loopback
+    private const string LoopbackNetwork = "127.0.0.0/8";
+
     [Test]
     public async Task GivenUntrustedSource_WhenSendingForwardedHeaders_ThenHeadersAreIgnored()
     {
@@ -66,6 +69,47 @@ public sealed class ForwardedHeadersTests : TestFixture
         HttpContext ctx = await SendAsync(factory, IPAddress.Parse("172.20.0.1").MapToIPv6());
 
         ItShouldApplyForwardedHeaders(ctx);
+    }
+
+    [Test]
+    public async Task GivenLoopbackKnownNetwork_WhenSourceIsLoopback_ThenHeadersAreApplied()
+    {
+        using TestWebApplicationFactory factory = WithKnownNetworks(LoopbackNetwork);
+
+        HttpContext ctx = await SendAsync(factory, IPAddress.Parse("127.0.0.1"));
+
+        ItShouldApplyForwardedHeaders(ctx);
+    }
+
+    [Test]
+    public async Task GivenLoopbackKnownNetwork_WhenSourceIsIpv4MappedLoopback_ThenHeadersAreApplied()
+    {
+        using TestWebApplicationFactory factory = WithKnownNetworks(LoopbackNetwork);
+
+        HttpContext ctx = await SendAsync(factory, IPAddress.Parse("127.0.0.1").MapToIPv6());
+
+        ItShouldApplyForwardedHeaders(ctx);
+    }
+
+    [Test]
+    public async Task GivenLoopbackKnownNetwork_WhenSourceIsUntrusted_ThenHeadersAreIgnored()
+    {
+        using TestWebApplicationFactory factory = WithKnownNetworks(LoopbackNetwork);
+
+        HttpContext ctx = await SendAsync(factory, UntrustedClient);
+
+        ItShouldIgnoreForwardedHeaders(ctx, UntrustedClient);
+    }
+
+    [Test]
+    public async Task GivenLoopbackKnownNetwork_WhenSourceIsTheOldComposeBridge_ThenHeadersAreIgnored()
+    {
+        using TestWebApplicationFactory factory = WithKnownNetworks(LoopbackNetwork);
+        IPAddress bridgeGateway = IPAddress.Parse("172.20.0.1");
+
+        HttpContext ctx = await SendAsync(factory, bridgeGateway);
+
+        ItShouldIgnoreForwardedHeaders(ctx, bridgeGateway);
     }
 
     [Test]
