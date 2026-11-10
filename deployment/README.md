@@ -136,6 +136,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 |-------------|-------|-------------|----------|
 | `POSTGRES_USER` | `menlo` | Database user | ✅ |
 | `POSTGRES_PASSWORD` | `secure_password_here` | Database password | ✅ |
+| `MENLO_AI_API_KEY` | the `llama-server` `--api-key` | Key for the host's llama.cpp server; CD fails early without it | ✅ |
 
 **Add these variables to your GitHub repository:**
 
@@ -147,7 +148,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 
 ### Step 4: Prepare the llama.cpp Server
 
-Production does not start a model server. The API calls the `llama-server` the host already runs for the knowledge base, at `http://127.0.0.1:9931/v1`, with no API key. Before the first deploy:
+Production does not start a model server. The API calls the `llama-server` the host already runs for the knowledge base, at `http://127.0.0.1:9931/v1`, sending the key `llama-server` was started with (`--api-key`) from the `MENLO_AI_API_KEY` secret. Before the first deploy:
 
 - Turn `mmproj-auto` on for the `qwen3.5-4b` preset (vision needs it)
 - Raise `--models-max` only if loading the chat model next to the knowledge base's models needs it
@@ -232,7 +233,7 @@ docker compose -f docker-compose.prod.yml logs -f menlo-api
 Models belong to the host's `llama-server` preset, not to the Menlo stack. Check what it serves:
 
 ```bash
-curl http://127.0.0.1:9931/v1/models
+curl -H "Authorization: Bearer $LLAMA_API_KEY" http://127.0.0.1:9931/v1/models
 ```
 
 ## 🗄️ Database Backup & Restore
@@ -327,10 +328,12 @@ docker exec menlo-postgres pg_isready -U menlo -d menlo
 
 ```bash
 # Is llama-server up, and does it serve the configured model?
-curl http://127.0.0.1:9931/v1/models
+curl -H "Authorization: Bearer $LLAMA_API_KEY" http://127.0.0.1:9931/v1/models
 ```
 
 The API reaches it over the host loopback, so check `llama-server` on the host rather than inside a container.
+
+If `/api/ai/health` reports `HTTP 401 ... Invalid API Key`, the `MENLO_AI_API_KEY` secret doesn't match the `--api-key` `llama-server` was started with. Fix the secret and redeploy.
 
 ### Removing the Old Ollama Data
 

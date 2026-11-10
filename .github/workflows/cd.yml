@@ -30,7 +30,8 @@ env:
   KEY_VAULT_NAME: kv-menlo-prod
   CERTIFICATE_NAME: menlo-cd-cert
   # The llama.cpp server already running on the VM (shared with the knowledge base).
-  # The API reaches it on the host loopback; it needs no API key. Change the model here only.
+  # The API reaches it on the host loopback, with the key in the MENLO_AI_API_KEY secret.
+  # Change the model here only.
   MENLO_AI_ENDPOINT: http://127.0.0.1:9931/v1
   MENLO_AI_CHAT_MODEL: qwen3.5-4b
   MENLO_AI_VISION_MODEL: qwen3.5-4b
@@ -225,8 +226,15 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: menlo
           CONTAINER_RUNTIME: ${{ vars.CONTAINER_RUNTIME }}
+          # The VM's llama-server runs with --api-key; without it every AI call fails with 401
+          MENLO_AI_API_KEY: ${{ secrets.MENLO_AI_API_KEY }}
         run: |
           set -euo pipefail
+
+          if [[ -z "${MENLO_AI_API_KEY:-}" ]]; then
+            echo "::error::The MENLO_AI_API_KEY secret is not set; it must be the --api-key of the VM's llama-server"
+            exit 1
+          fi
 
           echo "🚀 Starting Menlo deployment..."
 
@@ -283,6 +291,7 @@ jobs:
                 - ForwardedHeaders__KnownNetworks__0=127.0.0.0/8
                 - ConnectionStrings__menlo=Host=127.0.0.1;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
                 - Menlo__AI__Endpoint=${MENLO_AI_ENDPOINT}
+                - Menlo__AI__ApiKey=${MENLO_AI_API_KEY}
                 - Menlo__AI__ChatModel=${MENLO_AI_CHAT_MODEL}
                 - Menlo__AI__VisionModel=${MENLO_AI_VISION_MODEL}
                 - Logging__LogLevel__Default=Information
