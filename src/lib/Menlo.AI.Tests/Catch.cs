@@ -18,4 +18,17 @@ internal static class Catch
             return ex;
         }
     }
+
+    public static async Task<Exception?> ExceptionAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return ex;
+        }
+    }
 }

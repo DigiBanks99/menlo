@@ -23,7 +23,7 @@ builder
     .AddMenloForwardedHeaders()
     .AddMenloAntiforgery()
     .AddSpaReverseProxy()
-    .AddMenloAiWithAspire()
+    .AddMenloAi()
     .AddMenloOpenApi()
     .AddMenloApplication();
 

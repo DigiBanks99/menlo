@@ -13,13 +13,22 @@ IResourceBuilder<PostgresServerResource> postgres = builder
 IResourceBuilder<PostgresDatabaseResource> db = postgres
     .AddDatabase("menlo");
 
-IResourceBuilder<OllamaResource> ollama = builder.AddOllama("ollama")
+// llama.cpp's OpenAI-compatible server in router mode: it serves the models named in llama/models.ini and loads
+// one on its first request, downloading it from Hugging Face into the cache volume the first time.
+// The tag is pinned; it must be new enough for the qwen35 architecture and MTP speculative decoding.
+IResourceBuilder<ContainerResource> llama = builder
+    .AddContainer("llama", "ggml-org/llama.cpp", "server-b12211")
+    .WithImageRegistry("ghcr.io")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume("ollama-models")
-    .WithOpenWebUI();
+    .WithBindMount(Path.Join(builder.AppHostDirectory, "llama"), "/presets", isReadOnly: true)
+    .WithVolume("llama-hf-cache", "/root/.cache")
+    .WithArgs("--models-preset", "/presets/models.ini", "--models-max", "1")
+    .WithHttpEndpoint(name: "http", targetPort: 8080)
+    .WithHttpHealthCheck("/health");
 
-IResourceBuilder<OllamaModelResource> textModel = ollama.AddModel("text", "phi4-mini:latest"); // Text processing
-IResourceBuilder<OllamaModelResource> visionModel = ollama.AddModel("vision", "qwen2.5vl:3b"); // Vision processing
+// Menlo:AI:Endpoint is the server's base URL including /v1
+EndpointReference llamaEndpoint = llama.GetEndpoint("http");
+ReferenceExpression aiEndpoint = ReferenceExpression.Create($"{llamaEndpoint}/v1");
 
 // Opt-in: run the API from the production Dockerfile, which bundles the built SPA into wwwroot.
 // Slower to iterate on than the Vite dev server, but exercises the real deployment (Production
@@ -39,10 +48,8 @@ if (bundledUi)
         // Mirrors deployment/docker-compose.prod.yml, where Postgres does not offer SSL
         .WithEnvironment("ConnectionStrings__menlo", ReferenceExpression.Create($"{db.Resource.ConnectionStringExpression};SSL Mode=Disable"))
         .WaitFor(db)
-        .WithReference(textModel)
-        .WaitFor(textModel)
-        .WithReference(visionModel)
-        .WaitFor(visionModel)
+        .WithEnvironment("Menlo__AI__Endpoint", aiEndpoint)
+        .WaitFor(llama)
         .WithEntraIdCredentials(builder)
         .WithExternalHttpEndpoints();
 
@@ -55,10 +62,8 @@ IResourceBuilder<ProjectResource> api = builder
     .WithHttpHealthCheck("health")
     .WithReference(db)
     .WaitFor(db)
-    .WithReference(textModel)
-    .WaitFor(textModel)
-    .WithReference(visionModel)
-    .WaitFor(visionModel)
+    .WithEnvironment("Menlo__AI__Endpoint", aiEndpoint)
+    .WaitFor(llama)
     .WithEntraIdCredentials(builder)
     .WithExternalHttpEndpoints()
     .WithBrowserLogs();

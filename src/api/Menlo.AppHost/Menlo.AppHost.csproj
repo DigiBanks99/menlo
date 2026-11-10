@@ -9,7 +9,6 @@
     <PackageReference Include="Aspire.Hosting.Browsers" />
     <PackageReference Include="Aspire.Hosting.JavaScript" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Menlo.Api\Menlo.Api.csproj" IsAspireProject="true" />
