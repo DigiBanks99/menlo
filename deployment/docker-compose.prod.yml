@@ -17,8 +17,10 @@ services:
       # Trust X-Forwarded-* only from loopback, where cloudflared's requests arrive
       - ForwardedHeaders__KnownNetworks__0=127.0.0.0/8
       - ConnectionStrings__menlo=Host=127.0.0.1;Database=${POSTGRES_DB:-menlo};Username=${POSTGRES_USER:-menlo};Password=${POSTGRES_PASSWORD};SSL Mode=Disable
-      # The VM's llama.cpp server (shared with the knowledge base), base URL including /v1. No API key
+      # The VM's llama.cpp server (shared with the knowledge base), base URL including /v1,
+      # and the --api-key it was started with
       - Menlo__AI__Endpoint=${MENLO_AI_ENDPOINT:-http://127.0.0.1:9931/v1}
+      - Menlo__AI__ApiKey=${MENLO_AI_API_KEY:?set MENLO_AI_API_KEY to the llama-server --api-key}
       - Menlo__AI__ChatModel=${MENLO_AI_CHAT_MODEL:-qwen3.5-4b}
       - Menlo__AI__VisionModel=${MENLO_AI_VISION_MODEL:-qwen3.5-4b}
       - Logging__LogLevel__Default=Information
@@ -110,6 +112,7 @@ networks:
 # - BACKUP_SCHEDULE: Backup cron schedule (default: @daily)
 # - BACKUP_KEEP_DAYS: Number of daily backups to retain (default: 7)
 # - MENLO_AI_ENDPOINT: llama.cpp base URL including /v1 (default: http://127.0.0.1:9931/v1)
+# - MENLO_AI_API_KEY: the llama-server --api-key (REQUIRED)
 # - MENLO_AI_CHAT_MODEL / MENLO_AI_VISION_MODEL: llama.cpp preset names (default: qwen3.5-4b)
 #
 # Volume Locations:
