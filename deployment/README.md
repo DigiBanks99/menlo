@@ -1,6 +1,6 @@
-# Menlo Deployment - Linux + Docker/Podman + Ollama
+# Menlo Deployment - Linux + Docker/Podman + llama.cpp
 
-Deployment guide for the Menlo Home Management application on a **Linux host** using **Docker or Podman containers**, **Ollama AI**, and **Cloudflare Tunnels**.
+Deployment guide for the Menlo Home Management application on a **Linux host** using **Docker or Podman containers**, the host's **llama.cpp server**, and **Cloudflare Tunnels**.
 
 ## 🎯 Quick Start
 
@@ -8,7 +8,7 @@ This setup is designed for:
 
 - **Linux host with systemd** (see [ADR-004](../docs/decisions/adr-004-linux-deployment-host.md))
 - **Docker or Podman** (pick one with the `CONTAINER_RUNTIME` variable)
-- **Local Ollama AI** (phi4-mini, phi4-vision models)
+- **Local llama.cpp** (the `llama-server` already running on the host, shared with the knowledge base)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
 - **Bundled SPA** (the API image serves the Angular 21 frontend, see [ADR-005](../docs/decisions/adr-005-bundled-spa-hosting.md))
 
@@ -16,7 +16,7 @@ This setup is designed for:
 
 | File | Purpose |
 |------|---------|
-| `docker-compose.prod.yml` | Reference production stack (API, PostgreSQL, backups, Ollama) |
+| `docker-compose.prod.yml` | Reference production stack (API, PostgreSQL, backups) |
 | `README.md` | This guide |
 
 The CD workflow (`.github/workflows/cd.yml`) writes its own `docker-compose.prod.yml` to `~/menlo` on the host on every deploy, with the image tag, Entra settings and certificate filled in.
@@ -25,10 +25,12 @@ The CD workflow (`.github/workflows/cd.yml`) writes its own `docker-compose.prod
 
 ### Prerequisites
 
-- Linux distribution with systemd (e.g. Ubuntu 24.04, Oracle Linux 9), on `arm64`. CD only publishes `menlo-api` for `linux/arm64`; `postgres` and `ollama` images are multi-arch
+- Linux distribution with systemd (e.g. Ubuntu 24.04, Oracle Linux 9), on `arm64`. CD only publishes `menlo-api` for `linux/arm64`; the `postgres` image is multi-arch
 - `sudo` access for setup
 - `curl` and GNU coreutils
-- Stable internet connection (for model downloads)
+- Stable internet connection
+- `llama-server` running on the host at `http://127.0.0.1:9931/v1` (see Step 4)
+- Nothing else listening on `127.0.0.1:5432` or `127.0.0.1:8080` (the API uses host networking, see Network Security)
 
 ### Step 1: Create the Runner User and Install a Container Runtime
 
@@ -143,6 +145,17 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 | `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
 | `FRONTEND_URL` | `https://menlo.yourdomain.com` | Production URL (API with the bundled SPA); CD smoke-checks it after every deploy | ✅ |
 
+### Step 4: Prepare the llama.cpp Server
+
+Production does not start a model server. The API calls the `llama-server` the host already runs for the knowledge base, at `http://127.0.0.1:9931/v1`, with no API key. Before the first deploy:
+
+- Turn `mmproj-auto` on for the `qwen3.5-4b` preset (vision needs it)
+- Raise `--models-max` only if loading the chat model next to the knowledge base's models needs it
+
+The endpoint and the model names (`MENLO_AI_ENDPOINT`, `MENLO_AI_CHAT_MODEL`, `MENLO_AI_VISION_MODEL`) are set once at the top of `cd.yml`; change the model there.
+
+If `llama-server` is stopped the app still runs: `/api/ai/health` returns a problem response and the AI features fail, while budgets and planning keep working.
+
 ## 🚢 Deployment
 
 ### Production Deployment (via GitHub Actions)
@@ -204,39 +217,23 @@ docker compose -f docker-compose.prod.yml logs -f
 
 # Specific service
 docker compose -f docker-compose.prod.yml logs -f menlo-api
-docker compose -f docker-compose.prod.yml logs -f ollama
 ```
 
 ### Health Check URLs
 
 - **API Health**: `http://localhost:8080/health`
 - **API Documentation**: `http://localhost:8080/swagger`
-- **Ollama API**: `http://localhost:11434/api/tags`
+- **llama.cpp**: `http://127.0.0.1:9931/v1/models`
+- **AI health (signed in)**: `https://menlo.yourdomain.com/api/ai/health`
 - **External (via Cloudflare)**: `https://menlo.yourdomain.com/health`, or run `deployment/smoke-check.sh https://menlo.yourdomain.com`
 
-## 🤖 AI Models Management
+## 🤖 AI Models
 
-### Check Downloaded Models
-
-```bash
-docker exec menlo-ollama ollama list
-```
-
-### Download Additional Models
+Models belong to the host's `llama-server` preset, not to the Menlo stack. Check what it serves:
 
 ```bash
-# Text processing models
-docker exec menlo-ollama ollama pull phi4-mini
-docker exec menlo-ollama ollama pull phi3.5:3.8b
-
-# Vision models (image analysis)
-docker exec menlo-ollama ollama pull phi4-vision
-docker exec menlo-ollama ollama pull llava:latest
+curl http://127.0.0.1:9931/v1/models
 ```
-
-### Model Storage
-
-Models are stored in the `menlo_ollama_data` volume and persist across container restarts.
 
 ## 🗄️ Database Backup & Restore
 
@@ -326,19 +323,21 @@ gh workflow run cd.yml --ref main
 docker exec menlo-postgres pg_isready -U menlo -d menlo
 ```
 
-### Ollama Model Issues
+### AI Issues
 
 ```bash
-# Check Ollama status
-curl http://localhost:11434/api/tags
+# Is llama-server up, and does it serve the configured model?
+curl http://127.0.0.1:9931/v1/models
+```
 
-# Restart Ollama container
-docker restart menlo-ollama
+The API reaches it over the host loopback, so check `llama-server` on the host rather than inside a container.
 
-# Clear models and re-download
-docker compose -f docker-compose.prod.yml down
+### Removing the Old Ollama Data
+
+Earlier deploys ran an Ollama container. The next deploy removes the `menlo-ollama` container (`up --remove-orphans`), but not its volume. Once the new deploy is healthy, free the space by hand:
+
+```bash
 docker volume rm menlo_ollama_data
-docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### Network/Cloudflare Issues
@@ -364,9 +363,9 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 ### Minimum System Requirements
 
 - **CPU**: 4 cores
-- **RAM**: 16GB (8GB for models + 8GB for OS/apps)
-- **Storage**: 100GB free space (models require 20-30GB)
-- **Network**: Stable broadband for model downloads
+- **RAM**: 16GB (shared with the host's `llama-server` models)
+- **Storage**: 100GB free space
+- **Network**: Stable broadband
 
 ### Expected Resource Usage
 
@@ -374,13 +373,11 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 |-----------|-----|--------|---------|
 | Menlo API | 1-2 cores | 512MB | 1GB |
 | PostgreSQL | 1 core | 256MB | 5-10GB |
-| Ollama + Models | 2-4 cores | 8-12GB | 20-30GB |
-| **Total** | **4-7 cores** | **9-13GB** | **26-41GB** |
+| **Total (excluding llama-server)** | **2-3 cores** | **~1GB** | **6-11GB** |
 
 ### Performance Notes
 
-- **First startup**: Model download takes 10-30 minutes
-- **Subsequent startups**: ~30 seconds to full readiness
+- **Startup**: ~30 seconds to full readiness
 - **AI inference**: 2-10 seconds per request (depending on model and query)
 
 ## 🌐 Frontend Hosting
@@ -395,11 +392,12 @@ To run the production image locally, see `Menlo__BundledUi` in `AGENTS.md`.
 
 ### Network Security
 
-- Ollama and PostgreSQL are not exposed externally
+- llama.cpp and PostgreSQL are not exposed externally; PostgreSQL is published on `127.0.0.1:5432` only
 - Only Menlo API exposed via Cloudflare Tunnel
 - Self-hosted GitHub Actions runner provides secure deployment access
-- Host firewall (e.g. `ufw`/`firewalld`) should block inbound 5432, 8080 and 11434; the tunnel connects outbound only
-- The API port is published on `127.0.0.1:8080` only, and `X-Forwarded-For`/`X-Forwarded-Proto` are trusted only from loopback and `ForwardedHeaders__KnownNetworks__0` (the compose bridge, `172.20.0.0/16`). Do not set `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`; it makes the framework trust every source. With rootless Podman, check the source address the API sees and adjust the network
+- Host firewall (e.g. `ufw`/`firewalld`) should block inbound 5432, 8080 and 9931; the tunnel connects outbound only
+- The API container uses host networking (as the knowledge base does), so it reaches `llama-server` on loopback without opening it to containers. It listens on `127.0.0.1:8080` only (`ASPNETCORE_URLS`), so any host-port clash shows up as a failed start
+- `X-Forwarded-For`/`X-Forwarded-Proto` are trusted only from loopback (`ForwardedHeaders__KnownNetworks__0=127.0.0.0/8`), where cloudflared's requests arrive. A wrong value makes sign-in fail with AADSTS500112. Do not set `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`; it makes the framework trust every source
 
 ### Data Security
 

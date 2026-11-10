@@ -27,7 +27,7 @@ The only deploy workflow. The API image bundles the Angular SPA, so one deploy s
 - Starts when CI succeeds on `main` and deploys the exact image CI built for that commit (`menlo-api:sha-<full commit sha>`); it never builds images itself
 - Skips commits that produced no image (e.g. docs-only); a manual run redeploys production, or deploys a given `sha` for rollback
 - Deploys to the Linux home server through the `menlo-deploy` self-hosted runner (bash steps, see [ADR-004](../../docs/decisions/adr-004-linux-deployment-host.md))
-- Manages PostgreSQL and Ollama containers
+- Manages the API and PostgreSQL containers; the API uses the host's existing llama.cpp server
 - Configures Cloudflare Tunnel integration
 
 ### Dependency Management
@@ -51,7 +51,7 @@ graph LR
     U[Browser] --> D[Cloudflare Tunnel]
     D --> C
     C --> E[PostgreSQL]
-    C --> F[Ollama AI]
+    C --> F[llama.cpp on the host]
 ```
 
 The home server runs the API container, which serves the bundled SPA and `/api` from one origin.
