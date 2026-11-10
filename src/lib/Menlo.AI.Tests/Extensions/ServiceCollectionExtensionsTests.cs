@@ -123,6 +123,23 @@ public sealed class ServiceCollectionExtensionsTests
         void ItShouldStillAskTheModel() => answer.ShouldBe("AI service is working");
     }
 
+    [Test]
+    public async Task TheApiKeyIsConfigured()
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            ["Menlo:AI:ApiKey"] = "llama-secret"
+        });
+
+        await AskAsync(host);
+        string? authorization = _llama.Authorizations.Single();
+
+        ItShouldSendTheKeyAsABearerToken();
+
+        void ItShouldSendTheKeyAsABearerToken() => authorization.ShouldBe("Bearer llama-secret");
+    }
+
     private IHost BuildHost(Dictionary<string, string?> configuration)
     {
         HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());

@@ -16,10 +16,14 @@ internal sealed class StubLlamaServer : HttpMessageHandler
 
     public List<(Uri Uri, JsonObject Body)> Requests { get; } = [];
 
+    /// <summary>The <c>Authorization</c> header of each request, in order.</summary>
+    public List<string?> Authorizations { get; } = [];
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         string body = request.Content is null ? "{}" : await request.Content.ReadAsStringAsync(cancellationToken);
         Requests.Add((request.RequestUri!, JsonNode.Parse(body)!.AsObject()));
+        Authorizations.Add(request.Headers.Authorization?.ToString());
 
         return new HttpResponseMessage(HttpStatusCode.OK)
         {
