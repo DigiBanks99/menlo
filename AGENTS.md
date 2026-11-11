@@ -14,7 +14,7 @@ Menlo is an AI-enhanced family home management application for a South African f
 
 ## Tech Stack
 
-- .NET 10 with C# `LangVersion=preview` (set in `Directory.Build.props`), Entity Framework Core, PostgreSQL
+- .NET 11 with C# `LangVersion=preview` (set in `Directory.Build.props`), Entity Framework Core, PostgreSQL
 - Angular 21, TypeScript, Vite, Vitest
 - Aspire for the local dev loop
 - Deployed via GitHub Actions to a Linux home server behind Cloudflare tunnels (see ADR-004)
