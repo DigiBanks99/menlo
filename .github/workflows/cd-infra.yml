@@ -15,7 +15,7 @@ on:
     inputs:
       environment:
         description: 'Environment to deploy'
-        required: true
+        required: false
         default: 'Production'
         type: string
     outputs:
@@ -63,8 +63,16 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            # Get the object ID of the service principal used for OIDC
-            OBJECT_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+            # Get the object ID of the service principal used for OIDC from the access token's
+            # oid claim. `az ad sp show` needs Graph read access that Application.ReadWrite.OwnedBy
+            # doesn't grant.
+            PAYLOAD=$(az account get-access-token --query accessToken -o tsv | cut -d. -f2 | tr '_-' '/+')
+            while (( ${#PAYLOAD} % 4 != 0 )); do PAYLOAD="${PAYLOAD}="; done
+            OBJECT_ID=$(echo "$PAYLOAD" | base64 -d | jq -r .oid)
+            if [[ -z "$OBJECT_ID" || "$OBJECT_ID" == "null" ]]; then
+              echo "::error::The access token has no oid claim"
+              exit 1
+            fi
             echo "object-id=$OBJECT_ID" >> "$GITHUB_OUTPUT"
             echo "✅ Service Principal Object ID: $OBJECT_ID"
 
@@ -79,7 +87,14 @@ jobs:
               echo "object-id=${{ secrets.ADMIN_USER_OBJECT_ID }}" >> "$GITHUB_OUTPUT"
             else
               # Fallback: use the service principal as admin
-              OBJECT_ID=$(az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }} --query id -o tsv)
+              # Same as above: the oid claim of the access token, not `az ad sp show`
+              PAYLOAD=$(az account get-access-token --query accessToken -o tsv | cut -d. -f2 | tr '_-' '/+')
+              while (( ${#PAYLOAD} % 4 != 0 )); do PAYLOAD="${PAYLOAD}="; done
+              OBJECT_ID=$(echo "$PAYLOAD" | base64 -d | jq -r .oid)
+              if [[ -z "$OBJECT_ID" || "$OBJECT_ID" == "null" ]]; then
+                echo "::error::The access token has no oid claim"
+                exit 1
+              fi
               echo "object-id=$OBJECT_ID" >> "$GITHUB_OUTPUT"
             fi
 

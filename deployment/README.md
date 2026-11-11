@@ -200,6 +200,31 @@ cd ~/menlo
 docker compose -f docker-compose.prod.yml up -d
 ```
 
+## 🔁 Certificate rotation
+
+The prod API signs in to Entra (`app-menlo-prod`) with the certificate `menlo-cd-cert` in `kv-menlo-prod`. It is a self-signed 12-month certificate, and Entra only trusts the public keys uploaded to the app registration, so renewing it in Key Vault alone would break sign-in. The [`Cert Rotation`](../.github/workflows/cert-rotation.yml) workflow does the whole sequence:
+
+1. Runs daily at 05:17 SAST (03:17 UTC) and reads the certificate expiry.
+2. If it expires in `ROTATE_WITHIN_DAYS` (30) days or fewer, or the run was forced, it creates a new Key Vault version from the current policy.
+3. Adds the new public key to `app-menlo-prod` (`--append`, so the old key stays trusted) and waits two minutes for Entra to pick it up.
+4. Dispatches `cd.yml` on `main`, which downloads the latest certificate and redeploys the current image, and waits for it to pass its smoke check.
+5. Only after that, removes keys past their expiry from `app-menlo-prod`.
+
+If any step fails, the workflow opens a GitHub issue labelled `cert-rotation` (or comments on the open one). Sign-in keeps working through a failed run, because the running container still has the old certificate and the old key is still trusted; re-running converges.
+
+### Forcing a rotation
+
+```bash
+gh workflow run cert-rotation.yml --ref main -f force=true
+gh run watch
+```
+
+### Things to know
+
+- The workflow only runs from `main`, in the `Production` environment, using the `app-menlo-build` federated credential. That identity must own `app-menlo-prod` and `app-menlo-nonprod` (Graph `Application.ReadWrite.OwnedBy`).
+- GitHub disables scheduled workflows after 60 days without repository activity. Check that `Cert Rotation` is enabled in the Actions tab, or run `gh workflow enable cert-rotation.yml`. The Key Vault `EmailContacts` action (30 days before expiry) is the backstop.
+- Key Vault `AutoRenew` is deliberately not used. See [ADR-003](../docs/decisions/adr-003-cd-authentication-strategy.md).
+
 ## 🏥 Health Monitoring
 
 Run these as the runner user (`sudo -iu ghrunner`) from `~/menlo`. The examples use `docker`; with Podman, the same commands work with `podman` in place of `docker`.
