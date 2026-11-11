@@ -39,7 +39,7 @@
 
 - **Domain State**: User corrections stored as domain events in aggregates
 - **AI Learning State**: Vector embeddings and model fine-tuning data in separate vector store (Qdrant/Chroma)
-- **Storage Strategy**: PostgreSQL for domain events, Vector store for AI embeddings, Local files for Ollama model data
+- **Storage Strategy**: PostgreSQL for domain events, Vector store for AI embeddings, Local files for llama.cpp model data
 
 ### Attribution Complexity Resolution
 
@@ -741,7 +741,7 @@ Following the "Purpose-Driven Naming" principle, all AI services are named for t
 - `ExpirationTracker`: Suggests meals to use expiring ingredients
 - `RecipeRecommender`: Suggests recipes based on family preferences and pantry stock
 
-### Budget Domain  
+### Budget Domain
 
 - `BudgetAnalyser`: Spending analysis and variance detection
 - `TransactionCategorizer`: Maps items/transactions to budget categories

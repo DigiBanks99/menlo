@@ -120,8 +120,8 @@ The system is organized into **5 primary bounded contexts**:
 - **Runtime**: .NET 9.0 with C# 12
 - **Web Framework**: ASP.NET Core Minimal APIs
 - **Domain Logic**: Rich domain models with CSharpFunctionalExtensions
-- **AI Orchestration**: Microsoft Semantic Kernel
-- **Local AI**: Ollama with Phi-4-mini/Phi-4-vision models
+- **AI Orchestration**: Microsoft Agent Framework
+- **Local AI**: llama.cpp serving Qwen3.5-4B (chat and vision)
 
 **Frontend Stack** (Fixed Architecture Decisions):
 
@@ -133,7 +133,7 @@ The system is organized into **5 primary bounded contexts**:
 **Infrastructure Standards**:
 
 - **Data Storage**: PostgreSQL with Entity Framework Core
-- **AI Infrastructure**: Local Ollama server (no external AI APIs)
+- **AI Infrastructure**: Local llama.cpp server (no external AI APIs)
 - **Authentication**: Azure AD with Microsoft Identity Platform
 - **Deployment**: Docker containers via GitHub Actions
 
@@ -156,7 +156,7 @@ The system is organized into **5 primary bounded contexts**:
 ### Technology Constraints
 
 **CONSTRAINT TC-001**: No external AI service dependencies (OpenAI, Azure AI, etc.)
-**CONSTRAINT TC-002**: All AI processing must run locally via Ollama
+**CONSTRAINT TC-002**: All AI processing must run locally via llama.cpp
 **CONSTRAINT TC-003**: Data storage must remain local (no cloud databases)
 **CONSTRAINT TC-004**: Authentication via Azure AD only (no social logins)
 
@@ -240,12 +240,12 @@ public class PlanningList : AggregateRoot
 }
 
 // Infrastructure Layer - Concrete AI implementations
-public class SemanticKernelBudgetAnalyser : IBudgetImpactAnalyser
+public class AgentFrameworkBudgetAnalyser : IBudgetImpactAnalyser
 {
-    private readonly Kernel _kernel;
-    private readonly IOllamaService _ollama;
+    private readonly AIAgent _agent;
+    private readonly ILlamaClient _llama;
     
-    // Implementation uses Semantic Kernel + local Ollama
+    // Implementation uses Agent Framework + local llama.cpp
 }
 ```
 
@@ -253,14 +253,14 @@ public class SemanticKernelBudgetAnalyser : IBudgetImpactAnalyser
 
 | AI Service Category       | Purpose                                    | Model Requirements | Learning Strategy               |
 | ------------------------- | ------------------------------------------ | ------------------ | ------------------------------- |
-| **Text Processing**       | Handwritten list interpretation            | Phi-4-vision       | User correction feedback        |
-| **Financial Analysis**    | Transaction categorization, attribution    | Phi-4-mini         | Historical pattern learning     |
-| **Planning Optimization** | Schedule conflict detection, meal planning | Phi-4-mini         | Family preference learning      |
-| **Predictive Insights**   | Budget variance, maintenance scheduling    | Phi-4-mini         | Time-series pattern recognition |
+| **Text Processing**       | Handwritten list interpretation            | Qwen3.5-4B         | User correction feedback        |
+| **Financial Analysis**    | Transaction categorization, attribution    | Qwen3.5-4B         | Historical pattern learning     |
+| **Planning Optimization** | Schedule conflict detection, meal planning | Qwen3.5-4B         | Family preference learning      |
+| **Predictive Insights**   | Budget variance, maintenance scheduling    | Qwen3.5-4B         | Time-series pattern recognition |
 
 ### AI Architecture Constraints
 
-**CONSTRAINT AI-001**: All AI models must run locally via Ollama (no external API calls)
+**CONSTRAINT AI-001**: All AI models must run locally via llama.cpp (no external API calls)
 **CONSTRAINT AI-002**: AI services implement domain interfaces, never directly coupled to models
 **CONSTRAINT AI-003**: User corrections trigger immediate model fine-tuning where applicable
 **CONSTRAINT AI-004**: AI failures must degrade gracefully (system remains functional)
@@ -297,8 +297,8 @@ The application is explicitly designed for family-scale usage:
 
 **Home Server Specifications** (minimum):
 
-- **CPU**: 4 cores, 2.5GHz (for Ollama model inference)
-- **Memory**: 16GB RAM (8GB for Ollama, 4GB for application, 4GB OS)
+- **CPU**: 4 cores, 2.5GHz (for llama.cpp model inference)
+- **Memory**: 16GB RAM (8GB for llama.cpp, 4GB for application, 4GB OS)
 - **Storage**: 100GB SSD (models, database, application)
 - **Network**: Stable broadband (for Cloudflare tunnel)
 
@@ -414,7 +414,7 @@ main (production-ready)
 
 - **.NET Aspire**: Service orchestration and dependency management
 - **Docker Compose**: Database and supporting services
-- **Ollama**: Local AI model development and testing
+- **llama.cpp**: Local AI model development and testing
 - **Angular CLI**: Frontend development server with hot reload
 
 ### Development Constraints
@@ -595,7 +595,7 @@ public static class FinancialErrors
 
 // Technical Metrics  
 - api_response_time_95th_percentile
-- ollama_inference_duration
+- llama_inference_duration
 - database_connection_pool_usage
 - memory_usage_by_ai_models
 ```
@@ -613,7 +613,7 @@ public static class FinancialErrors
 ```csharp
 builder.Services.AddHealthChecks()
     .AddEntityFramework<MenloDbContext>()
-    .AddCheck<OllamaHealthCheck>("ollama")
+    .AddCheck<LlamaHealthCheck>("llama")
     .AddCheck<AzureAdHealthCheck>("azure-ad");
 ```
 
@@ -656,7 +656,7 @@ builder.Services.AddHealthChecks()
 
 - [ ] PostgreSQL migration from Cosmos DB
 - [ ] Enhanced authentication with policy-based authorization
-- [ ] Ollama integration with basic AI services
+- [ ] llama.cpp integration with basic AI services
 - [ ] Core domain model implementation with Result patterns
 
 ### Phase 2: Core Features modelling

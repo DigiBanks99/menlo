@@ -71,7 +71,7 @@ graph TB
         
         %% AI Orchestration
         subgraph AIOrchestration["🧠 AI Orchestration Layer"]
-            SemanticKernel[🔧 Semantic Kernel<br/>Microsoft SK<br/>AI agent orchestration<br/>and prompt management]
+            AgentFramework[🔧 Agent Framework<br/>Microsoft Agent Framework<br/>AI agent orchestration<br/>over an OpenAI-compatible endpoint]
             AICoordinator[🎭 AI Coordinator<br/>Coordinates AI tasks<br/>across features]
             LearningEngine[📚 Learning Engine<br/>Learns from user corrections<br/>and improves suggestions]
         end
@@ -98,8 +98,8 @@ graph TB
         %% Database
         Database[(🗃️ PostgreSQL Database<br/>Stores all application data<br/>with EF Core mapping)]
         
-        %% Ollama Service
-        OllamaService[🤖 Ollama AI Service<br/>Local AI inference server<br/>hosting Phi models]
+        %% llama.cpp Service
+        LlamaService[🤖 llama.cpp Server<br/>Local AI inference server<br/>hosting Qwen3.5-4B]
     end
     
     %% External Systems
@@ -158,15 +158,15 @@ graph TB
     EventHandlers --> SmartScheduler
     
     %% AI Orchestration
-    BudgetAnalyser --> SemanticKernel
-    TransactionCategorizer --> SemanticKernel
-    ListInterpreter --> SemanticKernel
-    BudgetImpactAnalyser --> SemanticKernel
-    PantryOptimizer --> SemanticKernel
-    SmartScheduler --> SemanticKernel
-    UtilityOptimizer --> SemanticKernel
-    SemanticKernel --> AICoordinator
-    AICoordinator --> OllamaService
+    BudgetAnalyser --> AgentFramework
+    TransactionCategorizer --> AgentFramework
+    ListInterpreter --> AgentFramework
+    BudgetImpactAnalyser --> AgentFramework
+    PantryOptimizer --> AgentFramework
+    SmartScheduler --> AgentFramework
+    UtilityOptimizer --> AgentFramework
+    AgentFramework --> AICoordinator
+    AICoordinator --> LlamaService
     AICoordinator --> LearningEngine
     
     %% Slice Contexts to MenloDbContext
@@ -224,7 +224,7 @@ graph TB
     class FinancialEndpoints,FinancialHandlers,FinancialModels,ImportProcessor,DuplicateDetector,AttributionSuggester,ReconciliationMatcher financialClass
     class HouseholdEndpoints,HouseholdHandlers,HouseholdModels,UtilityOptimizer,RentalAttributionAnalyser householdClass
     class EventEndpoints,EventHandlers,EventModels,SmartScheduler eventClass
-    class SemanticKernel,AICoordinator,LearningEngine,OllamaService aiClass
+    class AgentFramework,AICoordinator,LearningEngine,LlamaService aiClass
     class NotificationService,AuthenticationService sharedClass
     class MenloDbContext,IBudgetContext,IPlanningContext,IFinancialContext,IHouseholdContext,IEventContext,IUserContext,AuditingInterceptor,SoftDeleteInterceptor applicationClass
     class Database dbClass
@@ -238,7 +238,7 @@ graph TB
 - **Frontend**: Bundled in the API image and served from the same origin ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
 - **Backend**: Home server via Cloudflare Tunnel (no static IP needed)
 - **Database**: PostgreSQL with EF Core
-- **AI**: Local Ollama with Phi models
+- **AI**: Local llama.cpp with Qwen3.5-4B
 
 ### Vertical Slice Architecture
 
@@ -262,8 +262,8 @@ The `Menlo.Application` project provides the unified data access layer:
 
 ### AI Integration
 
-- **Semantic Kernel**: Microsoft's AI orchestration framework
-- **Local Processing**: All AI inference via local Ollama service
+- **Agent Framework**: Microsoft's AI orchestration framework
+- **Local Processing**: All AI inference via the local llama.cpp server
 - **Learning Engine**: Improves from user corrections
 - **Cross-Feature AI**: Shared AI coordinator for complex scenarios
 

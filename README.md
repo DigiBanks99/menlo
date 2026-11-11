@@ -16,7 +16,7 @@ In summary it is a **Hybrid Cloud-Local Design** optimized for cost-conscious ex
 - **Frontend**: Angular PWA on Azure Static Web Apps (Free tier)
 - **Backend**: .NET Core API on home server via Cloudflare Tunnel
 - **Database**: PostgreSQL (local)
-- **AI**: Local Ollama with Microsoft Phi models (privacy-first)
+- **AI**: Local llama.cpp serving Qwen3.5-4B (privacy-first)
 - **Model**: Vertical slice architecture with a rich Domain Model
 
 ## 🤖 AI Integration Approach
@@ -54,7 +54,7 @@ Ready to begin development? Follow these paths based on your focus:
 
 - Windows 10 development machine with Docker Desktop
 - .NET 11.0 with clean architecture patterns
-- Docker stack: PostgreSQL + Ollama for local AI
+- Docker stack: PostgreSQL + llama.cpp for local AI
 - Test-driven development: Unit → Integration → API testing
 - Local web development runs through the Menlo API URL from Aspire; the Angular app is proxied same-origin instead of being accessed directly on port 4200
 - Production container builds bundle the Angular output into `wwwroot/`, so the SPA, health endpoint, and API ship from one image on one port
@@ -64,7 +64,7 @@ Ready to begin development? Follow these paths based on your focus:
 - **Frontend**: Angular 21, TypeScript, PWA capabilities
 - **Backend**: .NET Core, Entity Framework Core
 - **Database**: PostgreSQL
-- **AI Framework**: Microsoft Semantic Kernel + Ollama (Phi models)
+- **AI Framework**: Microsoft Agent Framework + llama.cpp (Qwen3.5-4B)
 - **Hosting**: Single ASP.NET Core container image serving both the API and Angular SPA
 - **Infrastructure**: Home server with UPS for load shedding resilience
 

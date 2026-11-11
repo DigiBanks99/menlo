@@ -11,11 +11,10 @@ This dev container is configured to work seamlessly with:
 ## Aspire Integration
 
 The dev container is configured for .NET Aspire with:
-- **Docker-in-Docker**: Enables Aspire to orchestrate PostgreSQL, Ollama, and other containers
+- **Docker-in-Docker**: Enables Aspire to orchestrate PostgreSQL, llama.cpp, and other containers
 - **Resource Allocation**: 8 CPUs, 32GB RAM, 64GB storage for container workloads
 - **Persistent Volumes**: 
   - `menlo-postgres` - PostgreSQL database data
-  - `menlo-ollama` - AI model storage (phi4-mini, qwen2.5vl)
 - **Port Forwarding**: Automatic forwarding for Aspire Dashboard, Angular UI, and Storybook
 - **Certificate Trust**: Development certificates are automatically trusted
 
@@ -99,9 +98,8 @@ aspire run
 
 **Services Orchestrated by Aspire:**
 - PostgreSQL database (persistent storage)
-- Ollama AI service with phi4-mini and qwen2.5vl models
+- llama.cpp server (router mode) serving `qwen3.5-4b` for chat and vision
 - PgAdmin for database management
-- OpenWebUI for AI model interaction
 - Menlo API (.NET)
 - Angular frontend
 

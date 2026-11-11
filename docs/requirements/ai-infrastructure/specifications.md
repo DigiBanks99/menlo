@@ -1,5 +1,7 @@
 # AI Infrastructure — Specifications
 
+> **Historical:** the Ollama and Semantic Kernel stack described here was replaced by llama.cpp and Microsoft Agent Framework. See [ADR-006](../../decisions/adr-006-llamacpp-and-agent-framework.md). The rest of this document is left as written.
+
 ## Business Requirements
 
 - Local-first AI: All AI inference must run on the home server via Ollama; no external AI APIs are permitted.
