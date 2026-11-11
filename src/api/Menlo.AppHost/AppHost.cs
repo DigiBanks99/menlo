@@ -17,7 +17,7 @@ IResourceBuilder<PostgresDatabaseResource> db = postgres
 // one on its first request, downloading it from Hugging Face into the cache volume the first time.
 // The tag is pinned; it must be new enough for the qwen35 architecture and MTP speculative decoding.
 IResourceBuilder<ContainerResource> llama = builder
-    .AddContainer("llama", "ggml-org/llama.cpp", "server-b12211")
+    .AddContainer("llama", "ggml-org/llama.cpp", "server-b12242")
     .WithImageRegistry("ghcr.io")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithBindMount(Path.Join(builder.AppHostDirectory, "llama"), "/presets", isReadOnly: true)
