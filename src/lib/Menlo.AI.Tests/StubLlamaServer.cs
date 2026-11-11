@@ -19,11 +19,19 @@ internal sealed class StubLlamaServer : HttpMessageHandler
     /// <summary>The <c>Authorization</c> header of each request, in order.</summary>
     public List<string?> Authorizations { get; } = [];
 
+    /// <summary>Answer every request with this status instead of a completion, for example to act as an overloaded server.</summary>
+    public HttpStatusCode? FailWith { get; set; }
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         string body = request.Content is null ? "{}" : await request.Content.ReadAsStringAsync(cancellationToken);
         Requests.Add((request.RequestUri!, JsonNode.Parse(body)!.AsObject()));
         Authorizations.Add(request.Headers.Authorization?.ToString());
+
+        if (FailWith is { } status)
+        {
+            return new HttpResponseMessage(status);
+        }
 
         return new HttpResponseMessage(HttpStatusCode.OK)
         {

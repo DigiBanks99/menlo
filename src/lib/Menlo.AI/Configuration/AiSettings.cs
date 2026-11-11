@@ -26,4 +26,16 @@ public sealed class AiSettings
     /// Let the model think before answering. Off by default: each request asks the chat template not to think.
     /// </summary>
     public bool EnableThinking { get; init; }
+
+    /// <summary>
+    /// Model name the server serves for vision. A separate key from <see cref="ChatModel"/> so vision can move to another
+    /// model later; the model needs its image projector enabled.
+    /// </summary>
+    public string VisionModel { get; init; } = "qwen3.5-4b";
+
+    /// <summary>
+    /// How long one vision call may take before it is cancelled. A photo can take minutes on CPU, so the default matches
+    /// llama-server's 600 s <c>--timeout</c> on the home server.
+    /// </summary>
+    public TimeSpan VisionTimeout { get; init; } = TimeSpan.FromMinutes(10);
 }
