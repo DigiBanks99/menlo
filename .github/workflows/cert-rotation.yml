@@ -1,0 +1,252 @@
+name: Cert Rotation
+
+# Rotates the prod Entra client certificate (menlo-cd-cert in kv-menlo-prod) before it expires.
+# Key Vault AutoRenew is deliberately not used: it would create a version Entra doesn't trust,
+# and the next ordinary CD deploy would ship it and break sign-in. This workflow creates the
+# new version, trusts it in Entra, redeploys prod with it, and only then prunes expired keys.
+# See deployment/README.md ("Certificate rotation") and ADR-003.
+on:
+  schedule:
+    # Daily at 05:17 SAST (03:17 UTC), off the top of the hour
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Rotate now, even if the certificate is not close to expiry'
+        required: false
+        default: false
+        type: boolean
+
+# Never rotate twice at once
+concurrency:
+  group: cert-rotation
+  cancel-in-progress: false
+
+env:
+  KEY_VAULT_NAME: kv-menlo-prod
+  CERTIFICATE_NAME: menlo-cd-cert
+  # Rotate when the certificate expires in this many days or fewer
+  ROTATE_WITHIN_DAYS: 30
+  # Seconds to wait for Entra to trust the new key before CD restarts the container
+  ENTRA_PROPAGATION_SECONDS: 120
+
+jobs:
+  rotate:
+    name: Rotate Certificate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.repository == 'DigiBanks99/menlo'
+    environment: Production
+
+    permissions:
+      id-token: write
+      contents: read
+      actions: write
+
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Check certificate expiry
+        id: check
+        shell: bash
+        env:
+          FORCE: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+
+          EXPIRES=$(az keyvault certificate show \
+            --vault-name "$KEY_VAULT_NAME" \
+            --name "$CERTIFICATE_NAME" \
+            --query "attributes.expires" -o tsv)
+          VERSION=$(az keyvault certificate show \
+            --vault-name "$KEY_VAULT_NAME" \
+            --name "$CERTIFICATE_NAME" \
+            --query "id" -o tsv)
+
+          DAYS_LEFT=$(( ( $(date -u -d "$EXPIRES" +%s) - $(date -u +%s) ) / 86400 ))
+          echo "Certificate expires $EXPIRES ($DAYS_LEFT days left, rotate within $ROTATE_WITHIN_DAYS)"
+
+          if [[ "$FORCE" == "true" ]]; then
+            echo "Forced rotation requested."
+            echo "rotate=true" >> "$GITHUB_OUTPUT"
+          elif (( DAYS_LEFT <= ROTATE_WITHIN_DAYS )); then
+            echo "Within the rotation window."
+            echo "rotate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing to do."
+            echo "rotate=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "previous-version=$VERSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Certificate rotation check"
+            echo ""
+            echo "- Expires: \`$EXPIRES\` ($DAYS_LEFT days left)"
+            echo "- Threshold: $ROTATE_WITHIN_DAYS days"
+            echo "- Forced: ${FORCE:-false}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create new certificate version
+        if: steps.check.outputs.rotate == 'true'
+        shell: bash
+        env:
+          PREVIOUS_VERSION: ${{ steps.check.outputs.previous-version }}
+        run: |
+          set -euo pipefail
+
+          # Reuse the current policy (subject, key usage, validity) for the new version
+          az keyvault certificate show \
+            --vault-name "$KEY_VAULT_NAME" \
+            --name "$CERTIFICATE_NAME" \
+            --query "policy" -o json \
+            | jq 'del(.id, .attributes)' > "$RUNNER_TEMP/policy.json"
+
+          az keyvault certificate create \
+            --vault-name "$KEY_VAULT_NAME" \
+            --name "$CERTIFICATE_NAME" \
+            --policy "@$RUNNER_TEMP/policy.json" \
+            --output none
+          rm -f "$RUNNER_TEMP/policy.json"
+
+          # Wait for the new version to become the current one
+          for _ in $(seq 1 30); do
+            CURRENT=$(az keyvault certificate show \
+              --vault-name "$KEY_VAULT_NAME" \
+              --name "$CERTIFICATE_NAME" \
+              --query "id" -o tsv)
+            if [[ "$CURRENT" != "$PREVIOUS_VERSION" ]]; then
+              THUMBPRINT=$(az keyvault certificate show \
+                --vault-name "$KEY_VAULT_NAME" \
+                --name "$CERTIFICATE_NAME" \
+                --query "x509ThumbprintHex" -o tsv)
+              echo "New version created. Thumbprint: $THUMBPRINT"
+              echo "- New thumbprint: \`$THUMBPRINT\`" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "::error::The new certificate version did not appear in Key Vault"
+          exit 1
+
+      - name: Trust the new public key in Entra
+        if: steps.check.outputs.rotate == 'true'
+        shell: bash
+        env:
+          APP_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
+        run: |
+          set -euo pipefail
+
+          # Public part only (PEM, no private key)
+          az keyvault certificate download \
+            --vault-name "$KEY_VAULT_NAME" \
+            --name "$CERTIFICATE_NAME" \
+            --encoding PEM \
+            --file "$RUNNER_TEMP/new-cert.pem"
+
+          # --append keeps the old key trusted until the new one is deployed
+          az ad app credential reset \
+            --id "$APP_CLIENT_ID" \
+            --cert "@$RUNNER_TEMP/new-cert.pem" \
+            --append \
+            --output none
+          rm -f "$RUNNER_TEMP/new-cert.pem"
+
+          echo "Waiting ${ENTRA_PROPAGATION_SECONDS}s for Entra to trust the new key..."
+          sleep "$ENTRA_PROPAGATION_SECONDS"
+
+      - name: Redeploy production with the new certificate
+        if: steps.check.outputs.rotate == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          # No sha input: CD redeploys the current production image and downloads the latest certificate
+          gh workflow run cd.yml --ref main
+
+          RUN_ID=""
+          for _ in $(seq 1 30); do
+            RUN_ID=$(gh run list --workflow cd.yml --event workflow_dispatch --branch main \
+              --limit 5 --json databaseId,createdAt \
+              --jq "[.[] | select(.createdAt >= \"$STARTED\")] | sort_by(.createdAt) | .[0].databaseId // empty")
+            [[ -n "$RUN_ID" ]] && break
+            sleep 10
+          done
+
+          if [[ -z "$RUN_ID" ]]; then
+            echo "::error::Could not find the dispatched CD run"
+            exit 1
+          fi
+
+          echo "Watching CD run $RUN_ID"
+          echo "- CD run: ${GITHUB_SERVER_URL}/${GH_REPO}/actions/runs/${RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+          # Exits non-zero if the run fails, so expired keys are only pruned after a good deploy
+          gh run watch "$RUN_ID" --exit-status --interval 20
+
+      - name: Remove expired keys from Entra
+        if: steps.check.outputs.rotate == 'true'
+        shell: bash
+        env:
+          APP_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
+        run: |
+          set -euo pipefail
+
+          EXPIRED=$(az ad app credential list --id "$APP_CLIENT_ID" --cert -o json \
+            | jq -r '.[]
+                | select(.endDateTime != null)
+                | select((.endDateTime | sub("\\.[0-9]+"; "") | sub("\\+00:00$"; "Z") | fromdateiso8601) < now)
+                | .keyId')
+
+          if [[ -z "$EXPIRED" ]]; then
+            echo "No expired keys to remove."
+            exit 0
+          fi
+
+          while read -r KEY_ID; do
+            echo "Removing expired key $KEY_ID"
+            az ad app credential delete --id "$APP_CLIENT_ID" --key-id "$KEY_ID"
+          done <<< "$EXPIRED"
+
+  report-failure:
+    name: Report Failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: rotate
+    if: failure()
+
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Open or update the cert-rotation issue
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          gh label create cert-rotation --color B60205 \
+            --description "Prod Entra certificate rotation failed" 2>/dev/null || true
+
+          EXISTING=$(gh issue list --label cert-rotation --state open --limit 1 \
+            --json number --jq '.[0].number // empty')
+
+          if [[ -n "$EXISTING" ]]; then
+            gh issue comment "$EXISTING" --body "Rotation failed again: ${RUN_URL}"
+          else
+            gh issue create --label cert-rotation \
+              --title "Prod certificate rotation failed" \
+              --body "The scheduled or manual certificate rotation failed: ${RUN_URL}. menlo-cd-cert in kv-menlo-prod is the prod API's Entra credential and expires on 2026-12-31 unless it is rotated. See the Certificate rotation section of deployment/README.md. Also check that the Cert Rotation workflow is still enabled: GitHub disables scheduled workflows after 60 days without repository activity."
+          fi

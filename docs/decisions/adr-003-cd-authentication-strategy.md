@@ -40,7 +40,7 @@ This approach works well for CI where secrets are immediately discarded, but the
 
 ### 2. Certificate Authentication via Azure Key Vault (Recommended)
 
-- **Pros**: More secure than secrets, long-lived (1-2 years), stored securely in Key Vault, automatic rotation possible, Key Vault Standard tier is effectively free for low usage
+- **Pros**: More secure than secrets, long-lived (1-2 years), stored securely in Key Vault, rotation can be automated by a pipeline, Key Vault Standard tier is effectively free for low usage
 - **Cons**: Initial setup complexity, certificate renewal needed periodically
 - **Assessment**: Best balance of security and simplicity for this use case
 
@@ -149,8 +149,8 @@ flowchart TB
 ### Negative
 
 - Initial setup is more complex than static secrets
-- Certificate must be renewed before expiry (mitigated by Key Vault auto-rotation)
-- Requires one-time manual upload of public key to Entra app registration
+- Certificate must be renewed before expiry. Key Vault `AutoRenew` is not used: a renewed version would not be trusted by Entra, so the scheduled `cert-rotation.yml` workflow creates the new version, adds its public key to the Entra app, redeploys prod and then prunes expired keys (see `deployment/README.md`)
+- The initial public key upload to the Entra app registration is manual; later rotations add the new public key automatically
 
 ### Neutral
 
@@ -165,7 +165,7 @@ flowchart TB
 - [ ] Configure federated credentials for infrastructure deployment
 - [ ] Manually upload certificate public key to Entra app registration
 - [ ] Update CD workflow to download and use certificate
-- [ ] Document certificate renewal process
+- [x] Document certificate renewal process (`deployment/README.md`, "Certificate rotation")
 
 ## References
 
