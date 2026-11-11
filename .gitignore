@@ -498,3 +498,6 @@ _tmp*
 auth.json
 .auth.json
 .act/
+
+# Windows device name: Git Bash tools that write to /dev/null can create a real file called NUL
+NUL
