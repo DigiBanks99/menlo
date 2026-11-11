@@ -53,7 +53,7 @@ Ready to begin development? Follow these paths based on your focus:
 #### **🔧 Development Environment**
 
 - Windows 10 development machine with Docker Desktop
-- .NET 10.0 with clean architecture patterns
+- .NET 11.0 with clean architecture patterns
 - Docker stack: PostgreSQL + Ollama for local AI
 - Test-driven development: Unit → Integration → API testing
 - Local web development runs through the Menlo API URL from Aspire; the Angular app is proxied same-origin instead of being accessed directly on port 4200
