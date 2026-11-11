@@ -74,6 +74,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 - **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
+- **[ADR-006: llama.cpp and Agent Framework](decisions/adr-006-llamacpp-and-agent-framework.md)** - One local model runtime and the framework Menlo.AI uses
 
 ### 🏗️ Architecture & Design
 
@@ -153,7 +154,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ### Technical Excellence
 
-- **Local AI**: Privacy-first with Ollama and Microsoft Phi models
+- **Local AI**: Privacy-first with llama.cpp serving Qwen3.5-4B
 - **Cost Control**: ~80% savings vs full cloud hosting
 - **South African Context**: Load shedding resilience and local infrastructure considerations
 
@@ -162,14 +163,14 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 | Phase                 | Status      | Focus                                          |
 | --------------------- | ----------- | ---------------------------------------------- |
 | **Documentation**     | ✅ Complete | Requirements, architecture, and philosophy     |
-| **Infrastructure**    | 🔄 Next     | Cloudflare Tunnel, PostgreSQL, Ollama setup    |
+| **Infrastructure**    | 🔄 Next     | Cloudflare Tunnel, PostgreSQL, llama.cpp setup |
 | **MVP Development**   | ⏳ Planned  | Handwritten list capture and AI interpretation |
 | **Family Validation** | ⏳ Future   | Real family usage testing and feedback         |
 
 ## 🔗 External References
 
-- **Microsoft Semantic Kernel**: AI orchestration framework
-- **Ollama**: Local AI model hosting
+- **Microsoft Agent Framework**: AI orchestration framework
+- **llama.cpp**: Local AI model hosting
 - **Cloudflare Tunnel**: Secure home server connectivity
 - **Bundled SPA**: The API image serves the Angular frontend ([ADR-005](decisions/adr-005-bundled-spa-hosting.md))
 

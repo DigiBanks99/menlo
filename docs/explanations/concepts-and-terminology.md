@@ -120,7 +120,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 **Implementation**:
 
-- **Local Models**: Ollama hosting Microsoft Phi models on home server
+- **Local Models**: llama.cpp serving Qwen3.5-4B on the home server
 - **No Cloud AI**: No data sent to OpenAI, Claude, or other external AI services
 - **Family Data Sovereignty**: All financial and personal data remains within family control
 - **Cost Control**: No per-token or usage-based AI costs
@@ -233,7 +233,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 - **Domain-Centric Architecture**: Business rules and workflows are expressed in the domain layer, not in controllers or infrastructure
 - **Agentic AI as Domain Services**: AI agents are modelled as domain services that implement business interfaces
 - **Inversion of Control**: Domain models depend on AI abstractions, not concrete AI implementations
-- **Infrastructure Separation**: AI processing (Ollama, model management) is isolated in the infrastructure layer
+- **Infrastructure Separation**: AI processing (llama.cpp, model management) is isolated in the infrastructure layer
 
 **Implementation Pattern**:
 
@@ -262,16 +262,16 @@ public interface IBudgetImpactAnalyser
 }
 
 // Infrastructure Layer - Concrete AI implementation
-public class OllamaBudgetImpactAnalyser : IBudgetImpactAnalyser
+public class LlamaBudgetImpactAnalyser : IBudgetImpactAnalyser
 {
-    // Ollama integration details isolated here
+    // llama.cpp integration details isolated here
 }
 ```
 
 **Benefits**:
 
 - **Testability**: Domain logic can be unit tested with mock AI services
-- **Flexibility**: AI implementation can be swapped (local Ollama vs cloud services) without changing domain logic
+- **Flexibility**: AI implementation can be swapped (local llama.cpp vs cloud services) without changing domain logic
 - **Business Focus**: Domain models express business concepts, not technical AI concerns
 - **Maintainability**: Clear separation between business rules and AI infrastructure
 

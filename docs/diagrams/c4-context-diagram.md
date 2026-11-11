@@ -16,7 +16,7 @@ graph TB
     MunicipalSystem[🏢 Municipal Services Tshwane<br/>Electricity prepaid, water readings,<br/>municipal rates, levies, refuse,<br/>sanitization billing]
     Calendar[📅 External Calendar<br/>Google Calendar, Outlook,<br/>or other calendar systems]
     TaxSystem[🏛️ SARS Tax Authority<br/>South African Revenue Service<br/>for tax compliance]
-    LocalAI[🤖 Local AI Ollama<br/>Local Phi models for<br/>privacy-preserving AI assistance]
+    LocalAI[🤖 Local AI llama.cpp<br/>Local Qwen3.5-4B model for<br/>privacy-preserving AI assistance]
     
     %% Primary user interactions
     Husband -->|Manages budgets, analyses spending,<br/>models rental scenarios<br/>HTTPS| HomeApp
@@ -50,7 +50,7 @@ graph TB
 - **Frontend**: Bundled in the API image, served from the home server ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
 - **Backend**: Home server via Cloudflare Tunnel  
 - **Database**: PostgreSQL
-- **AI**: Local Ollama with Phi models
+- **AI**: Local llama.cpp with Qwen3.5-4B
 - **Cost**: ~R165-365/month
 
 ### User Roles
@@ -76,7 +76,7 @@ graph TB
 - All processing local
 - No external AI costs
 - User correction learning
-- Phi-4-mini & Phi-4-vision models
+- Qwen3.5-4B for chat and vision (llama.cpp)
 
 ### Financial Integration
 

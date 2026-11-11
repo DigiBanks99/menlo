@@ -34,8 +34,7 @@
     "source=menlo-pnpm-store,target=/home/vscode/.pnpm-store,type=volume",
     "source=menlo-node-modules-root,target=/workspaces/menlo/node_modules,type=volume",
     "source=menlo-node-modules-web,target=/workspaces/menlo/src/ui/web/node_modules,type=volume",
-    "source=menlo-postgres,target=/var/lib/postgresql/data,type=volume",
-    "source=menlo-ollama,target=/root/.ollama,type=volume"
+    "source=menlo-postgres,target=/var/lib/postgresql/data,type=volume"
   ],
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "forwardPorts": [

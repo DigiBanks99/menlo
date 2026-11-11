@@ -1,5 +1,7 @@
 # AI Infrastructure Setup Implementation Guide
 
+> **Historical:** the Ollama and Semantic Kernel stack described here was replaced by llama.cpp and Microsoft Agent Framework. See [ADR-006](../../decisions/adr-006-llamacpp-and-agent-framework.md). The rest of this document is left as written.
+
 This document outlines the step-by-step process for integrating Ollama with Semantic Kernel and .NET Aspire to provide local AI processing capabilities in the Menlo Home Management solution.
 
 ## Prerequisites
