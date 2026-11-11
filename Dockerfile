@@ -17,7 +17,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --dir src/ui/web build:prod
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 
 # Set working directory
 WORKDIR /app
@@ -50,7 +50,7 @@ RUN dotnet publish src/api/Menlo.Api/Menlo.Api.csproj \
     --verbosity normal
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS runtime
 
 # Install curl for health checks
 RUN apt-get update && \
