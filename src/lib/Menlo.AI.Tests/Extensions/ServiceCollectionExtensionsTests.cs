@@ -108,6 +108,47 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [Test]
+    [Arguments("VisionModel", " ", "Menlo:AI:VisionModel is required.")]
+    [Arguments("VisionTimeout", "00:00:00", "Menlo:AI:VisionTimeout must be positive and at most 1.00:00:00.")]
+    [Arguments("VisionTimeout", "-00:00:01", "Menlo:AI:VisionTimeout must be positive and at most 1.00:00:00.")]
+    [Arguments("VisionTimeout", "30.00:00:00", "Menlo:AI:VisionTimeout must be positive and at most 1.00:00:00.")]
+    public async Task AVisionSettingIsInvalid(string key, string value, string message)
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            [$"Menlo:AI:{key}"] = value
+        });
+
+        Exception? exception = await Catch.ExceptionAsync(() => host.StartAsync());
+
+        ItShouldRefuseToStart();
+
+        void ItShouldRefuseToStart() => exception
+            .ShouldBeOfType<OptionsValidationException>()
+            .Message.ShouldContain(message);
+    }
+
+    [Test]
+    public void TheVisionSettingsAreConfigured()
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            ["Menlo:AI:VisionModel"] = "household-vision",
+            ["Menlo:AI:VisionTimeout"] = "00:05:00"
+        });
+
+        AiSettings settings = host.Services.GetRequiredService<IOptions<AiSettings>>().Value;
+
+        ItShouldBindThem();
+
+        void ItShouldBindThem() => settings.ShouldSatisfyAllConditions(
+            () => settings.VisionModel.ShouldBe("household-vision"),
+            () => settings.VisionTimeout.ShouldBe(TimeSpan.FromMinutes(5)));
+    }
+
+    [Test]
     public async Task TheApiKeyIsBlank()
     {
         using IHost host = BuildHost(new()
