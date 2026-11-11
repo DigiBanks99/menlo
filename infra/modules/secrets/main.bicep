@@ -52,6 +52,7 @@ var deploymentScriptName = 'ds-${keyVaultName}-cert'
 var keyVaultAdministratorRoleId = '00482a5a-887f-4fb3-b363-3b7fe8e74483'
 var keyVaultSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 var keyVaultCertificateUserRoleId = 'db79e9a7-68ee-4b58-9aeb-b90e7c24fcba'
+var keyVaultCertificatesOfficerRoleId = 'a4417e6f-fecd-4de8-b567-7b0420556985'
 
 // ============================================================================
 // User-Assigned Managed Identity
@@ -135,6 +136,17 @@ resource githubActionsCertRoleAssignment 'Microsoft.Authorization/roleAssignment
   scope: keyVault
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultCertificateUserRoleId)
+    principalId: githubActionsObjectId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// GitHub Actions service principal also creates new certificate versions (cert-rotation.yml)
+resource githubActionsCertOfficerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, githubActionsObjectId, keyVaultCertificatesOfficerRoleId)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultCertificatesOfficerRoleId)
     principalId: githubActionsObjectId
     principalType: 'ServicePrincipal'
   }
