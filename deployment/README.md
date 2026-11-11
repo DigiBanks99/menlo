@@ -221,7 +221,7 @@ gh run watch
 
 ### Things to know
 
-- The workflow only runs from `main`, in the `Production` environment, using the `app-menlo-build` federated credential. That identity must own `app-menlo-prod` and `app-menlo-nonprod` (Graph `Application.ReadWrite.OwnedBy`).
+- The workflow only runs from `main`, in the `Production` environment, using the `app-menlo-build` federated credential. That identity must own `app-menlo-prod` and `app-menlo-nonprod` (Graph `Application.ReadWrite.OwnedBy`). It also needs the `Key Vault Certificates Officer` role on `kv-menlo-prod` to create new certificate versions; `infra/modules/secrets/main.bicep` grants it, so run `CD - Infra` once after it merges.
 - GitHub disables scheduled workflows after 60 days without repository activity. Check that `Cert Rotation` is enabled in the Actions tab, or run `gh workflow enable cert-rotation.yml`. The Key Vault `EmailContacts` action (30 days before expiry) is the backstop.
 - Key Vault `AutoRenew` is deliberately not used. See [ADR-003](../docs/decisions/adr-003-cd-authentication-strategy.md).
 
