@@ -1,5 +1,10 @@
 # This pipeline auto-merges Dependabot PRs for minor and patch updates
 # Will have to review this to see if it causes issues or is really a help
+#
+# The merge uses a GitHub App token, not GITHUB_TOKEN: merges made with
+# GITHUB_TOKEN don't trigger push workflows, so CI and CD would never run on main.
+# The App's ID and private key are Dependabot secrets (not Actions secrets),
+# because runs triggered by Dependabot can only read those.
 
 name: Dependabot Auto-merge
 
@@ -20,9 +25,17 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: Create App token
+        id: app-token
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.AUTOMERGE_APP_ID }}
+          private-key: ${{ secrets.AUTOMERGE_APP_PRIVATE_KEY }}
+
       - name: Auto-merge minor and patch updates
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
