@@ -8,6 +8,7 @@ Research for [#598](https://github.com/DigiBanks99/menlo/issues/598), which feed
 - Third-party converter blogs, forum posts and how-to videos were read for leads only. Anything resting on them alone is marked **unverified**.
 - Bank help pages describe menus, not file contents. No sample export file was published by any bank for its *personal* channel, so field lists for personal-channel CSV/OFX are unverified unless a specification says otherwise.
 - Some bank sites refused automated reads (Capitec returned HTTP 403 to every request; the Standard Bank community forum did not resolve). Claims that depend on those pages are marked unverified.
+- The owner's own working statement parser counts as verified evidence for the layouts it reads, and is marked **owner evidence**.
 - Business-banking platforms (FNB Online Banking Enterprise, Standard Bank OB4B, Absa Business Integrator) are documented where they are the only primary source, but a household will normally use the personal channel, which may offer less.
 
 ## Summary
@@ -16,7 +17,7 @@ Research for [#598](https://github.com/DigiBanks99/menlo/issues/598), which feed
 | --- | --- | --- | --- | --- |
 | Absa | Unverified. Help pages mention "select file format" but never name one | Unverified | None documented | Unverified |
 | Capitec | Unverified (personal). Business: CSV and OFX per Capitec's business page, unverified (page blocked) | Statements 1-3 months free in app (unverified) | None documented | Unverified |
-| FNB | OFX (Microsoft Money) and CSV are specified for the Online Banking Enterprise channel; personal channel unverified | Enterprise transaction history: 180 days | OFX `FITID` = posting date + daily sequence number (Enterprise spec) | Description is the 42-character statement narrative; no separate merchant field |
+| FNB | OFX (Microsoft Money) and CSV are specified for the Online Banking Enterprise channel; personal CSV/OFX unverified; personal password-protected PDF statements confirmed by the owner's working parser | Enterprise transaction history: 180 days | OFX `FITID` = posting date + daily sequence number (Enterprise spec) | Description is the 42-character statement narrative; no separate merchant field |
 | Nedbank | **Verified**: CSV, OFX, OFC, QIF, Excel from Online Banking (web) | Unverified ("select a period") | None documented for CSV; OFX `FITID` content unverified | Unverified |
 | Standard Bank | Personal: unverified (PDF statements verified, 24 months). Business (OB4B): CSV, OFX, QFX, QBO, PDF, XLSX | Personal statements: 24 months | None documented; forum reports of non-standard `FITID` (unverified) | Unverified |
 | Discovery Bank | **Verified**: Excel or CSV transaction list from the app, emailed | Unverified | None documented | Smart Search matches on merchant name, so the description carries it; column layout unverified |
@@ -48,6 +49,11 @@ Research for [#598](https://github.com/DigiBanks99/menlo/issues/598), which feed
 - **OFX spec** ([Statement Type - OFX, July 2012](https://www.online.fnb.co.za/rhelp_0_15/Downloads/Statement_File_Specifications/Statement_Type_-_OFX.pdf)): OFX 1.0.2 SGML for Microsoft Money; `BANKID` FNB; `ACCTTYPE` hard-coded `CHECKING`; per transaction `TRNTYPE` (DEBIT/CREDIT), `DTPOSTED` (`CCYYMMDD`), `TRNAMT` (negative for debits), `FITID`, `CHECKNUM`, `MEMO` (the 42-character statement narrative plus the 30-character client reference); `LEDGERBAL` closing balance.
   - `FITID` is described as "Unique Identifier for each transaction. Prevents duplication on import. This is made up of a date and a sequential numeric", for example `201011271`, `201011272`. It is a position within a posting day, not an identifier carried by the transaction.
 - **Personal channel (unverified).** The FNB app guide only shows downloading statements, without naming a format ([FNB app: Download statements](https://www.fnb.co.za/downloads/demos/App_HowTo/lastest/STATEMENTS_GUIDE.pdf)). Third-party guides describe a "Download" button on personal Online Banking transaction history offering "Microsoft Money (OFX)" and CSV, web only, over a 90-day default view; no FNB page confirming this was found. Whether the personal files follow the 2012 Enterprise specs is unknown.
+- **Personal channel PDF statements (owner evidence).** The owner has a working parser, outside this repo, that reads FNB personal statements. It reads them as **password-protected PDFs** (text extracted with PdfPig and grouped into lines by position). That is first-hand evidence that the PDF statement is a usable personal-channel source. It doesn't settle whether personal CSV or OFX exports exist. The parser handles two line layouts:
+  - **Credit card:** `dd MMM`, then the description, then the amount, e.g. `08 May <merchant> <town> ZA 92.00`.
+  - **Cheque account:** `dd MMM`, then the description, a masked card reference, a reference date (`dd MMM`), the amount, the running balance and a `Cr`/`Dr` marker.
+  - **No year on dates:** the year has to be inferred from the statement period, and December entries on a January statement belong to the previous year.
+  - **Description prefixes:** descriptions carry a transaction-type prefix such as `POS Purchase`. The merchant name is free text inside the description.
 - Note: help pages at `ecorp-fnb.fnb-online.com` that turn up in searches belong to First National Bank of Pennsylvania (US), not FNB South Africa.
 
 ### Nedbank
@@ -91,7 +97,7 @@ The OFX specification defines `FITID` as the financial institution's transaction
 
 ## What this means for statement import
 
-- **Machine-readable exports confirmed by the bank:** Nedbank (CSV/OFX/QIF/Excel, web), Discovery Bank (CSV/Excel, app, emailed) and Investec (JSON API). FNB and Standard Bank document CSV/OFX for their business platforms only. Absa, Capitec and TymeBank have no confirmed personal-channel export, so PDF parsing may be the only route for them.
+- **Machine-readable exports confirmed by the bank:** Nedbank (CSV/OFX/QIF/Excel, web), Discovery Bank (CSV/Excel, app, emailed) and Investec (JSON API). FNB and Standard Bank document CSV/OFX for their business platforms only. Absa, Capitec and TymeBank have no confirmed personal-channel export, so PDF parsing may be the only route for them. For FNB personal accounts, parsing the password-protected PDF statement is proven to work (owner evidence), so PDF import is a realistic first route, not just a fallback.
 - **Stable IDs:** only Investec documents a per-transaction ID (`uuid`), and it is derived, posted-only and may change. FNB's documented `FITID` is a date plus a sequence number within that day. No CSV format found carries an ID.
 - **Main caveat for duplicate detection:** no bank's ID can be relied on as a permanent key. Investec's `uuid` is empty for pending transactions, which may change before they post. Sequence numbers depend on posting order, and descriptions are truncated (FNB: 42 characters). Duplicate detection should match on account, posting date, amount and normalized description, using a bank ID only as a hint where one exists.
 - **Merchant names:** no source documents a separate merchant field. Merchants appear inside a truncated description (Discovery's Smart Search confirms merchant names are present; Investec adds a masked card number).
