@@ -1,6 +1,6 @@
 # Menlo Home Management Application
 
-An AI-enhanced family home management application designed for a South African family of 5, focusing on budget management, planning coordination, and rental income analysis.
+An AI-enhanced household management application, built for one South African household. See the [Product Vision](docs/explanations/product-vision.md) for what it does.
 
 ## 🎯 Core Philosophy
 
@@ -37,7 +37,7 @@ Built around the **CFO-COO Dynamic**:
 
 ### Essential Reads
 
-- **[Business Requirements](docs/requirements/business-requirements.md)** - Complete feature specifications
+- **[Product Vision](docs/explanations/product-vision.md)** - What Menlo does: its features, capabilities and principles
 - **[Concepts & Terminology Guide](docs/explanations/concepts-and-terminology.md)** - Core philosophy and design patterns
 - **[Architecture Decision Record](docs/decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis
 - **[C4 Diagrams](docs/diagrams)** - System architecture visualization
