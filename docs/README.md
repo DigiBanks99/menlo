@@ -71,7 +71,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Concepts & Terminology Guide](explanations/concepts-and-terminology.md)** - Start here! Core philosophy, design patterns, and terminology
 - **[Work Items](reference/work-items.md)** - Requirements, Specs and Tasks in GitHub issues, with the Definitions of Ready and Done
 - **[Product Vision](explanations/product-vision.md)** - What Menlo does: its features, capabilities and principles
-- **[User Onboarding Flow](requirements/onboarding.md)** - First-login provisioning, household selection, and extensible task system
+- **[User Onboarding Flow](reference/onboarding-api.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 - **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
 - **[ADR-006: llama.cpp and Agent Framework](decisions/adr-006-llamacpp-and-agent-framework.md)** - One local model runtime and the framework Menlo.AI uses
@@ -97,7 +97,10 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 ### 📖 Technical Reference
 
 - **[Domain Abstractions API](reference/domain-abstractions-api.md)** - API reference for Entity, AggregateRoot, and Value Objects
-- **[Authentication API](reference/authentication-api.md)** - API reference for AuthError, User, and Policies
+- **[Authentication API](reference/authentication-api.md)** - Sign-in, session cookie, anti-forgery, roles, policies and user resolution
+- **[Onboarding API](reference/onboarding-api.md)** - Onboarding state, household endpoints and the `/auth/user` profile
+- **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
+- **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
 
 ### 📊 Project Status
 
@@ -113,7 +116,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 | **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](explanations/concepts-and-terminology.md#privacy-first-local-ai)                          |
 | **Hybrid Cloud-Local**             | Cloudflare Tunnel + home server (API with bundled SPA)  | [ADR-005](decisions/adr-005-bundled-spa-hosting.md)                                                        |
 | **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](explanations/concepts-and-terminology.md#cost-conscious-experimentation)                  |
-| **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](requirements/onboarding.md)                                                                   |
+| **User Onboarding Flow**           | First-login provisioning and household setup            | [Onboarding](reference/onboarding-api.md)                                                                   |
 
 ## 🛤️ Reading Paths
 
@@ -122,7 +125,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 1. [Concepts & Terminology Guide](explanations/concepts-and-terminology.md) - Understand the philosophy
 2. [Work Items](reference/work-items.md) - Start here: how requirements, specs and tasks flow through the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)
 3. [Product Vision](explanations/product-vision.md) - Learn the features
-4. [User Onboarding Flow](requirements/onboarding.md) - Understand first-login experience and authentication
+4. [User Onboarding Flow](reference/onboarding-api.md) - Understand first-login experience and authentication
 5. [C4 Component Diagram](diagrams/c4-component-diagram.md) - Understand the architecture
 6. [C4 Code Diagram](diagrams/c4-code-diagram.md) - Understand the domain model
 7. [ADR-001](decisions/adr-001-hosting-strategy.md) - Know the infrastructure decisions
