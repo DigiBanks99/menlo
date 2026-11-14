@@ -2,6 +2,16 @@
 
 Menlo is a household management app. This glossary holds the language of its domain, starting with budgeting and spend.
 
+## Product
+
+**Feature**:
+An area of Menlo with its own subject, such as the household's money or its time, built end to end. Features are the verticals.
+_Avoid_: Pillar, module
+
+**Capability**:
+Something any feature can use, such as lists or notifications. Capabilities are the horizontals.
+_Avoid_: Pillar, module, shared feature
+
 ## Budgeting and spend
 
 **Budget**:

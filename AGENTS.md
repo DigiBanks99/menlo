@@ -1,6 +1,6 @@
 # Menlo - AGENTS.md
 
-Menlo is an AI-enhanced family home management application for a South African family of 5, covering budget management, planning coordination and rental income analysis.
+Menlo is an AI-enhanced household management application, built for one South African household. What it does, its features and capabilities, and the principles every Requirement is shaped by are in [`docs/explanations/product-vision.md`](docs/explanations/product-vision.md).
 
 ## Where Things Live
 
