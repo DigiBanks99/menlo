@@ -2,7 +2,7 @@
 
 Audience: developers and automated agents who need a concise, actionable guide showing why and how to adopt the Result pattern implemented in `shared-util`.
 
-This document assumes you have the library sources at `shared-util/src/lib` and are familiar with Angular's `HttpClient`, RxJS, and Signals.
+Everything is imported from the `shared-util` package (`src/ui/web/projects/shared-util`). This guide assumes you're familiar with Angular's `HttpClient`, RxJS, and Signals.
 
 - [Angular Result Pattern — How To](#angular-result-pattern--how-to)
   - [Why use the Result pattern](#why-use-the-result-pattern)
@@ -36,9 +36,7 @@ The example below shows a minimal `BudgetService` and a `BudgetCreateComponent` 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { toResult } from 'shared-util/src/lib/operators/to-result';
-import type { Result } from 'shared-util/src/lib/types/result';
-import type { ApiError } from 'shared-util/src/lib/types/problem-details';
+import { toResult, type ApiError, type Result } from 'shared-util';
 
 export interface CreateBudgetCommand { name: string; amount: number }
 export interface BudgetDto { id: string; name: string; amount: number }
@@ -62,9 +60,14 @@ export class BudgetService {
 import { Component, signal, computed } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { BudgetService, CreateBudgetCommand } from './budget.service';
-import { isFailure } from 'shared-util/src/lib/types/result';
-import { isProblemError, getErrorMessage, mapValidationErrorsToForm, type ApiError } from 'shared-util/src/lib/types/problem-details';
-import type { Result } from 'shared-util/src/lib/types/result';
+import {
+  getErrorMessage,
+  isFailure,
+  isProblemError,
+  mapValidationErrorsToForm,
+  type ApiError,
+  type Result,
+} from 'shared-util';
 
 @Component({ selector: 'app-budget-create', template: `<!-- omitted for brevity -->` })
 export class BudgetCreateComponent {
@@ -113,4 +116,4 @@ Explanation of the component example:
 ## References
 
 - API reference: [Angular Result Pattern API Reference](../reference/angular-result-pattern-api.md)
-- Implementation plan & rationale: [Implementation plan](../requirements/angular-result-pattern/implementation.md)
+- Real use: the API clients in `src/ui/web/projects/data-access-menlo-api/src/lib/` and the budget forms in `menlo-app` (for example `category-form.component.ts`)

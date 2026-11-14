@@ -103,6 +103,9 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Onboarding API](reference/onboarding-api.md)** - Onboarding state, household endpoints and the `/auth/user` profile
 - **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
+- **[Repository Structure](reference/repo-structure.md)** - Where the code lives and how the projects depend on each other
+- **[App Shell](reference/app-shell.md)** - The navigation, header and content area around every signed-in page
+- **[Angular Result Pattern](reference/angular-result-pattern-api.md)** - `Result`, `ApiError` and the `toResult()` operator
 
 ### 📊 Project Status
 
