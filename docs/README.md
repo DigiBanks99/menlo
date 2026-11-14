@@ -71,6 +71,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Concepts & Terminology Guide](explanations/concepts-and-terminology.md)** - Start here! Core philosophy, design patterns, and terminology
 - **[Work Items](reference/work-items.md)** - Requirements, Specs and Tasks in GitHub issues, with the Definitions of Ready and Done
 - **[Product Vision](explanations/product-vision.md)** - What Menlo does: its features, capabilities and principles
+- **[Budget Domain](explanations/budget-domain.md)** - How budgets, categories and items work today, and the rules they follow
 - **[User Onboarding Flow](reference/onboarding-api.md)** - First-login provisioning, household selection, and extensible task system
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 - **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
@@ -98,6 +99,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 - **[Domain Abstractions API](reference/domain-abstractions-api.md)** - API reference for Entity, AggregateRoot, and Value Objects
 - **[Authentication API](reference/authentication-api.md)** - Sign-in, session cookie, anti-forgery, roles, policies and user resolution
+- **[Budget API](reference/budget-api.md)** - Budget, category, item and summary endpoints, with their errors
 - **[Onboarding API](reference/onboarding-api.md)** - Onboarding state, household endpoints and the `/auth/user` profile
 - **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
