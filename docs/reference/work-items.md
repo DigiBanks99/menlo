@@ -24,11 +24,35 @@ graph TD
     S2 --> T2[Task]
 ```
 
+## Shaping a Requirement
+
+A Requirement starts as a stub and is shaped until its Specs are ready for an agent. Shaping keeps the whole of Menlo in view, as the [Product Vision](../explanations/product-vision.md) describes it. A Requirement is never shaped on its own.
+
+1. **Stub** (Status: **Backlog**). It has the problem, who it's for and draft outcomes, plus a section for each whole-of-Menlo question below, which may still be open. Set its **Area** to the feature or capability it belongs to.
+2. **Pick it up** (Status: **Refining**). Decide whether the way is clear:
+   - If it is clear, fill in the outcomes, business rules and acceptance criteria with `/to-requirement` in one grilling session.
+   - If it is foggy, chart a map from the Requirement with `/wayfinder` and work through it until the way is clear.
+3. **Break it into Specs** with `/to-specs`.
+4. **Each Spec meets the [Definition of Ready](#definition-of-ready)**, then moves to **Ready** and gets `ready-for-agent`.
+5. **Build it** with `/work-on-spec`.
+
+The stage is shown by Status alone; there is no shaping label. The **Needs shaping** view on the project lists `label:requirement` in Backlog or Refining.
+
+### Whole-of-Menlo questions
+
+Every Requirement answers these before its Specs can be Ready:
+
+- **Features:** which other features does it touch, and how? A spend affects the budget; an event may cost money.
+- **The agent:** what can the agent do here? Does it need tools for this? Can it interpret or map, and can it only propose, or also commit? Does that need a new concept, such as staging what it imported?
+- **Lists:** should lists feed into it?
+- **Notifications:** what does it tell the household, and when?
+
 ## Definition of Ready
 
 A Spec can be picked up (Status: **Ready**, and labelled `ready-for-agent` if an agent can take it) when the checklist below is met. Agents only pick up issues that have both.
 
 - [ ] It is a sub-issue of a Requirement, and that Requirement has acceptance criteria
+- [ ] That Requirement answers the [whole-of-Menlo questions](#whole-of-menlo-questions)
 - [ ] The slice is small enough to ship on its own, or is split into Tasks
 - [ ] The domain model changes, API contract and UI flow are described, or marked not applicable
 - [ ] Test cases cover each acceptance criterion it implements
