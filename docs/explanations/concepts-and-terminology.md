@@ -10,7 +10,7 @@ These concepts emerged from our analysis of family workflows and AI integration 
   - [Core Design Philosophy](#core-design-philosophy)
     - [The "Blueberry Muffin" Approach to AI Integration](#the-blueberry-muffin-approach-to-ai-integration)
   - [User-Centric Concepts](#user-centric-concepts)
-    - [The "CFO-COO Family Dynamic"](#the-cfo-coo-family-dynamic)
+    - [The "CFO-COO Household Dynamic"](#the-cfo-coo-household-dynamic)
     - ["Natural Workflow Preservation"](#natural-workflow-preservation)
   - [Technical Philosophy](#technical-philosophy)
     - ["Privacy-First Local AI"](#privacy-first-local-ai)
@@ -54,7 +54,7 @@ These concepts emerged from our analysis of family workflows and AI integration 
 
 **Implementation Examples**:
 
-- **Planning Lists**: AI interprets handwritten lists and suggests budget impact, but the wife still makes lists naturally
+- **Planning Lists**: AI interprets handwritten lists and suggests budget impact, but the COO still makes lists naturally
 - **Budget Analysis**: AI provides variance insights within the budget view, not as separate AI reports
 - **Transaction Categorization**: AI suggests categories during transaction entry, learning from corrections
 - **Event Scheduling**: AI detects conflicts during event creation, not as separate calendar analysis
@@ -74,11 +74,11 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 ## User-Centric Concepts
 
-### The "CFO-COO Family Dynamic"
+### The "CFO-COO Household Dynamic"
 
-**Definition**: A recognition that family financial management naturally divides into strategic (CFO) and operational (COO) roles, requiring different tools and perspectives.
+**Definition**: A recognition that running a household naturally divides into strategic (CFO) and operational (COO) roles, requiring different tools and perspectives. They are roles, not people: one person can play both.
 
-**CFO Role (Husband)**:
+**CFO Role**:
 
 - Strategic financial planning and analysis
 - Budget variance analysis and optimization
@@ -86,7 +86,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 - Tax planning and compliance reporting
 - Long-term financial goal tracking
 
-**COO Role (Wife)**:
+**COO Role**:
 
 - Operational planning and coordination (shopping lists, meal planning)
 - Day-to-day family scheduling and event coordination
@@ -99,9 +99,9 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 **Definition**: The principle that technology should enhance existing successful workflows rather than replace them with "better" digital alternatives.
 
-**Wife's Handwritten Lists Example**:
+**Handwritten Lists Example**:
 
-- **Natural Workflow**: Wife writes shopping/planning lists by hand (muscle memory, thinking process)
+- **Natural Workflow**: The COO writes shopping/planning lists by hand (muscle memory, thinking process)
 - **Enhancement**: Photo capture + AI interpretation provides digital benefits without disrupting the writing process
 - **Value Add**: Budget impact analysis, smart suggestions, family coordination - all invisible to the core workflow
 
@@ -116,13 +116,13 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 ### "Privacy-First Local AI"
 
-**Definition**: An architectural approach that prioritizes data privacy by processing all AI tasks locally, avoiding external AI service dependencies.
+**Definition**: An architectural preference for data privacy: AI tasks run locally where they can, and an external AI service is used only when local processing can't do the job.
 
 **Implementation**:
 
 - **Local Models**: llama.cpp serving Qwen3.5-4B on the home server
-- **No Cloud AI**: No data sent to OpenAI, Claude, or other external AI services
-- **Family Data Sovereignty**: All financial and personal data remains within family control
+- **Cloud AI only when needed**: Household data goes to an external AI service only when local processing can't do the job
+- **Household Data Sovereignty**: Financial and personal data stays under the household's control
 - **Cost Control**: No per-token or usage-based AI costs
 
 **Benefits**:
@@ -309,7 +309,7 @@ public class LlamaBudgetImpactAnalyser : IBudgetImpactAnalyser
 
 **Key Metrics**:
 
-- **Wife's List Usage**: Primary indicator of workflow integration success
+- **List Usage**: Primary indicator of workflow integration success
 - **Budget Accuracy**: Improvement in budget variance tracking
 - **Family Coordination**: Reduction in scheduling conflicts and miscommunication
 - **Cost Effectiveness**: Maintaining target monthly hosting costs
@@ -361,9 +361,9 @@ This guide serves multiple audiences and use cases:
 | Term                               | Definition                                                     |
 | ---------------------------------- | -------------------------------------------------------------- |
 | **Blueberry Muffin AI**            | AI embedded throughout workflows, not as separate features     |
-| **CFO-COO Dynamic**                | Strategic (husband) vs operational (wife) role differentiation |
+| **CFO-COO Dynamic**                | Strategic (CFO) vs operational (COO) roles                     |
 | **Natural Workflow Preservation**  | Enhancing existing workflows rather than replacing them        |
-| **Privacy-First Local AI**         | All AI processing on home server, no external AI services      |
+| **Privacy-First Local AI**         | AI on the home server where it can; external only when needed  |
 | **Hybrid Cloud-Local**             | Frontend in cloud, backend/data on home server                 |
 | **Cost-Conscious Experimentation** | Low-cost validation before scaling investment                  |
 | **Contextual Intelligence**        | AI that understands cross-domain relationships                 |

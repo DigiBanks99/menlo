@@ -30,8 +30,8 @@ In summary it is a **Hybrid Cloud-Local Design** optimized for cost-conscious ex
 
 Built around the **CFO-COO Dynamic**:
 
-- **CFO Role (Husband)**: Strategic financial analysis, budget variance, rental ROI
-- **COO Role (Wife)**: Operational planning, scheduling, resource coordination
+- **CFO Role**: Strategic financial analysis, budget variance, rental ROI
+- **COO Role**: Operational planning, scheduling, resource coordination
 
 ## 📚 Documentation
 

@@ -148,8 +148,8 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 ### Family-Centric Design
 
-- **Wife's Role**: Operational planning with handwritten lists preserved
-- **Husband's Role**: Strategic financial analysis and planning
+- **COO Role**: Operational planning with handwritten lists preserved
+- **CFO Role**: Strategic financial analysis and planning
 - **Shared Goals**: Budget coordination and family scheduling
 
 ### Technical Excellence
