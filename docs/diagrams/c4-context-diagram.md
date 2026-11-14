@@ -5,22 +5,22 @@ This diagram shows the high-level system context for the Menlo Home Management A
 ```mermaid
 graph TB
     %% Users
-    Husband[👤 Husband<br/>CFO - Budget management,<br/>financial analysis,<br/>rental decision modelling]
-    Wife[👤 Wife<br/>COO - Planning lists handwritten,<br/>event coordination,<br/>family scheduling]
+    CFO[👤 CFO<br/>Budget management,<br/>financial analysis,<br/>rental decision modelling]
+    COO[👤 COO<br/>Planning lists handwritten,<br/>event coordination,<br/>household scheduling]
     
     %% Main System
     HomeApp[🏠 Home Management Application<br/>AI-enhanced home and budget management<br/>system with handwritten list interpretation<br/>and intelligent coordination]
     
     %% External Systems
     BankSystem[🏦 Banking System<br/>Provides bank statements and<br/>transaction data via CSV export]
-    MunicipalSystem[🏢 Municipal Services Tshwane<br/>Electricity prepaid, water readings,<br/>municipal rates, levies, refuse,<br/>sanitization billing]
+    MunicipalSystem[🏢 Municipal Services<br/>Electricity prepaid, water readings,<br/>municipal rates, levies, refuse,<br/>sanitization billing]
     Calendar[📅 External Calendar<br/>Google Calendar, Outlook,<br/>or other calendar systems]
     TaxSystem[🏛️ SARS Tax Authority<br/>South African Revenue Service<br/>for tax compliance]
     LocalAI[🤖 Local AI llama.cpp<br/>Local Qwen3.5-4B model for<br/>privacy-preserving AI assistance]
     
     %% Primary user interactions
-    Husband -->|Manages budgets, analyses spending,<br/>models rental scenarios<br/>HTTPS| HomeApp
-    Wife -->|Takes photos of handwritten lists,<br/>coordinates events,<br/>tracks family activities<br/>HTTPS| HomeApp
+    CFO -->|Manages budgets, analyses spending,<br/>models rental scenarios<br/>HTTPS| HomeApp
+    COO -->|Takes photos of handwritten lists,<br/>coordinates events,<br/>tracks household activities<br/>HTTPS| HomeApp
     
     %% External system integrations
     HomeApp -->|Imports transaction data<br/>CSV Import| BankSystem
@@ -38,7 +38,7 @@ graph TB
     classDef systemClass fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
     classDef externalClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
     
-    class Husband,Wife userClass
+    class CFO,COO userClass
     class HomeApp systemClass
     class BankSystem,MunicipalSystem,Calendar,TaxSystem,LocalAI externalClass
 ```
@@ -55,7 +55,7 @@ graph TB
 
 ### User Roles
 
-#### Husband (CFO Focus)
+#### CFO
 
 - Budget analysis with AI insights
 - Rental income modelling  
@@ -64,12 +64,12 @@ graph TB
 - Bank reconciliation
 - Transaction categorization
 
-#### Wife (COO Focus)
+#### COO
 
 - Handwritten list capture & AI interpretation
 - Budget impact awareness
 - Event coordination
-- Family scheduling
+- Household scheduling
 
 ### Privacy-First AI
 

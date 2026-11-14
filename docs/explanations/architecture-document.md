@@ -272,7 +272,7 @@ public class AgentFrameworkBudgetAnalyser : IBudgetImpactAnalyser
 
 ### Target Scale
 
-**User Scale**: **Single family (2 adults, 2+ children) maximum**
+**User Scale**: **One household maximum**
 
 The application is explicitly designed for family-scale usage:
 
