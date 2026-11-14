@@ -1,9 +1,10 @@
 # Angular Result Pattern
 
-This document lists the public types and functions implemented in `shared-util/src/lib`.
+The Result pattern lets Angular code handle success and failure as values instead of thrown errors. API calls return `Observable<Result<T, ApiError>>`, and components hold the latest `Result` in a signal.
 
-See the developer how-to for examples and rationale: [How-to guide](../guides/angular-result-pattern-howto.md)
-and the implementation plan: [Implementation plan](../requirements/angular-result-pattern/implementation.md)
+Everything here is exported from the `shared-util` package (`src/ui/web/projects/shared-util`). The API clients in `data-access-menlo-api` return Results through `toResult()`.
+
+See [How to use the Result pattern](../guides/angular-result-pattern-howto.md) for examples.
 
 ## Result utilities
 
@@ -58,25 +59,28 @@ and the implementation plan: [Implementation plan](../requirements/angular-resul
 
 ### Guards & helpers
 
-- `isProblemDetails(value: unknown): value is ProblemDetails`
 - `isProblemError(e: ApiError): e is ProblemApiError`
 - `isNetworkError(e: ApiError): e is NetworkApiError`
 - `isUnknownError(e: ApiError): e is UnknownApiError`
 - `hasValidationErrors(e: ApiError): boolean` — true when `problem.errors` exists and is non-empty
-- `getValidationErrors(e: ApiError): Record<string, string[]>` — returns validation map or `{}`
-- `mapValidationErrorsToForm(e: ApiError, form: { get(path: string): { setErrors(obj: object): void; markAsTouched(): void } | null }, options?: { markAsTouched?: boolean }): void`
+- `getValidationErrors(e: ApiError): Record<string, string[]>` — returns the validation map, with each key's first letter lower-cased (`Name` becomes `name`), or `{}`
+- `mapValidationErrorsToForm(e: ApiError, form: { get(path: string): { setErrors(obj: object): void; markAsTouched(): void } | null }, options?: { markAsTouched?: boolean }): void` — sets `{ api: '<messages joined by ", ">' }` on each control that matches a validation key, and marks it touched unless `markAsTouched` is `false`. Keys with no matching control are ignored.
 
 ### Conversion & messaging
 
-- `toApiError(error: unknown): ApiError` — normalises thrown errors and HttpErrorResponse-like shapes (duck-typed)
-- `getErrorMessage(e: ApiError, defaultMessage?: string): string`
-- `getErrorStatus(e: ApiError): number | undefined`
+- `toApiError(error: unknown): ApiError` — normalises thrown errors and HttpErrorResponse-like shapes (duck-typed):
+  - status `0` becomes a `network` error;
+  - a body that looks like ProblemDetails (an object, or a JSON string, with a `type`, `title`, `status`, `detail` or `errors`) becomes a `problem` error;
+  - any other HTTP error becomes a `network` error with its status;
+  - anything else becomes an `unknown` error.
+- `getErrorMessage(e: ApiError, defaultMessage?: string): string` — for a `problem`, the first non-empty of `detail`, `title` and `type`; otherwise the error's `message`; else `defaultMessage` ("An unexpected error occurred")
+- `getErrorStatus(e: ApiError): number | undefined` — the HTTP status, falling back to `problem.status`
 
 ## RxJS Operators (operators/to-result.ts)
 
 - `toResult<T>(): OperatorFunction<T, Result<T, ApiError>>` — converts next/error paths into `Result` values
 - `toResultWith<T, E>(errorMapper: (error: unknown) => E): OperatorFunction<T, Result<T, E>>` — custom mapper variant
-- `unwrapResult<T, E>(): OperatorFunction<Result<T, E>, T>` — emits value or errors
+- `unwrapResult<T, E>(): OperatorFunction<Result<T, E>, T>` — emits the value, or errors the stream with the failure's error
 - `filterSuccess<T, E>(): OperatorFunction<Result<T, E>, T>` — emits only successes
 - `filterFailure<T, E>(): OperatorFunction<Result<T, E>, E>` — emits only failures
 
@@ -88,34 +92,27 @@ and the implementation plan: [Implementation plan](../requirements/angular-resul
 
 ## Examples
 
-Import paths shown use a monorepo-local path; adapt to your package entrypoint when published.
-
 ### Service (HttpClient + toResult)
 
 ```typescript
-import { toResult } from 'projects/shared-util/src/lib/operators/to-result';
+import { ApiError, Result, toResult } from 'shared-util';
 
-// returns Observable<Result<BudgetDto, ApiError>>
-this.http.post<BudgetDto>('/api/budgets', cmd).pipe(toResult());
+listBudgets(): Observable<Result<BudgetListItemResponse[], ApiError>> {
+  return this.http.get<BudgetListItemResponse[]>(`${this.apiBaseUrl}/api/budgets`).pipe(toResult());
+}
 ```
 
 ### Result handling in a component (Signals)
 
 ```typescript
-import { signal, computed } from '@angular/core';
-import { Result, isFailure } from 'projects/shared-util/src/lib/types/result';
-import { ApiError, getErrorMessage } from 'projects/shared-util/src/lib/types/problem-details';
+import { computed, signal } from '@angular/core';
+import { ApiError, getErrorMessage, isFailure, Result } from 'shared-util';
 
-const result = signal<Result<UserDto, ApiError> | null>(null);
-service.getUser(id).subscribe(r => result.set(r));
+const result = signal<Result<BudgetResponse, ApiError> | null>(null);
+budgetApi.getBudget(id).subscribe((r) => result.set(r));
 
 const errorText = computed(() => {
   const r = result();
-  if (!r) return '';
-  return isFailure(r) ? getErrorMessage(r.error) : '';
+  return r && isFailure(r) ? getErrorMessage(r.error) : '';
 });
 ```
-
-## Where this lives
-
-See `src/ui/web/projects/shared-util/src/lib` for source code and tests.
