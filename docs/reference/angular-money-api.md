@@ -465,5 +465,4 @@ interface Summary {
 ## Related Documentation
 
 - [Angular Money How-To Guide](../guides/angular-money-howto.md)
-- [Money Domain Specifications](../requirements/money-domain/specifications.md)
 - [Backend Money API Reference](./money-api.md)
