@@ -43,7 +43,7 @@ Tech debt includes:
 A tech debt issue records its origin: what was deferred or missed, in which PR or decision, and any risk that was accepted.
 
 - Open one with the Bug or Tech debt issue form, and make sure it is on the project.
-- Each goes from **Backlog** to **Refining** when the way forward isn't clear, and to **Ready** once it meets the [Definition of Ready for bugs and tech debt](#bugs-and-tech-debt-1).
+- Each goes from **Backlog** to **Refining** when the way forward isn't clear, and to **Ready** once it meets the [Definition of Ready for bugs and tech debt](#ready-bugs-and-tech-debt).
 - If resolving one would change intended behaviour, it isn't a bug or tech debt. It becomes a Spec under the Requirement it belongs to, or a new Requirement.
 
 ## Shaping a Requirement
@@ -83,7 +83,7 @@ A Spec can be picked up (Status: **Ready**, and labelled `ready-for-agent` if an
 - [ ] Open questions are resolved; risks have a mitigation or are accepted
 - [ ] Priority, Area and Phase are set on the project
 
-### Bugs and tech debt
+### Ready: bugs and tech debt
 
 A bug or tech debt issue can be picked up when:
 
