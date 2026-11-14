@@ -1,0 +1,41 @@
+name: Tech debt
+description: Work deferred or missed that serves developers and testers, such as tests, docs, dev conveniences or an accepted risk.
+labels: ['tech-debt']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Tech debt is work deliberately deferred, or missed, that serves developers and testers rather than the household: missing or slow tests, missing docs, dev and test conveniences, or a risk accepted to ship. A doc that is wrong is a bug, not tech debt.
+              It is ready to pick up when it meets the Definition of Ready for bugs and tech debt in [Work Items](https://github.com/DigiBanks99/menlo/blob/main/docs/reference/work-items.md#bugs-and-tech-debt-1).
+    - type: textarea
+      id: problem
+      attributes:
+          label: Problem
+          description: What is missing or in the way, and what it costs developers or testers.
+      validations:
+          required: true
+    - type: textarea
+      id: origin
+      attributes:
+          label: Origin
+          description: What was deferred or missed, in which PR or decision, and any risk that was accepted. Write "Unknown" if nothing was recorded.
+      validations:
+          required: true
+    - type: textarea
+      id: done-when
+      attributes:
+          label: Done when
+      validations:
+          required: true
+    - type: textarea
+      id: affected-areas
+      attributes:
+          label: Affected areas
+          description: Projects, files, endpoints and screens this touches.
+      validations:
+          required: true
+    - type: textarea
+      id: open-questions
+      attributes:
+          label: Open questions
+          description: Anything still to decide. An issue with open questions stays in Refining.

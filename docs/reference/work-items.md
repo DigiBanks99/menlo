@@ -24,6 +24,28 @@ graph TD
     S2 --> T2[Task]
 ```
 
+## Bugs and tech debt
+
+Some work isn't a slice of a feature, so it has no Requirement above it. It is one of two kinds, kept apart because they tell different stories:
+
+| Kind          | Label       | What it is                                                                                                                      |
+| ------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Bug**       | `bug`       | Menlo, or a doc, contradicts the intended behaviour. Resolving it restores the intent. A doc that is wrong is a bug.            |
+| **Tech debt** | `tech-debt` | Work deliberately deferred, or missed, that serves developers and testers rather than the household. |
+
+Tech debt includes:
+
+- missing or slow tests
+- missing documentation
+- dev and test conveniences, such as a quick configure step or a clear-cache command
+- risks consciously accepted to ship, such as a security shortcut, logged so someone comes back to them
+
+A tech debt issue records its origin: what was deferred or missed, in which PR or decision, and any risk that was accepted.
+
+- Open one with the Bug or Tech debt issue form, and make sure it is on the project.
+- Each goes from **Backlog** to **Refining** when the way forward isn't clear, and to **Ready** once it meets the [Definition of Ready for bugs and tech debt](#bugs-and-tech-debt-1).
+- If resolving one would change intended behaviour, it isn't a bug or tech debt. It becomes a Spec under the Requirement it belongs to, or a new Requirement.
+
 ## Shaping a Requirement
 
 A Requirement starts as a stub and is shaped until its Specs are ready for an agent. Shaping keeps the whole of Menlo in view, as the [Product Vision](../explanations/product-vision.md) describes it. A Requirement is never shaped on its own.
@@ -61,6 +83,20 @@ A Spec can be picked up (Status: **Ready**, and labelled `ready-for-agent` if an
 - [ ] Open questions are resolved; risks have a mitigation or are accepted
 - [ ] Priority, Area and Phase are set on the project
 
+### Bugs and tech debt
+
+A bug or tech debt issue can be picked up when:
+
+- [ ] It states the problem, and for tech debt, its origin
+- [ ] It says what "done" looks like: the expected behaviour for a bug, the outcome for tech debt
+- [ ] Affected areas (projects, files, endpoints, screens) are listed
+- [ ] The way forward is clear: no decision is open and nothing is ambiguous
+- [ ] It ships in one PR
+- [ ] Resolving it doesn't change intended behaviour
+- [ ] Priority, Area and Phase are set on the project
+
+An agent may move it to **Ready** and add `ready-for-agent` when every item is met. If anything is still ambiguous, it isn't Ready: move it to **Refining** and comment what needs deciding.
+
 ## Definition of Done
 
 ### Every change
@@ -79,6 +115,12 @@ Each PR, whatever level it belongs to:
 - [ ] Every PR for the Spec meets "Every change"
 - [ ] Its test cases are implemented and passing
 - [ ] Its Tasks, if any, are closed
+- [ ] As-built docs in `docs/` are updated for what changed
+
+### Bug or tech debt
+
+- [ ] Its PR meets "Every change"
+- [ ] A bug in code has a test that fails without the fix
 - [ ] As-built docs in `docs/` are updated for what changed
 
 ### Requirement
