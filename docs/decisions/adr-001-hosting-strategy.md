@@ -36,7 +36,7 @@ The Home Management Application requires a hosting strategy that balances cost-c
 
 - **Cost Constraints**: This is a conceptual application with uncertain adoption and ROI
 - **Local AI Requirements**: Ollama + Phi models for privacy and cost control
-- **Family Usage**: Single family of 5 with predictable, low-scale usage patterns
+- **Household Usage**: One household with predictable, low-scale usage patterns
 - **South African Context**: Local internet infrastructure and pricing considerations
 - **Experimental Nature**: Willingness to sacrifice some performance for cost savings during validation phase
 
@@ -257,7 +257,7 @@ The Home Management Application requires a hosting strategy that balances cost-c
 - **Cost Target**: <R500/month total hosting costs
 - **Availability Target**: >95% uptime for family usage patterns
 - **Performance Target**: <2 second API response times
-- **User Satisfaction**: Wife actively uses planning features
+- **User Satisfaction**: The COO actively uses planning features
 
 ## Notes
 

@@ -361,7 +361,7 @@ public record MaintenancePlanningItem(
 
 - **Electricity**: Prepaid system - track top-ups and usage patterns
 - **Water**: Monthly meter readings - calculate usage between readings
-- **Municipal Rates**: Separate invoice from City of Tshwane (rates, levies, refuse, sanitization)
+- **Municipal Rates**: Separate invoice from the municipality (rates, levies, refuse, sanitization)
 - **Gas**: Refill tracking every 6-8 months with cost attribution
 - **Fibre Internet**: Monthly billing with potential rental attribution
 
