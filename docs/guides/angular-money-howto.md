@@ -395,7 +395,5 @@ If API responses fail validation:
 ## Related Documentation
 
 - [Angular Money API Reference](../reference/angular-money-api.md)
-- [Money Domain Specifications](../requirements/money-domain/specifications.md)
-- [Money Domain Implementation Plan](../requirements/money-domain/implementation.md)
 - [Money Backend API Reference](../reference/money-api.md)
 - [Money Backend How-To Guide](./money-howto.md)

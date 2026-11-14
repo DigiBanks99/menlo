@@ -1,166 +1,126 @@
 # Domain Abstractions API Reference
 
-This document provides a reference for the core domain abstractions used in the Menlo project. These abstractions are located in the `Menlo.Lib.Common` namespace and form the building blocks for
-Domain-Driven Design (DDD) implementation.
+The core domain abstractions live in `src/lib/Menlo.Lib/Common/`. Entities and aggregates in every bounded context build on them.
 
-## Core Interfaces
+The domain layer has no ASP.NET Core dependency. It never reads `ClaimsPrincipal`, `IHttpContextAccessor` or the clock. Who did something and when reach it as stamps from a factory the caller passes in. [Persistence](persistence.md) describes the factories and interceptors that do this on save.
 
-### `IEntity<TId>`
+## Core interfaces
 
-Defines the contract for a Domain Entity. Entities are objects that are defined by their identity rather than their attributes.
+Namespace: `Menlo.Lib.Common.Abstractions`.
 
-**Namespace:** `Menlo.Lib.Common.Abstractions`
+### `IEntity<out TId>`
 
-**Type Parameters:**
+An object defined by its identity.
 
-- `TId`: The type of the entity's identifier. Must be a `struct`.
+- `TId Id { get; }`: the entity's identifier. By convention a strongly typed ID (see [Strongly typed IDs](#strongly-typed-ids)); the type parameter has no constraint.
 
-**Properties:**
+### `IAggregateRoot<out TId>`
 
-- `TId Id { get; }`: The unique identifier for the entity.
+A marker interface that extends `IEntity<TId>`. An aggregate root is the entry point to its aggregate; only aggregate roots are loaded and saved directly.
 
----
-
-### `IAggregateRoot<TId>`
-
-Defines the contract for an Aggregate Root. An Aggregate Root is an Entity that binds together a cluster of associated objects (the Aggregate) and serves as the entry point for all access to that cluster.
-
-**Namespace:** `Menlo.Lib.Common.Abstractions`
-
-**Inherits from:** `IEntity<TId>`, `IHasDomainEvents`
-
-**Type Parameters:**
-
-- `TId`: The type of the aggregate root's identifier. Must be a `struct`.
-
----
+It does not extend `IHasDomainEvents`. Aggregates that raise events implement both.
 
 ### `IDomainEvent`
 
-A marker interface for Domain Events. Domain Events represent something meaningful that happened in the domain.
-
-**Namespace:** `Menlo.Lib.Common.Abstractions`
-
----
+A marker interface for domain events.
 
 ### `IHasDomainEvents`
 
-Defines the contract for an object that can raise domain events. This is typically implemented by Aggregate Roots.
+An object that collects domain events for the application layer to dispatch after persistence.
 
-**Namespace:** `Menlo.Lib.Common.Abstractions`
-
-**Methods:**
-
-- `void AddDomainEvent<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent`: Adds a domain event to the object's collection of pending events.
-- `IReadOnlyCollection<IDomainEvent> DomainEvents { get; }`: Gets the collection of pending domain events.
-- `void ClearDomainEvents()`: Clears all pending domain events.
-
-**Note:** The `AddDomainEvent` method is generic to avoid boxing of struct-based domain events when adding them to the internal collection (though they are stored as `IDomainEvent`).
-
----
+- `IReadOnlyCollection<IDomainEvent> DomainEvents { get; }`: the pending events.
+- `void AddDomainEvent<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent`: adds an event. The generic parameter avoids boxing at the call site.
+- `void ClearDomainEvents()`: clears the pending events.
 
 ### `IAuditable`
 
-Defines the contract for entities that require auditing of creation and modification.
+An entity that records who created and last modified it, and when. The properties have no public setters; `Audit` is the only way to change them.
 
-**Namespace:** `Menlo.Lib.Common.Abstractions`
+- `UserId? CreatedBy { get; }`, `DateTimeOffset? CreatedAt { get; }`: null until the first `Create` audit.
+- `UserId? ModifiedBy { get; }`, `DateTimeOffset? ModifiedAt { get; }`: set by both `Create` and `Update`.
+- `void Audit(IAuditStampFactory factory, AuditOperation operation)`: asks the factory for a stamp and applies it.
 
-**Properties:**
-
-- `UserId? CreatedBy { get; }`: The user who created the entity.
-- `DateTimeOffset? CreatedAt { get; }`: The timestamp when the entity was created.
-- `UserId? ModifiedBy { get; }`: The user who last modified the entity.
-- `DateTimeOffset? ModifiedAt { get; }`: The timestamp when the entity was last modified.
-
-**Methods:**
-
-- `void Audit(IAuditStampFactory factory, AuditOperation operation)`: Updates the audit fields based on the operation type.
-
----
+| Operation | Created fields | Modified fields |
+| --------- | -------------- | --------------- |
+| `Create`  | set            | set             |
+| `Update`  | unchanged      | set             |
 
 ### `IAuditStampFactory`
 
-Defines the contract for a factory that creates `AuditStamp` instances. This allows for abstraction of the current user and time provider.
+Supplies the stamp for an audit.
 
-**Namespace:** `Menlo.Lib.Common.Abstractions`
+- `AuditStamp CreateStamp()`: a stamp for the current actor and time. It always returns a stamp; there is no failure result.
 
-**Methods:**
+### `ISoftDeletable`
 
-- `AuditStamp CreateStamp()`: Creates a new audit stamp for the current user and time.
+An entity that is marked deleted rather than removed. Soft-deleted rows are hidden from queries by a global query filter.
 
----
+- `bool IsDeleted { get; }`
+- `DateTimeOffset? DeletedAt { get; }`: null unless deleted.
+- `UserId? DeletedBy { get; }`: null unless deleted.
+- `void Delete(ISoftDeleteStampFactory factory)`: sets all three fields from the factory's stamp.
 
-## Base Classes
+There is no general restore operation. Where an aggregate supports undoing a delete, it does so through its own method, such as `Budget.RestoreCategory`.
+
+### `ISoftDeleteStampFactory`
+
+Supplies the stamp for a soft delete.
+
+- `SoftDeleteStamp CreateStamp()`: a stamp for the current actor and time.
 
 ### `Error`
 
-Represents a domain error. This class is used in conjunction with the Result pattern to return typed errors instead of throwing exceptions for expected failure scenarios.
+The base class for domain errors, used with `Result` from CSharpFunctionalExtensions instead of throwing for expected failures.
 
-**Namespace:** `Menlo.Lib.Common.Abstractions`
+- `string Code { get; }`: a machine-readable code in the form `{DOMAIN}_{NUMBER}`, for example `MONEY_001`.
+- `string Message { get; }`: a human-readable message.
+- `protected Error(string code, string message)`: throws `ArgumentException` if either is null or whitespace.
+- `ToString()` returns `[{Code}] {Message}`.
 
-**Properties:**
+Each domain derives its own error base class (for example `MoneyError`) and a sealed class per error.
 
-- `string Code { get; }`: A unique code for the error.
-- `string Message { get; }`: A human-readable description of the error.
+## Value objects
 
-**Constructors:**
+Namespace: `Menlo.Lib.Common.ValueObjects`.
 
-- `protected Error(string code, string message)`: Initializes a new instance of the `Error` class.
+### Strongly typed IDs
 
----
+Each entity type has its own ID, a `readonly record struct` wrapping a `Guid`, so IDs of different entity types can't be mixed up at compile time. The shared ones are:
 
-## Value Objects
+- `UserId(Guid Value)`: a person using the system.
+- `HouseholdId(Guid Value)`: a household.
 
-### `UserId`
-
-A strongly-typed identifier for a user. Implemented as a `readonly record struct` for performance and immutability.
-
-**Namespace:** `Menlo.Lib.Common.ValueObjects`
-
-**Properties:**
-
-- `Guid Value { get; }`: The underlying GUID value.
-
-**Constructors:**
-
-- `public UserId(Guid value)`: Initializes a new instance of `UserId`.
-
-**Static Methods:**
-
-- `public static UserId New()`: Creates a new `UserId` with a generated GUID.
-- `public static UserId Empty`: Returns an empty `UserId`.
-
----
+Both have `static NewId()`, which creates an ID from `Guid.NewGuid()`, and `ToString()`, which returns the GUID. Bounded contexts define their own IDs (`BudgetId`, `BudgetItemId` and so on) the same way. Each ID needs a value converter registered in `MenloDbContext` (see [Persistence](persistence.md)).
 
 ### `AuditStamp`
 
-Represents an audit record containing the user ID, timestamp, and operation type. Implemented as a `readonly record struct`.
+`readonly record struct AuditStamp(UserId ActorId, DateTimeOffset Timestamp, string? CorrelationId = null)`
 
-**Namespace:** `Menlo.Lib.Common.ValueObjects`
+Who performed an action and when (UTC), with an optional correlation ID for tracing.
 
-**Properties:**
+### `SoftDeleteStamp`
 
-- `UserId ActorId { get; }`: The ID of the user who performed the operation.
-- `DateTimeOffset Timestamp { get; }`: The timestamp when the operation occurred.
-- `string? CorrelationId { get; }`: Optional correlation ID for distributed tracing.
+`readonly record struct SoftDeleteStamp(UserId ActorId, DateTimeOffset Timestamp)`
 
----
+Who soft-deleted an entity and when (UTC).
+
+### `Money`
+
+See [Money API](money-api.md).
 
 ## Enums
 
 ### `AuditOperation`
 
-Enumerates the types of audit operations.
+Namespace: `Menlo.Lib.Common.Enums`.
 
-**Namespace:** `Menlo.Lib.Common.Enums`
+- `Create` (0): the first save of an entity.
+- `Update` (1): a later save.
 
-**Values:**
+Deletes are not audit operations; they go through `ISoftDeletable.Delete`.
 
-- `Create`: Represents a creation operation.
-- `Update`: Represents an update operation.
-- `Delete`: Represents a deletion operation.
-
-## Further Reading
+## Further reading
 
 - [Tutorial: Add a Domain vertical slice](../tutorials/domain-abstractions-tutorial.md)
 - [How to use Domain Abstractions](../guides/domain-abstractions-howto.md)
+- [Persistence](persistence.md)
