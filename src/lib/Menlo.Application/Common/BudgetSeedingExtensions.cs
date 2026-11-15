@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 
 namespace Menlo.Application.Common;
@@ -20,6 +21,7 @@ namespace Menlo.Application.Common;
 /// Extension methods to seed a demo household budget for the current calendar year.
 /// Uses obfuscated names — safe for version control.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class BudgetSeedingExtensions
 {
     /// <summary>
