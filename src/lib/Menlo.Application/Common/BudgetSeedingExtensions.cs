@@ -47,8 +47,9 @@ public static class BudgetSeedingExtensions
             .GetRequiredService<ILoggerFactory>()
             .CreateLogger("Menlo.Seeding");
 
-        int year = DateTime.UtcNow.Year;
-        AuditStampFactory auditFactory = new(SystemUser.Id, "budget-seed");
+        TimeProvider timeProvider = scope.ServiceProvider.GetRequiredService<TimeProvider>();
+        int year = timeProvider.GetUtcNow().Year;
+        AuditStampFactory auditFactory = new(SystemUser.Id, timeProvider, "budget-seed");
 
         // 1. Ensure users exist
         UserId primaryUserId = await EnsureUserAsync(
@@ -284,7 +285,7 @@ public static class BudgetSeedingExtensions
 
         // Raw SQL so the seed user can be stamped as its own creator.
         UserId userId = UserId.NewId();
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = auditFactory.CreateStamp().Timestamp;
 
         await db.Database.ExecuteSqlInterpolatedAsync($@"
             INSERT INTO shared.users

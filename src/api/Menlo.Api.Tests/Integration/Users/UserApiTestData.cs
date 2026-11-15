@@ -19,7 +19,7 @@ internal static class UserApiTestData
         using IServiceScope scope = services.CreateScope();
         UserProvisioningService provisioningService = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        await provisioningService.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
+        await provisioningService.ProvisionAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken);
 
         return await FindByExternalIdAsync(services, externalId)
             ?? throw new InvalidOperationException($"User '{externalId}' was not provisioned.");
