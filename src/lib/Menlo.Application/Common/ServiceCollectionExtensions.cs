@@ -20,9 +20,10 @@ public static class ServiceCollectionExtensions
     public static IHostApplicationBuilder AddMenloApplication(this IHostApplicationBuilder builder)
     {
         builder.Services
+            .AddSingleton(TimeProvider.System)
             .AddScoped<CurrentUser>()
-            .AddScoped<IAuditStampFactory>(sp => new AuditStampFactory(CurrentActor(sp)))
-            .AddScoped<ISoftDeleteStampFactory>(sp => new SoftDeleteStampFactory(CurrentActor(sp)))
+            .AddScoped<IAuditStampFactory>(sp => new AuditStampFactory(sp.ResolveCurrentUser(), sp.GetRequiredService<TimeProvider>()))
+            .AddScoped<ISoftDeleteStampFactory>(sp => new SoftDeleteStampFactory(sp.ResolveCurrentUser(), sp.GetRequiredService<TimeProvider>()))
             .AddScoped<AuditingInterceptor>()
             .AddScoped<SoftDeleteInterceptor>()
             .AddDbContext<MenloDbContext>((sp, options) =>
@@ -61,10 +62,6 @@ public static class ServiceCollectionExtensions
 
         return builder;
     }
-
-    // The signed-in user the request middleware recorded, else the system user (no HTTP user, or code outside a request).
-    private static UserId CurrentActor(IServiceProvider sp) =>
-        sp.GetRequiredService<CurrentUser>().Value?.UserId ?? SystemUser.Id;
 
     /// <summary>
     /// Applies any pending EF Core migrations. Call this during application startup
@@ -106,6 +103,10 @@ public static class ServiceCollectionExtensions
                || string.Equals(host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
                || string.Equals(host, "::1", StringComparison.OrdinalIgnoreCase);
     }
+
+    // The signed-in user the request middleware recorded, else the system user (no HTTP user, or code outside a request).
+    private static UserId ResolveCurrentUser(this IServiceProvider sp) =>
+        sp.GetRequiredService<CurrentUser>().Value?.UserId ?? SystemUser.Id;
 }
 
 

@@ -1,67 +1,41 @@
-using CSharpFunctionalExtensions;
 using Menlo.Application.Auth;
-using Menlo.Application.Users;
-using Menlo.Lib.Auth.Entities;
-using Menlo.Lib.Auth.Errors;
 using Menlo.Lib.Auth.Models;
-using System.Security.Claims;
+using Menlo.Lib.Common.ValueObjects;
 
 namespace Menlo.Api.Auth;
 
 /// <summary>
-/// Makes sure the signed-in caller has a <c>User</c> record and records it on the scoped <see cref="CurrentUser"/>,
-/// so the audit and soft-delete stamp factories stamp the real user. Sign-in provisions the user; this is the safety net
-/// when that step didn't run or failed.
+/// Records the signed-in caller on the scoped <see cref="CurrentUser"/>, so the audit and soft-delete stamp factories stamp
+/// the real user. It only reads the user id claim that sign-in (or the first validation of an older session) put in the
+/// session cookie: it never touches the database.
 /// <para>
 /// It must run after authentication and authorization and before anything resolves the request's DbContext or stamp
-/// factories (endpoint binding does), because the factories read the user when they are built. Provisioning runs in its own
-/// scope so it doesn't build the request scope's DbContext early. Requests with no signed-in user pass through and are
-/// stamped as the system user.
+/// factories (endpoint binding does), because the factories read the user when they are built. Requests with no signed-in
+/// user pass through and are stamped as the system user.
 /// </para>
 /// </summary>
 public sealed class UserContextMiddleware(RequestDelegate next, ILogger<UserContextMiddleware> logger)
 {
-    /// <summary>Machine-readable code of the 403 returned when the claims can't make a user.</summary>
+    /// <summary>Machine-readable code of the 403 returned when the session has no user id.</summary>
     public const string UserNotProvisionedCode = "USER_NOT_PROVISIONED";
 
-    public async Task InvokeAsync(
-        HttpContext context,
-        CurrentUser currentUser,
-        IServiceScopeFactory scopeFactory)
+    public async Task InvokeAsync(HttpContext context, CurrentUser currentUser)
     {
-        ClaimsPrincipal principal = context.User;
-        if (principal.Identity?.IsAuthenticated != true)
+        if (context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
             return;
         }
 
-        string? externalId = CurrentUserLookup.FindExternalId(principal);
-        string? email = principal.FindFirstValue(ClaimTypes.Email);
-
-        if (string.IsNullOrWhiteSpace(externalId) || string.IsNullOrWhiteSpace(email))
+        UserId? userId = UserSessionClaims.FindUserId(context.User);
+        if (userId is null)
         {
-            logger.MissingClaim(string.IsNullOrWhiteSpace(externalId) ? "external id" : "email");
+            logger.MissingUserId();
             await NotProvisioned().ExecuteAsync(context);
             return;
         }
 
-        string displayName = principal.FindFirstValue(ClaimTypes.Name) ?? email;
-
-        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-        IUserProvisioningService provisioningService = scope.ServiceProvider.GetRequiredService<IUserProvisioningService>();
-
-        Result<User, AuthError> user = await provisioningService
-            .ProvisionOrUpdateAsync(externalId, email, displayName, context.RequestAborted)
-            .TapError(error => logger.ProvisioningFailed(error.Code, error.Message));
-
-        if (user.IsFailure)
-        {
-            await NotProvisioned().ExecuteAsync(context);
-            return;
-        }
-
-        currentUser.Set(new UserContext(user.Value.Id));
+        currentUser.Set(new UserContext(userId.Value));
 
         await next(context);
     }

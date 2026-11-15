@@ -57,7 +57,7 @@ The auditing interceptor runs first, so a soft delete sets the deleted fields an
 
 ### Who the actor is
 
-`AuditStampFactory` (an `IAuditStampFactory`) and `SoftDeleteStampFactory` (an `ISoftDeleteStampFactory`) are separate, immutable classes. Each takes a `UserId` and stamps it with `DateTimeOffset.UtcNow`; `AuditStampFactory` can also carry a correlation ID.
+`AuditStampFactory` (an `IAuditStampFactory`) and `SoftDeleteStampFactory` (an `ISoftDeleteStampFactory`) are separate, immutable classes. Each takes a `UserId` and a `TimeProvider` (tests use `FakeTimeProvider`), and stamps with `TimeProvider.GetUtcNow()`; `AuditStampFactory` can also carry a correlation ID.
 
 DI builds them from the scoped `CurrentUser`, a small holder with no DbContext dependency: the signed-in user's `UserId` when `UserContextMiddleware` has recorded one (see [Authentication API](authentication-api.md)), otherwise the system user, `SystemUser.Id` (`00000000-0000-0000-0000-000000000001`). Code that runs outside a request, such as the demo budget seeding, builds the factory itself with `SystemUser.Id`. Rows written before this carry `Guid.Empty` as their actor; they were left as they were.
 

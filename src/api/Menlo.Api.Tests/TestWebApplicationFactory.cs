@@ -312,7 +312,7 @@ internal sealed class DelegateStartupFilter(Action<IApplicationBuilder> configur
 
 internal sealed class StubUserProvisioningService : IUserProvisioningService
 {
-    public Task<Result<User, AuthError>> ProvisionOrUpdateAsync(
+    public Task<Result<User, AuthError>> ProvisionAsync(
         string externalId,
         string email,
         string displayName,

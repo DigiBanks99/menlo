@@ -21,7 +21,7 @@ public sealed class UserProvisioningServiceTests(UserPersistenceFixture fixture)
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        User returned = (await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken)).Value;
+        User returned = (await service.ProvisionAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken)).Value;
 
         User? persisted = await FindAsync(externalId);
         ItShouldHaveProvisionedUser(persisted, email, displayName, new ExternalUserId(externalId));
@@ -36,8 +36,8 @@ public sealed class UserProvisioningServiceTests(UserPersistenceFixture fixture)
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        User first = (await service.ProvisionOrUpdateAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken)).Value;
-        User second = (await service.ProvisionOrUpdateAsync(externalId, $"updated-{email}", $"Updated {displayName}", TestContext.Current!.Execution.CancellationToken)).Value;
+        User first = (await service.ProvisionAsync(externalId, email, displayName, TestContext.Current!.Execution.CancellationToken)).Value;
+        User second = (await service.ProvisionAsync(externalId, $"updated-{email}", $"Updated {displayName}", TestContext.Current!.Execution.CancellationToken)).Value;
 
         int userCount = await CountAsync(externalId);
         ItShouldHaveReturnedTheSameSingleUser(first, second, userCount);
@@ -54,7 +54,7 @@ public sealed class UserProvisioningServiceTests(UserPersistenceFixture fixture)
         {
             IServiceScope scope = fixture.Services.CreateScope();
             UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
-            return service.ProvisionOrUpdateAsync(externalId, email, displayName, cancellationToken)
+            return service.ProvisionAsync(externalId, email, displayName, cancellationToken)
                 .ContinueWith(task => { scope.Dispose(); return task.Result.Value; }, TaskScheduler.Default);
         }
 
@@ -73,7 +73,7 @@ public sealed class UserProvisioningServiceTests(UserPersistenceFixture fixture)
         using IServiceScope scope = fixture.Services.CreateScope();
         UserProvisioningService service = scope.ServiceProvider.GetRequiredService<UserProvisioningService>();
 
-        Result<User, AuthError> result = await service.ProvisionOrUpdateAsync(externalId, " ", displayName, TestContext.Current!.Execution.CancellationToken);
+        Result<User, AuthError> result = await service.ProvisionAsync(externalId, " ", displayName, TestContext.Current!.Execution.CancellationToken);
 
         result.IsFailure.ShouldBeTrue();
         result.Error.ShouldBeOfType<InvalidUserDataError>();

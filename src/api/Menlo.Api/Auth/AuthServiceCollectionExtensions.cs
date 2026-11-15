@@ -129,6 +129,13 @@ public static class AuthServiceCollectionExtensions
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
 
+        Func<CookieValidatePrincipalContext, Task> existingValidatePrincipal = options.Events.OnValidatePrincipal;
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            await existingValidatePrincipal(context);
+            await MenloOidcEvents.OnValidatePrincipal(context);
+        };
+
         options.Events.OnRedirectToLogin = context =>
         {
             if (IsXhrRequest(context.Request))

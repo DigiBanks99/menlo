@@ -18,7 +18,7 @@ public sealed class UserProvisioningService(IUserContext userContext) : IUserPro
     /// the unique <c>ExternalId</c> index rejects the second insert and the existing row is read again.
     /// </summary>
     /// <returns>The user, or an <see cref="InvalidUserDataError"/> when the identity can't make a valid user.</returns>
-    public async Task<Result<User, AuthError>> ProvisionOrUpdateAsync(
+    public async Task<Result<User, AuthError>> ProvisionAsync(
         string externalId,
         string email,
         string displayName,
@@ -66,7 +66,7 @@ public sealed class UserProvisioningService(IUserContext userContext) : IUserPro
 public interface IUserProvisioningService
 {
     /// <returns>The user, or an error when the identity can't make a valid user.</returns>
-    Task<Result<User, AuthError>> ProvisionOrUpdateAsync(
+    Task<Result<User, AuthError>> ProvisionAsync(
         string externalId,
         string email,
         string displayName,

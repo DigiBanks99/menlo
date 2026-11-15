@@ -1,4 +1,9 @@
+using CSharpFunctionalExtensions;
+using Menlo.Api.Auth;
+using Menlo.Lib.Auth.Entities;
+using Menlo.Lib.Auth.Errors;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -39,11 +44,11 @@ public sealed class TestAuthHandler(
     private readonly TestAuthHandlerOptions _testOptions = testOptions.CurrentValue;
 
     /// <inheritdoc />
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (_testOptions.SimulateUnauthenticated)
         {
-            return Task.FromResult(AuthenticateResult.NoResult());
+            return AuthenticateResult.NoResult();
         }
 
         List<Claim> claims =
@@ -57,9 +62,21 @@ public sealed class TestAuthHandler(
 
         ClaimsIdentity identity = new(claims, SchemeName);
         ClaimsPrincipal principal = new(identity);
+
+        // Like sign-in does for the real session: provision the user and carry its id as a claim. When the claims can't
+        // make a user, the claim stays off and the API answers 403.
+        Result<User, AuthError> provisioned = await UserSessionClaims.ProvisionAsync(
+            Context.RequestServices.GetRequiredService<IServiceScopeFactory>(),
+            principal,
+            Context.RequestAborted);
+        if (provisioned.IsSuccess)
+        {
+            UserSessionClaims.AddUserId(principal, provisioned.Value.Id);
+        }
+
         AuthenticationTicket ticket = new(principal, SchemeName);
 
-        return Task.FromResult(AuthenticateResult.Success(ticket));
+        return AuthenticateResult.Success(ticket);
     }
 }
 

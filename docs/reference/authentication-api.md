@@ -145,18 +145,19 @@ classDiagram
 
 `RecordLogin` sets `LastLoginAt` and raises `UserLoggedInEvent`, but sign-in doesn't call it yet.
 
-### Provisioning on first sign-in
+### Provisioning on sign-in and session validation
 
-When Entra ID returns a validated token, `MenloOidcEvents.OnTokenValidated` takes the external ID from the first of these claims that has a value: `nameidentifier`, `oid`, `sub`. It then calls `UserProvisioningService.ProvisionOrUpdateAsync`. If no user has that external ID yet, the service creates one from the token's email and name claims. An existing user is returned unchanged. That is the whole of onboarding: a household member is a person who has signed in, and there is no household or other setup step.
+Provisioning happens when a session starts, never per request. When Entra ID returns a validated token, `MenloOidcEvents.OnTokenValidated` takes the external ID from the first of these claims that has a value: `nameidentifier`, `oid`, `sub`. It then calls `UserProvisioningService.ProvisionAsync`. If no user has that external ID yet, the service creates one from the token's email and name claims. An existing user is returned unchanged. It then adds the user's `UserId` to the session as the `menlo_user_id` claim, which is stored in the session cookie. That is the whole of onboarding: a household member is a person who has signed in, and there is no household or other setup step.
+
+A session from before that claim existed, or whose provisioning didn't finish, is fixed on its next validation: `MenloOidcEvents.OnValidatePrincipal` (the cookie's `OnValidatePrincipal` event) provisions the user, adds the claim and renews the cookie. A session that already has the claim costs nothing there.
 
 If two first requests race, the unique `ExternalId` index rejects the second insert, and the service reads the existing row again and returns it. It returns `InvalidUserDataError` when the claims can't make a valid user, and lets a database failure throw.
 
-### Making sure the caller has a user
+### Recording the caller on each request
 
-Sign-in provisions the user, but that step can fail or be skipped. So every request to `/api` runs `UserContextMiddleware` after authorization and before the endpoint (`UseMenloUserContext()` in `Program.cs`). It finds the caller's user by external ID, or provisions one from the claims with the same service. It reads the external ID with the same claim order as `CurrentUserLookup`, so the record it creates is the one handlers look up. It then records the user on the scoped `CurrentUser`, which is how the audit and soft-delete stamps get the real `UserId`. It provisions in its own scope, so the request scope's `DbContext` and stamp factories are not built until the user is recorded. It has to be a middleware, not an endpoint filter: endpoint filters run after the handler's parameters, including the stamp factories, are already bound.
+Every request to `/api` runs `UserContextMiddleware` after authorization and before the endpoint (`UseMenloUserContext()` in `Program.cs`). It reads the `menlo_user_id` claim and records it on the scoped `CurrentUser`, which is how the audit and soft-delete stamps get the real `UserId`. It never touches the database. It has to be a middleware, not an endpoint filter: endpoint filters run after the handler's parameters, including the stamp factories, are already bound.
 
-- If the claims can't make a valid user (no external ID or email), the API returns `403` problem details with the code `USER_NOT_PROVISIONED` and logs why.
-- A database failure is an ordinary `500`.
+- If the session has no valid user id claim (the claims couldn't make a user), the API returns `403` problem details with the code `USER_NOT_PROVISIONED` and logs why. Signing in again fixes it.
 - A caller who isn't signed in gets `401` from the policy, before this middleware runs.
 - `/auth/*` is not filtered, so `GET /auth/user` still answers.
 
