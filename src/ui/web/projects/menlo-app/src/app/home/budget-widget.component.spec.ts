@@ -13,7 +13,6 @@ const currentYear = new Date().getFullYear();
 const mockBudget: BudgetResponse = {
   id: 'budget-1',
   year: currentYear,
-  householdId: 'household-1',
   status: 'Active',
   categories: [],
   totalPlannedMonthlyAmount: { amount: 10000, currency: 'ZAR' },

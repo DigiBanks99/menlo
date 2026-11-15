@@ -5,7 +5,13 @@ import { Subject, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, Result, failure, success, unknownError } from 'shared-util';
-import { BudgetApiService, BudgetCategoryResponse, BudgetItemApiService, BudgetResponse, CategoryApiService } from 'data-access-menlo-api';
+import {
+  BudgetApiService,
+  BudgetCategoryResponse,
+  BudgetItemApiService,
+  BudgetResponse,
+  CategoryApiService,
+} from 'data-access-menlo-api';
 import { BudgetDetailComponent } from './budget-detail.component';
 
 const currentYear = new Date().getFullYear();
@@ -23,7 +29,6 @@ function makeCat(id: string, name: string, parentId: string | null = null): Budg
 const mockBudgetCurrentYear: BudgetResponse = {
   id: 'budget-current',
   year: currentYear,
-  householdId: 'household-1',
   status: 'Draft',
   categories: [],
   totalPlannedMonthlyAmount: { amount: 0, currency: 'ZAR' },
@@ -32,7 +37,6 @@ const mockBudgetCurrentYear: BudgetResponse = {
 const mockBudgetNextYear: BudgetResponse = {
   id: 'budget-next',
   year: nextYear,
-  householdId: 'household-1',
   status: 'Draft',
   categories: [],
   totalPlannedMonthlyAmount: { amount: 0, currency: 'ZAR' },

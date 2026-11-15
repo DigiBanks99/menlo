@@ -11,7 +11,6 @@ const NEW_ITEM_ID = 'item-e2e-created-001';
 const mockBudget = {
   id: BUDGET_ID,
   year: 2025,
-  householdId: 'hh-e2e-001',
   status: 'Active',
   categories: [
     { id: PARENT_CAT_ID, name: 'Food', parentId: null },

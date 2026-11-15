@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth.guard';
-import { noReenterOnboardingGuard, onboardingGuard } from './core/onboarding/onboarding.guard';
 
 export const routes: Routes = [
   {
@@ -9,14 +8,8 @@ export const routes: Routes = [
     loadComponent: () => import('./sign-in/sign-in.component').then((m) => m.SignInComponent),
   },
   {
-    path: 'onboarding',
-    canActivate: [authGuard, noReenterOnboardingGuard],
-    loadComponent: () =>
-      import('./pages/onboarding/onboarding.component').then((m) => m.OnboardingComponent),
-  },
-  {
     path: '',
-    canActivateChild: [authGuard, onboardingGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',

@@ -5,10 +5,6 @@ export const mockUser = {
   email: 'test@menlo.local',
   displayName: 'E2E Test User',
   roles: ['Menlo.User'],
-  onboarding: {
-    isComplete: true,
-    pendingTasks: [],
-  },
 };
 
 /** BFF-style auth: the app initializer calls this before rendering any route. */
@@ -25,7 +21,6 @@ export function budgetDetail(
   return {
     id,
     year,
-    householdId: 'hh-e2e-001',
     status,
     categories,
     totalPlannedMonthlyAmount: { amount: 0, currency: 'ZAR' },

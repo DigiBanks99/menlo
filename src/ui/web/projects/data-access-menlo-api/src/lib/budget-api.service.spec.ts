@@ -10,7 +10,6 @@ import { BudgetListItemResponse, BudgetResponse } from './menlo-api.client';
 const mockBudget: BudgetResponse = {
   id: 'budget-1',
   year: 2025,
-  householdId: 'household-1',
   status: 'Active',
   categories: [],
   totalPlannedMonthlyAmount: { amount: 10000, currency: 'ZAR' },

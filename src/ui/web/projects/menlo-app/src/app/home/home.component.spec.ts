@@ -14,7 +14,6 @@ describe('HomeComponent', () => {
   const budget: BudgetResponse = {
     id: 'budget-1',
     year: currentYear,
-    householdId: 'household-1',
     status: 'Active',
     categories: [],
     totalPlannedMonthlyAmount: { amount: 10000, currency: 'ZAR' },
@@ -59,9 +58,9 @@ describe('HomeComponent', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
-    (fixture.componentInstance as unknown as { navigateTo(path: '/analytics' | '/budgets'): void }).navigateTo(
-      '/budgets',
-    );
+    (
+      fixture.componentInstance as unknown as { navigateTo(path: '/analytics' | '/budgets'): void }
+    ).navigateTo('/budgets');
 
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/budgets');
   });

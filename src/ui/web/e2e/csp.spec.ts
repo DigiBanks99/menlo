@@ -15,13 +15,11 @@ const mockUser = {
   email: 'test@menlo.local',
   displayName: 'E2E Test User',
   roles: ['Menlo.User'],
-  onboarding: { isComplete: true, pendingTasks: [] },
 };
 
 const mockBudget = {
   id: BUDGET_ID,
   year: 2025,
-  householdId: 'hh-e2e-001',
   status: 'Active',
   categories: [
     { id: PARENT_CAT_ID, name: 'Food', parentId: null },
@@ -115,9 +113,7 @@ test.describe('Content Security Policy', () => {
     }
   });
 
-  test('renders the budget item form dropdown arrows without CSP violations', async ({
-    page,
-  }) => {
+  test('renders the budget item form dropdown arrows without CSP violations', async ({ page }) => {
     const violations = await trackCspViolations(page);
     await setupMocks(page);
 

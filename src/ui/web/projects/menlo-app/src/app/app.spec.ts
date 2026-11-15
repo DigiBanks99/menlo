@@ -17,12 +17,6 @@ class HomeRouteComponent {}
 })
 class SignInRouteComponent {}
 
-@Component({
-  standalone: true,
-  template: '<p>Onboarding page</p>',
-})
-class OnboardingRouteComponent {}
-
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -31,7 +25,6 @@ describe('App', () => {
         provideRouter([
           { path: '', component: HomeRouteComponent },
           { path: 'sign-in', component: SignInRouteComponent },
-          { path: 'onboarding', component: OnboardingRouteComponent },
         ]),
         provideZonelessChangeDetection(),
       ],
@@ -67,18 +60,5 @@ describe('App', () => {
 
     expect(compiled.querySelector('[data-testid="mnl-page-shell"]')).toBeNull();
     expect(compiled.textContent).toContain('Sign in page');
-  });
-
-  it('should hide the page shell on the onboarding route', async () => {
-    const fixture = TestBed.createComponent(App);
-    const router = TestBed.inject(Router);
-
-    await router.navigateByUrl('/onboarding');
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.querySelector('[data-testid="mnl-page-shell"]')).toBeNull();
-    expect(compiled.textContent).toContain('Onboarding page');
   });
 });
