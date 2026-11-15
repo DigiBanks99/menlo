@@ -319,6 +319,19 @@ public sealed class MenloOidcEventsTests
     }
 
     [Test]
+    public async Task OnTokenValidated_WhenClaimsCannotMakeAUser_ThrowsInsteadOfSigningInWithoutOne()
+    {
+        TokenValidatedContext context = CreateTokenValidatedContext(
+            nameIdentifier: "user-123",
+            email: "   ",
+            name: "User Name");
+
+        MenloOidcEvents sut = CreateSut();
+
+        await Should.ThrowAsync<InvalidOperationException>(async () => await sut.OnTokenValidated(context));
+    }
+
+    [Test]
     public async Task OnTokenValidated_UsesAsyncServiceScopeToResolveService()
     {
         // Arrange
