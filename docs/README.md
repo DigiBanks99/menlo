@@ -42,8 +42,6 @@ Planned work lives in GitHub issues on the [Menlo Roadmap](https://github.com/us
 
 There are no implementation plans; whoever picks up a Spec plans it then. Once work ships, `docs/` describes how it works, and the issue is not updated again. [Work Items](reference/work-items.md) also holds the Definitions of Ready and Done.
 
-> `docs/requirements/` predates this model. Shipped modules are being distilled into as-built docs and unshipped ones moved to issues (#494, #496); don't add new folders there.
-
 ### Consistency Guidelines
 
 - Always use Markdown for documentation.
@@ -102,6 +100,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Budget API](reference/budget-api.md)** - Budget, category, item and summary endpoints, with their errors
 - **[Onboarding API](reference/onboarding-api.md)** - Onboarding state, household endpoints and the `/auth/user` profile
 - **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
+- **[AI Services](reference/ai-services.md)** - Chat and vision services, their settings, and the llama.cpp server behind them
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
 - **[Repository Structure](reference/repo-structure.md)** - Where the code lives and how the projects depend on each other
 - **[App Shell](reference/app-shell.md)** - The navigation, header and content area around every signed-in page

@@ -26,6 +26,8 @@ dotnet test --coverage --coverage-output-format cobertura --results-directory ./
 
 The tree-node filter is `/<assembly>/<namespace>/<class>/<test>`, and `[Category=X]` selects by `[Category("X")]`. A run that finds no tests exits with code 8; add `--ignore-exit-code 8` when that's expected.
 
+Tests that call a real model are skipped unless `MENLO_AI_LIVE_ENDPOINT` is set to a `llama-server` base URL including `/v1`, such as the Aspire `llama` resource's. See [AI Services](../reference/ai-services.md#tests).
+
 CI runs the coverage command, then `scripts/check-api-coverage-baseline.ps1`, which fails if a changed file under `src/api/Menlo.Api/` is below 70% line coverage.
 
 ## Write a typical test
