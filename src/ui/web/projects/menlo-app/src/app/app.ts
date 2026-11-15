@@ -27,7 +27,5 @@ export class App {
     { icon: 'TrendingUp', label: 'Analytics', route: '/analytics' },
   ];
 
-  protected readonly showPageShell = computed(
-    () => !this.currentUrl().startsWith('/sign-in') && !this.currentUrl().startsWith('/onboarding'),
-  );
+  protected readonly showPageShell = computed(() => !this.currentUrl().startsWith('/sign-in'));
 }

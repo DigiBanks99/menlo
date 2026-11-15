@@ -30,7 +30,6 @@ export interface BudgetCategoryResponse {
 export interface BudgetResponse {
   id: string;
   year: number;
-  householdId: string;
   status: 'Draft' | 'Active' | 'Closed';
   categories: BudgetCategoryResponse[];
   totalPlannedMonthlyAmount: { amount: number; currency: string };

@@ -3,14 +3,6 @@ export interface UserProfile {
   email: string;
   displayName: string;
   roles: string[];
-  onboarding?: OnboardingInfo;
-}
-
-export type OnboardingTaskType = 'SelectHousehold';
-
-export interface OnboardingInfo {
-  isComplete: boolean;
-  pendingTasks: OnboardingTaskType[];
 }
 
 export const MenloRoles = {

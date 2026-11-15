@@ -26,7 +26,6 @@ function budgetItem(overrides: Partial<BudgetListItemResponse> = {}): BudgetList
 const createdBudget: BudgetResponse = {
   id: 'budget-created',
   year: currentYear + 1,
-  householdId: 'household-1',
   status: 'Draft',
   categories: [],
   totalPlannedMonthlyAmount: { amount: 0, currency: 'ZAR' },
