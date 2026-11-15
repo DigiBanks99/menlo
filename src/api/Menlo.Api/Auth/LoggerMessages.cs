@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Menlo.Api.Auth;
 
 /// <summary>
 /// Source-generated log messages for <see cref="EnsureUserProvisionedFilter"/>.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal static partial class LoggerMessages
 {
     [LoggerMessage(LogLevel.Warning, "Cannot provision a user: the sign-in claims have no {Missing}.")]
