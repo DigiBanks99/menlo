@@ -65,7 +65,6 @@ Windows remains a supported **development** platform. Developer tooling such as 
 ### Negative
 
 - Anyone who set up the old Windows host has to follow the Linux setup guide instead
-- `docs/requirements/**` may still mention Windows; those specs are read-only and are updated separately
 
 ### Host prerequisites
 

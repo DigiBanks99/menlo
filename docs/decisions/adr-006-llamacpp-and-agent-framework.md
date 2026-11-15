@@ -52,4 +52,4 @@ The decision came from [#500](https://github.com/DigiBanks99/menlo/issues/500), 
 - If the VM's `llama-server` is down, the assistants degrade as before and budgeting and planning keep working.
 - Automated tests run without a model.
 - Provenance (model, version, timestamp, user) is built with the first feature that produces AI suggestions.
-- Ollama and Semantic Kernel mentions in the ADR-001 and ADR-004 text and in `docs/requirements/` are historical.
+- Ollama and Semantic Kernel mentions in the ADR-001 and ADR-004 text are historical.
