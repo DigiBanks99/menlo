@@ -113,12 +113,17 @@ public readonly record struct Money : IComparable<Money>
         long baseAllocation = amountInCents / parts;
         long remainder = amountInCents % parts;
 
+        // The remainder has the same sign as the amount (truncating division), so each
+        // leftover cent moves the part away from zero in the amount's direction.
+        long centStep = remainder < 0 ? -1 : 1;
+        long remainderCents = Math.Abs(remainder);
+
         List<Money> result = new(parts);
 
         for (int i = 0; i < parts; i++)
         {
             // Distribute remainder cents to first parts
-            long allocation = baseAllocation + (i < remainder ? 1 : 0);
+            long allocation = baseAllocation + (i < remainderCents ? centStep : 0);
             result.Add(new Money(allocation / 100m, Currency));
         }
 
