@@ -12,6 +12,14 @@ _Avoid_: Pillar, module
 Something any feature can use, such as lists or notifications. Capabilities are the horizontals.
 _Avoid_: Pillar, module, shared feature
 
+**Household**:
+The one group of people Menlo serves. Menlo holds a single household's data, so the household is implied: there is no household record, and nothing in the domain, database or API is scoped by one.
+_Avoid_: Family account, tenant, workspace
+
+**Household member**:
+A person who has signed in to Menlo. Sign-in is limited by the Entra app registration, so Menlo keeps no member list of its own; on first sign-in it creates the member's `User` record. Every member sees the same household data.
+_Avoid_: Account holder, customer
+
 ## Budgeting and spend
 
 **Budget**:

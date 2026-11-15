@@ -8,10 +8,10 @@ The shell is `MnlPageShellComponent` (`mnl-page-shell`) in `menlo-lib`. The app'
 
 | Route                        | Shell                                                       |
 | ---------------------------- | ----------------------------------------------------------- |
-| `/sign-in` and `/onboarding` | No shell. The page renders inside a plain `<main>` element. |
-| Everything else              | The page renders inside the shell.                          |
+| `/sign-in`      | No shell. The page renders inside a plain `<main>` element. |
+| Everything else | The page renders inside the shell.                          |
 
-The signed-in routes are in `app.routes.ts`: `/` (home), `/budgets`, `/budgets/:id` and `/analytics`. Any other path redirects to `/`. See [Onboarding API](onboarding-api.md#in-the-app) for the guards on them.
+The signed-in routes are in `app.routes.ts`: `/` (home), `/budgets`, `/budgets/:id` and `/analytics`. Any other path redirects to `/`. They use `authGuard`; there is no onboarding step.
 
 ## Layout
 

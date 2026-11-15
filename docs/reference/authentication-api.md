@@ -22,7 +22,7 @@ sequenceDiagram
     Api->>Api: Provision the User on first sign-in
     Api-->>Browser: 302 to returnUrl, Set-Cookie .Menlo.Session
     Browser->>Api: GET /auth/user (cookie)
-    Api-->>Browser: UserProfile with roles and onboarding
+    Api-->>Browser: UserProfile with roles
 ```
 
 ## Configuration
@@ -65,9 +65,26 @@ Because the session is a cookie, state-changing API calls need an anti-forgery t
 | ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `GET /auth/login`   | Anonymous                    | Starts sign-in. `returnUrl` must be relative; anything else becomes `/`, which prevents open redirects.                                     |
 | `POST /auth/logout` | Signed in                    | Signs out of the cookie and Entra ID sessions, then redirects to `returnUrl`.                                                               |
-| `GET /auth/user`    | `RequireAuthenticated`       | Returns the current `UserProfile`. See [Onboarding API](onboarding-api.md#get-authuser).                                                    |
+| `GET /auth/user`    | `RequireAuthenticated`       | Returns the current `UserProfile`. See [`GET /auth/user`](#get-authuser).                                                                  |
 
-Every endpoint under `/api` requires `RequireAuthenticated`.
+Every endpoint under `/api` requires `RequireAuthenticated` and then [makes sure the caller has a user](#making-sure-the-caller-has-a-user).
+
+### `GET /auth/user`
+
+Returns the current user's profile. The app uses it for its signed-in state.
+
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "email": "person@example.com",
+  "displayName": "Example Person",
+  "roles": ["Menlo.User"]
+}
+```
+
+- `id`, `email` and `displayName` come from the stored user. If the user can't be found or loaded, they fall back to the token's claims.
+- `roles` are the token's role claims.
+- Returns `401` when not signed in.
 
 ## Authorization
 
@@ -89,9 +106,6 @@ Roles are Entra ID App Roles on the app registration, assigned to people in the 
 | `RequireAdmin`              | `Menlo.Admin`.                                                  |
 | `CanEditBudget`             | `Menlo.Admin` or `Menlo.User`.                                  |
 | `CanViewBudget`             | `Menlo.Admin`, `Menlo.User` or `Menlo.Reader`.                  |
-| `RequireOnboardingComplete` | Signed in, with a provisioned user who has selected a household. |
-
-`RequireOnboardingComplete` is registered but no endpoint uses it yet. Onboarding is enforced in the app by its route guards (see [Onboarding API](onboarding-api.md#in-the-app)).
 
 To protect an endpoint, see [How to apply authorization policies](../guides/auth-policy-howto.md).
 
@@ -109,9 +123,7 @@ classDiagram
         +string Email
         +string DisplayName
         +DateTimeOffset? LastLoginAt
-        +HouseholdId? HouseholdId
         +Create(ExternalUserId, string, string) Result~User, AuthError~
-        +AssignToHousehold(Guid)
         +RecordLogin(DateTimeOffset)
     }
     class IAggregateRoot~UserId~ {
@@ -130,13 +142,23 @@ classDiagram
 
 - `Id`: Menlo's own identifier.
 - `ExternalId`: the identifier from Entra ID.
-- `HouseholdId`: null until the person creates or joins a household during onboarding.
 
 `RecordLogin` sets `LastLoginAt` and raises `UserLoggedInEvent`, but sign-in doesn't call it yet.
 
 ### Provisioning on first sign-in
 
-When Entra ID returns a validated token, `MenloOidcEvents.OnTokenValidated` takes the external ID from the first of these claims that has a value: `nameidentifier`, `oid`, `sub`. It then calls `UserProvisioningService.ProvisionOrUpdateAsync`. If no user has that external ID yet, the service creates one from the token's email and name claims, along with an empty `OnboardingState`. An existing user is left unchanged.
+When Entra ID returns a validated token, `MenloOidcEvents.OnTokenValidated` takes the external ID from the first of these claims that has a value: `nameidentifier`, `oid`, `sub`. It then calls `UserProvisioningService.ProvisionOrUpdateAsync`. If no user has that external ID yet, the service creates one from the token's email and name claims. An existing user is returned unchanged. That is the whole of onboarding: a household member is a person who has signed in, and there is no household or other setup step.
+
+If two first requests race, the unique `ExternalId` index rejects the second insert, and the service reads the existing row again and returns it. It returns `InvalidUserDataError` when the claims can't make a valid user, and lets a database failure throw.
+
+### Making sure the caller has a user
+
+Sign-in provisions the user, but that step can fail or be skipped. So every endpoint in the `/api` group runs `EnsureUserProvisionedFilter` after authorization and before the handler. It finds the caller's user by external ID, or provisions one from the claims with the same service. It reads the external ID with the same claim order as `CurrentUserLookup`, so the record it creates is the one handlers look up.
+
+- If the claims can't make a valid user (no external ID or email), the API returns `403` problem details with the code `USER_NOT_PROVISIONED` and logs why.
+- A database failure is an ordinary `500`.
+- A caller who isn't signed in gets `401` from the policy, before this filter runs.
+- `/auth/*` is not filtered, so `GET /auth/user` still answers.
 
 ### Resolving the current user
 
@@ -146,15 +168,14 @@ Feature handlers ask `IUserContextProvider` (`Menlo.Lib.Auth.Abstractions`) for 
 Task<Result<UserContext, AuthError>> GetUserContextAsync(CancellationToken cancellationToken = default);
 ```
 
-`UserContextProvider` in `Menlo.Application` takes the external ID from the first of these claims that has a value: `sub`, `oid`, `nameidentifier`, `appid`, `azp`. It then loads the user and returns `UserContext(UserId, HouseholdId)`.
+`UserContextProvider` in `Menlo.Application` takes the external ID from the first of these claims that has a value: `sub`, `oid`, `nameidentifier`, `appid`, `azp`. It then loads the user and returns `UserContext(UserId)`.
 
 | Situation                                 | Error                             |
 | ----------------------------------------- | --------------------------------- |
 | No HTTP user, or no identifying claim     | `UnauthenticatedError`            |
 | No user with that external ID             | `UserNotFoundError`               |
-| The user has no household yet             | `UserNotAssignedToHouseholdError` |
 
-The `/auth/*` endpoints and the onboarding endpoints use the same claim order through `CurrentUserLookup`.
+The `/auth/*` endpoints use the same claim order through `CurrentUserLookup`.
 
 ## Errors
 
@@ -167,8 +188,6 @@ The `/auth/*` endpoints and the onboarding endpoints use the same claim order th
 | `UnauthorisedError`               | `Auth.Unauthorised`              | Not allowed to perform the action.              |
 | `ForbiddenError`                  | `Auth.Forbidden`                 | A named policy isn't met.                       |
 | `InvalidUserDataError`            | `Auth.InvalidUserData`           | User data failed validation.                    |
-| `UserNotAssignedToHouseholdError` | `Auth.UserNotAssignedToHousehold` | The user hasn't joined a household.             |
-| `OnboardingIncompleteError`       | `ONBOARDING_INCOMPLETE`          | Onboarding isn't finished.                      |
 
 ## In the app
 

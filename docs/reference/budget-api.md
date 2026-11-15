@@ -4,9 +4,9 @@ The budget endpoints live under `/api/budgets`. The rules behind them are in [Bu
 
 ## Common behaviour
 
-- **Sign-in.** Every endpoint needs a signed-in user with a household. The handlers resolve the user through `IUserContextProvider` and return `401` if that fails (see [Authentication API](authentication-api.md#resolving-the-current-user)).
+- **Sign-in.** Every endpoint needs a signed-in user, and the API makes sure their record exists. The handlers resolve the user through `IUserContextProvider` and return `401` if that fails (see [Authentication API](authentication-api.md#resolving-the-current-user)).
 - **Policies.** Reads need `CanViewBudget`; changes need `CanEditBudget`.
-- **Households.** A budget that belongs to another household returns `404`, as if it didn't exist.
+- **Shared.** There is one household, so every signed-in member sees and changes the same budgets.
 - **Feature flags.** Endpoints return `404` when their flag is off: `Features:Budget` for budgets and categories, `Features:BudgetItems` for items and the summary.
 - **Anti-forgery.** `POST`, `PUT` and `DELETE` need the `X-XSRF-TOKEN` header (see [Anti-forgery](authentication-api.md#anti-forgery)).
 - **Errors.** Validation failures return `400` with a problem-details body.
@@ -15,13 +15,13 @@ The budget endpoints live under `/api/budgets`. The rules behind them are in [Bu
 
 | Endpoint                                 | Policy          | Does                                                                                                                                                    |
 | ---------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/budgets`                       | `CanViewBudget` | Lists the household's budgets: `id`, `year`, `status`, `categoryCount`, and the current month's `plannedExpenses` and `spentExpenses` (the totals need `Features:BudgetItems`). |
+| `GET /api/budgets`                       | `CanViewBudget` | Lists every budget: `id`, `year`, `status`, `categoryCount`, and the current month's `plannedExpenses` and `spentExpenses` (the totals need `Features:BudgetItems`). |
 | `POST /api/budgets/{year}`               | `CanEditBudget` | Creates the budget for `year`, copying the previous year's categories. Returns `201`, or `200` with the existing budget. `400` unless `year` is this year or next. |
 | `GET /api/budgets/{id}`                  | `CanViewBudget` | Gets a budget with its categories.                                                                                                                      |
 | `POST /api/budgets/{id}/activate`        | `CanEditBudget` | Activates a Draft budget and closes last year's Active one. `400` if it isn't Draft.                                                                    |
 | `GET /api/budgets/{budgetId}/summary`    | `CanViewBudget` | Totals by root category for income and expense. Optional `month` (1 to 12); without it, the whole year.                                                 |
 
-The budget body has `id`, `year`, `householdId`, `status`, `categories` and `totalPlannedMonthlyAmount`. `totalPlannedMonthlyAmount` is the current month's planned income minus planned expenses. Each category's `plannedMonthlyAmount` is always zero, because categories hold no amounts.
+The budget body has `id`, `year`, `status`, `categories` and `totalPlannedMonthlyAmount`. `totalPlannedMonthlyAmount` is the current month's planned income minus planned expenses. Each category's `plannedMonthlyAmount` is always zero, because categories hold no amounts.
 
 ## Categories
 
