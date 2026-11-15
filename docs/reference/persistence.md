@@ -24,20 +24,18 @@ To add an entity, configuration, migration or test, follow the `menlo-persistenc
 
 Feature code never takes `MenloDbContext` directly. Each bounded context has a slice interface that exposes only its own `DbSet`s and `SaveChangesAsync`, and `AddMenloApplication()` maps each one to the scoped `MenloDbContext`:
 
-| Interface             | Sets                                                          |
-| --------------------- | ------------------------------------------------------------- |
-| `IUserContext`        | `Users`                                                       |
-| `IHouseholdContext`   | `Households`                                                  |
-| `IBudgetContext`      | `Budgets`, `BudgetCategories`, `CanonicalCategories`, `BudgetItems` |
-| `IOnboardingContext`  | `OnboardingStates`                                            |
+| Interface           | Sets                                                                |
+| ------------------- | ------------------------------------------------------------------- |
+| `IUserContext`      | `Users`                                                             |
+| `IBudgetContext`    | `Budgets`, `BudgetCategories`, `CanonicalCategories`, `BudgetItems` |
 
 ### Schemas
 
 Tables are grouped by bounded context:
 
-| Schema          | Tables                                                           |
-| --------------- | ---------------------------------------------------------------- |
-| `shared`        | `users`, `households`, `onboarding_states`                       |
+| Schema          | Tables                                                                 |
+| --------------- | ---------------------------------------------------------------------- |
+| `shared`        | `users`                             |
 | `budget_schema` | `budgets`, `budget_categories`, `canonical_categories`, `budget_items` |
 
 New bounded contexts get their own schema.

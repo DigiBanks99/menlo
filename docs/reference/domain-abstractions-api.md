@@ -85,12 +85,11 @@ Namespace: `Menlo.Lib.Common.ValueObjects`.
 
 ### Strongly typed IDs
 
-Each entity type has its own ID, a `readonly record struct` wrapping a `Guid`, so IDs of different entity types can't be mixed up at compile time. The shared ones are:
+Each entity type has its own ID, a `readonly record struct` wrapping a `Guid`, so IDs of different entity types can't be mixed up at compile time. The shared one is:
 
 - `UserId(Guid Value)`: a person using the system.
-- `HouseholdId(Guid Value)`: a household.
 
-Both have `static NewId()`, which creates an ID from `Guid.NewGuid()`, and `ToString()`, which returns the GUID. Bounded contexts define their own IDs (`BudgetId`, `BudgetItemId` and so on) the same way. Each ID needs a value converter registered in `MenloDbContext` (see [Persistence](persistence.md)).
+It has `static NewId()`, which creates an ID from `Guid.NewGuid()`, and `ToString()`, which returns the GUID. Bounded contexts define their own IDs (`BudgetId`, `BudgetItemId` and so on) the same way. Each ID needs a value converter registered in `MenloDbContext` (see [Persistence](persistence.md)).
 
 ### `AuditStamp`
 

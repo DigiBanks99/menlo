@@ -102,6 +102,8 @@ The system is organized into **5 primary bounded contexts**:
 | **Event Management**     | `Event`                      | Calendar scheduling, time planning                      | `SmartScheduler`, `AutomatedEventCreator`              |
 | **Household Management** | `Household`/`UtilityAccount` | Family structure, appliances, SA utilities              | `ApplianceMaintenanceRequirements`, `UtilityOptimizer` |
 
+**Household Management is planned, not built.** Menlo runs one household, so there is no `Household` entity and no household id on any aggregate or table (see **Household** and **Household member** in the [glossary](../../GLOSSARY.md)). The only household-related code today is the `User` record, created when a household member first signs in. Where this document or the diagrams show a `Household` aggregate or `household_schema`, read it as that planned context's family, appliance and utility data without a household root.
+
 ### Architectural Constraints
 
 **CONSTRAINT AC-001**: Each vertical slice must be independently deployable and testable
@@ -272,7 +274,7 @@ public class AgentFrameworkBudgetAnalyser : IBudgetImpactAnalyser
 
 ### Target Scale
 
-**User Scale**: **One household maximum**
+**User Scale**: **One household maximum**. Menlo holds a single household's data, so there is no `Household` entity and nothing is scoped by one; a household member is a person who has signed in (see the [glossary](../../GLOSSARY.md)).
 
 The application is explicitly designed for family-scale usage:
 

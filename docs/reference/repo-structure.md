@@ -34,9 +34,9 @@ flowchart LR
 
 | Project                 | Path                          | Holds                                                                                                               |
 | ----------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `Menlo.Api`             | `src/api/Menlo.Api`           | The ASP.NET host: endpoints and handlers by feature (`Auth`, `Budget`, `Endpoints/Onboarding`), plus anti-forgery, forwarded headers, OpenAPI and SPA hosting. |
+| `Menlo.Api`             | `src/api/Menlo.Api`           | The ASP.NET host: endpoints and handlers by feature (`Auth`, `Budget`), plus anti-forgery, forwarded headers, OpenAPI and SPA hosting. |
 | `Menlo.AppHost`         | `src/api/Menlo.AppHost`       | The Aspire AppHost for local development: the API, PostgreSQL, the llama.cpp server, the Angular dev server and the two Storybooks. |
-| `Menlo.Lib`             | `src/lib/Menlo.Lib`           | The domain, by feature (`Auth`, `Budget`, `Onboarding`), and the shared building blocks in `Common`. No infrastructure. |
+| `Menlo.Lib`             | `src/lib/Menlo.Lib`           | The domain, by feature (`Auth`, `Budget`, `Users`), and the shared building blocks in `Common`. No infrastructure. |
 | `Menlo.Application`     | `src/lib/Menlo.Application`   | EF Core persistence: `MenloDbContext`, the slice context interfaces, entity configurations, interceptors and migrations (see [Persistence](persistence.md)). |
 | `Menlo.AI`              | `src/lib/Menlo.AI`            | Chat and vision services over the llama.cpp server.                                                                 |
 | `Menlo.ServiceDefaults` | `src/lib/Menlo.ServiceDefaults` | Aspire service defaults: service discovery, resilience, health checks and OpenTelemetry.                                             |
@@ -49,7 +49,7 @@ Each project except the AppHost and service defaults has a `.Tests` project besi
 
 | Project                 | Holds                                                                                                     |
 | ----------------------- | --------------------------------------------------------------------------------------------------------- |
-| `menlo-app`             | The app: routes, pages by feature (`budget`, `home`, `pages/onboarding`, `sign-in`), and `core/` for auth and onboarding. |
+| `menlo-app`             | The app: routes, pages by feature (`budget`, `home`, `sign-in`), and `core/` for auth. |
 | `menlo-lib`             | The design system: `atoms`, `molecules` and `organisms` (including the [app shell](app-shell.md)), `foundations`, `pipes` and `theme`. |
 | `data-access-menlo-api` | Typed API clients for the app.                                                                            |
 | `shared-util`           | Framework-light utilities: the [Result pattern](angular-result-pattern-api.md) and `Money`.               |

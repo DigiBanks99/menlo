@@ -9,7 +9,7 @@ Menlo's .NET tests use [TUnit](https://tunit.dev/) to run tests, [Shouldly](http
 | `src/lib/Menlo.Lib.Tests` | Domain model, value objects, pure logic | None |
 | `src/lib/Menlo.AI.Tests` | AI service wrappers | None |
 | `src/lib/Menlo.Application.Tests` | EF Core persistence, interceptors, migrations | PostgreSQL (Testcontainers) |
-| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting, through `WebApplicationFactory` | PostgreSQL (Testcontainers) for the budget and onboarding tests |
+| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting, through `WebApplicationFactory` | PostgreSQL (Testcontainers) for the budget and user tests |
 
 Testcontainers needs a running Docker engine.
 
@@ -120,22 +120,19 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
             JsonOptions, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeCreated();
-        ItShouldBelongToTheHousehold();
 
         void ItShouldBeCreated() => response.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-        void ItShouldBelongToTheHousehold() => budget!.HouseholdId.ShouldBe(factory.HouseholdId.Value);
     }
 }
 ```
 
-### Give every test its own household
+### Give every test its own data
 
-`fixture.CreateIsolatedFactory()` starts an API host whose signed-in user belongs to a new household (`HouseholdId.NewId()`), exposed as `factory.HouseholdId`. Data one test creates is invisible to every other test, so tests can't contaminate each other, whatever order they run in. Don't hand-pick household GUIDs.
+Budgets are unique per year across the whole database, so tests that share the container would collide. `fixture.CreateIsolatedFactory()` empties the budget tables first and starts an API host on the shared database. The budget tests run one at a time (`[NotInParallel("Budget")]`), so no test sees another's data, whatever order they run in.
 
-- When two hosts in one test must see the same data (for example, seeding with a feature on and reading with it off), create the household yourself and pass it to both: `fixture.CreateIsolatedFactory(household)`.
-- To test that one household can't see another's data, create two factories and use the first one's IDs from the second one's client.
-- `fixture.CreateClient()` and `fixture.CreateAntiforgeryClientAsync()` use one household shared by every test that calls them. Use them only for requests that don't write household data, such as a lookup of an unknown ID.
+- When a second host in one test must see what the first wrote (for example, seeding with a feature on and reading with it off, or reading as another member), pass `keepData: true`.
+- To test that members share data, pass `asDifferentMember: true` to the second factory, which signs in as another user.
+- `fixture.CreateClient()` and `fixture.CreateAntiforgeryClientAsync()` use one host shared by every test that calls them. Use them only for requests that don't write data, such as a lookup of an unknown ID.
 
 ### Turn features on
 
@@ -160,8 +157,8 @@ Responses use camelCase, while the DTOs use PascalCase properties. Deserialize w
 
 | Factory | Use it for | User context |
 |---|---|---|
-| `BudgetTestWebApplicationFactory`, from `BudgetApiFixture.CreateIsolatedFactory` | Endpoints that read the user's household (budgets, categories, items, summaries) | A substituted `IUserContextProvider` returns the factory's `HouseholdId`, with no user or household rows needed |
-| `TestWebApplicationFactory` | Hosting, auth, headers, onboarding, and anything that needs the real user context | The test auth handler signs in a user (`UserId`, `UserEmail`, `UserRoles`), or no one with `SimulateUnauthenticated` |
+| `BudgetTestWebApplicationFactory`, from `BudgetApiFixture.CreateIsolatedFactory` | Endpoints that read budget data (budgets, categories, items, summaries) | A substituted `IUserContextProvider` returns a user context; the real `/api` user provisioning runs against the database |
+| `TestWebApplicationFactory` | Hosting, auth, headers, user provisioning, and anything that needs the real user context | The test auth handler signs in a user (`UserId`, `UserEmail`, `UserRoles`), or no one with `SimulateUnauthenticated` |
 
 `TestWebApplicationFactory` defaults to the Production environment, a dummy connection string and no migrations, and it replaces the AI services with substitutes. Its `init` properties (`EnvironmentName`, `ConfigurationOverrides`, `MenloConnectionString`, `ConfigureApp` and more) cover the remaining cases.
 
@@ -172,11 +169,11 @@ Fixtures that start a container are shared with `[ClassDataSource<T>(Shared = Sh
 | Fixture | Project | Gives you |
 |---|---|---|
 | `BudgetApiFixture` | Api | Migrated database, `CreateIsolatedFactory`, a shared read-only client |
-| `OnboardingApiFixture` | Api | Migrated database, `Services` for seeding, `CreateFactory(userId, email, …)` for a signed-in host |
-| `OnboardingPersistenceFixture` | Api | Migrated database and `Services`, with no web host |
+| `UserApiFixture` | Api | Migrated database, `Services` for seeding, `CreateFactory(userId, email, …)` for a signed-in host |
+| `UserPersistenceFixture` | Api | Migrated database and `Services`, with no web host |
 | `PersistenceFixture` | Application | Migrated database and `Services` |
 | `InterceptorPersistenceFixture` | Application | Unmigrated database, a host with interceptors, and the connection string |
 
 TUnit runs tests in parallel, including tests in the same class. Each fixture's classes also carry `[NotInParallel("<fixture group>")]`, so tests that share a fixture run one at a time, as they did under xUnit. Keep that attribute when you add a class to a fixture group. In tests without a shared fixture, give each test its own state.
 
-Onboarding tests isolate by data instead of households: use a fresh `Guid` in every user ID, email and household name, as `OnboardingApiFixture.CreateFactory` does.
+User tests isolate by data: use a fresh `Guid` in every user ID and email, as `UserApiFixture.CreateFactory` does. `TestWebApplicationFactory` stands in a stub for user provisioning unless you set `UseRealUserProvisioning`, so tests with no database still reach `/api` endpoints.

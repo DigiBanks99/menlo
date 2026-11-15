@@ -12,7 +12,6 @@ The code is in `src/lib/Menlo.Lib/Budget/`; persistence is in `src/lib/Menlo.App
 classDiagram
     class Budget {
         +BudgetId Id
-        +HouseholdId HouseholdId
         +int Year
         +BudgetStatus Status
     }
@@ -53,7 +52,7 @@ classDiagram
 
 ## Budgets
 
-- **One per household per year.** A unique index on household and year enforces it, and creating a budget for a year that already has one returns the existing budget.
+- **One per year.** A unique index on year enforces it, and creating a budget for a year that already has one returns the existing budget.
 - **Only this year or next.** The API creates budgets for the current year or the following one.
 - **A new year starts from the last one.** If the previous year has a budget, the new budget copies its category tree, keeping each category's `CanonicalCategoryId` and skipping deleted categories. The domain's `CloneForYear` can also copy items, but the API doesn't load them, so items are not copied. Otherwise the budget starts empty.
 

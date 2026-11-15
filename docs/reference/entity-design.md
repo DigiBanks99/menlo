@@ -305,6 +305,8 @@ public record MaintenancePlanningItem(
 
 ### Household Bounded Context
 
+> **Planned.** Menlo runs one household, so this context will not have a `Household` root or a household id: see **Household** in the [glossary](../../GLOSSARY.md). Read "Household" below as the implied single household.
+
 **Two aggregates within single bounded context for clean separation of concerns**:
 
 #### Household Configuration Aggregate
