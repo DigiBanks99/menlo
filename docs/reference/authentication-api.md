@@ -67,7 +67,7 @@ Because the session is a cookie, state-changing API calls need an anti-forgery t
 | `POST /auth/logout` | Signed in                    | Signs out of the cookie and Entra ID sessions, then redirects to `returnUrl`.                                                               |
 | `GET /auth/user`    | `RequireAuthenticated`       | Returns the current `UserProfile`. See [`GET /auth/user`](#get-authuser).                                                                  |
 
-Every endpoint under `/api` requires `RequireAuthenticated` and then [makes sure the caller has a user](#making-sure-the-caller-has-a-user).
+Every endpoint under `/api` requires `RequireAuthenticated` and then [records the caller as the current user](#recording-the-caller-on-each-request).
 
 ### `GET /auth/user`
 
