@@ -226,22 +226,23 @@ public sealed class BudgetSummaryEndpointTests(BudgetApiFixture fixture) : TestF
     }
 
     [Test]
-    public async Task GivenBudgetOwnedByOtherHousehold_WhenGetSummary_ThenReturns404()
+    public async Task GivenBudgetCreatedByAnotherMember_WhenGetSummary_ThenReturnsIt()
     {
-        // Create a budget under a dedicated owner household
+        // Create a budget as one member
         await using BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
         using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         Guid budgetId = await CreateBudgetAsync(ownerClient);
 
-        // Try to access it from a completely different household
-        await using BudgetTestWebApplicationFactory accessorFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        // Read it as another signed-in member
+        await using BudgetTestWebApplicationFactory accessorFactory =
+            fixture.CreateIsolatedFactory(budgetItemsEnabled: true, keepData: true, asDifferentMember: true);
         using HttpClient accessorClient = accessorFactory.CreateClient();
 
         HttpResponseMessage response = await accessorClient.GetAsync(
             $"/api/budgets/{budgetId}/summary", TestContext.Current!.Execution.CancellationToken);
 
-        ItShouldHaveReturned404NotFound(response);
+        ItShouldHaveReturned200Ok(response);
     }
 
     // =========================================================================

@@ -78,6 +78,80 @@ public sealed class MigrationTests : IAsyncDisposable
         ItShouldHaveNoAppliedMigrations(applied);
     }
 
+    [Test]
+    public async Task GivenHouseholdScopedData_WhenUpgradingToRemoveHouseholds_ThenOnlyUsersSurvive()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
+
+        await migrator.MigrateAsync(PreviousMigration, ct);
+        Guid userId = await SeedHouseholdScopedDataAsync(ctx, ct);
+
+        await migrator.MigrateAsync(null, ct);
+
+        await ItShouldHaveKeptTheUser(ctx, userId, ct);
+        await ItShouldHaveDroppedEveryHouseholdScopedRow(ctx, ct);
+        await ItShouldHaveDroppedTheHouseholdSchema(ctx, ct);
+    }
+
+    private const string PreviousMigration = "20261104121202_MapBudgetItemRealizedAndSpentAmounts";
+
+    private static async Task<Guid> SeedHouseholdScopedDataAsync(MenloDbContext ctx, CancellationToken ct)
+    {
+        Guid householdId = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
+        Guid budgetId = Guid.NewGuid();
+        Guid canonicalId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO shared.households (id, name, is_deleted) VALUES ({householdId}, 'Test', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO shared.users (id, external_id, email, display_name, household_id, is_deleted) VALUES ({userId}, 'migration-user', 'migration@menlo.test', 'Migration User', {householdId}, false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO shared.onboarding_states (id, user_id, created_at, updated_at) VALUES ({Guid.NewGuid()}, {userId}, now(), now())", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.budgets (id, household_id, year, status, is_deleted) VALUES ({budgetId}, {householdId}, 2026, 'Draft', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.canonical_categories (id, name) VALUES ({canonicalId}, 'Housing')", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.budget_categories (id, budget_id, canonical_category_id, name, budget_flow, is_deleted) VALUES ({categoryId}, {budgetId}, {canonicalId}, 'Housing', 'Expense', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO budget_schema.budget_items (id, budget_id, category_id, month, budget_flow, payer_split, attribution_split, planned_amount, planned_currency, is_manual_override, is_deleted)
+            VALUES ({Guid.NewGuid()}, {budgetId}, {categoryId}, 1, 'Expense', '[]', '[]', 100, 'ZAR', false, false)", ct);
+
+        return userId;
+    }
+
+    private static async Task ItShouldHaveKeptTheUser(MenloDbContext ctx, Guid userId, CancellationToken ct)
+    {
+        long users = await ctx.Database
+            .SqlQuery<long>($"SELECT count(*) AS \"Value\" FROM shared.users WHERE id = {userId} AND external_id = 'migration-user' AND email = 'migration@menlo.test'")
+            .SingleAsync(ct);
+        users.ShouldBe(1);
+    }
+
+    private static async Task ItShouldHaveDroppedEveryHouseholdScopedRow(MenloDbContext ctx, CancellationToken ct)
+    {
+        foreach (string table in new[] { "budget_items", "budget_categories", "canonical_categories", "budgets" })
+        {
+            long rows = await ctx.Database
+                .SqlQueryRaw<long>("SELECT count(*) AS \"Value\" FROM budget_schema.\"" + table + "\"")
+                .SingleAsync(ct);
+            rows.ShouldBe(0, $"budget_schema.{table} should be empty");
+        }
+    }
+
+    private static async Task ItShouldHaveDroppedTheHouseholdSchema(MenloDbContext ctx, CancellationToken ct)
+    {
+        long leftovers = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.columns
+                WHERE column_name = 'household_id' AND table_schema IN ('shared', 'budget_schema')")
+            .SingleAsync(ct);
+        long tables = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.tables
+                WHERE table_schema = 'shared' AND table_name IN ('households', 'onboarding_states')")
+            .SingleAsync(ct);
+
+        leftovers.ShouldBe(0);
+        tables.ShouldBe(0);
+    }
+
     private static void ItShouldHaveNoAppliedMigrations(IEnumerable<string> applied)
     {
         applied.ShouldBeEmpty("All migrations should have been rolled back");

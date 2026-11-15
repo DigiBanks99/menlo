@@ -1,9 +1,8 @@
 using Menlo.Api.Auth;
 using Menlo.Api.Tests.Fixtures;
 using Menlo.Application.Auth;
-using Menlo.Application.Onboarding;
+using Menlo.Application.Users;
 using Menlo.Lib.Auth.Entities;
-using Menlo.Lib.Onboarding;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -25,25 +24,19 @@ public sealed class MenloOidcEventsTests
     private static IServiceProvider CreateDefaultServiceProvider()
     {
         IUserContext userContext = Substitute.For<IUserContext>();
-        IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
 
         DbSet<User> usersSet = DbSetMock.Create(new User[0]);
         userContext.Users.Returns(usersSet);
 
-        DbSet<OnboardingState> onboardingSet = DbSetMock.Create(new OnboardingState[0]);
-        onboardingContext.OnboardingStates.Returns(onboardingSet);
-
         // SaveChangesAsync returns int, not Task
         userContext.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
-        onboardingContext.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
-        return new TestServiceProvider(userContext, onboardingContext);
+        return new TestServiceProvider(userContext);
     }
 
     private static IServiceProvider CreateServiceProviderWithFailure()
     {
         IUserContext userContext = Substitute.For<IUserContext>();
-        IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
 
         DbSet<User> usersSet = DbSetMock.Create(new User[0]);
         userContext.Users.Returns(usersSet);
@@ -52,7 +45,7 @@ public sealed class MenloOidcEventsTests
             .SaveChangesAsync(Arg.Any<CancellationToken>())
             .Returns(_ => Task.FromException<int>(new InvalidOperationException("Provisioning failed")));
 
-        return new TestServiceProvider(userContext, onboardingContext);
+        return new TestServiceProvider(userContext);
     }
 
     #region OnTokenValidated Tests
@@ -423,19 +416,17 @@ public sealed class MenloOidcEventsTests
 internal sealed class TestServiceProvider : IServiceProvider
 {
     private readonly IUserContext _userContext;
-    private readonly IOnboardingContext _onboardingContext;
 
-    public TestServiceProvider(IUserContext userContext, IOnboardingContext onboardingContext)
+    public TestServiceProvider(IUserContext userContext)
     {
         _userContext = userContext;
-        _onboardingContext = onboardingContext;
     }
 
     public object? GetService(Type serviceType)
     {
         if (serviceType == typeof(UserProvisioningService))
         {
-            return new UserProvisioningService(_userContext, _onboardingContext);
+            return new UserProvisioningService(_userContext);
         }
 
         // Handle the IServiceScopeFactory required by CreateAsyncScope extension

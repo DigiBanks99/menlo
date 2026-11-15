@@ -1,13 +1,11 @@
 using Menlo.Application.Auth;
 using Menlo.Application.Budget;
 using Menlo.Application.Common.ValueConverters;
-using Menlo.Application.Onboarding;
 using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Budget.Entities;
 using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
-using Menlo.Lib.Onboarding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq.Expressions;
@@ -16,15 +14,13 @@ using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 namespace Menlo.Application.Common;
 
 public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
-    : DbContext(options), IUserContext, IHouseholdContext, IBudgetContext, IOnboardingContext
+    : DbContext(options), IUserContext, IBudgetContext
 {
     public DbSet<User> Users => Set<User>();
-    public DbSet<Household> Households => Set<Household>();
     public DbSet<BudgetAggregate> Budgets => Set<BudgetAggregate>();
     public DbSet<CategoryNode> BudgetCategories => Set<CategoryNode>();
     public DbSet<CanonicalCategory> CanonicalCategories => Set<CanonicalCategory>();
     public DbSet<BudgetItem> BudgetItems => Set<BudgetItem>();
-    public DbSet<OnboardingState> OnboardingStates => Set<OnboardingState>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,10 +49,6 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
             .HaveConversion<UserIdValueConverter>();
 
         configurationBuilder
-            .Properties<HouseholdId>()
-            .HaveConversion<HouseholdIdValueConverter>();
-
-        configurationBuilder
             .Properties<BudgetId>()
             .HaveConversion<BudgetIdValueConverter>();
 
@@ -71,10 +63,6 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<BudgetItemId>()
             .HaveConversion<BudgetItemIdValueConverter>();
-
-        configurationBuilder
-            .Properties<OnboardingStateId>()
-            .HaveConversion<OnboardingStateIdValueConverter>();
     }
 }
 

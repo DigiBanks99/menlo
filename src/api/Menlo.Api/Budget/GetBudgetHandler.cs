@@ -11,7 +11,7 @@ namespace Menlo.Api.Budget;
 
 /// <summary>
 /// Handler for the GET /api/budgets/{id} endpoint.
-/// Returns the budget if it belongs to the authenticated user's household.
+/// Returns the budget if it belongs to the household.
 /// </summary>
 public static class GetBudgetHandler
 {
@@ -44,7 +44,7 @@ public static class GetBudgetHandler
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == budgetId, cancellationToken);
 
-        if (budget is null || budget.HouseholdId != userContext.HouseholdId)
+        if (budget is null)
         {
             return Results.NotFound();
         }

@@ -1,5 +1,10 @@
+using CSharpFunctionalExtensions;
 using Menlo.AI.Interfaces;
 using Menlo.Api.Tests.Fixtures;
+using Menlo.Application.Users;
+using Menlo.Lib.Auth.Entities;
+using Menlo.Lib.Auth.Errors;
+using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Authentication;
@@ -77,6 +82,12 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     public bool SkipMigration { get; init; } = true;
 
     /// <summary>
+    /// Gets whether the real user provisioning (which needs the database) runs for <c>/api</c> calls.
+    /// By default a stub stands in, so tests with no database still reach the endpoints.
+    /// </summary>
+    public bool UseRealUserProvisioning { get; init; }
+
+    /// <summary>
     /// Gets configuration overrides to apply after the deterministic test defaults.
     /// </summary>
     public IReadOnlyDictionary<string, string?> ConfigurationOverrides { get; init; } =
@@ -115,6 +126,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             {
                 RemoveAiServices(services);
                 AddMockAiServices(services);
+            }
+
+            if (!UseRealUserProvisioning)
+            {
+                services.AddScoped<IUserProvisioningService, StubUserProvisioningService>();
             }
 
             services.AddScoped<IAuditStampFactory, NoOpAuditStampFactory>();
@@ -284,4 +300,14 @@ internal sealed class DelegateStartupFilter(Action<IApplicationBuilder> configur
             configureApp(app);
             next(app);
         };
+}
+
+internal sealed class StubUserProvisioningService : IUserProvisioningService
+{
+    public Task<Result<User, AuthError>> ProvisionOrUpdateAsync(
+        string externalId,
+        string email,
+        string displayName,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(User.Create(new ExternalUserId(externalId), email, displayName));
 }

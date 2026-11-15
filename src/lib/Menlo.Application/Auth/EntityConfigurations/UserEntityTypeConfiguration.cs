@@ -58,9 +58,6 @@ public sealed class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
 
         builder.Ignore(user => user.DomainEvents);
-
-        builder.Property(user => user.HouseholdId)
-            .IsRequired(false);
     }
 }
 

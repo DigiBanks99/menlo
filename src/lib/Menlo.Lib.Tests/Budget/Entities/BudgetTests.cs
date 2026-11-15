@@ -20,17 +20,15 @@ public sealed class BudgetTests
     // -------------------------------------------------------------------------
 
     [Test]
-    public void GivenValidHouseholdAndYear_WhenCreatingBudget()
+    public void GivenValidYear_WhenCreatingBudget()
     {
-        HouseholdId householdId = HouseholdId.NewId();
         int year = 2025;
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
-            Menlo.Lib.Budget.Entities.Budget.Create(householdId, year, factory);
+            Menlo.Lib.Budget.Entities.Budget.Create(year, factory);
 
         ItShouldSucceed(result);
-        ItShouldHaveHouseholdId(result, householdId);
         ItShouldHaveYear(result, year);
         ItShouldHaveEmptyCategories(result);
         ItShouldHaveAuditStampsSet(result);
@@ -40,11 +38,10 @@ public sealed class BudgetTests
     [Test]
     public void GivenYearOfZero_WhenCreatingBudget()
     {
-        HouseholdId householdId = HouseholdId.NewId();
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
-            Menlo.Lib.Budget.Entities.Budget.Create(householdId, 0, factory);
+            Menlo.Lib.Budget.Entities.Budget.Create(0, factory);
 
         ItShouldFail(result);
         ItShouldBeInvalidBudgetDataError(result);
@@ -53,11 +50,10 @@ public sealed class BudgetTests
     [Test]
     public void GivenNegativeYear_WhenCreatingBudget()
     {
-        HouseholdId householdId = HouseholdId.NewId();
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
-            Menlo.Lib.Budget.Entities.Budget.Create(householdId, -1, factory);
+            Menlo.Lib.Budget.Entities.Budget.Create(-1, factory);
 
         ItShouldFail(result);
         ItShouldBeInvalidBudgetDataError(result);
@@ -66,11 +62,10 @@ public sealed class BudgetTests
     [Test]
     public void GivenValidYear_WhenCreatingBudget_StatusIsDraft()
     {
-        HouseholdId householdId = HouseholdId.NewId();
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
-            Menlo.Lib.Budget.Entities.Budget.Create(householdId, 2025, factory);
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, factory);
 
         ItShouldSucceed(result);
         ItShouldHaveStatus(result, BudgetStatus.Draft);
@@ -79,11 +74,10 @@ public sealed class BudgetTests
     [Test]
     public void GivenValidYear_WhenCreatingBudget_TotalPlannedMonthlyAmountIsZero()
     {
-        HouseholdId householdId = HouseholdId.NewId();
         IAuditStampFactory factory = CreateAuditStampFactory();
 
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result =
-            Menlo.Lib.Budget.Entities.Budget.Create(householdId, 2025, factory);
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, factory);
 
         ItShouldSucceed(result);
         ItShouldHaveTotalPlannedMonthlyAmount(result, 0m, "ZAR");
@@ -327,7 +321,6 @@ public sealed class BudgetTests
 
         ItShouldSucceed(result);
         ItShouldHaveYear(result, 2025);
-        ItShouldHaveHouseholdId(result, source.HouseholdId);
         ItShouldHaveStatus(result, BudgetStatus.Draft);
         ItShouldHaveClonedCategories(result, source);
     }
@@ -373,11 +366,6 @@ public sealed class BudgetTests
 
     private static void ItShouldFail(Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result)
         => result.IsFailure.ShouldBeTrue();
-
-    private static void ItShouldHaveHouseholdId(
-        Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result,
-        HouseholdId expectedHouseholdId)
-        => result.Value.HouseholdId.ShouldBe(expectedHouseholdId);
 
     private static void ItShouldHaveYear(
         Result<Menlo.Lib.Budget.Entities.Budget, BudgetError> result,
@@ -555,9 +543,8 @@ public sealed class BudgetTests
 
     private static Menlo.Lib.Budget.Entities.Budget CreateDraftBudget(int year = 2025)
     {
-        HouseholdId householdId = HouseholdId.NewId();
         IAuditStampFactory factory = CreateAuditStampFactory();
-        return Menlo.Lib.Budget.Entities.Budget.Create(householdId, year, factory).Value;
+        return Menlo.Lib.Budget.Entities.Budget.Create(year, factory).Value;
     }
 
     private static Menlo.Lib.Budget.Entities.Budget CreateActiveBudget()

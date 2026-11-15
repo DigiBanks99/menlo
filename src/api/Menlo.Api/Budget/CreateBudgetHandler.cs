@@ -15,7 +15,7 @@ namespace Menlo.Api.Budget;
 
 /// <summary>
 /// Handler for the POST /api/budgets/{year} endpoint.
-/// Creates or returns an existing budget for the authenticated user's household and given year.
+/// Creates or returns an existing budget for the household and given year.
 /// </summary>
 public static class CreateBudgetHandler
 {
@@ -56,7 +56,7 @@ public static class CreateBudgetHandler
             .Include(b => b.Items)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                b => b.HouseholdId == userContext.HouseholdId && b.Year == year,
+                b => b.Year == year,
                 cancellationToken);
 
         if (existing is not null)
@@ -69,12 +69,12 @@ public static class CreateBudgetHandler
             .Include(b => b.Categories)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                b => b.HouseholdId == userContext.HouseholdId && b.Year == year - 1,
+                b => b.Year == year - 1,
                 cancellationToken);
 
         Result<Lib.Budget.Entities.Budget, Lib.Budget.Errors.BudgetError> createResult = sourceForClone is not null
             ? Lib.Budget.Entities.Budget.CloneForYear(sourceForClone, year, auditStampFactory)
-            : Lib.Budget.Entities.Budget.Create(userContext.HouseholdId, year, auditStampFactory);
+            : Lib.Budget.Entities.Budget.Create(year, auditStampFactory);
 
         if (createResult.IsFailure)
         {
@@ -103,7 +103,6 @@ public static class CreateBudgetHandler
         return new(
             Id: budget.Id.Value,
             Year: budget.Year,
-            HouseholdId: budget.HouseholdId.Value,
             Status: budget.Status.ToString(),
             Categories: budget.Categories.Select(c => new CategoryNodeDto(
                 Id: c.Id.Value,

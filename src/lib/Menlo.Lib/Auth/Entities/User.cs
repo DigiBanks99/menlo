@@ -5,8 +5,7 @@ using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.Enums;
 using Menlo.Lib.Common.ValueObjects;
-using Menlo.Lib.Onboarding;
-using Menlo.Lib.Onboarding.Events;
+using Menlo.Lib.Users.Events;
 
 namespace Menlo.Lib.Auth.Entities;
 
@@ -27,7 +26,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         string email,
         string displayName,
         DateTimeOffset? lastLoginAt,
-        HouseholdId? householdId,
         UserId? createdBy,
         DateTimeOffset? createdAt,
         UserId? modifiedBy,
@@ -41,7 +39,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         Email = email;
         DisplayName = displayName;
         LastLoginAt = lastLoginAt;
-        HouseholdId = householdId;
         CreatedBy = createdBy;
         CreatedAt = createdAt;
         ModifiedBy = modifiedBy;
@@ -76,11 +73,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
     /// Gets when the user last logged in.
     /// </summary>
     public DateTimeOffset? LastLoginAt { get; private set; }
-
-    /// <summary>
-    /// Gets the household this user belongs to, if assigned.
-    /// </summary>
-    public HouseholdId? HouseholdId { get; private set; }
 
     // IAuditable implementation
     /// <inheritdoc />
@@ -176,7 +168,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
             email: email.Trim(),
             displayName: displayName.Trim(),
             lastLoginAt: DateTimeOffset.UtcNow,
-            householdId: null,
             createdBy: null,
             createdAt: null,
             modifiedBy: null,
@@ -188,26 +179,6 @@ public sealed class User : IAggregateRoot<UserId>, IHasDomainEvents, IAuditable,
         user.AddDomainEvent(new UserProvisionedEvent(user.Id.Value, user.Email, user.DisplayName, DateTime.UtcNow));
 
         return user;
-    }
-
-    public void AssignToHousehold(Guid householdId)
-    {
-        HouseholdId newHouseholdId = new(householdId);
-
-        if (HouseholdId == newHouseholdId)
-        {
-            return;
-        }
-
-        HouseholdId = newHouseholdId;
-        AddDomainEvent(new OnboardingTaskCompletedEvent(
-            Id.Value,
-            OnboardingTaskType.SelectedHousehold,
-            new Dictionary<string, object>
-            {
-                ["householdId"] = householdId
-            },
-            DateTime.UtcNow));
     }
 
     /// <summary>

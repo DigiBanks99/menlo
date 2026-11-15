@@ -47,7 +47,6 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
         ItShouldHaveActiveStatus(dto);
         ItShouldHaveMatchingId(dto, createdDto.Id);
         ItShouldHaveTheCorrectYear(dto, year);
-        ItShouldBelongToHousehold(dto, factory.HouseholdId);
     }
 
     // -------------------------------------------------------------------------
@@ -115,7 +114,7 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
         int previousYear = currentYear - 1;
 
         // Seed previous year active budget directly via DB
-        Guid previousYearBudgetId = await SeedActiveBudgetForYearAsync(factory, factory.HouseholdId, previousYear);
+        Guid previousYearBudgetId = await SeedActiveBudgetForYearAsync(factory, previousYear);
 
         // Create and activate current year budget via API
         HttpResponseMessage createResponse =
@@ -150,29 +149,6 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
             await client.PostAsync($"/api/budgets/{unknownId}/activate", null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveReturned404NotFound(response);
-    }
-
-    [Test]
-    public async Task GivenBudgetBelongingToDifferentHousehold_WhenActivate_ThenReturns404()
-    {
-        // Create budget under isolated household
-        await using BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory();
-        using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
-        int year = DateTimeOffset.UtcNow.Year;
-
-        HttpResponseMessage createResponse =
-            await ownerClient.PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
-        BudgetDto? createdDto = await DeserializeBudgetDto(createResponse);
-        createResponse.IsSuccessStatusCode.ShouldBeTrue();
-        createdDto.ShouldNotBeNull();
-
-        // Try to activate using the shared fixture client (different household)
-        using HttpClient otherClient = await fixture.CreateAntiforgeryClientAsync(TestContext.Current!.Execution.CancellationToken);
-
-        HttpResponseMessage activateResponse =
-            await otherClient.PostAsync($"/api/budgets/{createdDto.Id}/activate", null, TestContext.Current!.Execution.CancellationToken);
-
-        ItShouldHaveReturned404NotFound(activateResponse);
     }
 
     // -------------------------------------------------------------------------
@@ -244,7 +220,6 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
 
     private static async Task<Guid> SeedActiveBudgetForYearAsync(
         BudgetTestWebApplicationFactory factory,
-        HouseholdId householdId,
         int year)
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -252,7 +227,7 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
         IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         Lib.Budget.Entities.Budget budget = Lib.Budget.Entities.Budget
-            .Create(householdId, year, auditFactory)
+            .Create(year, auditFactory)
             .Value;
 
         budget.AddCategory("Housing", BudgetFlow.Expense);
@@ -313,12 +288,6 @@ public sealed class ActivateBudgetEndpointTests(BudgetApiFixture fixture) : Test
     {
         dto.ShouldNotBeNull();
         dto.Year.ShouldBe(expectedYear);
-    }
-
-    private static void ItShouldBelongToHousehold(BudgetDto? dto, HouseholdId expectedHouseholdId)
-    {
-        dto.ShouldNotBeNull();
-        dto.HouseholdId.ShouldBe(expectedHouseholdId.Value);
     }
 
     private static void ItShouldHavePreviousYearBudgetClosed(string status) =>

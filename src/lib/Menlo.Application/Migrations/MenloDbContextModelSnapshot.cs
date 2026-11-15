@@ -18,58 +18,10 @@ namespace Menlo.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Menlo.Lib.Auth.Entities.Household", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("modified_by");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_households");
-
-                    b.ToTable("households", "shared");
-                });
 
             modelBuilder.Entity("Menlo.Lib.Auth.Entities.User", b =>
                 {
@@ -110,10 +62,6 @@ namespace Menlo.Application.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
                         .HasColumnName("external_id");
-
-                    b.Property<Guid?>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -165,10 +113,6 @@ namespace Menlo.Application.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
-                    b.Property<Guid>("HouseholdId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("household_id");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -196,9 +140,9 @@ namespace Menlo.Application.Migrations
                     b.HasKey("Id")
                         .HasName("pk_budgets");
 
-                    b.HasIndex("HouseholdId", "Year")
+                    b.HasIndex("Year")
                         .IsUnique()
-                        .HasDatabaseName("ix_budgets_household_id_year");
+                        .HasDatabaseName("ix_budgets_year");
 
                     b.ToTable("budgets", "budget_schema");
                 });
@@ -464,41 +408,6 @@ namespace Menlo.Application.Migrations
                     b.ToTable("budget_categories", "budget_schema");
                 });
 
-            modelBuilder.Entity("Menlo.Lib.Onboarding.OnboardingState", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("CompletedTasks")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("completed_tasks")
-                        .HasDefaultValueSql("'[]'::jsonb");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_onboarding_states");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_onboarding_states_user_id");
-
-                    b.ToTable("onboarding_states", "shared");
-                });
-
             modelBuilder.Entity("Menlo.Lib.Budget.Entities.BudgetItem", b =>
                 {
                     b.HasOne("Menlo.Lib.Budget.Entities.Budget", null)
@@ -530,16 +439,6 @@ namespace Menlo.Application.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_budget_categories_budgets_budget_id");
-                });
-
-            modelBuilder.Entity("Menlo.Lib.Onboarding.OnboardingState", b =>
-                {
-                    b.HasOne("Menlo.Lib.Auth.Entities.User", null)
-                        .WithOne()
-                        .HasForeignKey("Menlo.Lib.Onboarding.OnboardingState", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_onboarding_states_users_user_id");
                 });
 
             modelBuilder.Entity("Menlo.Lib.Budget.Entities.Budget", b =>

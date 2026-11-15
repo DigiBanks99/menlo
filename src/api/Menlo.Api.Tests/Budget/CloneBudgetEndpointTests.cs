@@ -119,7 +119,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // The API only creates current/next year, so last year's budget is seeded directly
-        Guid lastYearBudgetId = await SeedBudgetAsync(factory, factory.HouseholdId, currentYear - 1);
+        Guid lastYearBudgetId = await SeedBudgetAsync(factory, currentYear - 1);
         Guid sourceCategoryId = await SeedCategoryWithPlannedAmountAsync(factory, lastYearBudgetId, "Utilities", 800m, "ZAR");
 
         HttpResponseMessage response =
@@ -141,7 +141,7 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
         int currentYear = DateTimeOffset.UtcNow.Year;
 
         // Only Y-1 is a clone source; a budget from two years back is not
-        Guid staleBudgetId = await SeedBudgetAsync(factory, factory.HouseholdId, currentYear - 2);
+        Guid staleBudgetId = await SeedBudgetAsync(factory, currentYear - 2);
         await SeedCategoryWithPlannedAmountAsync(factory, staleBudgetId, "Utilities", 800m, "ZAR");
 
         HttpResponseMessage response =
@@ -190,14 +190,13 @@ public sealed class CloneBudgetEndpointTests(BudgetApiFixture fixture) : TestFix
 
     private static async Task<Guid> SeedBudgetAsync(
         BudgetTestWebApplicationFactory factory,
-        HouseholdId householdId,
         int year)
     {
         using IServiceScope scope = factory.Services.CreateScope();
         MenloDbContext db = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
         IAuditStampFactory auditFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
-        Lib.Budget.Entities.Budget budget = Lib.Budget.Entities.Budget.Create(householdId, year, auditFactory).Value;
+        Lib.Budget.Entities.Budget budget = Lib.Budget.Entities.Budget.Create(year, auditFactory).Value;
         db.Budgets.Add(budget);
         await db.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 

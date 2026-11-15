@@ -5,7 +5,6 @@ using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
-using Menlo.Api.Endpoints.Onboarding;
 using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
 using Menlo.Api.SpaHosting;
@@ -52,11 +51,11 @@ app.MapAuthEndpoints();
 RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
-    .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+    .RequireAuthorization(MenloPolicies.RequireAuthenticated)
+    .AddEndpointFilter<EnsureUserProvisionedFilter>();
 
 // Budget endpoints
 apiGroup.MapBudgetEndpoints();
-apiGroup.MapHouseholdEndpoints();
 
 // Add simple AI health check endpoint
 apiGroup

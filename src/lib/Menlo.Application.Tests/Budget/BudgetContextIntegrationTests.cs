@@ -33,7 +33,6 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2030,
             scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
 
@@ -63,15 +62,12 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
     }
 
     [Test]
-    public async Task SaveChangesAsync_DuplicateHouseholdYear_ThrowsException()
+    public async Task SaveChangesAsync_DuplicateYear_ThrowsException()
     {
-        HouseholdId householdId = HouseholdId.NewId();
-
         await using (AsyncServiceScope scope = fixture.Services.CreateAsyncScope())
         {
             IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
             BudgetAggregate budget = BudgetAggregate.Create(
-                householdId,
                 2031,
                 scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
             ctx.Budgets.Add(budget);
@@ -81,7 +77,6 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         await using AsyncServiceScope scope2 = fixture.Services.CreateAsyncScope();
         IBudgetContext ctx2 = scope2.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate duplicate = BudgetAggregate.Create(
-            householdId,
             2031,
             scope2.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
         ctx2.Budgets.Add(duplicate);
@@ -129,7 +124,6 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         using IServiceScope scope = fixture.Services.CreateScope();
         IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             year,
             scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
 
@@ -151,7 +145,6 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
     {
         persisted.ShouldNotBeNull();
         persisted.Id.ShouldBe(budget.Id);
-        persisted.HouseholdId.ShouldBe(budget.HouseholdId);
         persisted.Year.ShouldBe(budget.Year);
         persisted.Status.ShouldBe(budget.Status);
     }

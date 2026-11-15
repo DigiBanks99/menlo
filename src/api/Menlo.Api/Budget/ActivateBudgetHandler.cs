@@ -45,7 +45,7 @@ public static class ActivateBudgetHandler
             .Include(b => b.Categories)
             .FirstOrDefaultAsync(b => b.Id == budgetId, cancellationToken);
 
-        if (budget is null || budget.HouseholdId != userContext.HouseholdId)
+        if (budget is null)
         {
             return Results.NotFound();
         }
@@ -59,11 +59,10 @@ public static class ActivateBudgetHandler
                 title: "Budget activation failed");
         }
 
-        // Auto-close any Active budget from the previous year for the same household
+        // Auto-close any Active budget from the previous year
         Lib.Budget.Entities.Budget? previousYearBudget = await budgetContext.Budgets
             .FirstOrDefaultAsync(
-                b => b.HouseholdId == userContext.HouseholdId
-                    && b.Year == budget.Year - 1
+                b => b.Year == budget.Year - 1
                     && b.Status == BudgetStatus.Active,
                 cancellationToken);
 

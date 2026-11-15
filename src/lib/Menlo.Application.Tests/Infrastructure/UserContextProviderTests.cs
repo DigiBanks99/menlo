@@ -67,77 +67,77 @@ public sealed class UserContextProviderUnitTests
     public async Task GetUserContextAsync_WithSubClaim_ResolvesUser()
     {
         ExternalUserId externalId = new("sub-user-id");
-        (User user, HouseholdId householdId) = CreateUserWithHousehold(externalId);
+        User user = CreateUser(externalId);
         UserContextProvider sut = new(CreateAccessor(new Claim("sub", externalId.Value)), CreateUserContext(user));
 
         Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 
     [Test]
     public async Task GetUserContextAsync_WithOidClaim_ResolvesUser()
     {
         ExternalUserId externalId = new("oid-user-id");
-        (User user, HouseholdId householdId) = CreateUserWithHousehold(externalId);
+        User user = CreateUser(externalId);
         UserContextProvider sut = new(CreateAccessor(new Claim("oid", externalId.Value)), CreateUserContext(user));
 
         Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 
     [Test]
     public async Task GetUserContextAsync_WithNameIdentifierClaim_ResolvesUser()
     {
         ExternalUserId externalId = new("nameid-user-id");
-        (User user, HouseholdId householdId) = CreateUserWithHousehold(externalId);
+        User user = CreateUser(externalId);
         UserContextProvider sut = new(CreateAccessor(new Claim(ClaimTypes.NameIdentifier, externalId.Value)), CreateUserContext(user));
 
         Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 
     [Test]
     public async Task GetUserContextAsync_WithAppidClaim_ResolvesUser()
     {
         ExternalUserId externalId = new("appid-user-id");
-        (User user, HouseholdId householdId) = CreateUserWithHousehold(externalId);
+        User user = CreateUser(externalId);
         UserContextProvider sut = new(CreateAccessor(new Claim("appid", externalId.Value)), CreateUserContext(user));
 
         Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 
     [Test]
     public async Task GetUserContextAsync_WithAzpClaim_ResolvesUser()
     {
         ExternalUserId externalId = new("azp-user-id");
-        (User user, HouseholdId householdId) = CreateUserWithHousehold(externalId);
+        User user = CreateUser(externalId);
         UserContextProvider sut = new(CreateAccessor(new Claim("azp", externalId.Value)), CreateUserContext(user));
 
         Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 
     [Test]
     public async Task GetUserContextAsync_SubTakesPriorityOverOid()
     {
         ExternalUserId subId = new("sub-wins");
-        (User userForSub, HouseholdId householdId) = CreateUserWithHousehold(subId);
+        User userForSub = CreateUser(subId);
         UserContextProvider sut = new(
             CreateAccessor(new Claim("sub", subId.Value), new Claim("oid", "oid-loses")),
             CreateUserContext(userForSub));
@@ -146,7 +146,6 @@ public sealed class UserContextProviderUnitTests
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(userForSub.Id);
-        result.Value.HouseholdId.ShouldBe(householdId);
     }
 
     [Test]
@@ -161,27 +160,8 @@ public sealed class UserContextProviderUnitTests
         error.ExternalId.ShouldBe("unknown-user");
     }
 
-    [Test]
-    public async Task GetUserContextAsync_UserWithoutHousehold_ReturnsUserNotAssignedToHouseholdError()
-    {
-        ExternalUserId externalId = new("no-household-user");
-        User user = User.Create(externalId, "user@test.com", "Test User").Value;
-        UserContextProvider sut = new(CreateAccessor(new Claim("sub", externalId.Value)), CreateUserContext(user));
-
-        Result<UserContext, AuthError> result = await sut.GetUserContextAsync(TestContext.Current!.Execution.CancellationToken);
-
-        result.IsFailure.ShouldBeTrue();
-        UserNotAssignedToHouseholdError error = result.Error.ShouldBeOfType<UserNotAssignedToHouseholdError>();
-        error.ExternalId.ShouldBe(externalId.Value);
-    }
-
-    private static (User User, HouseholdId HouseholdId) CreateUserWithHousehold(ExternalUserId externalId)
-    {
-        User user = User.Create(externalId, "user@test.com", "Test User").Value;
-        HouseholdId householdId = HouseholdId.NewId();
-        UserTestHelper.SetHouseholdId(user, householdId);
-        return (user, householdId);
-    }
+    private static User CreateUser(ExternalUserId externalId) =>
+        User.Create(externalId, "user@test.com", "Test User").Value;
 }
 
 [ClassDataSource<PersistenceFixture>(Shared = SharedType.PerTestSession)]
@@ -192,19 +172,13 @@ public sealed class UserContextProviderIntegrationTests(PersistenceFixture fixtu
     public async Task GetUserContextAsync_WithRealUser_ReturnsCorrectUserContext()
     {
         using IServiceScope scope = fixture.Services.CreateScope();
-        IHouseholdContext householdContext = scope.ServiceProvider.GetRequiredService<IHouseholdContext>();
         IUserContext userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
-
-        Household household = Household.Create($"Integration Household {Guid.NewGuid():N}").Value;
-        householdContext.Households.Add(household);
-        await householdContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
 
         ExternalUserId externalId = new($"integration-{Guid.NewGuid():N}");
         User user = User.Create(
             externalId,
             $"integration-{Guid.NewGuid():N}@test.com",
             "Integration Test User").Value;
-        UserTestHelper.SetHouseholdId(user, household.Id);
 
         userContext.Users.Add(user);
         await userContext.SaveChangesAsync(TestContext.Current!.Execution.CancellationToken);
@@ -220,6 +194,6 @@ public sealed class UserContextProviderIntegrationTests(PersistenceFixture fixtu
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.UserId.ShouldBe(user.Id);
-        result.Value.HouseholdId.ShouldBe(household.Id);
+        result.Value.UserId.ShouldBe(user.Id);
     }
 }

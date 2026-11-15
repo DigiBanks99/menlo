@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
 
-namespace Menlo.Api.Tests.Integration.Onboarding;
+namespace Menlo.Api.Tests.Integration.Users;
 
-public sealed class OnboardingApiFixture : IAsyncInitializer, IAsyncDisposable
+public sealed class UserApiFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
@@ -35,8 +35,8 @@ public sealed class OnboardingApiFixture : IAsyncInitializer, IAsyncDisposable
         });
 
         builder.AddMenloApplication();
-        builder.Services.AddScoped<IAuditStampFactory, TestOnboardingApiAuditStampFactory>();
-        builder.Services.AddScoped<ISoftDeleteStampFactory, TestOnboardingApiSoftDeleteStampFactory>();
+        builder.Services.AddScoped<IAuditStampFactory, TestUserApiAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestUserApiSoftDeleteStampFactory>();
 
         Services = builder.Services.BuildServiceProvider();
 
@@ -68,24 +68,27 @@ public sealed class OnboardingApiFixture : IAsyncInitializer, IAsyncDisposable
         string? userId = null,
         string? email = null,
         string? displayName = null,
-        bool simulateUnauthenticated = false) =>
+        bool simulateUnauthenticated = false,
+        bool budgetsEnabled = false) =>
         new()
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = false,
+            UseRealUserProvisioning = true,
             UserId = userId ?? Guid.NewGuid().ToString(),
             UserEmail = email ?? $"user-{Guid.NewGuid():N}@menlo.test",
             UserDisplayName = displayName ?? $"User {Guid.NewGuid():N}",
-            SimulateUnauthenticated = simulateUnauthenticated
+            SimulateUnauthenticated = simulateUnauthenticated,
+            ConfigurationOverrides = new Dictionary<string, string?> { ["Features:Budget"] = budgetsEnabled ? "true" : "false" }
         };
 }
 
-internal sealed class TestOnboardingApiAuditStampFactory : IAuditStampFactory
+internal sealed class TestUserApiAuditStampFactory : IAuditStampFactory
 {
     public AuditStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }
 
-internal sealed class TestOnboardingApiSoftDeleteStampFactory : ISoftDeleteStampFactory
+internal sealed class TestUserApiSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }

@@ -18,15 +18,15 @@ using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 namespace Menlo.Application.Common;
 
 /// <summary>
-/// Extension methods to seed a demo household budget for the current calendar year.
+/// Extension methods to seed a demo budget for the current calendar year.
 /// Uses obfuscated names — safe for version control.
 /// </summary>
 [ExcludeFromCodeCoverage]
 public static class BudgetSeedingExtensions
 {
     /// <summary>
-    /// Seeds a demo budget for the current year if no budget exists for the seed household.
-    /// Idempotent: skips if the household already has a budget for the current year.
+    /// Seeds a demo budget for the current year if none exists.
+    /// Idempotent: skips if a budget already exists for the current year.
     /// </summary>
     public static async Task SeedDemoBudgetAsync(
         this IHost host,
@@ -48,28 +48,25 @@ public static class BudgetSeedingExtensions
         int year = DateTime.UtcNow.Year;
         SeedAuditStampFactory auditFactory = new();
 
-        // 1. Ensure household exists
-        Household household = await EnsureHouseholdAsync(db, auditFactory, logger, cancellationToken);
-
-        // 2. Ensure users exist
+        // 1. Ensure users exist
         UserId primaryUserId = await EnsureUserAsync(
-            db, household.Id, auditFactory,
+            db, auditFactory,
             externalId: "seed-primary-user",
             email: "primary@demo.menlo.local",
             displayName: "Person A",
             logger, cancellationToken);
 
         UserId secondaryUserId = await EnsureUserAsync(
-            db, household.Id, auditFactory,
+            db, auditFactory,
             externalId: "seed-secondary-user",
             email: "secondary@demo.menlo.local",
             displayName: "Person B",
             logger, cancellationToken);
 
-        // 3. Check if budget already exists
+        // 2. Check if budget already exists
         bool forceReseed = config.GetValue<bool>("Menlo:ReseedDemoBudget");
         BudgetAggregate? existingBudget = await db.Budgets
-            .FirstOrDefaultAsync(b => b.HouseholdId == household.Id && b.Year == year, cancellationToken);
+            .FirstOrDefaultAsync(b => b.Year == year, cancellationToken);
 
         if (existingBudget is not null)
         {
@@ -99,8 +96,8 @@ public static class BudgetSeedingExtensions
             logger.LogInformation("Deleted existing demo budget for {Year} (force reseed)", year);
         }
 
-        // 4. Create the budget
-        Result<BudgetAggregate, BudgetError> budgetResult = BudgetAggregate.Create(household.Id, year, auditFactory);
+        // 3. Create the budget
+        Result<BudgetAggregate, BudgetError> budgetResult = BudgetAggregate.Create(year, auditFactory);
         if (budgetResult.IsFailure)
         {
             logger.LogError("Failed to create demo budget: {Error}", budgetResult.Error);
@@ -109,7 +106,7 @@ public static class BudgetSeedingExtensions
 
         BudgetAggregate budget = budgetResult.Value;
 
-        // 5. Add categories and items
+        // 4. Add categories and items
         PayerSplit primaryPayerSplit = CreatePayerSplit(primaryUserId, 100);
         PayerSplit secondaryPayerSplit = CreatePayerSplit(secondaryUserId, 100);
         PayerSplit sharedPayerSplit = CreateSharedPayerSplit(primaryUserId, secondaryUserId);
@@ -266,39 +263,8 @@ public static class BudgetSeedingExtensions
             year, budget.Categories.Count, budget.Items.Count);
     }
 
-    private static async Task<Household> EnsureHouseholdAsync(
-        MenloDbContext db,
-        IAuditStampFactory auditFactory,
-        ILogger logger,
-        CancellationToken ct)
-    {
-        const string seedHouseholdName = "Demo Household";
-        Household? existing = await db.Households
-            .FirstOrDefaultAsync(h => h.Name == seedHouseholdName, ct);
-
-        if (existing is not null)
-        {
-            return existing;
-        }
-
-        Result<Household, Menlo.Lib.Auth.Errors.HouseholdError> result = Household.Create(seedHouseholdName);
-        if (result.IsFailure)
-        {
-            throw new InvalidOperationException($"Failed to create seed household: {result.Error}");
-        }
-
-        Household household = result.Value;
-        household.Audit(auditFactory, Menlo.Lib.Common.Enums.AuditOperation.Create);
-        db.Households.Add(household);
-        await db.SaveChangesAsync(ct);
-
-        logger.LogInformation("Created seed household: {Id}", household.Id);
-        return household;
-    }
-
     private static async Task<UserId> EnsureUserAsync(
         MenloDbContext db,
-        HouseholdId householdId,
         IAuditStampFactory auditFactory,
         string externalId,
         string email,
@@ -314,18 +280,17 @@ public static class BudgetSeedingExtensions
             return existing.Id;
         }
 
-        // Use raw SQL to insert with household_id since the domain model
-        // doesn't expose a public method to assign a household after creation.
+        // Raw SQL so the seed user can be stamped as its own creator.
         UserId userId = UserId.NewId();
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
         await db.Database.ExecuteSqlInterpolatedAsync($@"
             INSERT INTO shared.users
-                (id, external_id, email, display_name, last_login_at, household_id,
+                (id, external_id, email, display_name, last_login_at,
                  created_by, created_at, modified_by, modified_at,
                  is_deleted, deleted_at, deleted_by)
             VALUES
-                ({userId.Value}, {externalId}, {email}, {displayName}, {now}, {householdId.Value},
+                ({userId.Value}, {externalId}, {email}, {displayName}, {now},
                  {userId.Value}, {now}, {userId.Value}, {now},
                  {false}, {(DateTimeOffset?)null}, {(Guid?)null})", ct);
 

@@ -1,10 +1,8 @@
 using Menlo.Api.Tests.Fixtures;
 using Menlo.Application.Auth;
-using Menlo.Application.Onboarding;
 using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Auth.Models;
 using Menlo.Lib.Auth.ValueObjects;
-using Menlo.Lib.Onboarding;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +21,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
     public UserEndpointTests()
     {
         _user = User.Create(new ExternalUserId(TestAuthHandler.DefaultUserId), TestAuthHandler.DefaultEmail, TestAuthHandler.DefaultName).Value;
-        OnboardingState onboardingState = OnboardingState.Create(_user.Id);
-
-        _factory = new UserEndpointTestWebApplicationFactory(_user, onboardingState)
+        _factory = new UserEndpointTestWebApplicationFactory(_user)
         {
             UserRoles = ["Menlo.User", "Menlo.Admin"]
         };
@@ -41,7 +37,6 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         ItShouldHaveSucceeded(response);
         ItShouldHaveTheUserProfile(userProfile, _user);
         ItShouldIncludeUserRoles(userProfile);
-        ItShouldShowIncompleteOnboarding(userProfile);
     }
 
     [Test]
@@ -65,8 +60,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
     [Test]
     public async Task GivenAuthenticatedUser_WhenRequestingUserProfile_AndUserHasNoRoles()
     {
-        OnboardingState onboardingState = OnboardingState.Create(_user.Id);
-        using TestWebApplicationFactory noRolesFactory = new UserEndpointTestWebApplicationFactory(_user, onboardingState)
+        using TestWebApplicationFactory noRolesFactory = new UserEndpointTestWebApplicationFactory(_user)
         {
             UserRoles = []
         };
@@ -101,14 +95,6 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         userProfile.Roles.ShouldBeEmpty();
     }
 
-    private static void ItShouldShowIncompleteOnboarding(UserProfile? userProfile)
-    {
-        userProfile.ShouldNotBeNull();
-        userProfile.Onboarding.ShouldNotBeNull();
-        userProfile.Onboarding.IsComplete.ShouldBeFalse();
-        userProfile.Onboarding.PendingTasks.ShouldContain("SelectHousehold");
-    }
-
     private static void ItShouldNotHaveRedirected(HttpResponseMessage response)
     {
         response.Headers.Location.ShouldBeNull();
@@ -120,7 +106,7 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
         _factory.Dispose();
     }
 
-    private sealed class UserEndpointTestWebApplicationFactory(User user, OnboardingState onboardingState) : TestWebApplicationFactory
+    private sealed class UserEndpointTestWebApplicationFactory(User user) : TestWebApplicationFactory
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -129,7 +115,6 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             builder.ConfigureServices(services =>
             {
                 ReplaceUserContext(services, user);
-                ReplaceOnboardingContext(services, onboardingState);
             });
         }
 
@@ -145,20 +130,6 @@ public sealed class UserEndpointTests : TestFixture, IDisposable
             DbSet<User> userSet = DbSetMock.Create(currentUser);
             userContext.Users.Returns(userSet);
             services.AddScoped(_ => userContext);
-        }
-
-        private static void ReplaceOnboardingContext(IServiceCollection services, OnboardingState currentOnboardingState)
-        {
-            ServiceDescriptor? descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IOnboardingContext));
-            if (descriptor is not null)
-            {
-                services.Remove(descriptor);
-            }
-
-            IOnboardingContext onboardingContext = Substitute.For<IOnboardingContext>();
-            DbSet<OnboardingState> onboardingSet = DbSetMock.Create(currentOnboardingState);
-            onboardingContext.OnboardingStates.Returns(onboardingSet);
-            services.AddScoped(_ => onboardingContext);
         }
     }
 }

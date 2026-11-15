@@ -1,10 +1,8 @@
 using Menlo.Api.Auth.Options;
 using Menlo.Api.Auth.Policies;
 using Menlo.Lib.Common.Abstractions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 
@@ -59,8 +57,6 @@ public static class AuthServiceCollectionExtensions
         builder.Services
             .AddAuthorizationBuilder()
             .AddMenloPolicies();
-
-        builder.Services.AddScoped<IAuthorizationHandler, OnboardingCompleteHandler>();
 
         return builder;
     }

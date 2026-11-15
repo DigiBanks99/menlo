@@ -38,7 +38,6 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
         ItShouldHaveMatchingId(dto, createdDto.Id);
         ItShouldHaveTheCorrectYear(dto, year);
         ItShouldHaveTheDraftStatus(dto);
-        ItShouldBelongToHousehold(dto, factory.HouseholdId);
         ItShouldHaveZeroTotalPlannedMonthlyAmount(dto);
         ItShouldHaveNoCategories(dto);
     }
@@ -60,7 +59,7 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
     }
 
     [Test]
-    public async Task GivenWrongHousehold_WhenGetBudget_ThenReturns404()
+    public async Task GivenBudgetCreatedByAnotherMember_WhenGetBudget_ThenReturnsIt()
     {
         await using BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory();
         using HttpClient ownerClient = await ownerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
@@ -73,14 +72,17 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
         createResponse.IsSuccessStatusCode.ShouldBeTrue();
         createdDto.ShouldNotBeNull();
 
-        // Try to retrieve that budget from a completely different household → 404.
-        await using BudgetTestWebApplicationFactory otherFactory = fixture.CreateIsolatedFactory();
+        // Another signed-in member sees the same budget.
+        await using BudgetTestWebApplicationFactory otherFactory = fixture.CreateIsolatedFactory(keepData: true, asDifferentMember: true);
         using HttpClient otherClient = otherFactory.CreateClient();
 
         HttpResponseMessage getResponse =
             await otherClient.GetAsync($"/api/budgets/{createdDto.Id}", TestContext.Current!.Execution.CancellationToken);
+        BudgetDto? fetched = await DeserializeBudgetDto(getResponse);
 
-        ItShouldHaveReturned404NotFound(getResponse);
+        ItShouldHaveReturned200Ok(getResponse);
+        fetched.ShouldNotBeNull();
+        fetched.Id.ShouldBe(createdDto.Id);
     }
 
     // -------------------------------------------------------------------------
@@ -149,12 +151,6 @@ public sealed class GetBudgetEndpointTests(BudgetApiFixture fixture) : TestFixtu
     {
         dto.ShouldNotBeNull();
         dto.Status.ShouldBe("Draft");
-    }
-
-    private static void ItShouldBelongToHousehold(BudgetDto? dto, HouseholdId expectedHouseholdId)
-    {
-        dto.ShouldNotBeNull();
-        dto.HouseholdId.ShouldBe(expectedHouseholdId.Value);
     }
 
     private static void ItShouldHaveZeroTotalPlannedMonthlyAmount(BudgetDto? dto)

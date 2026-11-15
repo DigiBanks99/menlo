@@ -7,7 +7,6 @@ public sealed record CategoryNodeDto(Guid Id, string Name, Guid? ParentId, Money
 public sealed record BudgetDto(
     Guid Id,
     int Year,
-    Guid HouseholdId,
     string Status,
     IReadOnlyCollection<CategoryNodeDto> Categories,
     MoneyDto TotalPlannedMonthlyAmount);
