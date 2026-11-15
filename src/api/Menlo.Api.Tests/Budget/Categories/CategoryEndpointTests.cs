@@ -370,6 +370,20 @@ public sealed class CategoryEndpointTests(BudgetApiFixture fixture) : TestFixtur
     }
 
     [Test]
+    public async Task GivenNonExistentBudget_WhenUpdateCategory_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
+
+        UpdateCategoryRequest updateRequest = new("Whatever", "Expense");
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}", updateRequest, TestContext.Current!.Execution.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Test]
     public async Task GivenNonExistentCategory_WhenUpdateCategory_ThenReturns404()
     {
         await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
@@ -453,6 +467,32 @@ public sealed class CategoryEndpointTests(BudgetApiFixture fixture) : TestFixtur
     // =========================================================================
     // DELETE CATEGORY
     // =========================================================================
+
+    [Test]
+    public async Task GivenNonExistentBudget_WhenDeleteCategory_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{Guid.NewGuid()}/categories/{Guid.NewGuid()}", TestContext.Current!.Execution.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
+
+    [Test]
+    public async Task GivenNonExistentCategory_WhenDeleteCategory_ThenReturns404()
+    {
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
+
+        Guid budgetId = await CreateBudgetAsync(client);
+
+        HttpResponseMessage response = await client.DeleteAsync(
+            $"/api/budgets/{budgetId}/categories/{Guid.NewGuid()}", TestContext.Current!.Execution.CancellationToken);
+
+        ItShouldHaveReturned404NotFound(response);
+    }
 
     [Test]
     public async Task GivenExistingCategory_WhenDeleteCategory_ThenReturns204NoContent()
