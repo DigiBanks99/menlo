@@ -85,14 +85,14 @@ public Result<Money, Error> Divide(decimal divisor)
 
 Splitting an amount by plain division loses or creates cents: R100.00 / 3 is R33.33 three times, which adds up to R99.99. Allocation works in whole cents so the parts always add up to the original amount. Splitting a bill between people, or a yearly amount into months, uses allocation rather than `Divide`.
 
-Allocates Money into equal parts using the Penny Allocation pattern. Distributes remainder cents to the first parts, one each.
+Allocates Money into equal parts using the Penny Allocation pattern. Distributes remainder cents to the first parts, one each. For a negative amount the remainder cents move each part further from zero, so the parts still add up to the original amount.
 
 ```csharp
 public Result<IReadOnlyList<Money>, Error> Allocate(int parts)
 ```
 
 - **Returns:** `Success` with list of Money parts; `Failure` with `InvalidAllocationError` if parts <= 0.
-- **Example:** R100.00 in 3 parts gives R33.34, R33.33, R33.33.
+- **Example:** R100.00 in 3 parts gives R33.34, R33.33, R33.33. -R100.00 in 3 parts gives -R33.34, -R33.33, -R33.33.
 
 #### `Allocate (Ratios)`
 

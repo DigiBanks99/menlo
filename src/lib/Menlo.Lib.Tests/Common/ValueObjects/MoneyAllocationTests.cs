@@ -50,6 +50,44 @@ public sealed class MoneyAllocationTests
     }
 
     /// <summary>
+    /// TC-MON-011: Allocate a negative amount with remainder distribution
+    /// </summary>
+    [Test]
+    public void GivenNegativeMoney_WhenAllocatingWithRemainder()
+    {
+        // Arrange
+        Money money = Money.Create(-100.00m, "ZAR").Value;
+        int parts = 3;
+
+        // Act
+        Result<IReadOnlyList<Money>, Error> result = money.Allocate(parts);
+
+        // Assert
+        ItShouldSucceed(result);
+        ItShouldDistributeRemainder(result, [-33.34m, -33.33m, -33.33m]);
+        ItShouldSumToOriginalAmount(result, money);
+    }
+
+    /// <summary>
+    /// TC-MON-011: Allocate a negative amount whose cent remainder is not a whole multiple of the parts
+    /// </summary>
+    [Test]
+    public void GivenNegativeMoneyWithOddCents_WhenAllocatingWithRemainder()
+    {
+        // Arrange
+        Money money = Money.Create(-10.01m, "USD").Value;
+        int parts = 2;
+
+        // Act
+        Result<IReadOnlyList<Money>, Error> result = money.Allocate(parts);
+
+        // Assert
+        ItShouldSucceed(result);
+        ItShouldDistributeRemainder(result, [-5.01m, -5.00m]);
+        ItShouldSumToOriginalAmount(result, money);
+    }
+
+    /// <summary>
     /// TC-MON-011: Reject zero or negative parts
     /// </summary>
     [Test]
