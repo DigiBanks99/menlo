@@ -3,12 +3,14 @@
 #
 # The merge uses a GitHub App token, not GITHUB_TOKEN: merges made with
 # GITHUB_TOKEN don't trigger push workflows, so CI and CD would never run on main.
-# The App's ID and private key are Dependabot secrets (not Actions secrets),
-# because runs triggered by Dependabot can only read those.
+# The App's ID and private key are Dependabot secrets (not Actions secrets).
+# Dependabot-triggered `pull_request` runs can read Dependabot secrets. On
+# `pull_request_target` they came through empty and the token step failed, so
+# this workflow stays on `pull_request`. It never checks out PR code.
 
 name: Dependabot Auto-merge
 
-on: pull_request_target
+on: pull_request
 
 permissions:
   pull-requests: write
