@@ -57,9 +57,11 @@ The auditing interceptor runs first, so a soft delete sets the deleted fields an
 
 ### Who the actor is
 
-`ReflectiveAuditStampFactory` implements both `IAuditStampFactory` and `ISoftDeleteStampFactory`. It reads the current user's `ClaimTypes.NameIdentifier` claim, or `sub` if that is missing, and uses it as the `UserId` when it parses as a GUID. Without an HTTP user, for example during seeding or a background job, the actor is the system user, `UserId(Guid.Empty)`. The timestamp is `DateTimeOffset.UtcNow`.
+`AuditStampFactory` (an `IAuditStampFactory`) and `SoftDeleteStampFactory` (an `ISoftDeleteStampFactory`) are separate, immutable classes. Each takes a `UserId` and stamps it with `DateTimeOffset.UtcNow`; `AuditStampFactory` can also carry a correlation ID.
 
-The factory resolves `IHttpContextAccessor` by reflection, so `Menlo.Application` doesn't need a compile-time reference to ASP.NET Core.
+DI builds them from the scoped `CurrentUser`, a small holder with no DbContext dependency: the signed-in user's `UserId` when `UserContextMiddleware` has recorded one (see [Authentication API](authentication-api.md)), otherwise the system user, `SystemUser.Id` (`00000000-0000-0000-0000-000000000001`). Code that runs outside a request, such as the demo budget seeding, builds the factory itself with `SystemUser.Id`. Rows written before this carry `Guid.Empty` as their actor; they were left as they were.
+
+The factories are built when the request scope first needs the `DbContext`, so the middleware must run before anything resolves it. A request whose factories are built first is stamped as the system user.
 
 ## Connections
 

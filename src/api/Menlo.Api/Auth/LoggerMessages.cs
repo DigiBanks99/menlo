@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Menlo.Api.Auth;
 
 /// <summary>
-/// Source-generated log messages for <see cref="EnsureUserProvisionedFilter"/>.
+/// Source-generated log messages for <see cref="UserContextMiddleware"/>.
 /// </summary>
 [ExcludeFromCodeCoverage]
 internal static partial class LoggerMessages
