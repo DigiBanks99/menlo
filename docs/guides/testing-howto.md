@@ -28,7 +28,46 @@ The tree-node filter is `/<assembly>/<namespace>/<class>/<test>`, and `[Category
 
 Tests that call a real model are skipped unless `MENLO_AI_LIVE_ENDPOINT` is set to a `llama-server` base URL including `/v1`, such as the Aspire `llama` resource's. See [AI Services](../reference/ai-services.md#tests).
 
-CI runs the coverage command, then `scripts/check-api-coverage-baseline.ps1`, which fails if a changed file under `src/api/Menlo.Api/` is below 70% line coverage.
+CI runs the coverage command, then `scripts/check-api-coverage-baseline.ps1`, which fails if a changed file under `src/api/Menlo.Api/` is below 70% line coverage. To leave infrastructure code out of coverage, see [Coverage exclusions](#coverage-exclusions).
+
+## Coverage exclusions
+
+When Codecov or the CI guardrail flags uncovered code, add tests. Exclude code only when it's infrastructure with no business logic, such as startup, seeding or SPA hosting.
+
+### Exclude a type
+
+Put `[ExcludeFromCodeCoverage]` on the type. It is the only way to exclude product code:
+
+```csharp
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage]
+public static class BudgetSeedingExtensions
+{
+    // Seeds the demo budget at startup. Nested types are excluded with it.
+}
+```
+
+The coverage collector leaves the type out of the Cobertura report. Codecov reads that report, so it drops the type. The CI guardrail treats a changed file that is missing from the report and carries the attribute as `EXCLUDED`. Without the attribute, a missing file fails as `MISSING`. Existing examples are `BudgetSeedingExtensions` (`src/lib/Menlo.Application/Common/`) and `SpaHostingExtensions` (`src/api/Menlo.Api/SpaHosting/`).
+
+Don't add product code to the `ignore` list in `codecov.yml`: the guardrail never reads it. That list holds only paths that aren't hand-written product code:
+
+- `src/api/Menlo.AppHost/**` (the Aspire AppHost)
+- `src/api/**/*.Tests/**` (test projects)
+- `src/api/**/obj/**`, `**/*.g.cs` and `**/*.generated.cs` (generated code)
+
+### Partial coverage
+
+Exclude a whole infrastructure type, never part of a type that holds business logic. If a type mixes the two, move the infrastructure into its own type and exclude that, then test the rest. Don't put the attribute on single methods to lift a business-logic type over the line.
+
+### Targets by layer
+
+| Scope | Target | Set by |
+|---|---|---|
+| Each changed file under `src/api/Menlo.Api/**` | 70% line coverage | `scripts/check-api-coverage-baseline.ps1` (fails CI) |
+| `src/api/Menlo.Api/**`, whole project and PR patch | 70%, 2% threshold | `codecov.yml` `api` status |
+| Whole repository, project | No drop of more than 5% from the base commit (`auto`) | `codecov.yml` `default` project status |
+| Whole repository, PR patch | 70%, 5% threshold | `codecov.yml` `default` patch status |
 
 ## Write a typical test
 
