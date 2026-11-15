@@ -54,7 +54,7 @@ if (-not $BaseSha) {
 Write-Host "Using base SHA: $BaseSha  head SHA: $HeadSha"
 
 # ── 2. Get changed C# files under src/api/Menlo.Api/ ────────────────────────
-$gitArgs = @('diff', '--name-only', $BaseSha, $HeadSha, '--', 'src/api/Menlo.Api/*.cs', 'src/api/Menlo.Api/**/*.cs')
+$gitArgs = @('diff', '--name-only', '--diff-filter=d', $BaseSha, $HeadSha, '--', 'src/api/Menlo.Api/*.cs', 'src/api/Menlo.Api/**/*.cs')
 $changedRaw = & git @gitArgs 2>&1
 
 if ($LASTEXITCODE -ne 0) {
