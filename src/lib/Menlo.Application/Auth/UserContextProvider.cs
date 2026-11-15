@@ -60,11 +60,6 @@ public sealed class UserContextProvider(IHttpContextAccessor httpContextAccessor
             return new UserNotFoundError(externalIdValue);
         }
 
-        if (user.HouseholdId is null)
-        {
-            return new UserNotAssignedToHouseholdError(externalIdValue);
-        }
-
-        return new UserContext(user.Id, user.HouseholdId.Value);
+        return new UserContext(user.Id);
     }
 }

@@ -17,9 +17,6 @@ public sealed class BudgetEntityTypeConfiguration : IEntityTypeConfiguration<Bud
         builder.Property(b => b.Id)
             .ValueGeneratedNever();
 
-        builder.Property(b => b.HouseholdId)
-            .IsRequired();
-
         builder.Property(b => b.Year)
             .IsRequired();
 
@@ -70,9 +67,9 @@ public sealed class BudgetEntityTypeConfiguration : IEntityTypeConfiguration<Bud
             .HasField("_items")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasIndex(b => new { b.HouseholdId, b.Year })
+        builder.HasIndex(b => b.Year)
             .IsUnique()
-            .HasDatabaseName("ix_budgets_household_id_year");
+            .HasDatabaseName("ix_budgets_year");
 
         builder.Ignore(b => b.DomainEvents);
         builder.Ignore(b => b.TotalPlannedMonthlyAmount);

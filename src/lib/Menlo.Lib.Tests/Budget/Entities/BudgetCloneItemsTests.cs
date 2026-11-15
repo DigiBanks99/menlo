@@ -195,7 +195,7 @@ public sealed class BudgetCloneItemsTests
         // Arrange
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget source =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2024, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2024, auditFactory).Value;
         source.AddCategory("Expenses", BudgetFlow.Expense);
 
         // Act
@@ -213,7 +213,7 @@ public sealed class BudgetCloneItemsTests
         // Verify backward compat: categories are still cloned correctly
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget source =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2024, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2024, auditFactory).Value;
         source.AddCategory("Income", BudgetFlow.Income);
         CategoryNode root = source.AddCategory("Expenses", BudgetFlow.Expense).Value;
         source.AddCategory("Utilities", BudgetFlow.Expense, parentId: root.Id);
@@ -234,7 +234,7 @@ public sealed class BudgetCloneItemsTests
     {
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget budget =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2024, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2024, auditFactory).Value;
 
         CategoryNode root = budget.AddCategory("Expenses", BudgetFlow.Expense).Value;
         CategoryNode leaf = budget.AddCategory("Electricity", BudgetFlow.Expense, parentId: root.Id).Value;

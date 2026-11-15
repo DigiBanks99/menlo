@@ -13,7 +13,7 @@ namespace Menlo.Api.Budget;
 
 /// <summary>
 /// Handler for the GET /api/budgets endpoint.
-/// Returns every budget of the authenticated user's household, newest year first.
+/// Returns every budget of the household, newest year first.
 /// </summary>
 public static class ListBudgetsHandler
 {
@@ -53,7 +53,6 @@ public static class ListBudgetsHandler
         List<Lib.Budget.Entities.Budget> budgets = await query
             .AsNoTracking()
             .AsSplitQuery()
-            .Where(b => b.HouseholdId == userContext.HouseholdId)
             .OrderByDescending(b => b.Year)
             .ToListAsync(cancellationToken);
 

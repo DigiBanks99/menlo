@@ -1,4 +1,3 @@
-using Menlo.Api.Auth;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Menlo.Api.Auth.Policies;
@@ -29,12 +28,6 @@ public static class AuthPoliciesExtensions
                 MenloPolicies.Roles.Admin,
                 MenloPolicies.Roles.User,
                 MenloPolicies.Roles.Reader));
-
-        builder.AddPolicy(MenloPolicies.RequireOnboardingComplete, policy =>
-        {
-            policy.RequireAuthenticatedUser();
-            policy.Requirements.Add(new OnboardingCompleteRequirement());
-        });
 
         return builder;
     }

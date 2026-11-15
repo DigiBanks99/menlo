@@ -36,7 +36,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2040,
             auditStampFactory).Value;
 
@@ -79,7 +78,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2041,
             auditStampFactory).Value;
 
@@ -122,7 +120,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2042,
             auditStampFactory).Value;
 
@@ -164,7 +161,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2043,
             auditStampFactory).Value;
 
@@ -186,7 +182,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2044,
             auditStampFactory).Value;
 
@@ -232,7 +227,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ISoftDeleteStampFactory softDeleteStampFactory = scope.ServiceProvider.GetRequiredService<ISoftDeleteStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2045,
             auditStampFactory).Value;
 
@@ -293,7 +287,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ISoftDeleteStampFactory softDeleteStampFactory = scope.ServiceProvider.GetRequiredService<ISoftDeleteStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2046,
             auditStampFactory).Value;
 
@@ -342,7 +335,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         ISoftDeleteStampFactory softDeleteStampFactory = scope.ServiceProvider.GetRequiredService<ISoftDeleteStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2047,
             auditStampFactory).Value;
 
@@ -388,7 +380,6 @@ public sealed class CategoryPersistenceIntegrationTests(PersistenceFixture fixtu
         IAuditStampFactory auditStampFactory = scope.ServiceProvider.GetRequiredService<IAuditStampFactory>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
             2048,
             auditStampFactory).Value;
 

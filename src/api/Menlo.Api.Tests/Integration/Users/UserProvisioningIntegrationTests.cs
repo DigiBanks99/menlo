@@ -3,7 +3,6 @@ using Menlo.Api.Tests.Fixtures;
 using Menlo.Application.Common;
 using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Auth.ValueObjects;
-using Menlo.Lib.Onboarding;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -11,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 
-namespace Menlo.Api.Tests.Integration.Onboarding;
+namespace Menlo.Api.Tests.Integration.Users;
 
-[ClassDataSource<OnboardingPersistenceFixture>(Shared = SharedType.PerTestSession)]
-[NotInParallel("Onboarding")]
-public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixture fixture)
+[ClassDataSource<UserPersistenceFixture>(Shared = SharedType.PerTestSession)]
+[NotInParallel("Users")]
+public sealed class UserProvisioningIntegrationTests(UserPersistenceFixture fixture)
 {
     [Test]
     public async Task GivenNewOidcUser_WhenTokenValidated_UserIsProvisioned()
@@ -32,12 +31,8 @@ public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixtur
         User? user = await db.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(candidate => candidate.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
-        OnboardingState? onboardingState = await db.OnboardingStates
-            .AsNoTracking()
-            .FirstOrDefaultAsync(state => state.UserId == user!.Id, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveProvisionedUser(user, email, displayName);
-        ItShouldHaveProvisionedOnboardingState(onboardingState, user!.Id);
     }
 
     [Test]
@@ -56,11 +51,8 @@ public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixtur
         User persistedUser = await db.Users
             .AsNoTracking()
             .SingleAsync(user => user.ExternalId == normalizedExternalId, TestContext.Current!.Execution.CancellationToken);
-        int onboardingStateCount = await db.OnboardingStates
-            .CountAsync(state => state.UserId == persistedUser.Id, TestContext.Current!.Execution.CancellationToken);
 
         userCount.ShouldBe(1);
-        onboardingStateCount.ShouldBe(1);
         persistedUser.Email.ShouldBe(email);
         persistedUser.DisplayName.ShouldBe(displayName);
     }
@@ -90,12 +82,5 @@ public sealed class UserProvisioningIntegrationTests(OnboardingPersistenceFixtur
         user.ShouldNotBeNull();
         user.Email.ShouldBe(expectedEmail);
         user.DisplayName.ShouldBe(expectedDisplayName);
-    }
-
-    private static void ItShouldHaveProvisionedOnboardingState(OnboardingState? onboardingState, Menlo.Lib.Common.ValueObjects.UserId expectedUserId)
-    {
-        onboardingState.ShouldNotBeNull();
-        onboardingState.UserId.ShouldBe(expectedUserId);
-        onboardingState.HasSelectedHousehold.ShouldBeFalse();
     }
 }

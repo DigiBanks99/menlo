@@ -1,6 +1,6 @@
 using Menlo.Lib.Common.Abstractions;
 
-namespace Menlo.Lib.Onboarding.Events;
+namespace Menlo.Lib.Users.Events;
 
 public sealed record UserProvisionedEvent(
     Guid UserId,

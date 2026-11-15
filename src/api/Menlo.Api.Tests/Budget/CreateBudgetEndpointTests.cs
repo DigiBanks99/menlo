@@ -41,7 +41,6 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
         ItShouldHaveANonEmptyId(dto);
         ItShouldHaveTheCorrectYear(dto, year);
         ItShouldHaveTheDraftStatus(dto);
-        ItShouldBelongToTheTestHousehold(dto, factory.HouseholdId);
         ItShouldHaveZeroTotalPlannedMonthlyAmount(dto);
         ItShouldHaveNoCategories(dto);
     }
@@ -204,12 +203,6 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
     {
         dto.ShouldNotBeNull();
         dto.Status.ShouldBe("Draft");
-    }
-
-    private static void ItShouldBelongToTheTestHousehold(BudgetDto? dto, HouseholdId expectedHouseholdId)
-    {
-        dto.ShouldNotBeNull();
-        dto.HouseholdId.ShouldBe(expectedHouseholdId.Value);
     }
 
     private static void ItShouldHaveZeroTotalPlannedMonthlyAmount(BudgetDto? dto)

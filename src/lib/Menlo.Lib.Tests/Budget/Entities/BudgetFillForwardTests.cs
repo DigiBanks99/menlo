@@ -261,7 +261,7 @@ public sealed class BudgetFillForwardTests
     {
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget budget =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2025, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, auditFactory).Value;
 
         Result<CategoryNode, BudgetError> rootResult =
             budget.AddCategory("Expenses", BudgetFlow.Expense);
@@ -279,7 +279,7 @@ public sealed class BudgetFillForwardTests
     {
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget budget =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2025, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, auditFactory).Value;
 
         Result<CategoryNode, BudgetError> rootResult =
             budget.AddCategory("Expenses", BudgetFlow.Expense);

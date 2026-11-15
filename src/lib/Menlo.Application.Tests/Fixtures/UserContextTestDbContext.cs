@@ -24,11 +24,6 @@ internal sealed class UserContextTestDbContext(DbContextOptions<UserContextTestD
                 .HasConversion(id => id.Value, guid => new UserId(guid));
             entity.Property(u => u.ExternalId)
                 .HasConversion(id => id.Value, value => new ExternalUserId(value));
-            entity.Property(u => u.HouseholdId)
-                .HasConversion(
-                    id => id.HasValue ? id.Value.Value : (Guid?)null,
-                    guid => guid.HasValue ? (HouseholdId?)new HouseholdId(guid.Value) : null)
-                .IsRequired(false);
             entity.Property(u => u.CreatedBy)
                 .HasConversion(id => id.HasValue ? id.Value.Value : (Guid?)null,
                     guid => guid.HasValue ? (UserId?)new UserId(guid.Value) : null)

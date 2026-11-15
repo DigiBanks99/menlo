@@ -286,7 +286,7 @@ public sealed class BudgetAddItemTests
     {
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget budget =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2025, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, auditFactory).Value;
 
         // Add a root category
         Result<CategoryNode, BudgetError> rootResult =
@@ -306,7 +306,7 @@ public sealed class BudgetAddItemTests
     {
         IAuditStampFactory auditFactory = CreateAuditStampFactory();
         Menlo.Lib.Budget.Entities.Budget budget =
-            Menlo.Lib.Budget.Entities.Budget.Create(HouseholdId.NewId(), 2025, auditFactory).Value;
+            Menlo.Lib.Budget.Entities.Budget.Create(2025, auditFactory).Value;
 
         // Add a root category
         Result<CategoryNode, BudgetError> rootResult =

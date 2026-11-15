@@ -18,8 +18,8 @@ internal static class BudgetCurrency
 }
 
 /// <summary>
-/// Aggregate root representing a household's budget for a calendar year.
-/// One budget per household per year; uniqueness is enforced at domain and database level.
+/// Aggregate root representing the household's budget for a calendar year.
+/// One budget per year; uniqueness is enforced at domain and database level.
 /// </summary>
 public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAuditable, ISoftDeletable
 {
@@ -29,7 +29,6 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
     private Budget(
         BudgetId id,
-        HouseholdId householdId,
         int year,
         BudgetStatus status,
         UserId? createdBy,
@@ -41,7 +40,6 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         UserId? deletedBy)
     {
         Id = id;
-        HouseholdId = householdId;
         Year = year;
         Status = status;
         CreatedBy = createdBy;
@@ -57,11 +55,6 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     /// Gets the unique identifier for this budget.
     /// </summary>
     public BudgetId Id { get; }
-
-    /// <summary>
-    /// Gets the household this budget belongs to.
-    /// </summary>
-    public HouseholdId HouseholdId { get; }
 
     /// <summary>
     /// Gets the calendar year this budget covers.
@@ -154,14 +147,12 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     }
 
     /// <summary>
-    /// Creates a new Budget in Draft status for the given household and year.
+    /// Creates a new Budget in Draft status for the given year.
     /// </summary>
-    /// <param name="householdId">The household that owns this budget.</param>
     /// <param name="year">The calendar year this budget covers. Must be a positive value.</param>
     /// <param name="auditStampFactory">Factory to record who created the budget.</param>
     /// <returns>Success with the new Budget; Failure with BudgetError if year is invalid.</returns>
     public static Result<Budget, BudgetError> Create(
-        HouseholdId householdId,
         int year,
         IAuditStampFactory auditStampFactory)
     {
@@ -172,7 +163,6 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
 
         Budget budget = new(
             id: BudgetId.NewId(),
-            householdId: householdId,
             year: year,
             status: BudgetStatus.Draft,
             createdBy: null,
@@ -207,7 +197,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
             return new InvalidBudgetDataError("Year must be a positive value.");
         }
 
-        Result<Budget, BudgetError> result = Create(sourceBudget.HouseholdId, newYear, auditStampFactory);
+        Result<Budget, BudgetError> result = Create(newYear, auditStampFactory);
         if (result.IsFailure)
         {
             return result;

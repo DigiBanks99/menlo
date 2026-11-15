@@ -47,7 +47,7 @@ public static class UpdateBudgetItemHandler
             .Include(b => b.Items)
             .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
-        if (budget is null || budget.HouseholdId != userContext.HouseholdId)
+        if (budget is null)
         {
             return Results.NotFound();
         }

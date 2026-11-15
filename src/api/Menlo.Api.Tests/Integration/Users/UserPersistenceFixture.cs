@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
 
-namespace Menlo.Api.Tests.Integration.Onboarding;
+namespace Menlo.Api.Tests.Integration.Users;
 
-public sealed class OnboardingPersistenceFixture : IAsyncInitializer, IAsyncDisposable
+public sealed class UserPersistenceFixture : IAsyncInitializer, IAsyncDisposable
 {
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .Build();
@@ -32,8 +32,8 @@ public sealed class OnboardingPersistenceFixture : IAsyncInitializer, IAsyncDisp
         });
 
         builder.AddMenloApplication();
-        builder.Services.AddScoped<IAuditStampFactory, TestOnboardingAuditStampFactory>();
-        builder.Services.AddScoped<ISoftDeleteStampFactory, TestOnboardingSoftDeleteStampFactory>();
+        builder.Services.AddScoped<IAuditStampFactory, TestUserAuditStampFactory>();
+        builder.Services.AddScoped<ISoftDeleteStampFactory, TestUserSoftDeleteStampFactory>();
 
         Services = builder.Services.BuildServiceProvider();
 
@@ -58,12 +58,12 @@ public sealed class OnboardingPersistenceFixture : IAsyncInitializer, IAsyncDisp
     }
 }
 
-internal sealed class TestOnboardingAuditStampFactory : IAuditStampFactory
+internal sealed class TestUserAuditStampFactory : IAuditStampFactory
 {
     public AuditStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }
 
-internal sealed class TestOnboardingSoftDeleteStampFactory : ISoftDeleteStampFactory
+internal sealed class TestUserSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
 }

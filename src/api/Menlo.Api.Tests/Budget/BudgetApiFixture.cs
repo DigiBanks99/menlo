@@ -2,9 +2,9 @@ using CSharpFunctionalExtensions;
 using Menlo.Lib.Auth.Abstractions;
 using Menlo.Lib.Auth.Errors;
 using Menlo.Lib.Auth.Models;
-using Menlo.Lib.Common.ValueObjects;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using NSubstitute;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
@@ -18,36 +18,52 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 
     private BudgetTestWebApplicationFactory _factory = null!;
 
-    /// <summary>
-    /// The household behind <see cref="CreateClient"/> and <see cref="CreateAntiforgeryClientAsync"/>. Every test
-    /// that uses those clients shares it, so only use them for requests that don't write household data.
-    /// </summary>
-    public HouseholdId SharedHouseholdId { get; } = HouseholdId.NewId();
-
     public string ConnectionString { get; private set; } = string.Empty;
 
     public HttpClient CreateClient() => _factory.CreateClient();
 
     /// <summary>
-    /// Creates an API host on the shared database for one test, signed in to a household of its own
-    /// (<see cref="BudgetTestWebApplicationFactory.HouseholdId"/>), so no test sees another's data, whatever order they
-    /// run in. Pass <paramref name="householdId"/> only when two hosts in one test must share a household.
+    /// Creates an API host on the shared database for one test. Budgets are unique per year across the whole
+    /// database, so the budget tables are emptied first (the budget tests run one at a time) and no test sees
+    /// another's data, whatever order they run in. Pass <paramref name="keepData"/> when a second host in the same
+    /// test must see what the first one wrote, and <paramref name="asDifferentMember"/> to sign in as another member.
     /// </summary>
     public BudgetTestWebApplicationFactory CreateIsolatedFactory(
-        HouseholdId? householdId = null,
         bool budgetItemsEnabled = false,
-        bool simulateUnauthenticated = false) =>
-        new(householdId ?? HouseholdId.NewId())
+        bool simulateUnauthenticated = false,
+        bool keepData = false,
+        bool asDifferentMember = false)
+    {
+        if (!keepData)
+        {
+            ResetBudgetData();
+        }
+
+        return new()
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = true,
+            UseRealUserProvisioning = true,
             SimulateUnauthenticated = simulateUnauthenticated,
+            UserId = asDifferentMember ? Guid.NewGuid().ToString() : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultUserId,
+            UserEmail = asDifferentMember ? $"member-{Guid.NewGuid():N}@menlo.test" : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultEmail,
             ConfigurationOverrides = new Dictionary<string, string?>
             {
                 ["Features:Budget"] = "true",
                 ["Features:BudgetItems"] = budgetItemsEnabled ? "true" : "false"
             }
         };
+    }
+
+    private void ResetBudgetData()
+    {
+        using NpgsqlConnection connection = new(ConnectionString);
+        connection.Open();
+        using NpgsqlCommand command = connection.CreateCommand();
+        command.CommandText = "TRUNCATE budget_schema.budget_items, budget_schema.budget_categories, "
+            + "budget_schema.canonical_categories, budget_schema.budgets CASCADE";
+        command.ExecuteNonQuery();
+    }
 
     public Task<HttpClient> CreateAntiforgeryClientAsync(CancellationToken cancellationToken = default) =>
         _factory.CreateAntiforgeryClientAsync(cancellationToken: cancellationToken);
@@ -58,10 +74,11 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 
         ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
 
-        _factory = new BudgetTestWebApplicationFactory(SharedHouseholdId)
+        _factory = new BudgetTestWebApplicationFactory()
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = false,
+            UseRealUserProvisioning = true,
             ConfigurationOverrides = new Dictionary<string, string?>
             {
                 ["Features:Budget"] = "true"
@@ -82,17 +99,11 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 /// <summary>
 /// Extends <see cref="TestWebApplicationFactory"/> to override
 /// <see cref="IUserContextProvider"/> with an NSubstitute mock that always
-/// returns a successful <see cref="UserContext"/> backed by the given
-/// <paramref name="householdId"/>.
+/// returns a successful <see cref="UserContext"/>.
 /// </summary>
-public sealed class BudgetTestWebApplicationFactory(HouseholdId householdId)
+public sealed class BudgetTestWebApplicationFactory
     : TestWebApplicationFactory
 {
-    /// <summary>
-    /// Gets the household the signed-in test user belongs to.
-    /// </summary>
-    public HouseholdId HouseholdId { get; } = householdId;
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -110,7 +121,7 @@ public sealed class BudgetTestWebApplicationFactory(HouseholdId householdId)
             IUserContextProvider mock = Substitute.For<IUserContextProvider>();
             mock.GetUserContextAsync(Arg.Any<CancellationToken>())
                 .Returns(Result.Success<UserContext, AuthError>(
-                    new UserContext(Menlo.Lib.Common.ValueObjects.UserId.NewId(), HouseholdId)));
+                    new UserContext(Menlo.Lib.Common.ValueObjects.UserId.NewId())));
 
             services.AddScoped(_ => mock);
         });

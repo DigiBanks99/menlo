@@ -1,6 +1,5 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Application.Auth;
-using Menlo.Application.Onboarding;
 using Menlo.Lib.Auth.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,12 +42,10 @@ public static class GetUserEndpoint
         }
 
         Menlo.Lib.Auth.Entities.User? currentUser = null;
-        IOnboardingContext? onboardingContext = null;
 
         try
         {
             IUserContext userContext = serviceProvider.GetRequiredService<IUserContext>();
-            onboardingContext = serviceProvider.GetRequiredService<IOnboardingContext>();
 
             currentUser = await CurrentUserLookup.FindUserAsync(
                 user,
@@ -67,37 +64,11 @@ public static class GetUserEndpoint
             ?? CurrentUserLookup.FindExternalId(user)
             ?? string.Empty;
 
-        OnboardingInfo onboarding = new(
-            IsComplete: false,
-            PendingTasks: ["SelectHousehold"]);
-
-        if (currentUser is not null && onboardingContext is not null)
-        {
-            try
-            {
-                var onboardingState = await onboardingContext.OnboardingStates
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(state => state.UserId == currentUser.Id, cancellationToken);
-
-                bool isComplete = onboardingState?.HasSelectedHousehold ?? false;
-                onboarding = new OnboardingInfo(
-                    IsComplete: isComplete,
-                    PendingTasks: isComplete ? [] : ["SelectHousehold"]);
-            }
-            catch (Exception ex) when (ex is InvalidOperationException or DbException)
-            {
-                onboarding = new OnboardingInfo(
-                    IsComplete: false,
-                    PendingTasks: ["SelectHousehold"]);
-            }
-        }
-
         UserProfile profile = new(
             Id: currentUser?.Id.Value.ToString() ?? defaultId,
             Email: currentUser?.Email ?? defaultEmail,
             DisplayName: currentUser?.DisplayName ?? defaultDisplayName,
-            Roles: roles,
-            Onboarding: onboarding);
+            Roles: roles);
 
         return Results.Ok(profile);
     }

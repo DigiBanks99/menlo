@@ -74,7 +74,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
     }
 
     [Test]
-    public async Task GivenAnotherHouseholdsBudget_WhenListBudgets_ThenItIsNotReturned()
+    public async Task GivenBudgetCreatedByAnotherMember_WhenListBudgets_ThenItIsReturned()
     {
         await using (BudgetTestWebApplicationFactory ownerFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true))
         {
@@ -82,7 +82,8 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             await CreateBudgetAsync(ownerClient, DateTimeOffset.UtcNow.Year);
         }
 
-        await using BudgetTestWebApplicationFactory viewerFactory = fixture.CreateIsolatedFactory(budgetItemsEnabled: true);
+        await using BudgetTestWebApplicationFactory viewerFactory =
+            fixture.CreateIsolatedFactory(budgetItemsEnabled: true, keepData: true, asDifferentMember: true);
         using HttpClient viewerClient = await viewerFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         HttpResponseMessage response = await viewerClient.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);
@@ -90,15 +91,14 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
 
         ItShouldHaveReturned200Ok(response);
         budgets.ShouldNotBeNull();
-        budgets.ShouldBeEmpty();
+        budgets.ShouldHaveSingleItem().Year.ShouldBe(DateTimeOffset.UtcNow.Year);
     }
 
     [Test]
     public async Task GivenBudgetItemsFeatureOff_WhenListBudgets_ThenItemFiguresAreNotExposed()
     {
-        HouseholdId household = HouseholdId.NewId();
         await using (BudgetTestWebApplicationFactory seedFactory =
-            fixture.CreateIsolatedFactory(household, budgetItemsEnabled: true))
+            fixture.CreateIsolatedFactory(budgetItemsEnabled: true))
         {
             using HttpClient seedClient = await seedFactory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
             Guid budgetId = await CreateBudgetAsync(seedClient, DateTimeOffset.UtcNow.Year);
@@ -107,7 +107,7 @@ public sealed class ListBudgetsEndpointTests(BudgetApiFixture fixture) : TestFix
             await RecordSpentAsync(seedClient, budgetId, leafId, itemId, 1000m);
         }
 
-        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(household);
+        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory(keepData: true);
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
 
         HttpResponseMessage response = await client.GetAsync("/api/budgets", TestContext.Current!.Execution.CancellationToken);

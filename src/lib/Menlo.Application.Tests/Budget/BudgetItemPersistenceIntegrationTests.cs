@@ -15,6 +15,9 @@ namespace Menlo.Application.Tests.Budget;
 [NotInParallel("Persistence")]
 public sealed class BudgetItemPersistenceIntegrationTests(PersistenceFixture fixture)
 {
+    // Budgets are unique per year across the shared database, so each persisted budget gets its own year.
+    private static int _nextYear = 2100;
+
     [Test]
     public async Task GivenItemRealizedAndSpent_WhenReloaded_ThenRealizedAndSpentAmountsRoundTrip()
     {
@@ -56,8 +59,7 @@ public sealed class BudgetItemPersistenceIntegrationTests(PersistenceFixture fix
         IBudgetContext ctx = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
 
         BudgetAggregate budget = BudgetAggregate.Create(
-            HouseholdId.NewId(),
-            2033,
+            Interlocked.Increment(ref _nextYear),
             scope.ServiceProvider.GetRequiredService<IAuditStampFactory>()).Value;
 
         CategoryNode category = budget.AddCategory("Housing", BudgetFlow.Expense).Value;
