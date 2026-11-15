@@ -88,6 +88,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     public bool UseRealUserProvisioning { get; init; }
 
     /// <summary>
+    /// Gets whether the app's own stamp factories run. By default no-op ones stand in, which stamp a random user.
+    /// </summary>
+    public bool UseRealStampFactories { get; init; }
+
+    /// <summary>
     /// Gets configuration overrides to apply after the deterministic test defaults.
     /// </summary>
     public IReadOnlyDictionary<string, string?> ConfigurationOverrides { get; init; } =
@@ -133,8 +138,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 services.AddScoped<IUserProvisioningService, StubUserProvisioningService>();
             }
 
-            services.AddScoped<IAuditStampFactory, NoOpAuditStampFactory>();
-            services.AddScoped<ISoftDeleteStampFactory, NoOpSoftDeleteStampFactory>();
+            if (!UseRealStampFactories)
+            {
+                services.AddScoped<IAuditStampFactory, NoOpAuditStampFactory>();
+                services.AddScoped<ISoftDeleteStampFactory, NoOpSoftDeleteStampFactory>();
+            }
 
             services.PostConfigureAll<OpenIdConnectOptions>(options =>
             {

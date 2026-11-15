@@ -36,7 +36,8 @@ app.UseMenloAntiforgery()
     .UseMenloSpaStaticFiles()
     .UseMenloSecurityHeaders()
     .UseAuthentication()
-    .UseAuthorization();
+    .UseAuthorization()
+    .UseMenloUserContext();
 
 if (app.Environment.IsDevelopment())
 {
@@ -51,8 +52,7 @@ app.MapAuthEndpoints();
 RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
-    .RequireAuthorization(MenloPolicies.RequireAuthenticated)
-    .AddEndpointFilter<EnsureUserProvisionedFilter>();
+    .RequireAuthorization(MenloPolicies.RequireAuthenticated);
 
 // Budget endpoints
 apiGroup.MapBudgetEndpoints();

@@ -1,9 +1,12 @@
 using Menlo.Application.Auth;
 using Menlo.Application.Budget;
 using Menlo.Application.Common.Interceptors;
+using Menlo.Application.Common.Stamps;
 using Menlo.Application.Users;
 using Menlo.Lib.Auth.Abstractions;
+using Menlo.Lib.Common;
 using Menlo.Lib.Common.Abstractions;
+using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +20,9 @@ public static class ServiceCollectionExtensions
     public static IHostApplicationBuilder AddMenloApplication(this IHostApplicationBuilder builder)
     {
         builder.Services
-            .AddScoped<IAuditStampFactory, ReflectiveAuditStampFactory>()
-            .AddScoped<ISoftDeleteStampFactory, ReflectiveAuditStampFactory>()
+            .AddScoped<CurrentUser>()
+            .AddScoped<IAuditStampFactory>(sp => new AuditStampFactory(CurrentActor(sp)))
+            .AddScoped<ISoftDeleteStampFactory>(sp => new SoftDeleteStampFactory(CurrentActor(sp)))
             .AddScoped<AuditingInterceptor>()
             .AddScoped<SoftDeleteInterceptor>()
             .AddDbContext<MenloDbContext>((sp, options) =>
@@ -57,6 +61,10 @@ public static class ServiceCollectionExtensions
 
         return builder;
     }
+
+    // The signed-in user the request middleware recorded, else the system user (no HTTP user, or code outside a request).
+    private static UserId CurrentActor(IServiceProvider sp) =>
+        sp.GetRequiredService<CurrentUser>().Value?.UserId ?? SystemUser.Id;
 
     /// <summary>
     /// Applies any pending EF Core migrations. Call this during application startup

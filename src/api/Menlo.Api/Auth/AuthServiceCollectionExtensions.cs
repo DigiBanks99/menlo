@@ -27,10 +27,6 @@ public static class AuthServiceCollectionExtensions
 
         builder.Services.AddSingleton<IValidateOptions<MenloAuthOptions>, MenloAuthOptionsValidator>();
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<CurrentUserPersistenceStampFactory>();
-        builder.Services.AddScoped<IAuditStampFactory>(sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
-        builder.Services.AddScoped<ISoftDeleteStampFactory>(
-            sp => sp.GetRequiredService<CurrentUserPersistenceStampFactory>());
 
         IConfigurationSection section = builder.Configuration.GetSection(MenloAuthOptions.SectionName);
         if (section.Get<MenloAuthOptions>() is null)

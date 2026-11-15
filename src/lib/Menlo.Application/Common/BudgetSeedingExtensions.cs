@@ -1,10 +1,12 @@
 using CSharpFunctionalExtensions;
+using Menlo.Application.Common.Stamps;
 using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Auth.ValueObjects;
 using Menlo.Lib.Budget.Entities;
 using Menlo.Lib.Budget.Enums;
 using Menlo.Lib.Budget.Errors;
 using Menlo.Lib.Budget.ValueObjects;
+using Menlo.Lib.Common;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +48,7 @@ public static class BudgetSeedingExtensions
             .CreateLogger("Menlo.Seeding");
 
         int year = DateTime.UtcNow.Year;
-        SeedAuditStampFactory auditFactory = new();
+        AuditStampFactory auditFactory = new(SystemUser.Id, "budget-seed");
 
         // 1. Ensure users exist
         UserId primaryUserId = await EnsureUserAsync(
@@ -383,16 +385,5 @@ public static class BudgetSeedingExtensions
     {
         Result<AttributionSplit, BudgetError> result = AttributionSplit.Create([new AttributionAllocation(attribution, percent)]);
         return result.Value;
-    }
-
-    /// <summary>
-    /// Simple audit stamp factory for seeding operations (no HTTP context available).
-    /// </summary>
-    private sealed class SeedAuditStampFactory : IAuditStampFactory, ISoftDeleteStampFactory
-    {
-        private static readonly UserId SystemUserId = new(Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
-        public AuditStamp CreateStamp() => new(SystemUserId, DateTimeOffset.UtcNow, "budget-seed");
-        SoftDeleteStamp ISoftDeleteStampFactory.CreateStamp() => new(SystemUserId, DateTimeOffset.UtcNow);
     }
 }

@@ -32,7 +32,8 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
         bool budgetItemsEnabled = false,
         bool simulateUnauthenticated = false,
         bool keepData = false,
-        bool asDifferentMember = false)
+        bool asDifferentMember = false,
+        bool useRealStampFactories = false)
     {
         if (!keepData)
         {
@@ -44,6 +45,7 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
             MenloConnectionString = ConnectionString,
             SkipMigration = true,
             UseRealUserProvisioning = true,
+            UseRealStampFactories = useRealStampFactories,
             SimulateUnauthenticated = simulateUnauthenticated,
             UserId = asDifferentMember ? Guid.NewGuid().ToString() : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultUserId,
             UserEmail = asDifferentMember ? $"member-{Guid.NewGuid():N}@menlo.test" : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultEmail,

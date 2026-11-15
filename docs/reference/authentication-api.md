@@ -153,11 +153,11 @@ If two first requests race, the unique `ExternalId` index rejects the second ins
 
 ### Making sure the caller has a user
 
-Sign-in provisions the user, but that step can fail or be skipped. So every endpoint in the `/api` group runs `EnsureUserProvisionedFilter` after authorization and before the handler. It finds the caller's user by external ID, or provisions one from the claims with the same service. It reads the external ID with the same claim order as `CurrentUserLookup`, so the record it creates is the one handlers look up.
+Sign-in provisions the user, but that step can fail or be skipped. So every request to `/api` runs `UserContextMiddleware` after authorization and before the endpoint (`UseMenloUserContext()` in `Program.cs`). It finds the caller's user by external ID, or provisions one from the claims with the same service. It reads the external ID with the same claim order as `CurrentUserLookup`, so the record it creates is the one handlers look up. It then records the user on the scoped `CurrentUser`, which is how the audit and soft-delete stamps get the real `UserId`. It provisions in its own scope, so the request scope's `DbContext` and stamp factories are not built until the user is recorded. It has to be a middleware, not an endpoint filter: endpoint filters run after the handler's parameters, including the stamp factories, are already bound.
 
 - If the claims can't make a valid user (no external ID or email), the API returns `403` problem details with the code `USER_NOT_PROVISIONED` and logs why.
 - A database failure is an ordinary `500`.
-- A caller who isn't signed in gets `401` from the policy, before this filter runs.
+- A caller who isn't signed in gets `401` from the policy, before this middleware runs.
 - `/auth/*` is not filtered, so `GET /auth/user` still answers.
 
 ### Resolving the current user
