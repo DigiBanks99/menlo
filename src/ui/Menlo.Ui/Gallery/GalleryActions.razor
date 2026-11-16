@@ -1,0 +1,108 @@
+@* Buttons, badges and tags. *@
+<GallerySection Id="actions" Eyebrow="Components" Title="Buttons, badges and tags">
+    <GalleryExample Id="button-variants" Title="Button variants"
+                    Description="One Primary per view or form. Secondary for the alternative, Ghost for low-emphasis actions such as Cancel, Destructive for deleting."
+                    Code="@VariantCode">
+        <MnlCluster Gap="MnlGap.Md">
+            <MnlButton data-testid="button-primary">Primary</MnlButton>
+            <MnlButton Variant="MnlButtonVariant.Secondary">Secondary</MnlButton>
+            <MnlButton Variant="MnlButtonVariant.Ghost">Ghost</MnlButton>
+            <MnlButton Variant="MnlButtonVariant.Destructive">Destructive</MnlButton>
+            <MnlButton Disabled="true">Disabled</MnlButton>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="button-sizes" Title="Button sizes, icons and links"
+                    Description="Sm inside rows and card footers, Md by default, Lg for a page's main call to action. With Href it renders a link, for navigation."
+                    Code="@SizeCode">
+        <MnlCluster Gap="MnlGap.Md">
+            <MnlButton Size="MnlSize.Sm">Small</MnlButton>
+            <MnlButton>Medium</MnlButton>
+            <MnlButton Size="MnlSize.Lg">Large</MnlButton>
+            <MnlButton Icon="MnlIconName.Plus" Variant="MnlButtonVariant.Secondary">Add category</MnlButton>
+            <MnlButton Href="#actions" Variant="MnlButtonVariant.Secondary">A link</MnlButton>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="button-htmx" Title="Button that calls the server"
+                    Description="Put hx-* attributes on the button. While the request runs, the button shows a spinner and ignores clicks. This one asks the server for a toast."
+                    Code="@HtmxCode">
+        <MnlButton hx-post="@ToastUrl" hx-swap="none" data-testid="button-toast">Save and show a toast</MnlButton>
+    </GalleryExample>
+
+    <GalleryExample Id="badges" Title="Badges"
+                    Description="A solid pill for a status: Active, On track, Unavailable. The tone carries the meaning."
+                    Code="@BadgeCode">
+        <MnlStack>
+            <MnlCluster>
+                <MnlBadge>Neutral</MnlBadge>
+                <MnlBadge Tone="MnlTone.Success">Success</MnlBadge>
+                <MnlBadge Tone="MnlTone.Warning">Warning</MnlBadge>
+                <MnlBadge Tone="MnlTone.Error">Error</MnlBadge>
+                <MnlBadge Tone="MnlTone.Info">Info</MnlBadge>
+                <MnlBadge Tone="MnlTone.Accent">Accent</MnlBadge>
+            </MnlCluster>
+            <MnlCluster>
+                <MnlBadge Size="MnlSize.Sm" Tone="MnlTone.Success" Dot="true">Active</MnlBadge>
+                <MnlBadge Size="MnlSize.Sm" Tone="MnlTone.Success" Icon="MnlIconName.ArrowUpRight">+4.8%</MnlBadge>
+                <MnlBadge Size="MnlSize.Sm">Draft</MnlBadge>
+            </MnlCluster>
+        </MnlStack>
+    </GalleryExample>
+
+    <GalleryExample Id="tags" Title="Tags"
+                    Description="A soft tint for a label that describes something but isn't a status: a category's flow, an attribution, a count."
+                    Code="@TagCode">
+        <MnlCluster>
+            <MnlTag>Expense</MnlTag>
+            <MnlTag Tone="MnlTone.Accent">Main</MnlTag>
+            <MnlTag Tone="MnlTone.Success">Income</MnlTag>
+            <MnlTag Tone="MnlTone.Warning">Deep branch</MnlTag>
+            <MnlTag Tone="MnlTone.Error">Over budget</MnlTag>
+            <MnlTag Tone="MnlTone.Info" Icon="MnlIconName.Info">Rental</MnlTag>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="avatar" Title="Avatar" Code="@AvatarCode">
+        <MnlCluster Gap="MnlGap.Md">
+            <MnlAvatar Name="Sam Example" Size="MnlSize.Sm" />
+            <MnlAvatar Name="Sam Example" />
+            <MnlAvatar Name="Alex" Size="MnlSize.Lg" />
+        </MnlCluster>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    /// <summary>The address of an endpoint that answers with a toast event.</summary>
+    [Parameter, EditorRequired]
+    public string ToastUrl { get; set; } = string.Empty;
+
+    private const string VariantCode = """
+        <MnlButton>Primary</MnlButton>
+        <MnlButton Variant="MnlButtonVariant.Secondary">Secondary</MnlButton>
+        <MnlButton Variant="MnlButtonVariant.Ghost">Ghost</MnlButton>
+        <MnlButton Variant="MnlButtonVariant.Destructive">Destructive</MnlButton>
+        """;
+
+    private const string SizeCode = """
+        <MnlButton Size="MnlSize.Sm">Small</MnlButton>
+        <MnlButton Icon="MnlIconName.Plus" Variant="MnlButtonVariant.Secondary">Add category</MnlButton>
+        <MnlButton Href="/budgets" Variant="MnlButtonVariant.Secondary">A link</MnlButton>
+        """;
+
+    private const string HtmxCode = """
+        <MnlButton hx-post="/budgets/2026" hx-swap="none">Create 2026 Budget</MnlButton>
+        """;
+
+    private const string BadgeCode = """
+        <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm" Dot="true">Active</MnlBadge>
+        """;
+
+    private const string TagCode = """
+        <MnlTag Tone="MnlTone.Accent">Main</MnlTag>
+        """;
+
+    private const string AvatarCode = """
+        <MnlAvatar Name="Sam Example" />
+        """;
+}

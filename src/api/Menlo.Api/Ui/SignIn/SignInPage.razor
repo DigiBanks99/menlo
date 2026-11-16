@@ -1,0 +1,34 @@
+@*
+    The public sign-in page. The button leaves the app for the Microsoft sign-in, so it must not be
+    boosted: hx-boost="false" makes it a normal navigation.
+*@
+<AppPage Page="Page" Title="Sign in" Bare="true">
+    <main class="sign-in">
+        <div class="sign-in__card" data-testid="sign-in-card">
+            <MnlStack Gap="MnlGap.Md" Align="MnlAlign.Center">
+                <MnlEyebrow>Menlo</MnlEyebrow>
+                <MnlHeading Level="1" Size="MnlTextSize.Xxl">Sign in to your household workspace</MnlHeading>
+                <MnlText Tone="MnlTextTone.Subtle">
+                    Use your Microsoft account to access budgets, planning, and household insights in one secure place.
+                </MnlText>
+                @if (Model.Failed)
+                {
+                    <MnlAlert Tone="MnlTone.Error" data-testid="sign-in-error">
+                        Sign-in didn't complete. Please try again.
+                    </MnlAlert>
+                }
+                <a class="sign-in__button" href="@Model.LoginUrl" hx-boost="false" data-testid="sign-in-button">
+                    Sign in with Microsoft
+                </a>
+            </MnlStack>
+        </div>
+    </main>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public SignInPageModel Model { get; set; } = null!;
+}

@@ -1,0 +1,19 @@
+.mnl-stat {
+  display: grid;
+  gap: var(--mnl-space-3);
+}
+
+.mnl-stat__label {
+  font-size: var(--mnl-text-xs);
+  font-weight: var(--mnl-weight-medium);
+  color: var(--mnl-subtext);
+}
+
+.mnl-stat__value {
+  font-size: var(--mnl-text-3xl);
+  font-weight: var(--mnl-weight-bold);
+  line-height: var(--mnl-leading-tight);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--mnl-text);
+}

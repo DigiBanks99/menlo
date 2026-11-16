@@ -1,0 +1,14 @@
+@* Shown when a signed-in person opens a page their role doesn't allow. *@
+<AppPage Page="Page" Title="No access">
+    <MnlCard Padding="MnlSize.Lg" data-testid="forbidden-page">
+        <MnlEmptyState Title="You don't have access to this page"
+                       Message="Your account is signed in, but it doesn't have a role that allows this. Ask the household admin to give you access.">
+            <MnlButton Href="/" Variant="MnlButtonVariant.Secondary">Back to home</MnlButton>
+        </MnlEmptyState>
+    </MnlCard>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+}

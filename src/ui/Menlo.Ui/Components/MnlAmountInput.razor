@@ -1,0 +1,55 @@
+@inherits MnlComponent
+@*
+    A money input: a currency symbol and a right-aligned decimal field. It submits plain text;
+    parse it on the server with MoneyFormat.TryParse, which accepts spaces and a decimal comma.
+*@
+<div class="mnl-amount-input" data-invalid="@Css.Flag(Invalid)" data-disabled="@Css.Flag(Disabled)">
+    <span class="mnl-amount-input__prefix" aria-hidden="true">@MoneyFormat.Symbol(Currency)</span>
+    <input @attributes="Attributes"
+           class="@RootClass("mnl-amount-input__field")"
+           type="text"
+           inputmode="decimal"
+           autocomplete="off"
+           id="@(Id ?? Name)"
+           name="@Name"
+           value="@MoneyFormat.Editable(Value)"
+           placeholder="@Placeholder"
+           required="@Required"
+           disabled="@Disabled"
+           aria-invalid="@Css.Flag(Invalid)"
+           aria-describedby="@(Invalid ? $"{Id ?? Name}-error" : null)" />
+</div>
+
+@code {
+    /// <summary>The form field name.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The element id. Defaults to Name.</summary>
+    [Parameter]
+    public string? Id { get; set; }
+
+    /// <summary>The current amount.</summary>
+    [Parameter]
+    public decimal? Value { get; set; }
+
+    /// <summary>The currency code whose symbol is shown.</summary>
+    [Parameter]
+    public string Currency { get; set; } = "ZAR";
+
+    /// <summary>Placeholder text.</summary>
+    [Parameter]
+    public string? Placeholder { get; set; } = "0.00";
+
+    /// <summary>Whether the browser requires a value.</summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>Whether the input is unavailable.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Whether the value failed validation.</summary>
+    [Parameter]
+    public bool Invalid { get; set; }
+}

@@ -156,11 +156,7 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
         await using TestWebApplicationFactory factory = new()
         {
             EnvironmentName = Environments.Development,
-            SimulateUnauthenticated = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Services:web-ui:http:0"] = "http://localhost:5173"
-            }
+            SimulateUnauthenticated = true
         };
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: TestContext.Current!.Execution.CancellationToken);
         int year = DateTimeOffset.UtcNow.Year;

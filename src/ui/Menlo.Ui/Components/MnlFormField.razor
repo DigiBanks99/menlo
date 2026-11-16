@@ -1,0 +1,52 @@
+@inherits MnlComponent
+@*
+    Wraps one form control with its label, hint and error message.
+    Give the control the same id as For, and set the control's Invalid when Error is set.
+    The error element's id is "{For}-error"; controls reference it with aria-describedby.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-form-field")" data-has-error="@Css.Flag(HasError)">
+    <label class="mnl-form-field__label" for="@For">
+        @Label
+        @if (Required)
+        {
+            <span class="mnl-form-field__required" aria-hidden="true"> *</span>
+        }
+    </label>
+    @ChildContent
+    @if (Hint is not null && !HasError)
+    {
+        <p class="mnl-form-field__hint">@Hint</p>
+    }
+    @if (HasError)
+    {
+        <p class="mnl-form-field__error" id="@($"{For}-error")" data-testid="@($"error-{For}")">@Error</p>
+    }
+</div>
+
+@code {
+    /// <summary>The label text.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>The id of the control this field labels.</summary>
+    [Parameter, EditorRequired]
+    public string For { get; set; } = string.Empty;
+
+    /// <summary>Help text shown under the control when there is no error.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
+
+    /// <summary>The validation message. Null or empty means the field is valid.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>Whether to mark the label as required.</summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>The control.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool HasError => !string.IsNullOrWhiteSpace(Error);
+}

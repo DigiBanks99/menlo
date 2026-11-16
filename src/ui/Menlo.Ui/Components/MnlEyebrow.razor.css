@@ -1,0 +1,17 @@
+.mnl-eyebrow {
+  font-size: var(--mnl-text-xs);
+  font-weight: var(--mnl-weight-semibold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mnl-accent);
+}
+
+.mnl-eyebrow[data-tone='inherit'] {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.mnl-eyebrow[data-tone='subtle'],
+.mnl-eyebrow[data-tone='default'] {
+  color: var(--mnl-subtext);
+}

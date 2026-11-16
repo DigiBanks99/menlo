@@ -1,0 +1,28 @@
+@inherits MnlComponent
+@*
+    A soft, tinted label that describes something: a category's flow, an attribution, a percentage.
+    For a status, use MnlBadge.
+*@
+<span @attributes="Attributes"
+      class="@RootClass("mnl-tag")"
+      data-tone="@Css.Token(Tone)">
+    @if (Icon is not null)
+    {
+        <MnlIcon Name="Icon.Value" Size="MnlSize.Sm" />
+    }
+    @ChildContent
+</span>
+
+@code {
+    /// <summary>The tint.</summary>
+    [Parameter]
+    public MnlTone Tone { get; set; } = MnlTone.Neutral;
+
+    /// <summary>An icon shown before the text.</summary>
+    [Parameter]
+    public MnlIconName? Icon { get; set; }
+
+    /// <summary>The label text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

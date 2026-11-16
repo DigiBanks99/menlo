@@ -1,0 +1,40 @@
+@inherits MnlComponent
+@*
+    An inline message that stays on the page: a load failure, a form-level error, a notice.
+    For a message that should disappear by itself after an action, send a toast instead.
+*@
+<div @attributes="Attributes"
+     class="@RootClass("mnl-alert")"
+     data-tone="@Css.Token(Tone)"
+     role="@(Tone == MnlTone.Error ? "alert" : "status")">
+    <MnlIcon Name="IconName" />
+    <div class="mnl-alert__content">
+        @if (Title is not null)
+        {
+            <p class="mnl-alert__title">@Title</p>
+        }
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    /// <summary>The kind of message.</summary>
+    [Parameter]
+    public MnlTone Tone { get; set; } = MnlTone.Error;
+
+    /// <summary>A short bold line above the message.</summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>The message.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private MnlIconName IconName => Tone switch
+    {
+        MnlTone.Success => MnlIconName.CircleCheck,
+        MnlTone.Warning => MnlIconName.TriangleAlert,
+        MnlTone.Error => MnlIconName.CircleAlert,
+        _ => MnlIconName.Info
+    };
+}

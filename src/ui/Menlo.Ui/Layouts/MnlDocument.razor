@@ -1,0 +1,78 @@
+@*
+    The HTML document: head, stylesheets, scripts and the body. Every full page renders through it.
+    It has no visible chrome; wrap page content in MnlAppShell for the navigation and header.
+
+    All scripts and styles are files on this origin, so the page works under a
+    "script-src 'self'; style-src 'self'" Content Security Policy. Don't add inline <script> or style="".
+*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="htmx-config" content="@HtmxConfig" />
+    <title>@Title</title>
+    <script src="@MnlAssets.Url("js/theme-init.js")"></script>
+    <link rel="stylesheet" href="@MnlAssets.Url("css/tokens.css")" />
+    <link rel="stylesheet" href="@MnlAssets.Url("css/base.css")" />
+    <link rel="stylesheet" href="@MnlAssets.Url("css/charts.css")" />
+    @if (StylesBundle is not null)
+    {
+        <link rel="stylesheet" href="@MnlAssets.HostUrl(StylesBundle)" />
+    }
+    <script src="@MnlAssets.Url("vendor/htmx.min.js")" defer></script>
+    @if (ServerSentEvents)
+    {
+        <script src="@MnlAssets.Url("vendor/htmx-ext-sse.js")" defer></script>
+    }
+    <script src="@MnlAssets.Url("js/menlo.js")" defer></script>
+    @Head
+</head>
+<body hx-boost="@(Boost ? "true" : null)" hx-inherit="@(Boost ? "hx-boost" : null)">
+    @ChildContent
+    <div id="@MnlPanel.HostId"></div>
+    <MnlToastRegion Toasts="Toasts" />
+</body>
+</html>
+
+@code {
+    // Swap 422 responses (a form re-rendered with its errors); treat other 4xx and 5xx as errors.
+    // Inline styles and eval are off so the strict Content Security Policy holds.
+    // Attribute inheritance is off: an hx-* attribute affects only the element it is on, so a region's
+    // hx-select or hx-swap can't leak into the buttons inside it. hx-boost on the body is the one
+    // exception, and hx-inherit there says so.
+    private const string HtmxConfig =
+        """{"includeIndicatorStyles":false,"disableInheritance":true,"allowEval":false,"historyCacheSize":0,"refreshOnHistoryMiss":true,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true},{"code":"[45]..","swap":false,"error":true}]}""";
+
+    /// <summary>The browser tab title.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The host app's scoped-CSS bundle, for example <c>Menlo.Api.styles.css</c>. It carries the
+    /// component styles of this library and of the host's own pages.
+    /// </summary>
+    [Parameter]
+    public string? StylesBundle { get; set; }
+
+    /// <summary>Whether links and forms navigate through htmx, swapping the body without a full reload.</summary>
+    [Parameter]
+    public bool Boost { get; set; } = true;
+
+    /// <summary>Whether to load htmx's server-sent events extension, for pages that listen for server push.</summary>
+    [Parameter]
+    public bool ServerSentEvents { get; set; }
+
+    /// <summary>Toasts to show as the page loads, such as the result of an action that redirected here.</summary>
+    [Parameter]
+    public IReadOnlyList<MnlToastMessage> Toasts { get; set; } = [];
+
+    /// <summary>Extra head content.</summary>
+    [Parameter]
+    public RenderFragment? Head { get; set; }
+
+    /// <summary>The body content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

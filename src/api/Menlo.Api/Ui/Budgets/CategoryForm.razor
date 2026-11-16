@@ -1,0 +1,53 @@
+@*
+    Creates or edits a category. The form replaces itself with the server's answer: on a validation
+    failure the server sends the form back with its errors (422); on success it sends events instead
+    and the panel closes.
+*@
+<form @attributes="SubmitAttributes" hx-target="this" hx-swap="outerHTML" data-testid="category-form" novalidate>
+    @if (Model.ParentId is not null)
+    {
+        <input type="hidden" name="parentId" value="@Model.ParentId" />
+    }
+    <MnlFormLayout>
+        <ChildContent>
+            <MnlGrid Columns="MnlGridColumns.Two">
+                <MnlFormField Label="Name" For="name" Required="true" Error="@Model.Errors.For("name")">
+                    <MnlInput Name="name" Value="@Model.Name" Invalid="@Model.Errors.Has("name")" data-testid="input-name" autofocus />
+                </MnlFormField>
+                <MnlFormField Label="Description" For="description">
+                    <MnlInput Name="description" Value="@Model.Description" data-testid="input-description" />
+                </MnlFormField>
+                <MnlFormField Label="Budget flow" For="budgetFlow" Required="true" Error="@Model.Errors.For("budgetFlow")">
+                    <MnlSelect Name="budgetFlow" Value="@Model.BudgetFlow" Options="CategoryOptions.Flows" Placeholder="-- Select --" Invalid="@Model.Errors.Has("budgetFlow")" data-testid="select-budgetFlow" />
+                </MnlFormField>
+                <MnlFormField Label="Attribution" For="attribution" Error="@Model.Errors.For("attribution")">
+                    <MnlSelect Name="attribution" Value="@Model.Attribution" Options="CategoryOptions.Attributions" Placeholder="-- None --" Invalid="@Model.Errors.Has("attribution")" data-testid="select-attribution" />
+                </MnlFormField>
+                <MnlFormField Label="Income contributor" For="incomeContributor">
+                    <MnlInput Name="incomeContributor" Value="@Model.IncomeContributor" data-testid="input-incomeContributor" />
+                </MnlFormField>
+                <MnlFormField Label="Responsible payer" For="responsiblePayer">
+                    <MnlInput Name="responsiblePayer" Value="@Model.ResponsiblePayer" data-testid="input-responsiblePayer" />
+                </MnlFormField>
+            </MnlGrid>
+            @if (Model.Errors.Form is not null)
+            {
+                <MnlAlert Tone="MnlTone.Error" data-testid="form-error">@Model.Errors.Form</MnlAlert>
+            }
+        </ChildContent>
+        <Actions>
+            <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close data-testid="btn-cancel">Cancel</MnlButton>
+            <MnlButton Type="MnlButtonType.Submit" data-testid="btn-save">@(Model.IsEdit ? "Update" : "Create")</MnlButton>
+        </Actions>
+    </MnlFormLayout>
+</form>
+
+@code {
+    [Parameter, EditorRequired]
+    public CategoryFormModel Model { get; set; } = null!;
+
+    private Dictionary<string, object> SubmitAttributes => new()
+    {
+        [Model.IsEdit ? "hx-put" : "hx-post"] = Model.Action
+    };
+}

@@ -868,11 +868,6 @@
           "Microsoft.IdentityModel.Tokens": "8.23.0"
         }
       },
-      "System.IO.Hashing": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "ne1843evDugl0md7Fjzy6QjJrzsjh46ZKbhf8GwBXb5f/gw97J4bxMs0NQKifDuThh/f0bZ0e62NPl1jzTuRqA=="
-      },
       "System.Management": {
         "type": "Transitive",
         "resolved": "6.0.1",
@@ -943,6 +938,7 @@
           "Menlo.Application": "[1.0.0, )",
           "Menlo.Lib": "[1.0.0, )",
           "Menlo.ServiceDefaults": "[1.0.0, )",
+          "Menlo.Ui": "[1.0.0, )",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "[11.0.0, )",
           "Microsoft.AspNetCore.OpenApi": "[11.0.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.15, )",
@@ -954,8 +950,7 @@
           "OpenTelemetry.Instrumentation.AspNetCore": "[1.21.0, )",
           "OpenTelemetry.Instrumentation.Http": "[1.21.0, )",
           "OpenTelemetry.Instrumentation.Runtime": "[1.21.0, )",
-          "Scalar.AspNetCore": "[2.20.0, )",
-          "Yarp.ReverseProxy": "[2.3.0, )"
+          "Scalar.AspNetCore": "[2.20.0, )"
         }
       },
       "menlo.application": {
@@ -985,6 +980,9 @@
           "OpenTelemetry.Instrumentation.Http": "[1.21.0, )",
           "OpenTelemetry.Instrumentation.Runtime": "[1.21.0, )"
         }
+      },
+      "menlo.ui": {
+        "type": "Project"
       },
       "CSharpFunctionalExtensions": {
         "type": "CentralTransitive",
@@ -1216,15 +1214,6 @@
         "requested": "[2.20.0, )",
         "resolved": "2.20.0",
         "contentHash": "BQ7Pzt3BkM+U9qh63APQSgELutm7acoOfCBIjQlO5tHioi7+J9LZ0z2BK5fUBVazO4aWblghz1C4XwzqFhexxw=="
-      },
-      "Yarp.ReverseProxy": {
-        "type": "CentralTransitive",
-        "requested": "[2.3.0, )",
-        "resolved": "2.3.0",
-        "contentHash": "gxtkN3a+9biu9V9Zd5NaTO6VZWXAnS2mhQ0R/VXmSPoTuiQNZsakKikrKpDtKxrL5nUYzbRsHtl40WNq+ZBKKg==",
-        "dependencies": {
-          "System.IO.Hashing": "8.0.0"
-        }
       }
     }
   }

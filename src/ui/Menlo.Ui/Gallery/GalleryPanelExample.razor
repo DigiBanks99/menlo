@@ -1,0 +1,40 @@
+@* The panel the gallery opens. A real page returns its own panel from a fragment endpoint in the same way. *@
+<MnlPanel Mode="Mode" data-testid="example-panel">
+    <Header>
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlHeading Level="3">@(Mode == MnlPanelMode.Dialog ? "Delete budget item?" : "Add category")</MnlHeading>
+            <MnlText Tone="MnlTextTone.Subtle">
+                @(Mode == MnlPanelMode.Dialog ? "This can't be undone from here." : "Add a new top-level category to this budget.")
+            </MnlText>
+        </MnlStack>
+    </Header>
+    <ChildContent>
+        @if (Mode == MnlPanelMode.Dialog)
+        {
+            <MnlCluster Justify="MnlJustify.End" Gap="MnlGap.Md">
+                <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close>No</MnlButton>
+                <MnlButton Variant="MnlButtonVariant.Destructive" data-mnl-close>Yes, delete</MnlButton>
+            </MnlCluster>
+        }
+        else
+        {
+            <MnlFormLayout>
+                <ChildContent>
+                    <MnlFormField Label="Name" For="example-name" Required="true">
+                        <MnlInput Name="name" Id="example-name" />
+                    </MnlFormField>
+                </ChildContent>
+                <Actions>
+                    <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close>Cancel</MnlButton>
+                    <MnlButton data-mnl-close>Create</MnlButton>
+                </Actions>
+            </MnlFormLayout>
+        }
+    </ChildContent>
+</MnlPanel>
+
+@code {
+    /// <summary>Which kind of panel to show.</summary>
+    [Parameter]
+    public MnlPanelMode Mode { get; set; } = MnlPanelMode.Auto;
+}

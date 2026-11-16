@@ -1,0 +1,63 @@
+@*
+    The category tree with its filters. The filters are a GET form: changing one asks for the page
+    with the new query string. Hidden inputs carry the rest of the page's state along.
+*@
+<MnlStack data-testid="category-tree">
+    <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Start">
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlHeading Level="3" Size="MnlTextSize.Lg">Category tree</MnlHeading>
+            <MnlText Tone="MnlTextTone.Subtle">Create, filter, delete, and restore categories without leaving the budget detail page.</MnlText>
+        </MnlStack>
+        @if (Model.CanEdit)
+        {
+            <MnlButton Size="MnlSize.Sm"
+                       Icon="MnlIconName.Plus"
+                       hx-get="@($"{CategoriesUrl}/new")"
+                       hx-target="@MnlPanel.HostSelector"
+                       data-testid="btn-add-root">Add category</MnlButton>
+        }
+    </MnlCluster>
+
+    <form action="@PageUrl"
+          method="get"
+          hx-trigger="input changed delay:300ms from:find input[type='search'], change"
+          @attributes="BudgetRegion.GoTo(PageUrl)"
+          data-testid="category-filters">
+        @if (Model.Query.Category is not null)
+        {
+            <input type="hidden" name="category" value="@Model.Query.Category" />
+        }
+        <input type="hidden" name="view" value="@Model.Query.View" />
+        <input type="hidden" name="month" value="@Model.Query.Month" />
+        <MnlGrid Columns="MnlGridColumns.AutoNarrow" Gap="MnlGap.Sm">
+            <MnlInput Name="q" Id="category-search" Type="search" Value="@Model.Query.Search" Placeholder="Search..." aria-label="Search categories" data-testid="filter-search" />
+            <MnlSelect Name="flow" Id="category-flow" Value="@Model.Query.Flow" Options="CategoryOptions.Flows" Placeholder="All Flows" aria-label="Filter by budget flow" data-testid="filter-budgetFlow" />
+            <MnlSelect Name="attribution" Id="category-attribution" Value="@Model.Query.Attribution" Options="CategoryOptions.Attributions" Placeholder="All Attributions" aria-label="Filter by attribution" data-testid="filter-attribution" />
+            <MnlCheckbox Name="deleted" Id="category-deleted" Label="Show deleted" Checked="Model.Query.Deleted" Switch="true" data-testid="toggle-include-deleted" />
+        </MnlGrid>
+    </form>
+
+    @if (Model.Error is not null)
+    {
+        <MnlAlert Tone="MnlTone.Error" data-testid="tree-error">@Model.Error</MnlAlert>
+    }
+    else if (Model.Nodes.Count == 0)
+    {
+        <MnlEmptyState Message="No categories found." Bordered="true" data-testid="tree-empty" />
+    }
+    else
+    {
+        <div data-testid="tree-list">
+            <CategoryTreeNodes BudgetId="Model.BudgetId" Nodes="Model.Nodes" CanEdit="Model.CanEdit" />
+        </div>
+    }
+</MnlStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public CategoryTreeModel Model { get; set; } = null!;
+
+    private string PageUrl => $"/budgets/{Model.BudgetId}";
+
+    private string CategoriesUrl => $"/budgets/{Model.BudgetId}/categories";
+}

@@ -1,0 +1,24 @@
+@* The panel that holds the item form. Only the form inside is re-rendered when validation fails. *@
+<MnlPanel data-testid="@PanelTestId">
+    <Header>
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlHeading Level="3">@Model.Title</MnlHeading>
+            <MnlText Tone="MnlTextTone.Subtle">@Model.Subtitle</MnlText>
+        </MnlStack>
+    </Header>
+    <ChildContent>
+        <ItemForm Model="Model" />
+    </ChildContent>
+</MnlPanel>
+
+@code {
+    [Parameter, EditorRequired]
+    public ItemFormModel Model { get; set; } = null!;
+
+    private string PanelTestId => Model.Mode switch
+    {
+        ItemFormMode.Edit => $"edit-panel-{Model.ItemId}",
+        ItemFormMode.Bulk => "bulk-create-panel",
+        _ => "single-create-panel"
+    };
+}

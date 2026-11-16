@@ -1,0 +1,17 @@
+@* A small panel that asks for one amount: record a bill, record a payment, or fill forward. *@
+<MnlPanel Mode="MnlPanelMode.Dialog" data-testid="amount-panel">
+    <Header>
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlHeading Level="3">@Model.Title</MnlHeading>
+            <MnlText Tone="MnlTextTone.Subtle" data-testid="amount-panel-info">@Model.Subtitle</MnlText>
+        </MnlStack>
+    </Header>
+    <ChildContent>
+        <AmountForm Model="Model" />
+    </ChildContent>
+</MnlPanel>
+
+@code {
+    [Parameter, EditorRequired]
+    public AmountFormModel Model { get; set; } = null!;
+}

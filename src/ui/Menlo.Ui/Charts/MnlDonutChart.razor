@@ -1,0 +1,70 @@
+@inherits MnlComponent
+@*
+    A donut chart rendered as SVG on the server, for parts of a whole. Keep it to six slices or
+    fewer; group the rest as "Other". CenterValue and CenterLabel sit in the hole.
+*@
+<figure @attributes="Attributes" class="@RootClass("mnl-chart")" data-chart="donut">
+    <svg class="mnl-chart__plot" viewBox="0 0 200 200" role="img" aria-label="@Title">
+        <circle class="mnl-chart__track" cx="100" cy="100" r="@Radius" />
+        @{
+            double offset = 0;
+        }
+        @for (int index = 0; index < Slices.Count; index++)
+        {
+            double length = _shares[index] * Circumference;
+            <circle class="mnl-chart__arc"
+                    data-series="@ChartMath.ColourSlot(index)"
+                    cx="100"
+                    cy="100"
+                    r="@Radius"
+                    stroke-dasharray="@ChartMath.Coordinate(length) @ChartMath.Coordinate(Circumference - length)"
+                    stroke-dashoffset="@ChartMath.Coordinate(-offset)"
+                    transform="rotate(-90 100 100)">
+                <title>@Slices[index].Label: @FormatValue(Slices[index].Value) (@((_shares[index] * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture))%)</title>
+            </circle>
+            offset += length;
+        }
+        @if (CenterValue is not null)
+        {
+            <MnlSvgText class="mnl-chart__center-value" x="100" y="@(CenterLabel is null ? 100 : 96)" text-anchor="middle" dominant-baseline="middle">@CenterValue</MnlSvgText>
+        }
+        @if (CenterLabel is not null)
+        {
+            <MnlSvgText class="mnl-chart__center-label" x="100" y="116" text-anchor="middle" dominant-baseline="middle">@CenterLabel</MnlSvgText>
+        }
+    </svg>
+    <MnlChartLegend Labels="@([.. Slices.Select(s => s.Label)])" />
+</figure>
+
+@code {
+    private const double Radius = 78;
+    private const double Circumference = 2 * Math.PI * Radius;
+
+    private IReadOnlyList<double> _shares = [];
+
+    /// <summary>What the chart shows. It is the chart's accessible name.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The slices, in the order they are drawn (clockwise from the top).</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MnlChartSlice> Slices { get; set; } = [];
+
+    /// <summary>A figure shown in the middle, such as the total.</summary>
+    [Parameter]
+    public string? CenterValue { get; set; }
+
+    /// <summary>A caption under the middle figure.</summary>
+    [Parameter]
+    public string? CenterLabel { get; set; }
+
+    /// <summary>How to format values in tooltips. Defaults to a whole number with grouping.</summary>
+    [Parameter]
+    public Func<decimal, string>? Format { get; set; }
+
+    protected override void OnParametersSet() =>
+        _shares = ChartMath.Shares([.. Slices.Select(slice => slice.Value)]);
+
+    private string FormatValue(decimal value) =>
+        Format?.Invoke(value) ?? value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+}

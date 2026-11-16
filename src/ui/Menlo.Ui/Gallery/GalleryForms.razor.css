@@ -1,0 +1,25 @@
+.gallery-rows {
+  display: grid;
+  gap: var(--mnl-space-3);
+}
+
+.gallery-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem auto;
+  align-items: center;
+  gap: var(--mnl-space-3);
+}
+
+.gallery-total {
+  padding: var(--mnl-space-1) var(--mnl-space-3);
+  border-radius: var(--mnl-radius-full);
+  background-color: var(--mnl-error-soft);
+  font-size: var(--mnl-text-xs);
+  font-weight: var(--mnl-weight-semibold);
+  color: var(--mnl-error);
+}
+
+.gallery-total[data-on-target='true'] {
+  background-color: var(--mnl-success-soft);
+  color: var(--mnl-success);
+}

@@ -1,0 +1,13 @@
+@inherits MnlComponent
+@*
+    Switches between the light (Catppuccin Latte) and dark (Catppuccin Mocha) themes.
+    menlo.js handles the click and remembers the choice; theme-init.js applies it before first paint.
+*@
+<button @attributes="Attributes"
+        type="button"
+        class="@RootClass("mnl-theme-toggle")"
+        data-mnl-theme-toggle
+        aria-label="Switch between light and dark mode">
+    <span class="mnl-theme-toggle__to-dark"><MnlIcon Name="MnlIconName.Moon" /></span>
+    <span class="mnl-theme-toggle__to-light"><MnlIcon Name="MnlIconName.Sun" /></span>
+</button>

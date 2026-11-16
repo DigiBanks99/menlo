@@ -1,0 +1,41 @@
+@inherits MnlComponent
+@*
+    A raised surface that groups related content. Header and Footer are optional and separated by a rule.
+    Set Interactive when the whole card leads somewhere (it lifts on hover); put the link or button inside.
+*@
+<article @attributes="Attributes"
+         class="@RootClass("mnl-card")"
+         data-padding="@Css.Token(Padding)"
+         data-interactive="@Css.Flag(Interactive)">
+    @if (Header is not null)
+    {
+        <header class="mnl-card__header">@Header</header>
+    }
+    <div class="mnl-card__body">@ChildContent</div>
+    @if (Footer is not null)
+    {
+        <footer class="mnl-card__footer">@Footer</footer>
+    }
+</article>
+
+@code {
+    /// <summary>The inner spacing of each section.</summary>
+    [Parameter]
+    public MnlSize Padding { get; set; } = MnlSize.Md;
+
+    /// <summary>Whether the card lifts on hover.</summary>
+    [Parameter]
+    public bool Interactive { get; set; }
+
+    /// <summary>Content above the body, usually a title.</summary>
+    [Parameter]
+    public RenderFragment? Header { get; set; }
+
+    /// <summary>The main content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content below the body, usually actions.</summary>
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+}

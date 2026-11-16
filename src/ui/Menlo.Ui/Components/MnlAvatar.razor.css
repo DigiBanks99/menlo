@@ -1,0 +1,25 @@
+.mnl-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--mnl-radius-full);
+  background-color: var(--mnl-accent-strong);
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-bold);
+  color: var(--mnl-on-accent);
+}
+
+.mnl-avatar[data-size='sm'] {
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--mnl-text-xs);
+}
+
+.mnl-avatar[data-size='lg'] {
+  width: 3rem;
+  height: 3rem;
+  font-size: var(--mnl-text-md);
+}

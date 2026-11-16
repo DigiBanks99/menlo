@@ -1,0 +1,73 @@
+.mnl-text {
+  font-size: var(--mnl-text-sm);
+  line-height: var(--mnl-leading-relaxed);
+  color: var(--mnl-text);
+}
+
+.mnl-text[data-size='xs'] {
+  font-size: var(--mnl-text-xs);
+}
+
+.mnl-text[data-size='md'] {
+  font-size: var(--mnl-text-md);
+}
+
+.mnl-text[data-size='lg'] {
+  font-size: var(--mnl-text-lg);
+}
+
+.mnl-text[data-size='xl'] {
+  font-size: var(--mnl-text-xl);
+}
+
+.mnl-text[data-size='xxl'] {
+  font-size: var(--mnl-text-2xl);
+  line-height: var(--mnl-leading-tight);
+}
+
+.mnl-text[data-size='xxxl'],
+.mnl-text[data-size='display'] {
+  font-size: var(--mnl-text-3xl);
+  line-height: var(--mnl-leading-tight);
+  letter-spacing: -0.025em;
+}
+
+.mnl-text[data-tone='inherit'] {
+  color: inherit;
+}
+
+.mnl-text[data-tone='subtle'] {
+  color: var(--mnl-subtext);
+}
+
+.mnl-text[data-tone='accent'] {
+  color: var(--mnl-accent);
+}
+
+.mnl-text[data-tone='success'] {
+  color: var(--mnl-success);
+}
+
+.mnl-text[data-tone='warning'] {
+  color: var(--mnl-warning);
+}
+
+.mnl-text[data-tone='error'] {
+  color: var(--mnl-error);
+}
+
+.mnl-text[data-weight='medium'] {
+  font-weight: var(--mnl-weight-medium);
+}
+
+.mnl-text[data-weight='semibold'] {
+  font-weight: var(--mnl-weight-semibold);
+}
+
+.mnl-text[data-weight='bold'] {
+  font-weight: var(--mnl-weight-bold);
+}
+
+.mnl-text[data-numeric] {
+  font-variant-numeric: tabular-nums;
+}

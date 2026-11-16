@@ -1,0 +1,66 @@
+@inherits MnlComponent
+@*
+    The app's chrome: primary navigation (a sidebar on wide screens, a tab bar at the bottom on
+    narrow ones), a header with the theme toggle and the signed-in person, and the page content.
+    It knows nothing about routes or auth: the page passes the items, the current path and the person.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-app-shell")" data-testid="mnl-app-shell">
+    <nav class="mnl-app-shell__nav" aria-label="Primary navigation" data-testid="mnl-nav">
+        <a class="mnl-app-shell__brand" href="/">@Brand</a>
+        <ul class="mnl-app-shell__nav-list">
+            @foreach (MnlNavItem item in NavItems)
+            {
+                bool current = item.IsCurrent(CurrentPath);
+                <li>
+                    <a class="mnl-app-shell__nav-link"
+                       href="@item.Href"
+                       aria-current="@(current ? "page" : null)"
+                       data-testid="@($"mnl-nav-item-{item.Href}")">
+                        <MnlIcon Name="item.Icon" />
+                        <span>@item.Label</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <div class="mnl-app-shell__main">
+        <header class="mnl-app-shell__header">
+            <MnlThemeToggle data-testid="mnl-theme-toggle" />
+            @if (UserName is not null)
+            {
+                <MnlAvatar Name="@UserName" Size="MnlSize.Sm" data-testid="mnl-user-avatar" />
+            }
+            @HeaderActions
+        </header>
+        <main class="mnl-app-shell__content" id="main">
+            @ChildContent
+        </main>
+    </div>
+</div>
+
+@code {
+    /// <summary>The product name shown at the top of the sidebar.</summary>
+    [Parameter]
+    public string Brand { get; set; } = "Menlo";
+
+    /// <summary>The primary destinations.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MnlNavItem> NavItems { get; set; } = [];
+
+    /// <summary>The path of the current request, used to mark the current destination.</summary>
+    [Parameter, EditorRequired]
+    public string CurrentPath { get; set; } = "/";
+
+    /// <summary>The signed-in person's name, shown as an avatar. Null hides it.</summary>
+    [Parameter]
+    public string? UserName { get; set; }
+
+    /// <summary>Extra controls at the end of the header, such as a sign-out button.</summary>
+    [Parameter]
+    public RenderFragment? HeaderActions { get; set; }
+
+    /// <summary>The page.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

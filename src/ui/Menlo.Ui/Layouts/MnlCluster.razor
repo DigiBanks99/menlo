@@ -1,0 +1,32 @@
+@inherits MnlComponent
+@*
+    Lays its children out in a row that wraps: button groups, a title beside a badge, tags.
+*@
+<div @attributes="Attributes"
+     class="@RootClass("mnl-cluster")"
+     data-gap="@Css.Token(Gap)"
+     data-align="@Css.Token(Align)"
+     data-justify="@Css.Token(Justify)"
+     data-stack-on-mobile="@Css.Flag(StackOnMobile)">@ChildContent</div>
+
+@code {
+    /// <summary>The space between children.</summary>
+    [Parameter]
+    public MnlGap Gap { get; set; } = MnlGap.Sm;
+
+    /// <summary>How children align vertically.</summary>
+    [Parameter]
+    public MnlAlign Align { get; set; } = MnlAlign.Center;
+
+    /// <summary>How children are spread along the row.</summary>
+    [Parameter]
+    public MnlJustify Justify { get; set; } = MnlJustify.Start;
+
+    /// <summary>Whether children stack full-width on small screens, as action buttons should.</summary>
+    [Parameter]
+    public bool StackOnMobile { get; set; }
+
+    /// <summary>The children.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

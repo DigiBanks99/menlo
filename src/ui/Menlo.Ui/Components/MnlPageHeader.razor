@@ -1,0 +1,25 @@
+@inherits MnlComponent
+@*
+    The gradient banner at the top of a page. Hero holds the page title and its primary actions.
+    ChildContent, when given, is a row of cards that overlaps the bottom of the banner.
+    Text inside Hero is dark in both themes, because the gradient is light in both.
+*@
+<section @attributes="Attributes" class="@RootClass("mnl-page-header")">
+    <div class="mnl-page-header__banner" data-has-overlap="@Css.Flag(ChildContent is not null)">
+        <div class="mnl-page-header__hero">@Hero</div>
+    </div>
+    @if (ChildContent is not null)
+    {
+        <div class="mnl-page-header__overlap">@ChildContent</div>
+    }
+</section>
+
+@code {
+    /// <summary>The title area on the gradient.</summary>
+    [Parameter]
+    public RenderFragment? Hero { get; set; }
+
+    /// <summary>Cards that overlap the banner's lower edge.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

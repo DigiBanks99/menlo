@@ -11,63 +11,75 @@ internal static class SecurityHeadersExtensions
     {
         internal WebApplication UseMenloSecurityHeaders()
         {
-            HeaderPolicyCollection securityPolicy = new HeaderPolicyCollection()
-                .AddMenloSecurityHeaders(app.Environment)
-                .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
+            HeaderPolicyCollection strict = BuildPolicy(allowInline: false);
 
-            app.UseSecurityHeaders(securityPolicy);
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseSecurityHeaders(strict);
+                return app;
+            }
+
+            // The API reference (Scalar) is only mapped in Development and needs inline scripts and styles.
+            // Everything else, the UI included, gets the same strict policy as production, so a page that
+            // breaks the policy fails in development first.
+            HeaderPolicyCollection apiReference = BuildPolicy(allowInline: true);
+
+            app.UseWhen(IsApiReference, branch => branch.UseSecurityHeaders(apiReference));
+            app.UseWhen(context => !IsApiReference(context), branch => branch.UseSecurityHeaders(strict));
 
             return app;
         }
     }
 
     /// <summary>
-    /// Adds Menlo-specific security headers configuration.
+    /// Adds Menlo's security headers with the strict content security policy.
     /// </summary>
     /// <param name="policies">The header policy collection.</param>
-    /// <param name="environment">The web host environment.</param>
     /// <returns>The header policy collection for chaining.</returns>
-    public static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies, IWebHostEnvironment environment)
+    public static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies) =>
+        policies.AddMenloSecurityHeaders(allowInline: false);
+
+    private static bool IsApiReference(HttpContext context) =>
+        context.Request.Path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase)
+        || context.Request.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase);
+
+    private static HeaderPolicyCollection BuildPolicy(bool allowInline) =>
+        new HeaderPolicyCollection()
+            .AddMenloSecurityHeaders(allowInline)
+            .AddCrossOriginOpenerPolicy(policyBuilder => policyBuilder.UnsafeNone());
+
+    private static HeaderPolicyCollection AddMenloSecurityHeaders(this HeaderPolicyCollection policies, bool allowInline)
     {
         policies.AddDefaultApiSecurityHeaders();
 
-        if (environment.IsDevelopment())
-        {
-            // In dev the Angular app runs on http while the API is https. The default
-            // CORP same-site header blocks cross-scheme fetches so we relax it here.
-            policies.AddCustomHeader("Cross-Origin-Resource-Policy", "cross-origin");
-        }
-
         policies.AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: (int)TimeSpan.FromDays(365 * 2).TotalSeconds);
 
-        // Configure CSP for API
         policies.AddContentSecurityPolicy(builder =>
         {
-            // Each AddScriptSrc() call replaces the previous directive, so it must be a single chain
-            if (environment.IsDevelopment())
+            // The UI loads every script and stylesheet from this origin and uses no inline script,
+            // no inline style and no eval, so 'self' is all it needs.
+            // Each AddScriptSrc() or AddStyleSrc() call replaces the previous directive, so each is one chain.
+            if (allowInline)
             {
-                builder.AddScriptSrc().Self().UnsafeInline(); // for Scalar, which is only mapped in Development
+                builder.AddScriptSrc().Self().UnsafeInline();
+                builder.AddStyleSrc().Self().UnsafeInline();
             }
             else
             {
                 builder.AddScriptSrc().Self();
+                builder.AddStyleSrc().Self();
             }
 
-            // Angular injects component styles at runtime, so style-src still needs unsafe-inline
-            builder.AddStyleSrc()
-                .Self()
-                .UnsafeInline();
-            builder.AddImgSrc().Self().Data(); // data: SVGs back <select> dropdown arrows
+            builder.AddImgSrc().Self().Data();
             builder.AddFontSrc().Self().From("https://fonts.scalar.com");
-            builder.AddConnectSrc().Self().From("https://login.microsoftonline.com");
+            builder.AddConnectSrc().Self();
 
             builder.AddDefaultSrc().None();
             builder.AddFrameAncestors().None();
-            builder.AddFormAction().Self();
+            // Signing out is a form post that redirects to Microsoft, and browsers apply form-action to the redirect too
+            builder.AddFormAction().Self().From("https://login.microsoftonline.com");
         });
 
         return policies;
     }
 }
-
-

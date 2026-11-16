@@ -1,0 +1,32 @@
+@inherits MnlComponent
+@*
+    An icon from MnlIconName. Decorative by default; pass Label when the icon is the only content
+    of a control, so screen readers have something to announce.
+*@
+<svg @attributes="Attributes"
+     class="@RootClass("mnl-icon")"
+     data-size="@Css.Token(Size)"
+     xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 24 24"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     role="@(Label is null ? null : "img")"
+     aria-label="@Label"
+     aria-hidden="@(Label is null ? "true" : null)">@((MarkupString)MnlIconShapes.For(Name))</svg>
+
+@code {
+    /// <summary>Which icon to draw.</summary>
+    [Parameter, EditorRequired]
+    public MnlIconName Name { get; set; }
+
+    /// <summary>Sm is 14px, Md is 20px, Lg is 24px.</summary>
+    [Parameter]
+    public MnlSize Size { get; set; } = MnlSize.Md;
+
+    /// <summary>An accessible name. Leave null for decorative icons.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+}

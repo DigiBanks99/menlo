@@ -1,0 +1,33 @@
+.mnl-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--mnl-border);
+  border-radius: var(--mnl-radius-full);
+  background-color: var(--mnl-surface);
+  color: var(--mnl-subtext);
+  cursor: pointer;
+  transition:
+    background-color var(--mnl-duration),
+    color var(--mnl-duration);
+}
+
+.mnl-theme-toggle:hover {
+  background-color: var(--mnl-surface-alt);
+  color: var(--mnl-text);
+}
+
+/* theme-init.js always sets data-theme, so exactly one icon shows: the theme you would switch to */
+.mnl-theme-toggle__to-light {
+  display: none;
+}
+
+:root[data-theme='dark'] .mnl-theme-toggle__to-light {
+  display: inline-flex;
+}
+
+:root[data-theme='dark'] .mnl-theme-toggle__to-dark {
+  display: none;
+}

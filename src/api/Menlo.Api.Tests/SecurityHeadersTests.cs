@@ -56,24 +56,38 @@ public sealed class SecurityHeadersTests(TestWebApplicationFactory factory) : Te
     }
 
     [Test]
-    public async Task GivenDevelopment_WhenMakingRequest_ThenCspAllowsDataImagesAndInlineScripts()
+    public async Task GivenDevelopment_WhenRequestingAPage_ThenCspIsAsStrictAsProduction()
     {
-        using TestWebApplicationFactory devFactory = new()
-        {
-            EnvironmentName = Environments.Development,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["ConnectionStrings:web-ui"] = "http://localhost:4200"
-            }
-        };
+        using TestWebApplicationFactory devFactory = new() { EnvironmentName = Environments.Development };
         HttpClient client = devFactory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/design", TestContext.Current!.Execution.CancellationToken);
+
+        ItShouldNotAllowUnsafeInline(GetCspDirective(response, "script-src"));
+        ItShouldNotAllowUnsafeInline(GetCspDirective(response, "style-src"));
+    }
+
+    [Test]
+    public async Task GivenDevelopment_WhenRequestingTheApiReference_ThenCspAllowsItsInlineScriptsAndStyles()
+    {
+        using TestWebApplicationFactory devFactory = new() { EnvironmentName = Environments.Development };
+        HttpClient client = devFactory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/scalar/v1", TestContext.Current!.Execution.CancellationToken);
+
+        GetCspDirective(response, "script-src").ShouldContain("unsafe-inline");
+        GetCspDirective(response, "style-src").ShouldContain("unsafe-inline");
+    }
+
+    [Test]
+    public async Task GivenProduction_WhenMakingRequest_ThenCspAllowsNoInlineStylesAndSignOutRedirect()
+    {
+        HttpClient client = factory.CreateClient();
+
         HttpResponseMessage response = await client.GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
 
-        string imgSrc = GetCspDirective(response, "img-src");
-        string scriptSrc = GetCspDirective(response, "script-src");
-        ItShouldAllowDataImages(imgSrc);
-        scriptSrc.ShouldContain("'self'");
-        scriptSrc.ShouldContain("'unsafe-inline'");
+        ItShouldNotAllowUnsafeInline(GetCspDirective(response, "style-src"));
+        GetCspDirective(response, "form-action").ShouldContain("https://login.microsoftonline.com");
     }
 
     private static string GetCspDirective(HttpResponseMessage response, string directive)

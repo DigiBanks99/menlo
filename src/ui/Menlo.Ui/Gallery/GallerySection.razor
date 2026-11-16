@@ -1,0 +1,29 @@
+@* A titled group of examples in the gallery. *@
+<section class="gallery-section" id="@Id" data-testid="@($"section-{Id}")">
+    <MnlStack Gap="MnlGap.Sm">
+        <MnlEyebrow>@Eyebrow</MnlEyebrow>
+        <MnlHeading Level="2" Size="MnlTextSize.Xxxl">@Title</MnlHeading>
+        @if (Description is not null)
+        {
+            <MnlText Tone="MnlTextTone.Subtle" Size="MnlTextSize.Md">@Description</MnlText>
+        }
+    </MnlStack>
+    @ChildContent
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Id { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Eyebrow { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

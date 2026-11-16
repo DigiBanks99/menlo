@@ -1,0 +1,88 @@
+@inherits MnlComponent
+@*
+    A vertical bar chart rendered as SVG on the server: no script, themed by the tokens.
+    One series draws one bar per category; several series draw a group per category.
+    Hovering a bar shows its value (the SVG <title>).
+*@
+<figure @attributes="Attributes" class="@RootClass("mnl-chart")" data-chart="bar">
+    <svg class="mnl-chart__plot" viewBox="0 0 @Width @Height" role="img" aria-label="@Title">
+        @foreach (decimal tick in _ticks)
+        {
+            string y = ChartMath.Coordinate(PlotBottom - ChartMath.Scale(tick, _top, PlotHeight));
+            <line class="mnl-chart__grid" x1="@MarginLeft" x2="@(Width - MarginRight)" y1="@y" y2="@y" />
+            <MnlSvgText class="mnl-chart__tick" x="@(MarginLeft - 8)" y="@y" text-anchor="end" dominant-baseline="middle">@FormatValue(tick)</MnlSvgText>
+        }
+
+        @for (int category = 0; category < Categories.Count; category++)
+        {
+            double groupX = MarginLeft + (category * _groupWidth);
+            string categoryLabel = Categories[category];
+            <MnlSvgText class="mnl-chart__tick" x="@ChartMath.Coordinate(groupX + (_groupWidth / 2))" y="@(Height - 12)" text-anchor="middle">@categoryLabel</MnlSvgText>
+
+            @for (int series = 0; series < Series.Count; series++)
+            {
+                decimal value = category < Series[series].Values.Count ? Series[series].Values[category] : 0m;
+                double barHeight = ChartMath.Scale(value, _top, PlotHeight);
+                double x = groupX + GroupPadding + (series * _barWidth);
+                <rect class="mnl-chart__bar"
+                      data-series="@ChartMath.ColourSlot(series)"
+                      x="@ChartMath.Coordinate(x)"
+                      y="@ChartMath.Coordinate(PlotBottom - barHeight)"
+                      width="@ChartMath.Coordinate(Math.Max(_barWidth - 2, 1))"
+                      height="@ChartMath.Coordinate(barHeight)"
+                      rx="3">
+                    <title>@Series[series].Name, @Categories[category]: @FormatValue(value)</title>
+                </rect>
+            }
+        }
+    </svg>
+    @if (Series.Count > 1)
+    {
+        <MnlChartLegend Labels="@([.. Series.Select(s => s.Name)])" />
+    }
+</figure>
+
+@code {
+    private const int Width = 640;
+    private const int Height = 320;
+    private const int MarginLeft = 64;
+    private const int MarginRight = 16;
+    private const int MarginTop = 16;
+    private const int MarginBottom = 40;
+    private const double GroupPadding = 8;
+    private const double PlotHeight = Height - MarginTop - MarginBottom;
+    private const double PlotBottom = Height - MarginBottom;
+
+    private IReadOnlyList<decimal> _ticks = [];
+    private decimal _top;
+    private double _groupWidth;
+    private double _barWidth;
+
+    /// <summary>What the chart shows. It is the chart's accessible name.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The labels along the horizontal axis.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Categories { get; set; } = [];
+
+    /// <summary>The series to draw. Each has one value per category.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MnlChartSeries> Series { get; set; } = [];
+
+    /// <summary>How to format axis ticks and tooltips. Defaults to a whole number with grouping.</summary>
+    [Parameter]
+    public Func<decimal, string>? Format { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        decimal max = Series.SelectMany(series => series.Values).DefaultIfEmpty(0m).Max();
+        _ticks = ChartMath.Ticks(max);
+        _top = _ticks[^1];
+        _groupWidth = (Width - MarginLeft - MarginRight) / (double)Math.Max(Categories.Count, 1);
+        _barWidth = (_groupWidth - (GroupPadding * 2)) / Math.Max(Series.Count, 1);
+    }
+
+    private string FormatValue(decimal value) =>
+        Format?.Invoke(value) ?? value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+}

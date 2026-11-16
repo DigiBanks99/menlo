@@ -1,0 +1,39 @@
+@inherits MnlComponent
+@*
+    A row that expands to show more, built on <details>, so it works without script and the browser
+    keeps the open state. Summary is always visible; ChildContent shows when open.
+    Leave ChildContent out for a row that looks the same but can't expand.
+*@
+@if (ChildContent is not null)
+{
+    <details @attributes="Attributes" class="@RootClass("mnl-disclosure")" open="@Open">
+        <summary class="mnl-disclosure__summary">
+            <span class="mnl-disclosure__chevron" aria-hidden="true"><MnlIcon Name="MnlIconName.ChevronRight" Size="MnlSize.Sm" /></span>
+            <span class="mnl-disclosure__label">@Summary</span>
+        </summary>
+        <div class="mnl-disclosure__content">@ChildContent</div>
+    </details>
+}
+else
+{
+    <div @attributes="Attributes" class="@RootClass("mnl-disclosure")">
+        <div class="mnl-disclosure__summary" data-static="true">
+            <span class="mnl-disclosure__chevron" aria-hidden="true"></span>
+            <span class="mnl-disclosure__label">@Summary</span>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Whether it starts open.</summary>
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>The always-visible row.</summary>
+    [Parameter]
+    public RenderFragment? Summary { get; set; }
+
+    /// <summary>The content revealed when open.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

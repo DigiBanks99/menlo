@@ -1,0 +1,54 @@
+@inherits MnlComponent
+@*
+    A row in a list: optional leading content, a body, optional trailing content (actions or figures).
+    With Href the whole row is a link.
+*@
+@if (Href is not null)
+{
+    <a @attributes="Attributes"
+       class="@RootClass("mnl-list-item")"
+       href="@Href"
+       data-interactive="true"
+       data-selected="@Css.Flag(Selected)"
+       aria-current="@(Selected ? "page" : null)">@Content</a>
+}
+else
+{
+    <div @attributes="Attributes"
+         class="@RootClass("mnl-list-item")"
+         data-selected="@Css.Flag(Selected)">@Content</div>
+}
+
+@code {
+    /// <summary>When set, the row is a link to this address.</summary>
+    [Parameter]
+    public string? Href { get; set; }
+
+    /// <summary>Whether the row is the current selection.</summary>
+    [Parameter]
+    public bool Selected { get; set; }
+
+    /// <summary>Content before the body: an icon, an emoji, a toggle.</summary>
+    [Parameter]
+    public RenderFragment? Leading { get; set; }
+
+    /// <summary>The row's main content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content after the body: actions or figures.</summary>
+    [Parameter]
+    public RenderFragment? Trailing { get; set; }
+
+    private RenderFragment Content => @<text>
+        @if (Leading is not null)
+        {
+            <span class="mnl-list-item__leading">@Leading</span>
+        }
+        <span class="mnl-list-item__body">@ChildContent</span>
+        @if (Trailing is not null)
+        {
+            <span class="mnl-list-item__trailing">@Trailing</span>
+        }
+    </text>;
+}

@@ -1,3 +1,4 @@
+using Menlo.Api.Ui.Shared;
 using Menlo.Application.Auth;
 using Menlo.Lib.Auth.Models;
 using Menlo.Lib.Common.ValueObjects;
@@ -51,11 +52,11 @@ public sealed class UserContextMiddleware(RequestDelegate next, ILogger<UserCont
 public static class UserContextMiddlewareExtensions
 {
     /// <summary>
-    /// Adds <see cref="UserContextMiddleware"/> for <c>/api</c> requests. Call it after <c>UseAuthorization()</c> and before
+    /// Adds <see cref="UserContextMiddleware"/> for <c>/api</c> requests and UI endpoints. Call it after <c>UseAuthorization()</c> and before
     /// endpoints run.
     /// </summary>
     public static IApplicationBuilder UseMenloUserContext(this IApplicationBuilder app) =>
         app.UseWhen(
-            context => context.Request.Path.StartsWithSegments("/api"),
+            context => context.Request.Path.StartsWithSegments("/api") || UiEndpointMetadata.IsOn(context),
             branch => branch.UseMiddleware<UserContextMiddleware>());
 }

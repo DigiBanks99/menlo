@@ -1,0 +1,33 @@
+@inherits MnlComponent
+@*
+    How much of something is used, from 0 to 100. Values outside the range are clamped.
+    Pick the Tone from the value in the page's view model (for example, Error at 95% and above).
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-progress")" data-tone="@Css.Token(Tone)">
+    @if (Label is not null)
+    {
+        <span class="mnl-progress__label">@Label</span>
+    }
+    <progress class="mnl-progress__bar" max="100" value="@Normalized" aria-label="@(AriaLabel ?? Label ?? "Progress")"></progress>
+</div>
+
+@code {
+    /// <summary>The percentage, 0 to 100.</summary>
+    [Parameter]
+    public decimal Value { get; set; }
+
+    /// <summary>The colour of the bar. Neutral renders as Accent.</summary>
+    [Parameter]
+    public MnlTone Tone { get; set; } = MnlTone.Accent;
+
+    /// <summary>A visible label above the bar.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>The accessible name when there is no visible label.</summary>
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    private string Normalized =>
+        Math.Clamp(Value, 0m, 100m).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

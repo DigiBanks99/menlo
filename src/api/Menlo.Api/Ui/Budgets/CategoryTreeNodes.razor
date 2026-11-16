@@ -1,0 +1,73 @@
+@*
+    One level of the category tree. It renders itself for each node's children, so the nesting of
+    the lists gives the indentation.
+*@
+<ul class="category-tree">
+    @foreach (CategoryNodeModel node in Nodes)
+    {
+        string nodeUrl = $"/budgets/{BudgetId}/categories/{node.Id}";
+        <li data-testid="@($"tree-node-{node.Id}")">
+            <MnlListItem>
+                <ChildContent>
+                    <MnlCluster>
+                        <MnlText Weight="MnlWeight.Semibold" Inline="true" Tone="@(node.IsDeleted ? MnlTextTone.Subtle : MnlTextTone.Default)" class="@(node.IsDeleted ? "category-tree__deleted" : null)">@node.Name</MnlText>
+                        <MnlTag>@node.BudgetFlow</MnlTag>
+                        @if (node.Attribution is not null)
+                        {
+                            <MnlTag Tone="MnlTone.Info">@CategoryOptions.AttributionLabel(node.Attribution)</MnlTag>
+                        }
+                        @if (node.IsDeleted)
+                        {
+                            <MnlTag Tone="MnlTone.Error">Deleted</MnlTag>
+                        }
+                    </MnlCluster>
+                    <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">
+                        Depth @node.Depth · @(node.HasChildren ? "Parent category" : "Leaf category")
+                    </MnlText>
+                </ChildContent>
+                <Trailing>
+                    @if (CanEdit)
+                    {
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary"
+                                   hx-get="@($"/budgets/{BudgetId}/categories/new?parentId={node.Id}")"
+                                   hx-target="@MnlPanel.HostSelector"
+                                   data-testid="@($"btn-add-child-{node.Id}")">Add child</MnlButton>
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost"
+                                   hx-get="@($"{nodeUrl}/edit")"
+                                   hx-target="@MnlPanel.HostSelector"
+                                   data-testid="@($"btn-edit-{node.Id}")">Edit</MnlButton>
+                        @if (node.IsDeleted)
+                        {
+                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary"
+                                       hx-put="@($"{nodeUrl}/restore")"
+                                       hx-swap="none"
+                                       data-testid="@($"btn-restore-{node.Id}")">Restore</MnlButton>
+                        }
+                        else
+                        {
+                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Destructive"
+                                       hx-delete="@nodeUrl"
+                                       hx-swap="none"
+                                       data-testid="@($"btn-delete-{node.Id}")">Delete</MnlButton>
+                        }
+                    }
+                </Trailing>
+            </MnlListItem>
+            @if (node.HasChildren)
+            {
+                <CategoryTreeNodes BudgetId="BudgetId" Nodes="node.Children" CanEdit="CanEdit" />
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid BudgetId { get; set; }
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<CategoryNodeModel> Nodes { get; set; } = [];
+
+    [Parameter]
+    public bool CanEdit { get; set; }
+}

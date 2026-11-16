@@ -1,0 +1,41 @@
+@inherits MnlComponent
+@*
+    A solid status pill: "Active", "On track", "Unavailable". For a descriptive label that isn't a
+    status (a category type, a count), use MnlTag.
+*@
+<span @attributes="Attributes"
+      class="@RootClass("mnl-badge")"
+      data-tone="@Css.Token(Tone)"
+      data-size="@Css.Token(Size)">
+    @if (Dot)
+    {
+        <span class="mnl-badge__dot" aria-hidden="true"></span>
+    }
+    @if (Icon is not null)
+    {
+        <MnlIcon Name="Icon.Value" Size="MnlSize.Sm" />
+    }
+    @ChildContent
+</span>
+
+@code {
+    /// <summary>What the status means. Accent renders like Info.</summary>
+    [Parameter]
+    public MnlTone Tone { get; set; } = MnlTone.Neutral;
+
+    /// <summary>Sm or Md. Lg renders as Md.</summary>
+    [Parameter]
+    public MnlSize Size { get; set; } = MnlSize.Md;
+
+    /// <summary>Whether to show a leading dot.</summary>
+    [Parameter]
+    public bool Dot { get; set; }
+
+    /// <summary>An icon shown before the text.</summary>
+    [Parameter]
+    public MnlIconName? Icon { get; set; }
+
+    /// <summary>The status text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

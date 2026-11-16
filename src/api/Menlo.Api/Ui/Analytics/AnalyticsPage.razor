@@ -1,0 +1,142 @@
+@* Budget analytics. Sample data for now; the layout is ready for the real figures. *@
+<AppPage Page="Page" Title="Analytics">
+    <MnlStack Gap="MnlGap.Xl" data-testid="budget-analytics-page">
+        <MnlPageHeader>
+            <Hero>
+                <MnlSplit Ratio="MnlSplitRatio.AutoEnd" Align="MnlAlign.End">
+                    <MnlStack Gap="MnlGap.Lg" Align="MnlAlign.Start" data-testid="budget-analytics-hero">
+                        <MnlBadge Size="MnlSize.Sm">Household analytics</MnlBadge>
+                        <MnlStack Gap="MnlGap.Sm">
+                            <MnlHeading Level="1">Budget Analytics</MnlHeading>
+                            <MnlText Size="MnlTextSize.Lg" Tone="MnlTextTone.Inherit">
+                                AI-powered insights into your family's spending patterns, savings momentum, and category performance.
+                            </MnlText>
+                        </MnlStack>
+                    </MnlStack>
+                    <MnlCard>
+                        <form action="/analytics" method="get" hx-trigger="change" hx-get="/analytics" hx-target="body" hx-push-url="true">
+                            <MnlStack Gap="MnlGap.Sm">
+                                <MnlEyebrow Tone="MnlTextTone.Subtle">Viewing period</MnlEyebrow>
+                                <MnlText Tone="MnlTextTone.Subtle">Budget analytics is currently seeded with stub data for @Model.PeriodLabel.</MnlText>
+                                <MnlSelect Name="period" Value="@Model.Period" Options="Model.Periods" aria-label="Viewing period" data-testid="budget-analytics-period-select" />
+                            </MnlStack>
+                        </form>
+                    </MnlCard>
+                </MnlSplit>
+            </Hero>
+            <ChildContent>
+                <MnlGrid Columns="MnlGridColumns.Four" data-testid="budget-analytics-summary">
+                    @foreach (AnalyticsMetric metric in Model.Metrics)
+                    {
+                        <MnlCard data-testid="@($"budget-analytics-stat-{metric.Id}")">
+                            <MnlStack>
+                                <MnlCluster Justify="MnlJustify.Between">
+                                    <MnlBadge Tone="metric.IconTone" Size="MnlSize.Sm">@metric.Icon</MnlBadge>
+                                    <MnlEyebrow Tone="MnlTextTone.Subtle">Snapshot</MnlEyebrow>
+                                </MnlCluster>
+                                <MnlStat Label="@metric.Title" Value="@metric.Value" Trend="@metric.Change" TrendDirection="metric.Direction" TrendTone="metric.ChangeTone" />
+                            </MnlStack>
+                        </MnlCard>
+                    }
+                </MnlGrid>
+            </ChildContent>
+        </MnlPageHeader>
+
+        <MnlSplit Ratio="MnlSplitRatio.Even" Align="MnlAlign.Stretch" data-testid="budget-analytics-overview">
+            <MnlCard Padding="MnlSize.Lg" data-testid="budget-analytics-trends">
+                <MnlStack Gap="MnlGap.Lg">
+                    <MnlStack Gap="MnlGap.Sm">
+                        <MnlCluster>
+                            <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Trend view</MnlBadge>
+                            <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Semibold" Inline="true">Spending momentum</MnlText>
+                        </MnlCluster>
+                        <MnlHeading Level="2">Spending Trends</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">
+                            Interactive charting will arrive with live analytics, but the design-system surface is ready for richer visualisations.
+                        </MnlText>
+                    </MnlStack>
+                    <MnlEmptyState Title="Visual trend analysis coming soon"
+                                   Message="Menlo will layer category trends, forecasts, and anomaly detection onto this panel once the analytics API is connected."
+                                   Bordered="true" />
+                </MnlStack>
+            </MnlCard>
+
+            <MnlCard Padding="MnlSize.Lg" data-testid="budget-analytics-categories">
+                <MnlStack Gap="MnlGap.Lg">
+                    <MnlStack Gap="MnlGap.Sm">
+                        <MnlCluster>
+                            <MnlBadge Size="MnlSize.Sm">Breakdown</MnlBadge>
+                            <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Semibold" Inline="true">Category utilisation</MnlText>
+                        </MnlCluster>
+                        <MnlHeading Level="2">Spending by Category</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">Compare each category's spend against the current monthly allocation.</MnlText>
+                    </MnlStack>
+                    <ul>
+                        @foreach (AnalyticsCategory category in Model.Categories)
+                        {
+                            <li>
+                                <MnlListItem data-testid="@($"budget-analytics-category-{category.Id}")">
+                                    <Leading><span aria-hidden="true">@category.Icon</span></Leading>
+                                    <ChildContent>
+                                        <MnlCluster>
+                                            <MnlText Weight="MnlWeight.Semibold" Inline="true">@category.Name</MnlText>
+                                            <MnlTag>@category.PercentageText</MnlTag>
+                                        </MnlCluster>
+                                        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">@category.Amount budgeted in @Model.PeriodLabel</MnlText>
+                                        <MnlProgress Value="category.Percentage" Tone="category.Tone" AriaLabel="@($"{category.Name} utilization")" />
+                                    </ChildContent>
+                                </MnlListItem>
+                            </li>
+                        }
+                    </ul>
+                </MnlStack>
+            </MnlCard>
+        </MnlSplit>
+
+        <section data-testid="budget-analytics-insights">
+            <MnlCard Padding="MnlSize.Lg">
+                <MnlStack Gap="MnlGap.Lg">
+                    <MnlStack Gap="MnlGap.Sm">
+                        <MnlCluster>
+                            <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">AI review</MnlBadge>
+                            <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Semibold" Inline="true">Generated guidance</MnlText>
+                        </MnlCluster>
+                        <MnlHeading Level="2">AI Insights</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">Practical prompts and alerts based on the household budget snapshot.</MnlText>
+                    </MnlStack>
+                    <ul>
+                        @foreach (AnalyticsInsight insight in Model.Insights)
+                        {
+                            <li>
+                                <MnlListItem data-testid="@($"budget-analytics-insight-{insight.Id}")">
+                                    <Leading><span aria-hidden="true">@insight.Icon</span></Leading>
+                                    <ChildContent>
+                                        <MnlCluster>
+                                            <MnlHeading Level="3" Size="MnlTextSize.Md">@insight.Title</MnlHeading>
+                                            <MnlBadge Tone="insight.Tone" Size="MnlSize.Sm">@insight.Label</MnlBadge>
+                                        </MnlCluster>
+                                        <MnlText Tone="MnlTextTone.Subtle">@insight.Description</MnlText>
+                                    </ChildContent>
+                                    <Trailing>
+                                        @if (insight.Action is not null)
+                                        {
+                                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary">@insight.Action</MnlButton>
+                                        }
+                                    </Trailing>
+                                </MnlListItem>
+                            </li>
+                        }
+                    </ul>
+                </MnlStack>
+            </MnlCard>
+        </section>
+    </MnlStack>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public AnalyticsPageModel Model { get; set; } = null!;
+}

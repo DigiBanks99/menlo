@@ -1,0 +1,20 @@
+@inherits MnlComponent
+@*
+    Stacks its children vertically with an even gap. The default building block for page layout:
+    reach for it before writing margin CSS.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-stack")" data-gap="@Css.Token(Gap)" data-align="@Css.Token(Align)">@ChildContent</div>
+
+@code {
+    /// <summary>The space between children.</summary>
+    [Parameter]
+    public MnlGap Gap { get; set; } = MnlGap.Md;
+
+    /// <summary>How children align horizontally. Stretch fills the width.</summary>
+    [Parameter]
+    public MnlAlign Align { get; set; } = MnlAlign.Stretch;
+
+    /// <summary>The children.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

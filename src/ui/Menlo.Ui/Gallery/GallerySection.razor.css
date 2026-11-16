@@ -1,0 +1,6 @@
+.gallery-section {
+  display: grid;
+  gap: var(--mnl-space-8);
+  min-width: 0;
+  scroll-margin-top: var(--mnl-space-6);
+}

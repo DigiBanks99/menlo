@@ -1,0 +1,10 @@
+@using Menlo.Ui.Gallery
+@* Hosts the design-system gallery from Menlo.Ui and tells it where this app's example endpoints are. *@
+<AppPage Page="Page" Title="Design system" Bare="true">
+    <MnlGallery PanelUrl="/design/panel" ToastUrl="/design/toast" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+}

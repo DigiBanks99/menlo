@@ -1,0 +1,140 @@
+/*
+ * Styles for the SVG charts in Charts/. The chart components share these classes, so they live in
+ * one global file instead of per-component .razor.css files.
+ * Colours come from --mnl-chart-1 to --mnl-chart-8, selected with data-series="1" to "8".
+ */
+.mnl-chart {
+  display: grid;
+  gap: var(--mnl-space-3);
+  min-width: 0;
+  margin: 0;
+}
+
+.mnl-chart__plot {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.mnl-chart[data-chart='donut'] .mnl-chart__plot,
+.mnl-chart[data-chart='radial'] .mnl-chart__plot {
+  max-width: 14rem;
+  margin-inline: auto;
+}
+
+.mnl-chart__grid {
+  stroke: var(--mnl-border-subtle);
+  stroke-width: 1;
+}
+
+.mnl-chart__tick {
+  fill: var(--mnl-subtext);
+  font-family: var(--mnl-font);
+  font-size: 12px;
+}
+
+.mnl-chart__line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mnl-chart__point {
+  stroke: var(--mnl-surface);
+  stroke-width: 2;
+}
+
+.mnl-chart__track,
+.mnl-chart__arc {
+  fill: none;
+  stroke-width: 24;
+}
+
+.mnl-chart__track {
+  stroke: var(--mnl-surface-alt);
+}
+
+.mnl-chart__center-value {
+  fill: var(--mnl-text);
+  font-family: var(--mnl-font);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.mnl-chart__center-label {
+  fill: var(--mnl-subtext);
+  font-family: var(--mnl-font);
+  font-size: 12px;
+}
+
+.mnl-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--mnl-space-2) var(--mnl-space-4);
+  font-size: var(--mnl-text-sm);
+  color: var(--mnl-subtext);
+}
+
+.mnl-chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mnl-space-2);
+}
+
+.mnl-chart__swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--mnl-radius-sm);
+}
+
+/* Series colours: bars, points and swatches are filled; lines and arcs are stroked */
+.mnl-chart__bar[data-series='1'],
+.mnl-chart__point[data-series='1'] { fill: var(--mnl-chart-1); }
+.mnl-chart__bar[data-series='2'],
+.mnl-chart__point[data-series='2'] { fill: var(--mnl-chart-2); }
+.mnl-chart__bar[data-series='3'],
+.mnl-chart__point[data-series='3'] { fill: var(--mnl-chart-3); }
+.mnl-chart__bar[data-series='4'],
+.mnl-chart__point[data-series='4'] { fill: var(--mnl-chart-4); }
+.mnl-chart__bar[data-series='5'],
+.mnl-chart__point[data-series='5'] { fill: var(--mnl-chart-5); }
+.mnl-chart__bar[data-series='6'],
+.mnl-chart__point[data-series='6'] { fill: var(--mnl-chart-6); }
+.mnl-chart__bar[data-series='7'],
+.mnl-chart__point[data-series='7'] { fill: var(--mnl-chart-7); }
+.mnl-chart__bar[data-series='8'],
+.mnl-chart__point[data-series='8'] { fill: var(--mnl-chart-8); }
+
+.mnl-chart__line[data-series='1'],
+.mnl-chart__arc[data-series='1'] { stroke: var(--mnl-chart-1); }
+.mnl-chart__line[data-series='2'],
+.mnl-chart__arc[data-series='2'] { stroke: var(--mnl-chart-2); }
+.mnl-chart__line[data-series='3'],
+.mnl-chart__arc[data-series='3'] { stroke: var(--mnl-chart-3); }
+.mnl-chart__line[data-series='4'],
+.mnl-chart__arc[data-series='4'] { stroke: var(--mnl-chart-4); }
+.mnl-chart__line[data-series='5'],
+.mnl-chart__arc[data-series='5'] { stroke: var(--mnl-chart-5); }
+.mnl-chart__line[data-series='6'],
+.mnl-chart__arc[data-series='6'] { stroke: var(--mnl-chart-6); }
+.mnl-chart__line[data-series='7'],
+.mnl-chart__arc[data-series='7'] { stroke: var(--mnl-chart-7); }
+.mnl-chart__line[data-series='8'],
+.mnl-chart__arc[data-series='8'] { stroke: var(--mnl-chart-8); }
+
+.mnl-chart__swatch[data-series='1'] { background-color: var(--mnl-chart-1); }
+.mnl-chart__swatch[data-series='2'] { background-color: var(--mnl-chart-2); }
+.mnl-chart__swatch[data-series='3'] { background-color: var(--mnl-chart-3); }
+.mnl-chart__swatch[data-series='4'] { background-color: var(--mnl-chart-4); }
+.mnl-chart__swatch[data-series='5'] { background-color: var(--mnl-chart-5); }
+.mnl-chart__swatch[data-series='6'] { background-color: var(--mnl-chart-6); }
+.mnl-chart__swatch[data-series='7'] { background-color: var(--mnl-chart-7); }
+.mnl-chart__swatch[data-series='8'] { background-color: var(--mnl-chart-8); }
+
+/* A radial chart's single ring takes its colour from the tone */
+.mnl-chart[data-chart='radial'][data-tone='success'] .mnl-chart__arc { stroke: var(--mnl-success); }
+.mnl-chart[data-chart='radial'][data-tone='warning'] .mnl-chart__arc { stroke: var(--mnl-warning); }
+.mnl-chart[data-chart='radial'][data-tone='error'] .mnl-chart__arc { stroke: var(--mnl-error); }
+.mnl-chart[data-chart='radial'][data-tone='info'] .mnl-chart__arc { stroke: var(--mnl-info); }

@@ -1,0 +1,30 @@
+@*
+    Where toasts appear. MnlDocument renders one per page. Toasts passed in are shown on load;
+    menlo.js adds more when the server sends the "mnl:toast" event, cloning the template below
+    so that scripted toasts get the same markup and styles.
+*@
+<div class="mnl-toast-region" id="mnl-toast-region" aria-live="polite" data-testid="mnl-toast-region">
+    <template id="mnl-toast-template">
+        <div class="mnl-toast" role="status" data-mnl-toast data-testid="mnl-toast">
+            <span class="mnl-toast__message"></span>
+            <button type="button" class="mnl-toast__dismiss" data-mnl-toast-dismiss aria-label="Dismiss">
+                <MnlIcon Name="MnlIconName.X" Size="MnlSize.Sm" />
+            </button>
+        </div>
+    </template>
+    @foreach (MnlToastMessage toast in Toasts)
+    {
+        <div class="mnl-toast" role="status" data-mnl-toast data-tone="@Css.Token(toast.Tone)" data-testid="mnl-toast">
+            <span class="mnl-toast__message">@toast.Message</span>
+            <button type="button" class="mnl-toast__dismiss" data-mnl-toast-dismiss aria-label="Dismiss">
+                <MnlIcon Name="MnlIconName.X" Size="MnlSize.Sm" />
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Toasts to show as the page loads.</summary>
+    [Parameter]
+    public IReadOnlyList<MnlToastMessage> Toasts { get; set; } = [];
+}

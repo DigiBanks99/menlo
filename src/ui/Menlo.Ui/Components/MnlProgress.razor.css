@@ -1,0 +1,53 @@
+.mnl-progress {
+  --mnl-progress-fill: var(--mnl-accent);
+
+  display: grid;
+  gap: var(--mnl-space-2);
+  width: 100%;
+}
+
+.mnl-progress[data-tone='success'] {
+  --mnl-progress-fill: var(--mnl-success);
+}
+
+.mnl-progress[data-tone='warning'] {
+  --mnl-progress-fill: var(--mnl-warning);
+}
+
+.mnl-progress[data-tone='error'] {
+  --mnl-progress-fill: var(--mnl-error);
+}
+
+.mnl-progress[data-tone='info'] {
+  --mnl-progress-fill: var(--mnl-info);
+}
+
+.mnl-progress__label {
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-semibold);
+}
+
+.mnl-progress__bar {
+  display: block;
+  width: 100%;
+  height: 0.625rem;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--mnl-radius-sm);
+  background-color: var(--mnl-surface-alt);
+  appearance: none;
+}
+
+.mnl-progress__bar::-webkit-progress-bar {
+  background-color: var(--mnl-surface-alt);
+}
+
+.mnl-progress__bar::-webkit-progress-value {
+  border-radius: var(--mnl-radius-sm);
+  background-color: var(--mnl-progress-fill);
+}
+
+.mnl-progress__bar::-moz-progress-bar {
+  border-radius: var(--mnl-radius-sm);
+  background-color: var(--mnl-progress-fill);
+}

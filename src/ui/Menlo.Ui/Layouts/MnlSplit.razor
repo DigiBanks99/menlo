@@ -1,0 +1,28 @@
+@inherits MnlComponent
+@*
+    Two regions side by side on wide screens and stacked on narrow ones: a main column and a
+    side column, or content beside its actions. It expects exactly two children.
+*@
+<div @attributes="Attributes"
+     class="@RootClass("mnl-split")"
+     data-ratio="@Css.Token(Ratio)"
+     data-gap="@Css.Token(Gap)"
+     data-align="@Css.Token(Align)">@ChildContent</div>
+
+@code {
+    /// <summary>How the two columns share the width.</summary>
+    [Parameter]
+    public MnlSplitRatio Ratio { get; set; } = MnlSplitRatio.Even;
+
+    /// <summary>The space between the regions.</summary>
+    [Parameter]
+    public MnlGap Gap { get; set; } = MnlGap.Lg;
+
+    /// <summary>How the regions align vertically when side by side.</summary>
+    [Parameter]
+    public MnlAlign Align { get; set; } = MnlAlign.Start;
+
+    /// <summary>The two regions.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
