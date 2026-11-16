@@ -22,7 +22,7 @@ The workspace is on the Windows filesystem, which doesn't support the Unix file 
 aspire run
 ```
 
-The dashboard is at <https://menlo.dev.localhost:17188>. Aspire starts:
+The dashboard is at `https://menlo.dev.localhost:17188`. Aspire starts:
 
 - PostgreSQL, with pgAdmin
 - the llama.cpp server, serving `qwen3.5-4b` for chat and vision
