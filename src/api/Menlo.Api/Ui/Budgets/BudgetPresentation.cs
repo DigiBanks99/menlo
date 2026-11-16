@@ -35,6 +35,9 @@ internal static class BudgetPresentation
     public static MnlTone FlowTone(string budgetFlow) =>
         budgetFlow == "Income" ? MnlTone.Success : MnlTone.Info;
 
+    /// <summary>"1 category" or "N categories".</summary>
+    public static string CategoryCount(int count) => count == 1 ? "1 category" : $"{count} categories";
+
     /// <summary>The name of a month, 1 to 12.</summary>
     public static string MonthName(int month) =>
         month is >= 1 and <= 12 ? MonthNames[month - 1] : $"Month {month}";

@@ -323,6 +323,7 @@ public sealed class UiSupportTests
         ItShouldToneSpending();
         ItShouldToneAFlow();
         ItShouldNameAMonth();
+        ItShouldCountCategories();
         ItShouldLabelAnAttribution();
 
         void ItShouldToneAStatus()
@@ -350,6 +351,13 @@ public sealed class UiSupportTests
             BudgetPresentation.MonthName(1).ShouldBe("January");
             BudgetPresentation.MonthName(12).ShouldBe("December");
             BudgetPresentation.MonthName(13).ShouldBe("Month 13");
+        }
+
+        void ItShouldCountCategories()
+        {
+            BudgetPresentation.CategoryCount(0).ShouldBe("0 categories");
+            BudgetPresentation.CategoryCount(1).ShouldBe("1 category");
+            BudgetPresentation.CategoryCount(6).ShouldBe("6 categories");
         }
 
         void ItShouldLabelAnAttribution()
