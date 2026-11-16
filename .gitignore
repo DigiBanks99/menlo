@@ -487,13 +487,10 @@ $RECYCLE.BIN/
 *.sw
 
 # Tools
-.nx/*
 .playwright-mcp/
 .playwright-cli/
 
 # Project Specific
-src/api/Menlo.Api/wwwroot/*
-node_modules
 _tmp*
 auth.json
 .auth.json

@@ -238,7 +238,7 @@ public sealed class BudgetPagesTests(BudgetApiFixture fixture) : TestFixture
         await UiHtml.CreateItemAsync(client, budgetId, rent, "Expense", 3, 100m);
         await UiHtml.CreateItemAsync(client, budgetId, rent, "Expense", 4, 250m);
 
-        IHtmlDocument searched = await (await client.GetAsync($"/budgets/{budgetId}?q=ren", Cancellation)).DocumentAsync();
+        IHtmlDocument searched = await (await client.GetAsync($"/budgets/{budgetId}?view=monthly&month=11&q=ren&flow=&attribution=", Cancellation)).DocumentAsync();
         IHtmlDocument byFlow = await (await client.GetAsync($"/budgets/{budgetId}?flow=Income", Cancellation)).DocumentAsync();
         IHtmlDocument nothing = await (await client.GetAsync($"/budgets/{budgetId}?q=zzz", Cancellation)).DocumentAsync();
         IHtmlDocument withDeleted = await (await client.GetAsync($"/budgets/{budgetId}?deleted=true", Cancellation)).DocumentAsync();

@@ -12,6 +12,14 @@ internal static class BudgetRegion
 
     private const string Selector = "#" + Id;
 
+    // Every request that swaps the region is synchronised on the region, and a newer one replaces an
+    // older one still in flight. Without this, a reload that started just before someone typed in the
+    // search box could finish after their request and put the old state back.
+    private const string Sync = Selector + ":replace";
+
+    /// <summary>The hx-sync value for anything that swaps the region.</summary>
+    public const string SyncValue = Sync;
+
     /// <summary>
     /// Attributes for a link or control that moves the page to another state.
     /// The plain href still works without script.
@@ -22,7 +30,8 @@ internal static class BudgetRegion
         ["hx-target"] = Selector,
         ["hx-select"] = Selector,
         ["hx-swap"] = "outerHTML",
-        ["hx-replace-url"] = "true"
+        ["hx-replace-url"] = "true",
+        ["hx-sync"] = Sync
     };
 
     /// <summary>
@@ -34,6 +43,7 @@ internal static class BudgetRegion
         ["hx-get"] = string.Empty,
         ["hx-trigger"] = $"{Shared.UiEvents.CategoriesChanged} from:body, {Shared.UiEvents.ItemsChanged} from:body",
         ["hx-select"] = Selector,
-        ["hx-swap"] = "outerHTML"
+        ["hx-swap"] = "outerHTML",
+        ["hx-sync"] = Sync
     };
 }

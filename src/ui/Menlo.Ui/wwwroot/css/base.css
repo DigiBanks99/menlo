@@ -122,3 +122,12 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/*
+ * htmx swaps a region by inserting the new content before removing the old. With scroll anchoring
+ * on, the browser follows the old content down the page and the view jumps. Turning anchoring off
+ * keeps the scroll position where it was through a swap.
+ */
+body {
+  overflow-anchor: none;
+}
