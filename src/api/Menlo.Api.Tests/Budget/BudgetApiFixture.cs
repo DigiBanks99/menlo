@@ -13,8 +13,19 @@ namespace Menlo.Api.Tests.Budget;
 
 public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
-        .Build();
+    /// <summary>
+    /// Set this environment variable to a PostgreSQL connection string to run against that server and not start a
+    /// container, for machines where Testcontainers can not reach a container engine. Point it at a database
+    /// that holds nothing else: the budget tables are emptied before each test.
+    /// </summary>
+    public const string ExternalDatabaseVariable = "MENLO_TEST_POSTGRES";
+
+    private static readonly string? ExternalConnectionString =
+        Environment.GetEnvironmentVariable(ExternalDatabaseVariable) is { Length: > 0 } value ? value : null;
+
+    private readonly PostgreSqlContainer? _container = ExternalConnectionString is null
+        ? new PostgreSqlBuilder("postgres:17").Build()
+        : null;
 
     private BudgetTestWebApplicationFactory _factory = null!;
 
@@ -33,7 +44,8 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
         bool simulateUnauthenticated = false,
         bool keepData = false,
         bool asDifferentMember = false,
-        bool useRealStampFactories = false)
+        bool useRealStampFactories = false,
+        string[]? userRoles = null)
     {
         if (!keepData)
         {
@@ -47,6 +59,7 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
             UseRealUserProvisioning = true,
             UseRealStampFactories = useRealStampFactories,
             SimulateUnauthenticated = simulateUnauthenticated,
+            UserRoles = userRoles ?? ["Menlo.User"],
             UserId = asDifferentMember ? Guid.NewGuid().ToString() : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultUserId,
             UserEmail = asDifferentMember ? $"member-{Guid.NewGuid():N}@menlo.test" : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultEmail,
             ConfigurationOverrides = new Dictionary<string, string?>
@@ -72,9 +85,15 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 
     public async Task InitializeAsync()
     {
-        await _container.StartAsync();
-
-        ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
+        if (_container is null)
+        {
+            ConnectionString = ExternalConnectionString!;
+        }
+        else
+        {
+            await _container.StartAsync();
+            ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
+        }
 
         _factory = new BudgetTestWebApplicationFactory()
         {
@@ -94,7 +113,10 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await _factory.DisposeAsync();
-        await _container.DisposeAsync();
+        if (_container is not null)
+        {
+            await _container.DisposeAsync();
+        }
     }
 }
 
