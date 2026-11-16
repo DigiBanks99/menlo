@@ -5,9 +5,9 @@ Menlo is an AI-enhanced household management application, built for one South Af
 ## Where Things Live
 
 - **Backend**: `src/api/` (Menlo.Api, Menlo.AppHost) and `src/lib/` (Menlo.Lib, Menlo.AI)
-- **Frontend**: `src/ui/web/projects/` (menlo-app, menlo-lib, data-access)
+- **UI**: `src/ui/Menlo.Ui` (the design system) and `src/api/Menlo.Api/Ui` (pages, by feature). See `docs/explanations/ui-architecture.md`
 - **Requirements and specs**: GitHub issues on the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) project (see `docs/reference/work-items.md`). `docs/` is as-built. Don't add a `docs/requirements/` folder: its spec modules were distilled into `docs/` and deleted.
-- **Repo skills**: `.claude/skills/` (`.agents/skills` links to it; see its README for Windows setup)
+- **Repo skills**: `.claude/skills/` (`.agents/skills` links to it; see its README for Windows setup). Use `menlo-ui-pages` for any page, fragment or form, and `menlo-ui-components` for anything in `Menlo.Ui`
 - **Hooks and permissions**: `.github/hooks/README.md`
 - **Testing guide**: `docs/guides/testing-howto.md`
 - **Repo**: <https://github.com/DigiBanks99/menlo>
@@ -15,7 +15,7 @@ Menlo is an AI-enhanced household management application, built for one South Af
 ## Tech Stack
 
 - .NET 11 with C# `LangVersion=preview` (set in `Directory.Build.props`), Entity Framework Core, PostgreSQL
-- Angular 21, TypeScript, Vite, Vitest
+- A server-rendered UI: static Razor components and htmx, plain CSS, Catppuccin Latte and Mocha. No Node toolchain (see ADR-007)
 - Aspire for the local dev loop
 - Deployed via GitHub Actions to a Linux home server behind Cloudflare tunnels (see ADR-004)
 
@@ -26,8 +26,8 @@ Use `aspire` to run the application.
 ## Testing
 
 - Use `aspire` and `playwright-cli` for interactive feature testing and validation
-- Use `dotnet` for back-end unit and integration tests (TUnit)
-- Use `pnpm` for front-end tests
+- Use `dotnet test` for every test (TUnit): domain, API, UI components, pages and browser tests
+- The component gallery at `<app URL>/design` shows every UI component; it needs no sign-in in Development
 
 ### Signed-in testing
 
@@ -41,9 +41,8 @@ Agents can't do the Microsoft sign-in, so they reuse a session the owner saved:
 
 ## Linting and formatting
 
-- Web: `pnpm lint`, `pnpm format`
-- .NET: `dotnet format`
-- A git `pre-commit` hook formats staged files.
+- `dotnet format`
+- A git `pre-commit` hook formats staged .NET files. Enable it once per clone with `git config core.hooksPath .githooks`.
 
 ## API Coverage
 
@@ -79,11 +78,17 @@ gh issue list --state open --label ready-for-agent -L 200 --json number,labels,p
 - The home-server deploy job runs on the self-hosted Linux runner labelled `menlo-deploy`, only for `main` on `DigiBanks99/menlo`. Add that label to any replacement runner and keep its steps `shell: bash` (no pwsh on the host, see ADR-004).
 - CD writes the real prod compose inline in `.github/workflows/cd.yml`; `deployment/docker-compose.prod.yml` is only a reference, so deploy config changes must go in both. A missing `ForwardedHeaders__KnownNetworks` there makes sign-in fail with AADSTS500112 (http reply address).
 - Prod runs no model server: the API container uses host networking (listens on `127.0.0.1:8080`, Postgres at `127.0.0.1:5432`) and calls the VM's shared `llama-server` at `127.0.0.1:9931/v1`; forwarded headers are trusted from `127.0.0.0/8`.
-- Prod is one host: the API image serves the bundled SPA at `vars.FRONTEND_URL`. CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
-- To test the production image locally, run the AppHost with `Menlo__BundledUi=true` (serves the root Dockerfile's `api-bundled` target on http://localhost:8080), then run the CSP e2e from `src/ui/web` with `E2E_BASE_URL=http://localhost:8080 E2E_EXPECT_PRODUCTION_CSP=1 pnpm exec playwright test e2e/csp.spec.ts`. It skips without `E2E_BASE_URL`.
+- Prod is one host: the API image renders and serves the UI at `vars.FRONTEND_URL`. CD's post-deploy gate is `deployment/smoke-check.sh <url>`; run it locally to check prod.
+- To test the production image locally, run the AppHost with `Menlo__BundledUi=true` (runs the root Dockerfile's image as `api-bundled` on http://localhost:8080), then `bash deployment/smoke-check.sh http://localhost:8080`.
 - Update Aspire only with `aspire update`: it bumps `Aspire.AppHost.Sdk` in the AppHost csproj together with the `Aspire.*` packages. Dependabot ignores `Aspire.*` because it can't update the SDK. For build locks, follow the global `aspire-orchestration` skill and stop the AppHost first.
-- `menlo-app` resolves `data-access-menlo-api` from `dist/` (tsconfig paths), and `nx serve` doesn't rebuild it. If `web-ui` is unhealthy with `TS2305` missing exports, run `pnpm exec nx build data-access-menlo-api` and restart the resource.
-- `minimumReleaseAge: 1440` (pnpm) and Dependabot `cooldown: default-days: 3` keep fresh releases out. `pnpm install --frozen-lockfile` checks the lockfile against that age policy. Auto-merge uses `--auto`, so it still waits for the required `Quality Gate`.
+- Dependabot `cooldown: default-days: 3` keeps fresh releases out. Auto-merge uses `--auto`, so it still waits for the required `Quality Gate`.
 - `.github/hooks/git-guard.cs` blocks commits on `main` and `git checkout` forms that discard work. After changing it, run `bash .github/hooks/tests/git-guard.tests.sh`.
 - `dotnet test` runs TUnit on Microsoft.Testing.Platform (`global.json` `test.runner`), not VSTest. Coverage is `--coverage --coverage-output-format cobertura`, TRX is `--report-trx`, filters are `--treenode-filter`, and a run that finds zero tests exits 8.
 - CI's docs link check (`markdown-link-check`) scans the whole of every modified `.md` file, so a pre-existing broken link fails a docs PR. Run `npx markdown-link-check -c .config/markdown-link-check.json <file>` on changed files first.
+- The UI's Content Security Policy is `script-src 'self'; style-src 'self'` in every environment (only `/scalar` and `/openapi` are relaxed, in Development). An inline `style`, `<script>` or `hx-on` is blocked and shows as a console error.
+- htmx attribute inheritance is off (`disableInheritance`): put every `hx-*` attribute on the element that uses it. Only `hx-boost` on `<body>` inherits.
+- The scoped CSS bundle is `Menlo.Api.styles.css`; asset URLs carry a build-version suffix, so a stale stylesheet after a rebuild means the app wasn't restarted.
+- Stop the AppHost (`aspire stop`) before `dotnet build` or `dotnet test`: the running API locks `Menlo.Api.exe` and `Menlo.Ui.dll`.
+- Browser tests (`[Category("E2E")]` in `Menlo.Api.Tests`) drive the installed Chrome; set `MENLO_E2E_BROWSER_CHANNEL` for another browser and `MENLO_E2E_HEADED=1` to watch.
+- Budget and browser tests start PostgreSQL with Testcontainers, which needs a Docker-compatible engine pipe. Where there is none, set `MENLO_TEST_POSTGRES` to a connection string for an empty database.
+- Vendored front-end files (htmx, fonts) live in `src/ui/Menlo.Ui/wwwroot`; versions and sources are in `wwwroot/vendor/README.md`. Dependabot doesn't see them.

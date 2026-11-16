@@ -1,0 +1,41 @@
+{
+  "skill_name": "menlo-ui-components",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Add a Callout component to Menlo's design system: a soft-tinted box with an optional icon and title, for tips inside forms. It should support the usual tones.",
+      "expected_output": "src/ui/Menlo.Ui/Components/MnlCallout.razor inheriting MnlComponent with Attributes splatted on the root and RootClass('mnl-callout'), Tone as MnlTone, Icon as MnlIconName?, Title string?, ChildContent; MnlCallout.razor.css using --mnl-*-soft and role tokens selected by data-tone; a gallery example with Code; a component test with Rendered.ComponentAsync; design-system.md updated.",
+      "assertions": [
+        { "id": "location-and-base", "text": "The component is MnlCallout.razor in src/ui/Menlo.Ui/Components, inherits MnlComponent, and puts @attributes=Attributes and RootClass on its root", "weight": 2 },
+        { "id": "typed-params", "text": "Tone uses the shared MnlTone enum and Icon uses MnlIconName, not strings", "weight": 1 },
+        { "id": "tokens-only", "text": "The scoped .razor.css uses --mnl-* role tokens (for example --mnl-info-soft) and data-tone selectors, with no hex colours or pixel spacing and no inline style", "weight": 2 },
+        { "id": "no-domain", "text": "The component has no @inject and no reference to budgets, Menlo.Api or Menlo.Lib", "weight": 1 },
+        { "id": "gallery", "text": "An example with its markup is added to a Gallery section", "weight": 1 },
+        { "id": "test", "text": "A test in src/ui/Menlo.Ui.Tests renders it with Rendered.ComponentAsync and checks tone and optional parts", "weight": 1 },
+        { "id": "docs", "text": "docs/reference/design-system.md lists the new component", "weight": 1 }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "On a page I need to show each category's status as 'Over budget' in red when spending passed the plan, and its type (Income/Expense) as a label. Which components and tones should I use? Just tell me, with a snippet.",
+      "expected_output": "MnlBadge with Tone=MnlTone.Error for 'Over budget' (a status), MnlTag for Income/Expense (a descriptive label). The decision of which tone comes from the view model, and they sit in an MnlCluster.",
+      "assertions": [
+        { "id": "badge-for-status", "text": "Recommends MnlBadge with MnlTone.Error for the over-budget status", "weight": 2 },
+        { "id": "tag-for-type", "text": "Recommends MnlTag (not a badge) for Income/Expense", "weight": 2 },
+        { "id": "tone-from-model", "text": "Says the tone or over-budget decision comes from the view model, not computed in the markup", "weight": 1 },
+        { "id": "no-raw-colour", "text": "Does not suggest a hex colour, an inline style or a new CSS class for the red", "weight": 1 }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The success green looks too bright in dark mode on our new 'savings' tile. Make the tile's background a softer green in both themes.",
+      "expected_output": "Uses the existing --mnl-success-soft role token (or adds a new role token in tokens.css built from --ctp-green with light-dark/color-mix), applied in the tile's scoped CSS; no hex values in component CSS; checks /design or the page in both themes.",
+      "assertions": [
+        { "id": "role-token", "text": "Uses --mnl-success-soft or defines a new --mnl-* role in tokens.css rather than a literal colour in the component", "weight": 2 },
+        { "id": "both-themes", "text": "The change works for both Latte and Mocha (via the role token, light-dark or color-mix), not a dark-only override", "weight": 1 },
+        { "id": "no-hex-in-component", "text": "No hex colour is added outside tokens.css", "weight": 2 },
+        { "id": "verify", "text": "Says to check the result in light and dark mode (for example on /design)", "weight": 1 }
+      ]
+    }
+  ]
+}
