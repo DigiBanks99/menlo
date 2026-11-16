@@ -1,6 +1,6 @@
 #!/bin/sh
-# Formats staged files before each commit, for people and every agent alike.
-# Enabled by `git config core.hooksPath .githooks` (run by `pnpm install` at the repo root).
+# Formats staged .NET files before each commit, for people and every agent alike.
+# Enable once per clone with `git config core.hooksPath .githooks`.
 # See .github/hooks/README.md. Skip once with `git commit --no-verify`.
 
 root="$(git rev-parse --show-toplevel)" || exit 1
@@ -12,7 +12,6 @@ staged="$(git diff --cached --name-only --diff-filter=ACMR)"
 unstaged="$(git diff --name-only)"
 
 net_files=""
-web_files=""
 partial=""
 nl='
 '
@@ -21,9 +20,7 @@ old_ifs="$IFS"
 IFS="$nl"
 for file in $staged; do
     case "$file" in
-        *.cs | *.csproj | *.vb) kind=net ;;
-        src/ui/web/*.ts | src/ui/web/*.tsx | src/ui/web/*.js | src/ui/web/*.jsx | src/ui/web/*.mjs | \
-        src/ui/web/*.json | src/ui/web/*.html | src/ui/web/*.css | src/ui/web/*.scss | src/ui/web/*.md) kind=web ;;
+        *.cs | *.csproj | *.vb) ;;
         *) continue ;;
     esac
 
@@ -33,11 +30,7 @@ for file in $staged; do
         continue
     fi
 
-    if [ "$kind" = net ]; then
-        net_files="$net_files$file$nl"
-    else
-        web_files="$web_files${file#src/ui/web/}$nl"
-    fi
+    net_files="$net_files$file$nl"
 done
 IFS="$old_ifs"
 
@@ -48,37 +41,20 @@ if [ -n "$partial" ]; then
     exit 1
 fi
 
-status=0
+[ -n "$net_files" ] || exit 0
 
-if [ -n "$net_files" ]; then
-    echo "pre-commit: dotnet format on staged .NET files"
-    # shellcheck disable=SC2086 # split on newlines only
-    IFS="$nl"
-    if ! dotnet format Menlo.slnx --no-restore --include $net_files; then
-        echo "pre-commit: dotnet format failed" >&2
-        status=1
-    fi
-    IFS="$old_ifs"
-fi
-
-if [ -n "$web_files" ]; then
-    echo "pre-commit: nx format:write on staged web files"
-    web_csv="$(printf '%s' "$web_files" | sed '/^$/d' | paste -sd, -)"
-    if ! (cd src/ui/web && pnpm exec nx format:write --files="$web_csv"); then
-        echo "pre-commit: nx format:write failed" >&2
-        status=1
-    fi
-fi
-
-[ "$status" -eq 0 ] || exit "$status"
-
-# Re-stage what the formatters changed (only fully staged files reach this point).
+echo "pre-commit: dotnet format on staged .NET files"
+# shellcheck disable=SC2086 # split on newlines only
 IFS="$nl"
+if ! dotnet format Menlo.slnx --no-restore --include $net_files; then
+    IFS="$old_ifs"
+    echo "pre-commit: dotnet format failed" >&2
+    exit 1
+fi
+
+# Re-stage what the formatter changed (only fully staged files reach this point).
 for file in $net_files; do
     git add -- "$file"
-done
-for file in $web_files; do
-    git add -- "src/ui/web/$file"
 done
 IFS="$old_ifs"
 

@@ -33,18 +33,6 @@ TestResults/
 *.nupkg
 .nuget/
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Frontend build artifacts
-src/ui/web/dist/
-src/ui/web/storybook-static/
-src/ui/web/.angular/
-src/ui/web/coverage/
-
 # Environment files
 .env
 .env.*

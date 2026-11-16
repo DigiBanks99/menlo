@@ -6,7 +6,7 @@
 .DESCRIPTION
     Writes a pull_request event to .act/pull_request.json (gitignored), built from the
     merge base with origin/main, HEAD and the current branch, then runs act with it.
-    Any extra arguments are passed to act, e.g. -W .github/workflows/ci.yml -j frontend-tests, or -n for a dry run.
+    Any extra arguments are passed to act, e.g. -W .github/workflows/ci.yml -j backend-tests, or -n for a dry run.
 
 .PARAMETER Sender
     The GitHub login that opened the pull request. Pass 'dependabot[bot]' to reproduce

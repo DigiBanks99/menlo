@@ -39,7 +39,7 @@ Do not use this skill for general GitHub Actions authoring when there is no fail
 act pull_request -e .act/pull_request.json -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
-- Arguments it doesn't recognise go straight to `act`, e.g. `pwsh ./scripts/act-ci.ps1 -W .github/workflows/ci.yml -j frontend-tests -n`.
+- Arguments it doesn't recognise go straight to `act`, e.g. `pwsh ./scripts/act-ci.ps1 -W .github/workflows/ci.yml -j backend-tests -n`.
 - Pass `-Sender 'dependabot[bot]'` to reproduce Dependabot-only behaviour (the ephemeral Azure secret steps, auto-merge). It sets the event's `sender` and act's `--actor`, because the workflows check `github.actor`.
 - Use that script first for broad CI reproduction when the failure is in the main CI workflow.
 - For deployment workflows such as `cd.yml` and `cd-infra.yml`, prefer a direct `act` invocation scoped to the specific workflow and job.
@@ -85,7 +85,7 @@ Common patterns:
 
 ```powershell
 act pull_request -W .github/workflows/ci.yml -j detect-changes -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
-act pull_request -W .github/workflows/ci.yml -j frontend-tests -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+act pull_request -W .github/workflows/ci.yml -j backend-tests -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 act workflow_dispatch -W .github/workflows/cd.yml -j resolve-image -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
@@ -122,7 +122,7 @@ Once a local run fails, keep the loop tight:
 4. Rerun the same scoped `act` command.
 5. Expand the validation only after the focused reproduction passes.
 
-When a workflow step wraps a normal repo command such as `pnpm install`, `pnpm run build:all:prod`, or `dotnet test`, also run that command directly outside `act` when it helps isolate whether the problem is in the pipeline harness or in the application code.
+When a workflow step wraps a normal repo command such as `dotnet build` or `dotnet test`, also run that command directly outside `act` when it helps isolate whether the problem is in the pipeline harness or in the application code.
 
 ### 6. Handle the common mismatch classes explicitly
 
@@ -152,7 +152,7 @@ If that is too broad, switch to the failing workflow and job directly.
 
 ### CD workflows
 
-`cd.yml` deploys the API image, which bundles the SPA; there is no separate frontend deploy. A frontend build failure shows up in CI (the `frontend-tests` and `container-image` jobs), not in CD.
+`cd.yml` deploys the API image, which serves the UI; there is no separate frontend build or deploy. A UI failure shows up in CI (the `backend-tests` and `container-image` jobs), not in CD.
 
 `cd.yml` and `cd-infra.yml` may depend on deployment credentials, environment protections, or infrastructure state that `act` cannot mirror perfectly. Reproduce the failing build, packaging, or shell logic locally first; treat the actual remote deployment boundary as the last thing to validate.
 

@@ -1,21 +1,3 @@
-# SPA build stage
-FROM node:22-slim AS spa-build
-
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-
-WORKDIR /app
-
-RUN corepack enable
-
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
-COPY src/ui/web/ ./src/ui/web/
-
-RUN pnpm install --frozen-lockfile
-RUN pnpm --dir src/ui/web build:prod
-
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 
@@ -41,6 +23,8 @@ FROM build AS test
 RUN dotnet test --no-build --configuration Release --verbosity normal
 
 # Publish stage
+# Publishing copies the UI library's stylesheets, scripts and fonts into wwwroot, so the image
+# needs no separate front-end build.
 FROM build AS publish
 RUN dotnet publish src/api/Menlo.Api/Menlo.Api.csproj \
     --no-build \
@@ -66,7 +50,6 @@ WORKDIR /app
 
 # Copy published application
 COPY --from=publish /app/publish .
-COPY --from=spa-build /app/src/ui/web/dist/menlo-app/browser/ ./wwwroot/
 
 # Change ownership to app user
 RUN chown -R appuser:appgroup /app

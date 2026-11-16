@@ -7,13 +7,13 @@ Which hook does what for each agent, and for git. Claude Code and Copilot read d
 | Format staged files before a commit | [`.githooks/pre-commit`](../../.githooks/pre-commit) | `pre-commit` hook | runs through git | runs through git |
 | Block commits on `main` and `git checkout`/`git switch` forms that discard work | [`git-guard.cs`](git-guard.cs) | n/a | `PreToolUse` in [`.claude/settings.json`](../../.claude/settings.json) (Bash and PowerShell; a shell pre-filter skips payloads without `git`) | `PreToolUse` in [`git-guard.json`](git-guard.json) |
 
-`.claude/settings.json` also holds the permission allowlist for `dotnet`, `pnpm`, `nx`, `aspire`, `gh`, read-only git and branch navigation. Its `ask` list keeps a prompt on destructive `gh` commands: issue delete and transfer, repo and release deletes, secrets, variables, rulesets, PR merges, and `gh api` DELETE/PUT.
+`.claude/settings.json` also holds the permission allowlist for `dotnet`, `aspire`, `gh`, read-only git and branch navigation. Its `ask` list keeps a prompt on destructive `gh` commands: issue delete and transfer, repo and release deletes, secrets, variables, rulesets, PR merges, and `gh api` DELETE/PUT.
 
 ## Format on commit
 
-`pnpm install` at the repo root runs `git config core.hooksPath .githooks`, unless you have already set a `core.hooksPath`. Then it leaves yours alone, and you'll need to call `.githooks/pre-commit` from your own hook. To enable it by hand, run `git config core.hooksPath .githooks`.
+Enable it once per clone with `git config core.hooksPath .githooks`. If you already have a `core.hooksPath`, call `.githooks/pre-commit` from your own hook instead.
 
-The hook formats the staged `.cs`/`.csproj` files with `dotnet format`, and the staged `src/ui/web` files with `nx format:write`. It then re-stages them. If a file is only partly staged, the hook stops: re-staging it would pull in the unstaged hunks. Skip the hook once with `git commit --no-verify`.
+The hook formats the staged `.cs`/`.csproj` files with `dotnet format`, then re-stages them. If a file is only partly staged, the hook stops: re-staging it would pull in the unstaged hunks. Skip the hook once with `git commit --no-verify`.
 
 ## Git guard
 

@@ -3,8 +3,6 @@
     "permissions": {
         "allow": [
             "Bash(dotnet *)",
-            "Bash(pnpm *)",
-            "Bash(nx *)",
             "Bash(aspire *)",
             "Bash(gh *)",
             "Bash(git status *)",
