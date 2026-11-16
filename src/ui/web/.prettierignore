@@ -1,8 +1,0 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
-/.nx/cache
-/.nx/workspace-data
-
-# Markdown is linted by markdownlint (.config/.markdownlint-cli2.jsonc), not formatted by Prettier
-*.md
