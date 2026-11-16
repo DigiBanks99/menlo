@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke-checks a deployed Menlo instance (API with the bundled SPA).
+# Smoke-checks a deployed Menlo instance (the API and the UI it serves).
 # Retries until every check passes or the time runs out, then exits 1.
 #
 # Usage: deployment/smoke-check.sh <base-url> [timeout-seconds]
@@ -37,8 +37,13 @@ run_checks() {
   FAILURES=()
   check /health 200
   check /api/budgets 401
-  check / 200 text/html Content-Security-Policy
-  check /some/deep/link 200 text/html
+  # Nobody is signed in: pages send the browser to the sign-in page, which renders
+  check / 302
+  check /sign-in 200 text/html Content-Security-Policy
+  # The UI's styles and scripts were published into the image
+  check /Menlo.Api.styles.css 200 text/css
+  check /_content/Menlo.Ui/css/tokens.css 200 text/css
+  check /_content/Menlo.Ui/js/menlo.js 200 text/javascript
 }
 
 deadline=$((SECONDS + TIMEOUT_SECONDS))

@@ -11,45 +11,6 @@ echo "Fixing workspace permissions..."
 sudo chown -R vscode:vscode /workspaces/menlo
 
 # ============================================
-# MISE SETUP
-# ============================================
-echo "Setting up mise..."
-export PATH="$HOME/.local/bin:$HOME/.local/share/mise/bin:$PATH"
-
-if ! command -v mise &> /dev/null; then
-    echo "Installing mise..."
-    curl https://mise.run | sh
-fi
-
-mise trust || true
-mise install
-eval "$(mise activate bash --shims)"
-
-if ! grep -q 'mise activate' "$HOME/.bashrc" 2>/dev/null; then
-    echo 'eval "$(mise activate bash)"' >> "$HOME/.bashrc"
-fi
-
-echo "Node: $(node --version)"
-
-# ============================================
-# PNPM SETUP
-# ============================================
-echo "Setting up pnpm..."
-corepack enable
-corepack prepare pnpm@latest --activate
-
-# Add corepack shims to PATH immediately
-export PATH="$HOME/.local/share/node/corepack/shims:$PATH"
-
-# Verify pnpm is available
-if command -v pnpm &> /dev/null; then
-    echo "pnpm: $(pnpm --version)"
-else
-    echo "Warning: pnpm not found in PATH after corepack setup"
-    echo "PATH: $PATH"
-fi
-
-# ============================================
 # DOCKER SETUP FOR ASPIRE
 # ============================================
 echo "Configuring Docker for Aspire..."
@@ -84,7 +45,7 @@ dotnet dev-certs https --trust || echo "Warning: Could not trust dev certificate
 # CLAUDE CODE CLI
 # ============================================
 echo "Installing Claude Code CLI..."
-npm install -g @anthropic-ai/claude-code
+curl -fsSL https://claude.ai/install.sh | bash
 
 # ============================================
 # CLEANUP BUILD ARTIFACTS
@@ -101,22 +62,6 @@ rm -rf /tmp/menlo-build 2>/dev/null || true
 echo "Restoring .NET dependencies..."
 dotnet restore Menlo.slnx || echo "Warning: dotnet restore failed"
 
-echo "Installing pnpm dependencies..."
-if command -v pnpm &> /dev/null; then
-    # Symlink devcontainer .npmrc to vscode user's home for container-specific settings
-    if [ -f ".devcontainer/.npmrc" ]; then
-        echo "Creating symlink /home/vscode/.npmrc -> $WORKSPACE_DIR/.devcontainer/.npmrc"
-        ln -sf "$WORKSPACE_DIR/.devcontainer/.npmrc" /home/vscode/.npmrc
-    fi
-
-    # node_modules directories are mounted as Docker volumes (see devcontainer.json)
-    # This avoids chmod/symlink issues on Windows-mounted filesystems
-    # Just run pnpm install - the volume mounts handle the rest
-    pnpm install || echo "Warning: pnpm install failed"
-else
-    echo "Skipping pnpm install - pnpm not available (will be available after container restart)"
-fi
-
 echo "Building .NET solution..."
 dotnet build --no-incremental || echo "Warning: dotnet build failed"
 
@@ -128,12 +73,9 @@ echo "=== Tools ==="
 echo "dotnet: $(dotnet --version 2>/dev/null || echo 'not found')"
 echo "aspire: $(aspire --version 2>/dev/null || echo 'not found')"
 echo "docker: $(docker --version 2>/dev/null || echo 'not found')"
-echo "node: $(node --version 2>/dev/null || echo 'not found')"
-echo "pnpm: $(pnpm --version 2>/dev/null || echo 'not found')"
 echo "gh: $(gh --version 2>/dev/null | head -1 || echo 'not found')"
 echo "claude: $(claude --version 2>/dev/null || echo 'not found')"
 echo "git: $(git --version 2>/dev/null || echo 'not found')"
-echo "mise: $(mise --version 2>/dev/null || echo 'not found')"
 
 echo ""
 echo "=== Ready! ==="
@@ -141,5 +83,4 @@ echo "claude           - Start Claude Code"
 echo ""
 echo "=== Verify Setup ==="
 echo "dotnet build     - Build the solution"
-echo "pnpm install     - Install frontend dependencies"
 echo "aspire run       - Start Aspire AppHost"

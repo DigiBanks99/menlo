@@ -34,15 +34,14 @@ flags:
     paths:
       - src/api/
       - src/lib/
-    carryforward: true
-  frontend:
-    paths:
       - src/ui/
     carryforward: true
 
 ignore:
   - "src/api/Menlo.AppHost/**"
   - "src/api/**/*.Tests/**"
+  - "src/ui/**/*.Tests/**"
+  - "src/ui/Menlo.Ui/Gallery/**"
   - "src/api/**/obj/**"
   - "**/*.g.cs"
   - "**/*.generated.cs"

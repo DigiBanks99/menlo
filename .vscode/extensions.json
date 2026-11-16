@@ -1,10 +1,8 @@
 {
     "recommendations": [
-        "angular.ng-template",
         "ms-dotnettools.csdevkit",
         "github.vscode-github-actions",
         "yzhang.markdown-all-in-one",
-        "esbenp.prettier-vscode",
         "streetsidesoftware.code-spell-checker",
         "anweber.vscode-httpyac"
     ]

@@ -9,6 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '11.0.x'
+  # Only the documentation job uses Node, to run markdownlint. The app has no Node toolchain.
   NODE_VERSION: '24.11.1'
 
 jobs:
@@ -17,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
-      frontend: ${{ steps.changes.outputs.frontend }}
       docs: ${{ steps.changes.outputs.docs }}
       image: ${{ steps.changes.outputs.image }}
     steps:
@@ -50,18 +50,11 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          # Backend detection
-          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|scripts/ci/|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
+          # Backend detection (src/ui holds the UI library, which the API hosts)
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|src/ui/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|scripts/ci/|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
           else
             echo "backend=false" >> "$GITHUB_OUTPUT"
-          fi
-
-          # Frontend detection
-          if echo "$CHANGED_FILES" | grep -qE '^(src/ui/|package\.json|pnpm-lock\.yaml|\.github/workflows/ci\.yml)'; then
-            echo "frontend=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "frontend=false" >> "$GITHUB_OUTPUT"
           fi
 
           # Docs detection
@@ -71,8 +64,8 @@ jobs:
             echo "docs=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Container image detection (the image bundles both the API and the SPA)
-          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|src/ui/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|Dockerfile|\.dockerignore|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
+          # Container image detection (the image holds the API and the UI it serves)
+          if echo "$CHANGED_FILES" | grep -qE '^(src/api/|src/lib/|src/ui/|Menlo\.slnx|Directory\.Build\.props|Directory\.Packages\.props|Dockerfile|\.dockerignore|\.github/workflows/ci\.yml|\.github/workflows/cd\.yml)'; then
             echo "image=true" >> "$GITHUB_OUTPUT"
           else
             echo "image=false" >> "$GITHUB_OUTPUT"
@@ -148,7 +141,11 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run unit tests
+      # The browser tests ([Category("E2E")]) drive the runner's own Chrome, so there is no browser to download
+      - name: Check Chrome is installed for the browser tests
+        run: google-chrome --version
+
+      - name: Run tests
         env:
           # Azure AD test configuration
           # Note: Tests use mock authentication by default, but these allow
@@ -238,10 +235,11 @@ jobs:
       - name: Run security audit
         run: dotnet list package --vulnerable --include-transitive
 
+      # JavaScript covers the UI library's small client script
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: csharp
+          languages: csharp, javascript-typescript
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4
@@ -249,183 +247,13 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
-  frontend-tests:
-    name: Frontend - Build and Test
-    runs-on: ubuntu-latest
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v6
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Setup Angular cache
-        uses: actions/cache@v6
-        with:
-          path: src/ui/web/.angular/cache
-          key: ${{ runner.os }}-angular-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-angular-cache-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        working-directory: src/ui/web
-        run: pnpm run lint
-
-      - name: Build applications
-        working-directory: src/ui/web
-        run: pnpm run build:all:prod
-
-      - name: Create version metadata
-        working-directory: src/ui/web
-        run: |
-          mkdir -p dist/menlo-app
-          cat > dist/menlo-app/version.json << EOF
-          {
-            "commit": "${{ github.sha }}",
-            "branch": "${{ github.ref_name }}",
-            "buildNumber": "${{ github.run_number }}",
-            "buildId": "${{ github.run_id }}",
-            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")",
-            "actor": "${{ github.actor }}",
-            "repository": "${{ github.repository }}"
-          }
-          EOF
-
-      - name: Verify version metadata
-        working-directory: src/ui/web
-        run: |
-          if [ ! -f "dist/menlo-app/version.json" ]; then
-            echo "❌ version.json not found"
-            exit 1
-          fi
-          echo "✅ version.json created successfully"
-          cat dist/menlo-app/version.json
-
-      - name: Run tests
-        working-directory: src/ui/web
-        run: pnpm run test:all -- --reporters=default --reporters=junit
-        env:
-          NODE_ENV: test
-
-      - name: Install Playwright browsers
-        working-directory: src/ui/web
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run E2E tests
-        working-directory: src/ui/web
-        run: |
-          if find e2e -name '*.spec.ts' -o -name '*.test.ts' 2>/dev/null | grep -q .; then
-            pnpm run test:e2e
-          else
-            echo "No E2E test files found, skipping."
-          fi
-        env:
-          CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: frontend-test-results
-          path: |
-            src/ui/web/coverage/**/*
-            src/ui/web/test-results/**/*
-
-      - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v7
-        if: always()
-        with:
-          directory: ./src/ui/web/coverage
-          flags: frontend
-          name: frontend-coverage
-          token: ${{ secrets.CODECOV_TOKEN }}
-        continue-on-error: true
-
-      - name: Build Storybook (App)
-        working-directory: src/ui/web
-        run: pnpm run build-storybook
-
-      - name: Build Storybook (Lib)
-        working-directory: src/ui/web
-        run: pnpm run build-storybook:lib
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: frontend-dist
-          path: |
-            src/ui/web/dist/**/*
-            src/ui/web/storybook-static/**/*
-
-  frontend-security:
-    name: Frontend - Security Scan
-    runs-on: ubuntu-latest
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
-
-    permissions:
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Audit dependencies
-        continue-on-error: true
-        run: pnpm audit --audit-level moderate
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: typescript
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
+    needs: [backend-tests]
     if: |
       always() &&
-      (needs.backend-tests.result == 'success' || needs.backend-tests.result == 'skipped') &&
-      (needs.frontend-tests.result == 'success' || needs.frontend-tests.result == 'skipped')
+      (needs.backend-tests.result == 'success' || needs.backend-tests.result == 'skipped')
 
     services:
       postgres:
@@ -451,26 +279,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Restore .NET dependencies
+      - name: Restore dependencies
         run: dotnet restore
 
-      - name: Install pnpm dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build backend
+      - name: Build solution
         run: dotnet build --no-restore --configuration Release
-
-      - name: Build frontend
-        working-directory: src/ui/web
-        run: pnpm run build:prod
 
       - name: Run integration tests
         # TUnit category filter. Exit code 8 means no test matched, which is ignored: no test carries
@@ -580,7 +393,7 @@ jobs:
     # Keep the job name in sync with the ruleset, and keep `if: always()` so path-filtered skips still report.
     name: Quality Gate
     runs-on: ubuntu-latest
-    needs: [detect-changes, backend-tests, frontend-tests, backend-security, frontend-security, integration-tests, docs-validation, container-image]
+    needs: [detect-changes, backend-tests, backend-security, integration-tests, docs-validation, container-image]
     if: always()
 
     steps:
