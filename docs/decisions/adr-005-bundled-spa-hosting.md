@@ -6,6 +6,8 @@
 
 Supersedes the Cloudflare Pages frontend in [ADR-001](adr-001-hosting-strategy.md) and the line in [ADR-004](adr-004-linux-deployment-host.md) that kept it.
 
+Superseded in part by [ADR-007](adr-007-server-rendered-ui.md): the UI is no longer an Angular SPA built in a `spa-build` stage. The API renders it. The decision here still holds: the API image serves the UI, and there is one deploy.
+
 ## Context
 
 ADR-001 hosted the Angular frontend on Cloudflare Pages, and the API on the home server behind Cloudflare Tunnel. Two things have since happened:

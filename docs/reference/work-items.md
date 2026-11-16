@@ -106,7 +106,7 @@ Each PR, whatever level it belongs to:
 - [ ] The solution builds
 - [ ] All tests pass
 - [ ] New or changed behaviour has new tests
-- [ ] Linting and formatting pass (`dotnet format`, `pnpm lint`, `pnpm format`)
+- [ ] Formatting passes (`dotnet format`)
 - [ ] Changed files under `src/api/Menlo.Api/**` keep at least 70% line coverage
 - [ ] Commits follow conventional commits and reference the issue
 

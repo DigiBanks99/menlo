@@ -1,69 +1,91 @@
 # App Shell Reference
 
-The app shell is the frame around every signed-in page: the primary navigation, a header and the content area. Pages render inside it through the router.
+The app shell is the frame around every signed-in page: the primary navigation, a header and the content area.
 
-The shell is `MnlPageShellComponent` (`mnl-page-shell`) in `menlo-lib`. The app's root component (`menlo-app/src/app/app.ts`) wraps the `router-outlet` in it.
+The shell is the `MnlAppShell` component in `Menlo.Ui`. Pages don't use it directly: they render inside `AppPage` (`src/api/Menlo.Api/Ui/Shared/AppPage.razor`), which wraps the page in `MnlDocument` and `MnlAppShell` and passes on the `PageContext` the endpoint built.
 
 ## When the shell shows
 
-| Route                        | Shell                                                       |
-| ---------------------------- | ----------------------------------------------------------- |
-| `/sign-in`      | No shell. The page renders inside a plain `<main>` element. |
-| Everything else | The page renders inside the shell.                          |
+| Address | Shell |
+| --- | --- |
+| `/sign-in`, `/design` | No shell. The page renders inside the document alone (`Bare="true"`). |
+| Everything else | The page renders inside the shell. |
 
-The signed-in routes are in `app.routes.ts`: `/` (home), `/budgets`, `/budgets/:id` and `/analytics`. Any other path redirects to `/`. They use `authGuard`; there is no onboarding step.
+The signed-in pages are `/` (home), `/budgets`, `/budgets/{id}` and `/analytics`. Any other address shows a "not found" page inside the shell. Someone who isn't signed in is sent to `/sign-in`; there is no onboarding step.
 
 ## Layout
 
 ```mermaid
 flowchart LR
-    subgraph Shell[mnl-page-shell]
-        Nav[mnl-tab-bar: primary navigation]
+    subgraph Shell[MnlAppShell]
+        Nav[Primary navigation]
         subgraph Column[ ]
-            Header[Header: theme toggle]
-            Content[Content area: the routed page]
+            Header[Header: theme toggle, avatar, sign out]
+            Content[main: the page]
         end
     end
     Nav --- Column
 ```
 
-- **Navigation.** `MnlTabBarComponent` (`mnl-tab-bar`) renders the items it's given twice and shows one at a time:
-  - Below the `lg` breakpoint, a tab bar fixed to the bottom of the screen.
-  - From `lg` up, a sidebar on the left, with the Menlo name and a short heading.
-- **Header.** It holds one control: a button that switches between light and dark mode.
-- **Content area.** It scrolls on its own, with the page width capped and padded. It scrolls back to the top after every navigation, and leaves space at the bottom on small screens so the tab bar doesn't cover content.
+- **Navigation.** One `<nav>` that CSS lays out two ways:
+  - Below 64rem wide, a tab bar fixed to the bottom of the screen.
+  - From 64rem up, a sidebar on the left with the Menlo name.
+- **Header.** The theme toggle, the signed-in person's avatar (their initials) and a sign-out button.
+- **Content area.** A `<main>` element with the page width capped and padded. It leaves space at the bottom on small screens so the tab bar doesn't cover content.
 
 ## Navigation items
 
-The root component passes a fixed list of `MnlTabBarItem`s:
+`PageContext.NavItems` is the fixed list of `MnlNavItem`s:
 
-| Label     | Route        | Icon         |
-| --------- | ------------ | ------------ |
-| Home      | `/`          | `House`      |
-| Budgets   | `/budgets`   | `Wallet`     |
+| Label | Address | Icon |
+| --- | --- | --- |
+| Home | `/` | `House` |
+| Budgets | `/budgets` | `Wallet` |
 | Analytics | `/analytics` | `TrendingUp` |
 
-An `MnlTabBarItem` has an `icon`, a `label`, a `route` and an optional `badge` number, which shows as a count on the icon. Icons are [Lucide](https://lucide.dev) names; the tab bar maps a fixed set of them (`Bell`, `Calendar`, `House`, `Landmark`, `ListTodo`, `PiggyBank`, `Settings`, `TrendingUp`, `User`, `Wallet`).
-
-An item is active when the current URL matches its route: exactly for `/`, and the route or any path under it for the others. The active item is highlighted and has `aria-current="page"`.
+An `MnlNavItem` has a label, an address and an `MnlIconName`. An item is current when the request path matches its address: exactly for `/`, and the address or any path under it for the others. The current item is highlighted and has `aria-current="page"`.
 
 Feature flags don't hide items. The list is the same whatever the API's flags are.
 
+Links are boosted by htmx: clicking one fetches the page and swaps the body without reloading the document.
+
+## Page context
+
+`PageContext.From(HttpContext)` gives every page:
+
+| Property | What it is |
+| --- | --- |
+| `CurrentPath` | The request path, for the current navigation item. |
+| `UserName` | The signed-in person's display name, or null. |
+| `Toasts` | Toasts carried over a redirect by `Flash`. Reading them clears them. |
+
 ## Theme
 
-`ThemeService` (`menlo-lib`) follows the system's `prefers-color-scheme` until someone uses the toggle. Their choice is saved in `localStorage` under `menlo.theme` and wins from then on. The service puts a `dark` class on the `<html>` element and sets its `color-scheme`.
+The theme toggle switches between light (Catppuccin Latte) and dark (Catppuccin Mocha). See [Design System](design-system.md#theme).
 
 ## Toasts
 
-`MnlToastService` (`menlo-lib`) shows non-blocking messages. It creates its own outlet on first use, so the shell doesn't need to include one. Pages use it to confirm actions, for example "Budget 2026 created."
+A toast is a short message that confirms an action and disappears after five seconds, for example "Budget 2026 created." At most three show at once. The server sends one in two ways:
+
+- With the response, as an event: `new HxResponse().Toast("Category created.")`.
+- Across a redirect: `Flash.Set(context, "Budget 2027 created.")`, shown by the next page.
+
+## Panels
+
+The document has a panel host (`#mnl-panel-host`) after the shell. A form or confirmation opens by swapping an `MnlPanel` fragment into it. See [How to add a page](../guides/ui-page-howto.md#add-a-form-in-a-panel).
+
+## Signing out
+
+The sign-out button is a form that posts to `/auth/logout`. It isn't boosted, because the response redirects to Microsoft.
 
 ## Accessibility
 
-- Both navigation layouts are `<nav>` elements labelled "Primary navigation".
-- The header is a `<header>` element. The theme button's label says what it will do ("Switch to dark mode" or "Switch to light mode").
+- The navigation is a `<nav>` labelled "Primary navigation". The page is in `<main>`.
+- The header is a `<header>` element. The theme button is labelled "Switch between light and dark mode".
 - Links and buttons have a visible focus ring, and transitions are off when the system asks for reduced motion.
-- Inside the shell, the content area is a `<div>`, not a `<main>` element, and there's no skip-to-content link.
+- Panels are native `<dialog>` elements, so the browser traps focus and closes them on Escape.
+- There is no skip-to-content link yet.
 
 ## Not in the shell
 
-The shell has no sign-out control, user menu, breadcrumbs or footer. `AuthService.logout()` exists, but nothing in the app calls it.
+The shell has no user menu, breadcrumbs or footer.

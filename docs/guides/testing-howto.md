@@ -9,9 +9,12 @@ Menlo's .NET tests use [TUnit](https://tunit.dev/) to run tests, [Shouldly](http
 | `src/lib/Menlo.Lib.Tests` | Domain model, value objects, pure logic | None |
 | `src/lib/Menlo.AI.Tests` | AI service wrappers | None |
 | `src/lib/Menlo.Application.Tests` | EF Core persistence, interceptors, migrations | PostgreSQL (Testcontainers) |
-| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting, through `WebApplicationFactory` | PostgreSQL (Testcontainers) for the budget and user tests |
+| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting and the UI's pages, through `WebApplicationFactory`; browser tests in `E2E/` | PostgreSQL (Testcontainers) for the budget, user and browser tests |
+| `src/ui/Menlo.Ui.Tests` | Design-system components, charts and utilities | None |
 
-Testcontainers needs a running Docker engine.
+Testcontainers needs a running Docker engine. Where it can't reach one, set `MENLO_TEST_POSTGRES` to a PostgreSQL connection string and the budget and browser tests use that server. Point it at a database that holds nothing else: the budget tables are emptied before each test.
+
+The browser tests drive the installed Chrome. See [Test the UI](#test-the-ui).
 
 ## Run the tests
 
@@ -32,7 +35,7 @@ CI runs the coverage command, then `scripts/check-api-coverage-baseline.ps1`, wh
 
 ## Coverage exclusions
 
-When Codecov or the CI guardrail flags uncovered code, add tests. Exclude code only when it's infrastructure with no business logic, such as startup, seeding or SPA hosting.
+When Codecov or the CI guardrail flags uncovered code, add tests. Exclude code only when it's infrastructure with no business logic, such as startup or seeding.
 
 ### Exclude a type
 
@@ -48,12 +51,15 @@ public static class BudgetSeedingExtensions
 }
 ```
 
-The coverage collector leaves the type out of the Cobertura report. Codecov reads that report, so it drops the type. The CI guardrail treats a changed file that is missing from the report and carries the attribute as `EXCLUDED`. Without the attribute, a missing file fails as `MISSING`. Existing examples are `BudgetSeedingExtensions` (`src/lib/Menlo.Application/Common/`) and `SpaHostingExtensions` (`src/api/Menlo.Api/SpaHosting/`).
+The coverage collector leaves the type out of the Cobertura report. Codecov reads that report, so it drops the type. The CI guardrail treats a changed file that is missing from the report and carries the attribute as `EXCLUDED`. Without the attribute, a missing file fails as `MISSING`. An existing example is `BudgetSeedingExtensions` (`src/lib/Menlo.Application/Common/`).
+
+The guardrail checks `.cs` files only. A page's `.razor` markup isn't measured, which is one more reason to keep rules out of it and in the endpoint and view model.
 
 Don't add product code to the `ignore` list in `codecov.yml`: the guardrail never reads it. That list holds only paths that aren't hand-written product code:
 
 - `src/api/Menlo.AppHost/**` (the Aspire AppHost)
-- `src/api/**/*.Tests/**` (test projects)
+- `src/api/**/*.Tests/**` and `src/ui/**/*.Tests/**` (test projects)
+- `src/ui/Menlo.Ui/Gallery/**` (the component gallery)
 - `src/api/**/obj/**`, `**/*.g.cs` and `**/*.generated.cs` (generated code)
 
 ### Partial coverage
@@ -152,6 +158,70 @@ The API rejects unsafe requests without an antiforgery token. `CreateAntiforgery
 ### Read JSON responses case-insensitively
 
 Responses use camelCase, while the DTOs use PascalCase properties. Deserialize with `new JsonSerializerOptions { PropertyNameCaseInsensitive = true }`, as each test class's `JsonOptions` does.
+
+## Test the UI
+
+The UI is tested at three levels. Use the fastest one that can show what you need.
+
+| Level | Where | Use it for | Needs |
+|---|---|---|---|
+| Component | `src/ui/Menlo.Ui.Tests` | What a component renders for given parameters | Nothing |
+| Page | `src/api/Menlo.Api.Tests/Ui` | What an endpoint returns: markup, status, redirects, `HX-Trigger` events | A database for budget pages |
+| Browser | `src/api/Menlo.Api.Tests/E2E` | What only a browser shows: htmx swaps, panels, toasts, the theme, the Content Security Policy | A database and Chrome |
+
+### Test a component
+
+Render it with `Rendered.ComponentAsync` and query the result with AngleSharp:
+
+```csharp
+[Test]
+public async Task GivenAnHref_WhenRendered()
+{
+    IDocument document = await Rendered.ComponentAsync<MnlButton>(new Dictionary<string, object?>
+    {
+        ["Href"] = "/budgets",
+        ["ChildContent"] = Rendered.Text("View Budgets")
+    });
+
+    ItShouldBeALinkStyledAsAButton();
+
+    void ItShouldBeALinkStyledAsAButton() =>
+        document.Find("a.mnl-button").GetAttribute("href").ShouldBe("/budgets");
+}
+```
+
+`GalleryTests` renders the whole gallery and checks rules that hold for every component: no inline styles or scripts, every form control labelled, no repeated ids.
+
+### Test a page or a form
+
+Ask for the page and read the HTML. `UiHtml` has the helpers: `DocumentAsync()` parses a response, `ByTestId()` finds an element, `HtmxAsync()` sends a request the way htmx does, and `Triggers()` reads the `HX-Trigger` header.
+
+```csharp
+HttpResponseMessage invalid = await client.HtmxAsync(HttpMethod.Post, categories, [new("name", ""), new("budgetFlow", "")]);
+IHtmlDocument form = await invalid.DocumentAsync();
+
+invalid.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+form.ByTestId("error-name").TextContent.ShouldBe("Name is required");
+```
+
+A successful change returns `204` with events, so assert on `Triggers()`, then ask for the page again to see the result.
+
+### Test in a browser
+
+Browser tests use [Playwright for .NET](https://playwright.dev/dotnet/) and carry `[Category("E2E")]`. `BrowserFixture.StartAsync` starts the app on a real port and opens a page on it, signed in as the test user:
+
+```csharp
+await using AppSession app = await browser.StartAsync(fixture.CreateIsolatedFactory(budgetItemsEnabled: true));
+await app.Page.GotoAsync("/budgets");
+await Expect(app.Page.GetByTestId("budget-list-empty-state")).ToBeVisibleAsync();
+
+app.BrowserErrors.ShouldBeEmpty();
+```
+
+- `app.BrowserErrors` holds console errors and uncaught exceptions. A Content Security Policy violation is a console error, so asserting it is empty covers the policy.
+- To seed data, use a second factory on the same database with `keepData: true` and the JSON API, as the tests in `UiBrowserTests` do.
+- The tests drive the installed Chrome, so there is nothing to download. Set `MENLO_E2E_BROWSER_CHANNEL` to another channel (such as `msedge`), or to `bundled` after running `playwright install chromium`. Set `MENLO_E2E_HEADED=1` to watch.
+- Run only them with `--treenode-filter "/*/*/*/*[Category=E2E]"`.
 
 ## Pick a factory
 

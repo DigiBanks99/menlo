@@ -47,7 +47,7 @@ graph TB
 
 ### Hybrid Architecture
 
-- **Frontend**: Bundled in the API image, served from the home server ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
+- **Frontend**: Rendered by the API on the home server ([ADR-007](../decisions/adr-007-server-rendered-ui.md))
 - **Backend**: Home server via Cloudflare Tunnel  
 - **Database**: PostgreSQL
 - **AI**: Local llama.cpp with Qwen3.5-4B

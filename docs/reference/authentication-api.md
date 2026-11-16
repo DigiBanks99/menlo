@@ -2,14 +2,14 @@
 
 Menlo signs people in with Microsoft Entra ID, using the free tier. The API is a Backend for Frontend (BFF): it runs the OpenID Connect flow, keeps the tokens on the server and gives the browser only a session cookie. Menlo stores no passwords.
 
-The API also serves the Angular app from the same host (see [ADR-005](../decisions/adr-005-bundled-spa-hosting.md)), so the session cookie and every API call share one origin.
+The API also renders the UI (see [ADR-007](../decisions/adr-007-server-rendered-ui.md)), so the session cookie, every page and every API call share one origin.
 
 ## Sign-in flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Browser as Browser (Angular app)
+    participant Browser as Browser
     participant Api as Menlo.Api (BFF)
     participant Entra as Microsoft Entra ID
 
@@ -57,7 +57,8 @@ Because the session is a cookie, state-changing API calls need an anti-forgery t
 
 - On HTTPS `GET`, `HEAD`, `OPTIONS` and `TRACE` requests outside `/auth`, the API sets an `XSRF-TOKEN` cookie that the app can read.
 - `POST`, `PUT` and `DELETE` requests under `/api` must send that value in the `X-XSRF-TOKEN` header. Without it, they fail with `400` and a problem-details body.
-- The Angular `authInterceptor` adds the header to same-origin `POST`, `PUT` and `DELETE` requests.
+- The same applies to `POST`, `PUT`, `PATCH` and `DELETE` requests to UI endpoints, such as a form submit.
+- In the UI, `menlo.js` copies the cookie's value into the header on every htmx request.
 
 ## Endpoints
 
@@ -192,14 +193,25 @@ The `/auth/*` endpoints use the same claim order through `CurrentUserLookup`.
 
 ## In the app
 
-The Angular app (`menlo-app/src/app/core/auth/`) gets its signed-in state from `GET /auth/user`:
+UI endpoints use the same policies as the API (`RequireAuthorization`). What a refused person sees is decided by `UiAuthorizationResultHandler` (`src/api/Menlo.Api/Ui/Shared`):
 
-- `authGuard` sends a signed-out person to `/sign-in?returnUrl=...`.
-- `roleGuard` checks the roles in the route's `data.roles`, and sends a signed-in person without them to `/unauthorized`.
-- `authInterceptor` adds the anti-forgery header (see [Anti-forgery](#anti-forgery)).
+| Situation | A page request | An htmx fragment request |
+| --- | --- | --- |
+| Not signed in | Redirect to `/sign-in?returnUrl=...` | `401`; `menlo.js` sends the browser to `/sign-in` |
+| Signed in without the role | The "no access" page, with `403` | `403`; `menlo.js` shows a toast |
 
-See [How to use the Angular auth guards](../guides/angular-auth-guard-howto.md).
+`/sign-in` is public. It shows the button that starts sign-in at `/auth/login`, and sends someone who is already signed in to their `returnUrl`. Only local addresses are accepted as a `returnUrl`.
+
+### Arriving from another site
+
+The session cookie is `SameSite=Strict`, so the browser leaves it out of a navigation that another site started: a link in an email, or the redirect back from Microsoft after signing in. The person may well be signed in. When a page request arrives without a session and with `Sec-Fetch-Site: cross-site`, the API answers with a small page that reloads the same address. That reload starts on this site, so the browser sends the cookie. It can't loop, because the reload is same-origin.
+
+### The sign-in callback
+
+Entra ID posts to `/signin-oidc`, which the authentication middleware handles; it is not an endpoint. The UI's catch-all "not found" route matches `GET` only, so that post never picks up the UI's anti-forgery check.
+
+Signing out is a form that posts to `/auth/logout`. The Content Security Policy's `form-action` allows `https://login.microsoftonline.com`, because browsers apply it to the redirect that follows.
 
 ## Testing signed in
 
-Agents can't complete the Microsoft sign-in, so interactive testing reuses a saved session; see "Signed-in testing" in `AGENTS.md`. Automated end-to-end tests mock the `/auth/*` endpoints instead.
+Agents can't complete the Microsoft sign-in, so interactive testing reuses a saved session; see "Signed-in testing" in `AGENTS.md`. Automated tests replace the sign-in with a test authentication handler; see [How to write .NET tests](../guides/testing-howto.md#test-the-ui).
