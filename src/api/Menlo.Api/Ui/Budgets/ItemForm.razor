@@ -1,0 +1,135 @@
+@*
+    Creates one budget item, one per month, or edits one. Payer and attribution rows can be added
+    and removed, and their totals update as you type (menlo.js, data-mnl-rows); the server checks
+    that each split totals 100%.
+*@
+<form @attributes="SubmitAttributes" hx-target="this" hx-swap="outerHTML" data-testid="@(Model.Mode == ItemFormMode.Bulk ? "bulk-create-form" : "budget-item-form")" novalidate>
+    <MnlFormLayout>
+        <ChildContent>
+            @if (Model.Mode != ItemFormMode.Edit)
+            {
+                <MnlGrid Columns="MnlGridColumns.Two">
+                    @if (Model.Mode == ItemFormMode.Create)
+                    {
+                        <MnlFormField Label="Month" For="month" Required="true" Error="@Model.Errors.For("month")">
+                            <MnlSelect Name="month" Value="@Model.Month" Options="Months" Invalid="@Model.Errors.Has("month")" data-testid="input-month" />
+                        </MnlFormField>
+                    }
+                    <MnlFormField Label="Budget flow" For="budgetFlow" Required="true" Error="@Model.Errors.For("budgetFlow")">
+                        <MnlSelect Name="budgetFlow" Value="@Model.BudgetFlow" Options="CategoryOptions.ItemFlows" Placeholder="-- Select --" Invalid="@Model.Errors.Has("budgetFlow")" data-testid="select-budgetFlow" />
+                    </MnlFormField>
+                </MnlGrid>
+            }
+
+            <MnlGrid Columns="MnlGridColumns.AutoNarrow">
+                <MnlFormField Label="@(Model.Mode == ItemFormMode.Bulk ? "Amount per month" : "Planned amount")" For="plannedAmount" Required="true" Error="@Model.Errors.For("plannedAmount")">
+                    <MnlAmountInput Name="plannedAmount" Value="Model.PlannedAmount" Invalid="@Model.Errors.Has("plannedAmount")" data-testid="input-plannedAmount" />
+                </MnlFormField>
+                @if (Model.Mode == ItemFormMode.Edit)
+                {
+                    <MnlFormField Label="Realized amount" For="realizedAmount" Error="@Model.Errors.For("realizedAmount")">
+                        <MnlAmountInput Name="realizedAmount" Value="Model.RealizedAmount" Invalid="@Model.Errors.Has("realizedAmount")" data-testid="input-realizedAmount" />
+                    </MnlFormField>
+                    <MnlFormField Label="Spent amount" For="spentAmount" Error="@Model.Errors.For("spentAmount")">
+                        <MnlAmountInput Name="spentAmount" Value="Model.SpentAmount" Invalid="@Model.Errors.Has("spentAmount")" data-testid="input-spentAmount" />
+                    </MnlFormField>
+                }
+            </MnlGrid>
+
+            <section class="item-split" data-mnl-rows>
+                <MnlCluster Justify="MnlJustify.Between">
+                    <MnlStack Gap="MnlGap.Xs">
+                        <MnlHeading Level="4">Payer split</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">Who pays, and what share. It must total 100%.</MnlText>
+                    </MnlStack>
+                    <output class="item-split__total" data-mnl-rows-total data-target="100" data-suffix="%" data-on-target="@(Model.PayerOnTarget ? "true" : "false")" data-testid="payer-split-total">@Model.PayerTotal%</output>
+                </MnlCluster>
+                <div class="item-split__rows" data-mnl-rows-list>
+                    @foreach (PayerRowModel payer in Model.Payers)
+                    {
+                        <div class="item-split__row" data-mnl-row>
+                            <MnlSelect Name="payerUserId" Id="@NextId("payer")" Value="@payer.UserId" Options="Model.Members" Placeholder="-- Select --" aria-label="Payer" data-testid="select-payer" />
+                            <MnlInput Name="payerPercent" Id="@NextId("payer-percent")" Type="number" Value="@payer.Percent" Placeholder="%" min="0" max="100" aria-label="Payer percent" data-mnl-rows-value data-testid="input-payer-percent" />
+                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove data-testid="btn-remove-payer">Remove</MnlButton>
+                        </div>
+                    }
+                </div>
+                <template data-mnl-rows-template>
+                    <div class="item-split__row" data-mnl-row>
+                        <MnlSelect Name="payerUserId" Id="@NextId("payer")" Options="Model.Members" Placeholder="-- Select --" aria-label="Payer" data-testid="select-payer" />
+                        <MnlInput Name="payerPercent" Id="@NextId("payer-percent")" Type="number" Value="0" Placeholder="%" min="0" max="100" aria-label="Payer percent" data-mnl-rows-value data-testid="input-payer-percent" />
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove data-testid="btn-remove-payer">Remove</MnlButton>
+                    </div>
+                </template>
+                <MnlCluster>
+                    <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary" data-mnl-rows-add data-testid="btn-add-payer">Add payer</MnlButton>
+                </MnlCluster>
+                @if (Model.Errors.For("payerSplit") is { } payerError)
+                {
+                    <MnlText Tone="MnlTextTone.Error" Weight="MnlWeight.Medium" data-testid="error-payerSplit">@payerError</MnlText>
+                }
+            </section>
+
+            <section class="item-split" data-mnl-rows>
+                <MnlCluster Justify="MnlJustify.Between">
+                    <MnlStack Gap="MnlGap.Xs">
+                        <MnlHeading Level="4">Attribution split</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">Which part of the household the amount belongs to. It must total 100%.</MnlText>
+                    </MnlStack>
+                    <output class="item-split__total" data-mnl-rows-total data-target="100" data-suffix="%" data-on-target="@(Model.AttributionOnTarget ? "true" : "false")" data-testid="attribution-split-total">@Model.AttributionTotal%</output>
+                </MnlCluster>
+                <div class="item-split__rows" data-mnl-rows-list>
+                    @foreach (AttributionRowModel split in Model.Attributions)
+                    {
+                        <div class="item-split__row" data-mnl-row>
+                            <MnlSelect Name="attribution" Id="@NextId("attribution")" Value="@split.Attribution" Options="CategoryOptions.Attributions" Placeholder="-- Select --" aria-label="Attribution" data-testid="select-attribution" />
+                            <MnlInput Name="attributionPercent" Id="@NextId("attribution-percent")" Type="number" Value="@split.Percent" Placeholder="%" min="0" max="100" aria-label="Attribution percent" data-mnl-rows-value data-testid="input-attribution-percent" />
+                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove data-testid="btn-remove-attribution">Remove</MnlButton>
+                        </div>
+                    }
+                </div>
+                <template data-mnl-rows-template>
+                    <div class="item-split__row" data-mnl-row>
+                        <MnlSelect Name="attribution" Id="@NextId("attribution")" Options="CategoryOptions.Attributions" Placeholder="-- Select --" aria-label="Attribution" data-testid="select-attribution" />
+                        <MnlInput Name="attributionPercent" Id="@NextId("attribution-percent")" Type="number" Value="0" Placeholder="%" min="0" max="100" aria-label="Attribution percent" data-mnl-rows-value data-testid="input-attribution-percent" />
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove data-testid="btn-remove-attribution">Remove</MnlButton>
+                    </div>
+                </template>
+                <MnlCluster>
+                    <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary" data-mnl-rows-add data-testid="btn-add-attribution">Add attribution</MnlButton>
+                </MnlCluster>
+                @if (Model.Errors.For("attributionSplit") is { } attributionError)
+                {
+                    <MnlText Tone="MnlTextTone.Error" Weight="MnlWeight.Medium" data-testid="error-attributionSplit">@attributionError</MnlText>
+                }
+            </section>
+
+            @if (Model.Errors.Form is not null)
+            {
+                <MnlAlert Tone="MnlTone.Error" data-testid="form-error">@Model.Errors.Form</MnlAlert>
+            }
+        </ChildContent>
+        <Actions>
+            <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close data-testid="btn-cancel">Cancel</MnlButton>
+            <MnlButton Type="MnlButtonType.Submit" data-testid="btn-save">@Model.SubmitLabel</MnlButton>
+        </Actions>
+    </MnlFormLayout>
+</form>
+
+@code {
+    private static readonly IReadOnlyList<MnlOption> Months =
+        [.. BudgetPresentation.MonthNames.Select((name, index) => new MnlOption((index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), name))];
+
+    private int _nextId;
+
+    [Parameter, EditorRequired]
+    public ItemFormModel Model { get; set; } = null!;
+
+    private Dictionary<string, object> SubmitAttributes => new()
+    {
+        [Model.Mode == ItemFormMode.Edit ? "hx-put" : "hx-post"] = Model.Action
+    };
+
+    // Repeated rows share a field name, so each control needs its own id
+    private string NextId(string prefix) => $"{prefix}-{_nextId++}";
+}

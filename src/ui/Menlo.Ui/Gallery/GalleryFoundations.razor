@@ -1,0 +1,121 @@
+@*
+    The foundations: colour, type, spacing, shape and icons. Everything else is built from these tokens.
+*@
+<GallerySection Id="foundations" Eyebrow="Foundations" Title="Tokens"
+                Description="Colours, type, spacing and shape are CSS custom properties in wwwroot/css/tokens.css. Components use the --mnl-* roles; the --ctp-* palette sits underneath and switches between Catppuccin Latte (light) and Mocha (dark).">
+    <GalleryExample Id="colour-roles" Title="Colour roles"
+                    Description="Use these in component CSS. A role says what a colour is for, so it stays right in both themes."
+                    Code="@RoleCode">
+        <ul class="gallery-swatches">
+            @foreach (string role in Roles)
+            {
+                <li class="gallery-swatch">
+                    <span class="gallery-swatch__chip" data-role="@role"></span>
+                    <code>--mnl-@role</code>
+                </li>
+            }
+        </ul>
+    </GalleryExample>
+
+    <GalleryExample Id="palette" Title="Catppuccin palette"
+                    Description="The 26 Catppuccin colours. Reach for a role first; use a palette colour only when defining a new role in tokens.css.">
+        <ul class="gallery-swatches">
+            @foreach (string colour in Palette)
+            {
+                <li class="gallery-swatch">
+                    <span class="gallery-swatch__chip" data-ctp="@colour"></span>
+                    <code>--ctp-@colour</code>
+                </li>
+            }
+        </ul>
+    </GalleryExample>
+
+    <GalleryExample Id="typography" Title="Typography"
+                    Description="Nunito Sans. MnlHeading sets level and size separately; MnlText covers body copy; MnlEyebrow names a section."
+                    Code="@TypeCode">
+        <MnlStack>
+            <MnlEyebrow>Eyebrow</MnlEyebrow>
+            <MnlHeading Level="2" Size="MnlTextSize.Display">Display heading</MnlHeading>
+            <MnlHeading Level="2" Size="MnlTextSize.Xxxl">Heading 3XL</MnlHeading>
+            <MnlHeading Level="2" Size="MnlTextSize.Xxl">Heading 2XL</MnlHeading>
+            <MnlHeading Level="3" Size="MnlTextSize.Xl">Heading XL</MnlHeading>
+            <MnlText Size="MnlTextSize.Md">Body text at 16px for long-form reading.</MnlText>
+            <MnlText>Body text at 14px, the default in cards and lists.</MnlText>
+            <MnlText Tone="MnlTextTone.Subtle">Subtle text for descriptions and secondary detail.</MnlText>
+            <MnlText Weight="MnlWeight.Semibold" Numeric="true">R 12 345.67 with tabular figures</MnlText>
+        </MnlStack>
+    </GalleryExample>
+
+    <GalleryExample Id="spacing" Title="Spacing"
+                    Description="A 4px scale. In pages, set gaps through MnlStack, MnlCluster and MnlGrid instead of writing margins.">
+        <ul class="gallery-scale">
+            @foreach (string space in Spaces)
+            {
+                <li class="gallery-scale__row">
+                    <code>--mnl-space-@space</code>
+                    <span class="gallery-scale__bar" data-space="@space"></span>
+                </li>
+            }
+        </ul>
+    </GalleryExample>
+
+    <GalleryExample Id="shape" Title="Radius and shadow">
+        <ul class="gallery-swatches">
+            @foreach (string radius in Radii)
+            {
+                <li class="gallery-swatch">
+                    <span class="gallery-shape" data-radius="@radius"></span>
+                    <code>--mnl-radius-@radius</code>
+                </li>
+            }
+            <li class="gallery-swatch">
+                <span class="gallery-shape" data-shadow="sm"></span>
+                <code>--mnl-shadow-sm</code>
+            </li>
+            <li class="gallery-swatch">
+                <span class="gallery-shape" data-shadow="md"></span>
+                <code>--mnl-shadow-md</code>
+            </li>
+        </ul>
+    </GalleryExample>
+
+    <GalleryExample Id="icons" Title="Icons"
+                    Description="Lucide icons, inlined as SVG. Add one by adding a value to MnlIconName and its shapes to MnlIconShapes."
+                    Code="@IconCode">
+        <ul class="gallery-swatches">
+            @foreach (MnlIconName icon in Enum.GetValues<MnlIconName>())
+            {
+                <li class="gallery-swatch">
+                    <MnlIcon Name="icon" Size="MnlSize.Lg" />
+                    <code>@icon</code>
+                </li>
+            }
+        </ul>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    private static readonly string[] Roles = ["bg", "surface", "surface-alt", "surface-muted", "border", "text", "subtext", "accent", "accent-strong", "success", "warning", "error", "info"];
+    private static readonly string[] Palette = ["rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender", "text", "subtext1", "subtext0", "overlay2", "overlay1", "overlay0", "surface2", "surface1", "surface0", "base", "mantle", "crust"];
+    private static readonly string[] Spaces = ["1", "2", "3", "4", "5", "6", "8", "10", "12", "16"];
+    private static readonly string[] Radii = ["sm", "md", "lg", "xl", "2xl", "full"];
+
+    private const string RoleCode = """
+        .my-thing {
+          background-color: var(--mnl-surface);
+          border: 1px solid var(--mnl-border-subtle);
+          color: var(--mnl-text);
+        }
+        """;
+
+    private const string TypeCode = """
+        <MnlEyebrow>Eyebrow</MnlEyebrow>
+        <MnlHeading Level="2" Size="MnlTextSize.Xxl">Heading</MnlHeading>
+        <MnlText Tone="MnlTextTone.Subtle">Secondary detail.</MnlText>
+        """;
+
+    private const string IconCode = """
+        <MnlIcon Name="MnlIconName.Wallet" />
+        <MnlIcon Name="MnlIconName.X" Label="Close" />
+        """;
+}

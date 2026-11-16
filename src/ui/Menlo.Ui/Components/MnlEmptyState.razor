@@ -1,0 +1,34 @@
+@inherits MnlComponent
+@*
+    What a list or section shows when it has nothing to show, or while it loads.
+    Put a call to action in ChildContent when there is one.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-empty-state")" data-bordered="@Css.Flag(Bordered)">
+    @if (Title is not null)
+    {
+        <p class="mnl-empty-state__title">@Title</p>
+    }
+    @if (Message is not null)
+    {
+        <p class="mnl-empty-state__message">@Message</p>
+    }
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>A short heading.</summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>One sentence of explanation.</summary>
+    [Parameter]
+    public string? Message { get; set; }
+
+    /// <summary>Whether to draw a dashed outline, for use outside a card.</summary>
+    [Parameter]
+    public bool Bordered { get; set; }
+
+    /// <summary>Extra content, usually a button.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

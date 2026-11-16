@@ -1,0 +1,38 @@
+.mnl-page-header {
+  position: relative;
+}
+
+.mnl-page-header__banner {
+  min-height: 12.5rem;
+  overflow: hidden;
+  border-radius: var(--mnl-radius-xl);
+  background-image: var(--mnl-gradient);
+  color: var(--mnl-on-accent);
+}
+
+.mnl-page-header__hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mnl-space-6);
+  padding: var(--mnl-space-6);
+}
+
+.mnl-page-header__banner[data-has-overlap] .mnl-page-header__hero {
+  padding-bottom: var(--mnl-space-16);
+}
+
+.mnl-page-header__overlap {
+  position: relative;
+  margin-top: calc(var(--mnl-space-12) * -1);
+  padding-inline: var(--mnl-space-4);
+}
+
+@media (min-width: 64rem) {
+  .mnl-page-header__hero {
+    padding: var(--mnl-space-8);
+  }
+
+  .mnl-page-header__overlap {
+    padding-inline: var(--mnl-space-8);
+  }
+}

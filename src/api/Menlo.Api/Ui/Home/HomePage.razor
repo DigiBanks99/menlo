@@ -1,0 +1,115 @@
+@* The landing page: a hero, the current-budget widget, feature highlights and a month overview. *@
+<AppPage Page="Page" Title="Home">
+    <MnlStack Gap="MnlGap.Xl">
+        <MnlPageHeader>
+            <Hero>
+                <MnlStack Gap="MnlGap.Lg" Align="MnlAlign.Start" data-testid="home-hero">
+                    <MnlBadge Size="MnlSize.Sm">Family finance hub</MnlBadge>
+                    <MnlStack Gap="MnlGap.Sm">
+                        <MnlHeading Level="1">Menlo Home Management</MnlHeading>
+                        <MnlText Size="MnlTextSize.Lg" Tone="MnlTextTone.Inherit">Your intelligent family budget management system.</MnlText>
+                    </MnlStack>
+                    <MnlCluster Gap="MnlGap.Md" StackOnMobile="true" data-testid="home-actions">
+                        <MnlButton Href="/budgets" data-testid="home-primary-action">View Budgets</MnlButton>
+                        <MnlButton Href="/analytics" Variant="MnlButtonVariant.Secondary" data-testid="home-secondary-action">Analytics</MnlButton>
+                    </MnlCluster>
+                </MnlStack>
+            </Hero>
+            <ChildContent>
+                <MnlSplit Ratio="MnlSplitRatio.WideStart" Gap="MnlGap.Md" Align="MnlAlign.Stretch" data-testid="home-overlap">
+                    @* The widget makes sure this year's budget exists, which changes data, so it loads with a POST after the page renders *@
+                    <div hx-post="/home/budget-widget" hx-trigger="load" hx-swap="outerHTML">
+                        <MnlCard Padding="MnlSize.Lg" data-testid="budget-widget-card">
+                            <Header>
+                                <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Start">
+                                    <MnlStack Gap="MnlGap.Sm">
+                                        <MnlEyebrow>Current budget</MnlEyebrow>
+                                        <MnlHeading Level="2" data-testid="widget-title">Budget @Model.CurrentYear</MnlHeading>
+                                    </MnlStack>
+                                    <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Syncing</MnlBadge>
+                                </MnlCluster>
+                            </Header>
+                            <ChildContent>
+                                <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Medium" data-testid="widget-loading">Loading...</MnlText>
+                            </ChildContent>
+                        </MnlCard>
+                    </div>
+
+                    <MnlCard Padding="MnlSize.Lg">
+                        <MnlStack>
+                            <MnlStack Gap="MnlGap.Sm">
+                                <MnlEyebrow>Household dashboard</MnlEyebrow>
+                                <MnlHeading Level="2">A calm summary for budgets, planning, and quick decisions.</MnlHeading>
+                            </MnlStack>
+                            <MnlText Tone="MnlTextTone.Subtle">
+                                Move from today's household snapshot into detailed budget workspaces without losing context across mobile and desktop.
+                            </MnlText>
+                            <MnlCluster>
+                                <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm">Responsive</MnlBadge>
+                                <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Theme-aware</MnlBadge>
+                                <MnlBadge Size="MnlSize.Sm">Private-first</MnlBadge>
+                            </MnlCluster>
+                        </MnlStack>
+                    </MnlCard>
+                </MnlSplit>
+            </ChildContent>
+        </MnlPageHeader>
+
+        <MnlStack Gap="MnlGap.Lg" data-testid="home-features">
+            <MnlStack Gap="MnlGap.Sm">
+                <MnlEyebrow>Feature highlights</MnlEyebrow>
+                <MnlHeading Level="2" Size="MnlTextSize.Xxxl">Family finance made simple</MnlHeading>
+                <MnlText Tone="MnlTextTone.Subtle">
+                    Menlo combines budgeting, planning, and local-first intelligence in one shared household surface.
+                </MnlText>
+            </MnlStack>
+            <MnlGrid Columns="MnlGridColumns.Three">
+                @foreach (HomeFeature feature in Model.Features)
+                {
+                    <MnlCard data-testid="home-feature-card">
+                        <MnlStack>
+                            <MnlBadge Tone="feature.BadgeTone" Size="MnlSize.Sm">@feature.Badge</MnlBadge>
+                            <MnlStack Gap="MnlGap.Sm">
+                                <MnlHeading Level="3">@feature.Title</MnlHeading>
+                                <MnlText Tone="MnlTextTone.Subtle">@feature.Description</MnlText>
+                            </MnlStack>
+                        </MnlStack>
+                    </MnlCard>
+                }
+            </MnlGrid>
+        </MnlStack>
+
+        <section data-testid="home-overview-section">
+            <MnlCard data-testid="home-overview-card">
+                <MnlStack Gap="MnlGap.Lg">
+                    <MnlStack Gap="MnlGap.Sm">
+                        <MnlCluster>
+                            <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm">On track</MnlBadge>
+                            <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Semibold" Inline="true">Quick overview</MnlText>
+                        </MnlCluster>
+                        <MnlHeading Level="2">This month's household snapshot</MnlHeading>
+                        <MnlText Tone="MnlTextTone.Subtle">
+                            A high-level look at total budget, current spend, and remaining room before the next cycle closes.
+                        </MnlText>
+                    </MnlStack>
+                    <MnlGrid Columns="MnlGridColumns.Three">
+                        @foreach (HomeStat stat in Model.OverviewStats)
+                        {
+                            <MnlCard Padding="MnlSize.Md">
+                                <MnlStat Label="@stat.Label" Value="@stat.Value" Trend="@stat.Trend" TrendDirection="stat.Direction" TrendTone="stat.Tone" />
+                            </MnlCard>
+                        }
+                    </MnlGrid>
+                </MnlStack>
+            </MnlCard>
+        </section>
+    </MnlStack>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public HomePageModel Model { get; set; } = null!;
+}

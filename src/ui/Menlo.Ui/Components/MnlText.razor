@@ -1,0 +1,49 @@
+@inherits MnlComponent
+@*
+    Body text with a size, tone and weight from the tokens. It renders a paragraph, or a span when
+    Inline is set. Use it instead of writing font or colour CSS in a page.
+*@
+@if (Inline)
+{
+    <span @attributes="Attributes"
+          class="@RootClass("mnl-text")"
+          data-size="@Css.Token(Size)"
+          data-tone="@Css.Token(Tone)"
+          data-weight="@Css.Token(Weight)"
+          data-numeric="@Css.Flag(Numeric)">@ChildContent</span>
+}
+else
+{
+    <p @attributes="Attributes"
+       class="@RootClass("mnl-text")"
+       data-size="@Css.Token(Size)"
+       data-tone="@Css.Token(Tone)"
+       data-weight="@Css.Token(Weight)"
+       data-numeric="@Css.Flag(Numeric)">@ChildContent</p>
+}
+
+@code {
+    /// <summary>The text size.</summary>
+    [Parameter]
+    public MnlTextSize Size { get; set; } = MnlTextSize.Sm;
+
+    /// <summary>The text colour.</summary>
+    [Parameter]
+    public MnlTextTone Tone { get; set; } = MnlTextTone.Default;
+
+    /// <summary>The font weight.</summary>
+    [Parameter]
+    public MnlWeight Weight { get; set; } = MnlWeight.Regular;
+
+    /// <summary>Whether to render a span instead of a paragraph.</summary>
+    [Parameter]
+    public bool Inline { get; set; }
+
+    /// <summary>Whether digits get equal widths, so figures line up in a column.</summary>
+    [Parameter]
+    public bool Numeric { get; set; }
+
+    /// <summary>The text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

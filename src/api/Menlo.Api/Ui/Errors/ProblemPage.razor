@@ -1,0 +1,17 @@
+@* Shown when a page's data couldn't be loaded. *@
+<AppPage Page="Page" Title="@Model.Title">
+    <MnlStack>
+        <MnlAlert Tone="MnlTone.Error" Title="@Model.Title" data-testid="error-banner">@Model.Message</MnlAlert>
+        <MnlCluster>
+            <MnlButton Href="@Model.BackUrl" Variant="MnlButtonVariant.Secondary">@Model.BackLabel</MnlButton>
+        </MnlCluster>
+    </MnlStack>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public ProblemPageModel Model { get; set; } = null!;
+}

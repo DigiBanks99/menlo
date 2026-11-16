@@ -1,0 +1,9 @@
+/* Each nested list is one level deeper in the tree */
+.category-tree .category-tree {
+  margin-left: var(--mnl-space-6);
+  border-left: 1px solid var(--mnl-border-subtle);
+}
+
+.category-tree ::deep .category-tree__deleted {
+  text-decoration: line-through;
+}

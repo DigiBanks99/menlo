@@ -1,0 +1,121 @@
+.mnl-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mnl-space-2);
+  min-height: 2.75rem;
+  padding: 0.625rem var(--mnl-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--mnl-radius-lg);
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-semibold);
+  line-height: var(--mnl-leading-tight);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--mnl-duration),
+    border-color var(--mnl-duration),
+    opacity var(--mnl-duration);
+}
+
+.mnl-button[data-size='sm'] {
+  min-height: 2.25rem;
+  padding: var(--mnl-space-2) var(--mnl-space-3);
+}
+
+.mnl-button[data-size='lg'] {
+  min-height: 3rem;
+  padding: var(--mnl-space-3) var(--mnl-space-5);
+  font-size: var(--mnl-text-md);
+}
+
+.mnl-button[data-full-width] {
+  width: 100%;
+}
+
+.mnl-button[data-variant='primary'] {
+  border-color: var(--mnl-accent);
+  background-color: var(--mnl-accent);
+  color: var(--mnl-on-accent);
+  box-shadow: var(--mnl-shadow-sm);
+}
+
+.mnl-button[data-variant='primary']:hover {
+  border-color: var(--mnl-accent-strong);
+  background-color: var(--mnl-accent-strong);
+}
+
+.mnl-button[data-variant='secondary'] {
+  border-color: var(--mnl-border);
+  background-color: var(--mnl-surface);
+  color: var(--mnl-text);
+  box-shadow: var(--mnl-shadow-sm);
+}
+
+.mnl-button[data-variant='secondary']:hover,
+.mnl-button[data-variant='ghost']:hover {
+  background-color: var(--mnl-surface-alt);
+}
+
+.mnl-button[data-variant='ghost'] {
+  background-color: transparent;
+  color: var(--mnl-text);
+}
+
+.mnl-button[data-variant='destructive'] {
+  border-color: var(--mnl-error);
+  background-color: var(--mnl-error);
+  color: var(--mnl-on-accent);
+  box-shadow: var(--mnl-shadow-sm);
+}
+
+.mnl-button[data-variant='destructive']:hover {
+  opacity: 0.9;
+}
+
+.mnl-button:focus-visible {
+  box-shadow: var(--mnl-focus-ring);
+}
+
+.mnl-button:disabled,
+.mnl-button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.mnl-button__label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.mnl-button__spinner {
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--mnl-radius-full);
+  animation: mnl-button-spin 0.7s linear infinite;
+}
+
+/* In flight: the button itself sent the request, or it is the submit button of a form that did */
+.mnl-button.htmx-request .mnl-button__spinner,
+.htmx-request .mnl-button[type='submit'] .mnl-button__spinner {
+  display: inline-block;
+}
+
+.mnl-button.htmx-request,
+.htmx-request .mnl-button[type='submit'] {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+@keyframes mnl-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

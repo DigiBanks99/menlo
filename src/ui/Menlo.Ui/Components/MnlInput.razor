@@ -1,0 +1,50 @@
+@inherits MnlComponent
+@*
+    A single-line text input. Extra attributes (min, max, step, autocomplete, hx-*) go to the <input>.
+    For money use MnlAmountInput.
+*@
+<input @attributes="Attributes"
+       class="@RootClass("mnl-input")"
+       type="@Type"
+       id="@(Id ?? Name)"
+       name="@Name"
+       value="@Value"
+       placeholder="@Placeholder"
+       required="@Required"
+       disabled="@Disabled"
+       aria-invalid="@Css.Flag(Invalid)"
+       aria-describedby="@(Invalid ? $"{Id ?? Name}-error" : null)" />
+
+@code {
+    /// <summary>The form field name.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The element id. Defaults to Name.</summary>
+    [Parameter]
+    public string? Id { get; set; }
+
+    /// <summary>The current value.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>The HTML input type: text, number, search, email.</summary>
+    [Parameter]
+    public string Type { get; set; } = "text";
+
+    /// <summary>Placeholder text.</summary>
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    /// <summary>Whether the browser requires a value.</summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>Whether the input is unavailable.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Whether the value failed validation.</summary>
+    [Parameter]
+    public bool Invalid { get; set; }
+}

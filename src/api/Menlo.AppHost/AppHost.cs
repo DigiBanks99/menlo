@@ -1,4 +1,3 @@
-using Aspire.Hosting.JavaScript;
 using Menlo.AppHost;
 using Microsoft.Extensions.Hosting;
 
@@ -30,10 +29,9 @@ IResourceBuilder<ContainerResource> llama = builder
 EndpointReference llamaEndpoint = llama.GetEndpoint("http");
 ReferenceExpression aiEndpoint = ReferenceExpression.Create($"{llamaEndpoint}/v1");
 
-// Opt-in: run the API from the production Dockerfile, which bundles the built SPA into wwwroot.
-// Slower to iterate on than the Vite dev server, but exercises the real deployment (Production
-// environment, production CSP, same-origin SPA). Enable with `aspire secret set Menlo:BundledUi true`
-// or the `Menlo__BundledUi` environment variable.
+// Opt-in: run the API from the production Dockerfile. Slower to iterate on than the project,
+// but exercises the real deployment (Production environment, the published image).
+// Enable with `aspire secret set Menlo:BundledUi true` or the `Menlo__BundledUi` environment variable.
 bool bundledUi = bool.TryParse(builder.Configuration["Menlo:BundledUi"], out bool bundled) && bundled;
 
 #pragma warning disable ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -57,7 +55,8 @@ if (bundledUi)
     return;
 }
 
-IResourceBuilder<ProjectResource> api = builder
+// The API project serves the UI itself, so there is no separate front-end resource
+builder
     .AddProject<Projects.Menlo_Api>("api")
     .WithHttpHealthCheck("health")
     .WithReference(db)
@@ -68,43 +67,7 @@ IResourceBuilder<ProjectResource> api = builder
     .WithExternalHttpEndpoints()
     .WithBrowserLogs();
 
-string uiPath = Path.Join(builder.AppHostDirectory, "..", "..", "ui", "web");
-
-IResourceBuilder<JavaScriptAppResource> ui = builder
-    .AddViteApp("web-ui", uiPath)
-    .WithPnpm()
-    .WithRunScript("start")
-    .WithEnvironment("NODE_ENV", builder.Environment.IsProduction() ? "production" : "development")
-    .WithEnvironment("HOST", "127.0.0.1")
-    .WithHttpEndpoint(name: "http", isProxied: false, port: 4200, env: "PORT")
-    .WithHttpHealthCheck()
-    .WithReference(api)
-    .WaitFor(api);
-
-IResourceBuilder<JavaScriptAppResource> uiStorybook = builder
-    .AddJavaScriptApp("web-ui-storybook", uiPath)
-    .WithPnpm(false)
-    .WithRunScript("storybook")
-    .WithExternalHttpEndpoints()
-    .WithHttpEndpoint(name: "https", isProxied: false, port: 6006)
-    .WithHttpHealthCheck()
-    .WithExplicitStart()
-    .WithBrowserLogs();
-
-IResourceBuilder<JavaScriptAppResource> libStorybook = builder
-    .AddJavaScriptApp("lib-ui-storybook", uiPath)
-    .WithPnpm(false)
-    .WithRunScript("storybook:lib")
-    .WithExternalHttpEndpoints()
-    .WithHttpEndpoint(name: "https", isProxied: false, port: 6007)
-    .WithHttpHealthCheck()
-    .WithExplicitStart()
-    .WithBrowserLogs();
-#pragma warning restore ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-
-uiStorybook.WithParentRelationship(ui);
-libStorybook.WithParentRelationship(ui);
-api.WithReference(ui);
+#pragma warning restore ASPIREBROWSERLOGS001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
 builder.Build().Run();
 

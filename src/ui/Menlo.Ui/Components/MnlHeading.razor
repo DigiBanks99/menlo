@@ -1,0 +1,42 @@
+@inherits MnlComponent
+@*
+    A heading. Level sets the HTML element (h1 to h4) for the document outline; Size sets how big it
+    looks. Choose Level from the page structure and Size from the design, independently.
+*@
+@switch (Math.Clamp(Level, 1, 4))
+{
+    case 1:
+        <h1 @attributes="Attributes" class="@RootClass("mnl-heading")" data-size="@SizeToken">@ChildContent</h1>
+        break;
+    case 2:
+        <h2 @attributes="Attributes" class="@RootClass("mnl-heading")" data-size="@SizeToken">@ChildContent</h2>
+        break;
+    case 3:
+        <h3 @attributes="Attributes" class="@RootClass("mnl-heading")" data-size="@SizeToken">@ChildContent</h3>
+        break;
+    default:
+        <h4 @attributes="Attributes" class="@RootClass("mnl-heading")" data-size="@SizeToken">@ChildContent</h4>
+        break;
+}
+
+@code {
+    /// <summary>The heading level, 1 to 4.</summary>
+    [Parameter]
+    public int Level { get; set; } = 2;
+
+    /// <summary>The visual size. Defaults to one that suits the level.</summary>
+    [Parameter]
+    public MnlTextSize? Size { get; set; }
+
+    /// <summary>The heading text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string SizeToken => Css.Token(Size ?? Level switch
+    {
+        1 => MnlTextSize.Display,
+        2 => MnlTextSize.Xxl,
+        3 => MnlTextSize.Xl,
+        _ => MnlTextSize.Md
+    });
+}

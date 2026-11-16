@@ -1,0 +1,32 @@
+.mnl-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mnl-space-2);
+  min-width: 0;
+}
+
+.mnl-cluster[data-align='stretch'] { align-items: stretch; }
+
+.mnl-cluster[data-align='start'] { align-items: start; }
+.mnl-cluster[data-align='center'] { align-items: center; }
+.mnl-cluster[data-align='end'] { align-items: end; }
+.mnl-cluster[data-align='baseline'] { align-items: baseline; }
+
+.mnl-cluster[data-justify='center'] { justify-content: center; }
+.mnl-cluster[data-justify='end'] { justify-content: flex-end; }
+.mnl-cluster[data-justify='between'] { justify-content: space-between; }
+
+.mnl-cluster[data-gap='none'] { gap: 0; }
+.mnl-cluster[data-gap='xs'] { gap: var(--mnl-space-1); }
+.mnl-cluster[data-gap='sm'] { gap: var(--mnl-space-2); }
+.mnl-cluster[data-gap='md'] { gap: var(--mnl-space-4); }
+.mnl-cluster[data-gap='lg'] { gap: var(--mnl-space-6); }
+.mnl-cluster[data-gap='xl'] { gap: var(--mnl-space-8); }
+
+@media (max-width: 39.99rem) {
+  .mnl-cluster[data-stack-on-mobile] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

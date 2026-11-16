@@ -1,0 +1,76 @@
+@* Layout primitives. *@
+<GallerySection Id="layout" Eyebrow="Components" Title="Layout"
+                Description="Pages are composed from these four primitives plus the app shell. They own all spacing, so page markup needs little or no CSS of its own.">
+    <GalleryExample Id="stack" Title="Stack"
+                    Description="Children in a column with an even gap. The default way to space things vertically."
+                    Code="@StackCode">
+        <MnlStack Gap="MnlGap.Sm">
+            <div class="gallery-box">One</div>
+            <div class="gallery-box">Two</div>
+            <div class="gallery-box">Three</div>
+        </MnlStack>
+    </GalleryExample>
+
+    <GalleryExample Id="cluster" Title="Cluster"
+                    Description="Children in a row that wraps: button groups, a title beside a badge. StackOnMobile makes action buttons full-width on phones."
+                    Code="@ClusterCode">
+        <MnlCluster Justify="MnlJustify.Between">
+            <div class="gallery-box">Title</div>
+            <MnlCluster>
+                <div class="gallery-box">Action</div>
+                <div class="gallery-box">Action</div>
+            </MnlCluster>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="grid" Title="Grid"
+                    Description="Equal columns that collapse to one on small screens. Auto fits as many as there is room for."
+                    Code="@GridCode">
+        <MnlGrid Columns="MnlGridColumns.Three">
+            <div class="gallery-box">1</div>
+            <div class="gallery-box">2</div>
+            <div class="gallery-box">3</div>
+            <div class="gallery-box">4</div>
+            <div class="gallery-box">5</div>
+            <div class="gallery-box">6</div>
+        </MnlGrid>
+    </GalleryExample>
+
+    <GalleryExample Id="split" Title="Split"
+                    Description="Two regions side by side on wide screens, stacked on narrow ones: a main column and a side column."
+                    Code="@SplitCode">
+        <MnlSplit Ratio="MnlSplitRatio.WideStart">
+            <div class="gallery-box">Main</div>
+            <div class="gallery-box">Side</div>
+        </MnlSplit>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    private const string StackCode = """
+        <MnlStack Gap="MnlGap.Lg">
+            <MnlHeading Level="2">Summary</MnlHeading>
+            <MnlText>...</MnlText>
+        </MnlStack>
+        """;
+
+    private const string ClusterCode = """
+        <MnlCluster Justify="MnlJustify.Between">
+            <MnlHeading Level="2">Budget 2026</MnlHeading>
+            <MnlBadge Tone="MnlTone.Success">Active</MnlBadge>
+        </MnlCluster>
+        """;
+
+    private const string GridCode = """
+        <MnlGrid Columns="MnlGridColumns.Three">
+            @foreach (BudgetCard budget in Model.Budgets) { <MnlCard>...</MnlCard> }
+        </MnlGrid>
+        """;
+
+    private const string SplitCode = """
+        <MnlSplit Ratio="MnlSplitRatio.WideStart">
+            <div>...main column...</div>
+            <div>...side column...</div>
+        </MnlSplit>
+        """;
+}

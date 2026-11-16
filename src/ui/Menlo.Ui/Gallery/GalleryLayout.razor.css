@@ -1,0 +1,9 @@
+.gallery-box {
+  padding: var(--mnl-space-3) var(--mnl-space-4);
+  border: 1px dashed var(--mnl-accent-strong);
+  border-radius: var(--mnl-radius-md);
+  background-color: var(--mnl-accent-soft);
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-semibold);
+  text-align: center;
+}

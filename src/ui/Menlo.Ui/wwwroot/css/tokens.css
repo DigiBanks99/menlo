@@ -1,0 +1,136 @@
+/*
+ * Design tokens. Every colour, size and shadow in the UI comes from here.
+ *
+ * Two tiers:
+ *   --ctp-*  the Catppuccin palette: Latte in light mode, Mocha in dark mode.
+ *   --mnl-*  what components use: a role (surface, text, accent), never a palette colour.
+ *
+ * The theme follows the operating system unless <html data-theme="light|dark"> is set.
+ */
+@layer tokens {
+  :root {
+    color-scheme: light dark;
+
+    /* Catppuccin: light-dark(Latte, Mocha) */
+    --ctp-rosewater: light-dark(#dc8a78, #f5e0dc);
+    --ctp-flamingo: light-dark(#dd7878, #f2cdcd);
+    --ctp-pink: light-dark(#ea76cb, #f5c2e7);
+    --ctp-mauve: light-dark(#8839ef, #cba6f7);
+    --ctp-red: light-dark(#d20f39, #f38ba8);
+    --ctp-maroon: light-dark(#e64553, #eba0ac);
+    --ctp-peach: light-dark(#fe640b, #fab387);
+    --ctp-yellow: light-dark(#df8e1d, #f9e2af);
+    --ctp-green: light-dark(#40a02b, #a6e3a1);
+    --ctp-teal: light-dark(#179299, #94e2d5);
+    --ctp-sky: light-dark(#04a5e5, #89dceb);
+    --ctp-sapphire: light-dark(#209fb5, #74c7ec);
+    --ctp-blue: light-dark(#1e66f5, #89b4fa);
+    --ctp-lavender: light-dark(#7287fd, #b4befe);
+    --ctp-text: light-dark(#4c4f69, #cdd6f4);
+    --ctp-subtext1: light-dark(#5c5f77, #bac2de);
+    --ctp-subtext0: light-dark(#6c6f85, #a6adc8);
+    --ctp-overlay2: light-dark(#7c7f93, #9399b2);
+    --ctp-overlay1: light-dark(#8c8fa1, #7f849c);
+    --ctp-overlay0: light-dark(#9ca0b0, #6c7086);
+    --ctp-surface2: light-dark(#acb0be, #585b70);
+    --ctp-surface1: light-dark(#bcc0cc, #45475a);
+    --ctp-surface0: light-dark(#ccd0da, #313244);
+    --ctp-base: light-dark(#eff1f5, #1e1e2e);
+    --ctp-mantle: light-dark(#e6e9ef, #181825);
+    --ctp-crust: light-dark(#dce0e8, #11111b);
+
+    /* Surfaces */
+    --mnl-bg: var(--ctp-base);
+    --mnl-surface: light-dark(#ffffff, #313244);
+    --mnl-surface-alt: light-dark(#e6e9ef, #45475a);
+    --mnl-surface-muted: light-dark(#ccd0da, #585b70);
+    --mnl-border: light-dark(#bcc0cc, #6c7086);
+    --mnl-border-subtle: color-mix(in srgb, var(--mnl-border) 60%, transparent);
+    --mnl-backdrop: rgb(0 0 0 / 45%);
+
+    /* Text */
+    --mnl-text: var(--ctp-text);
+    --mnl-subtext: var(--ctp-subtext0);
+    --mnl-on-accent: #11111b; /* Mocha crust: text on any accent or status fill, in both themes */
+
+    /* Accent and status */
+    --mnl-accent: var(--ctp-pink);
+    --mnl-accent-strong: var(--ctp-mauve);
+    --mnl-accent-soft: color-mix(in srgb, var(--mnl-accent) 12%, transparent);
+    --mnl-success: var(--ctp-green);
+    --mnl-warning: var(--ctp-yellow);
+    --mnl-error: var(--ctp-red);
+    --mnl-info: var(--ctp-blue);
+    --mnl-success-soft: color-mix(in srgb, var(--mnl-success) 18%, transparent);
+    --mnl-warning-soft: color-mix(in srgb, var(--mnl-warning) 20%, transparent);
+    --mnl-error-soft: color-mix(in srgb, var(--mnl-error) 12%, transparent);
+    --mnl-info-soft: color-mix(in srgb, var(--mnl-info) 14%, transparent);
+    --mnl-gradient: linear-gradient(135deg, var(--ctp-pink) 0%, var(--ctp-mauve) 56%, var(--ctp-lavender) 100%);
+
+    /* Chart series, in order */
+    --mnl-chart-1: var(--ctp-pink);
+    --mnl-chart-2: var(--ctp-mauve);
+    --mnl-chart-3: var(--ctp-lavender);
+    --mnl-chart-4: var(--ctp-peach);
+    --mnl-chart-5: var(--ctp-green);
+    --mnl-chart-6: var(--ctp-yellow);
+    --mnl-chart-7: var(--ctp-rosewater);
+    --mnl-chart-8: var(--ctp-red);
+
+    /* Typography */
+    --mnl-font: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+    --mnl-text-xs: 0.75rem;
+    --mnl-text-sm: 0.875rem;
+    --mnl-text-md: 1rem;
+    --mnl-text-lg: 1.125rem;
+    --mnl-text-xl: 1.25rem;
+    --mnl-text-2xl: 1.5rem;
+    --mnl-text-3xl: 1.875rem;
+    --mnl-text-4xl: 2.25rem;
+    --mnl-text-5xl: 3rem;
+    --mnl-weight-regular: 400;
+    --mnl-weight-medium: 500;
+    --mnl-weight-semibold: 600;
+    --mnl-weight-bold: 700;
+    --mnl-leading-tight: 1.2;
+    --mnl-leading-normal: 1.5;
+    --mnl-leading-relaxed: 1.7;
+
+    /* Spacing: a 4px scale */
+    --mnl-space-1: 0.25rem;
+    --mnl-space-2: 0.5rem;
+    --mnl-space-3: 0.75rem;
+    --mnl-space-4: 1rem;
+    --mnl-space-5: 1.25rem;
+    --mnl-space-6: 1.5rem;
+    --mnl-space-8: 2rem;
+    --mnl-space-10: 2.5rem;
+    --mnl-space-12: 3rem;
+    --mnl-space-16: 4rem;
+
+    /* Shape */
+    --mnl-radius-sm: 0.25rem;
+    --mnl-radius-md: 0.5rem;
+    --mnl-radius-lg: 0.75rem;
+    --mnl-radius-xl: 1rem;
+    --mnl-radius-2xl: 1.75rem;
+    --mnl-radius-full: 999px;
+    --mnl-shadow-sm: 0 1px 2px rgb(0 0 0 / 8%);
+    --mnl-shadow-md: 0 4px 12px rgb(0 0 0 / 12%), 0 1px 3px rgb(0 0 0 / 8%);
+    --mnl-focus-ring: 0 0 0 2px var(--mnl-bg), 0 0 0 4px var(--mnl-accent);
+
+    /* Layout */
+    --mnl-content-max: 96rem;
+    --mnl-sidebar-width: 16rem;
+    --mnl-tabbar-height: 5rem;
+    --mnl-duration: 200ms;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+}

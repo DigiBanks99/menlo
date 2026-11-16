@@ -7,7 +7,7 @@ using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
 using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
-using Menlo.Api.SpaHosting;
+using Menlo.Api.Ui;
 using Menlo.Application.Common;
 using Scalar.AspNetCore;
 
@@ -21,10 +21,13 @@ builder
     .AddMenloAuthentication()
     .AddMenloForwardedHeaders()
     .AddMenloAntiforgery()
-    .AddSpaReverseProxy()
+    .AddMenloUi()
     .AddMenloAi()
     .AddMenloOpenApi()
     .AddMenloApplication();
+
+// Outside a publish the UI library's CSS, scripts and fonts are served from the build output, not wwwroot
+builder.WebHost.UseStaticWebAssets();
 
 WebApplication app = builder.Build();
 
@@ -32,8 +35,9 @@ app.UseForwardedHeaders();
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 app.UseMenloAntiforgery()
-    .UseMenloSpaStaticFiles()
     .UseMenloSecurityHeaders()
     .UseAuthentication()
     .UseAuthorization()
@@ -75,7 +79,7 @@ apiGroup
     .WithSummary("Gets the health status of the AI service");
 
 app.MapDefaultEndpoints();
-app.MapMenloSpa();
+app.MapMenloUi();
 
 await app.MigrateDatabaseAsync();
 await app.SeedDemoBudgetAsync();

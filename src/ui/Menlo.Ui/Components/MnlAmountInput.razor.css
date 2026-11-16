@@ -1,0 +1,56 @@
+.mnl-amount-input {
+  display: flex;
+  align-items: center;
+  gap: var(--mnl-space-3);
+  width: 100%;
+  min-height: 2.75rem;
+  padding-inline: var(--mnl-space-3);
+  border: 1px solid var(--mnl-border);
+  border-radius: var(--mnl-radius-md);
+  background-color: var(--mnl-surface);
+  box-shadow: var(--mnl-shadow-sm);
+  transition:
+    border-color var(--mnl-duration),
+    box-shadow var(--mnl-duration);
+}
+
+.mnl-amount-input:focus-within {
+  border-color: var(--mnl-accent);
+  box-shadow: 0 0 0 2px var(--mnl-accent);
+}
+
+.mnl-amount-input[data-invalid] {
+  border-color: var(--mnl-error);
+  box-shadow: 0 0 0 2px var(--mnl-error);
+}
+
+.mnl-amount-input[data-disabled] {
+  background-color: var(--mnl-surface-alt);
+}
+
+.mnl-amount-input__prefix {
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-semibold);
+  color: var(--mnl-subtext);
+}
+
+.mnl-amount-input__field {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--mnl-text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--mnl-text);
+}
+
+.mnl-amount-input__field:focus-visible {
+  box-shadow: none;
+}
+
+.mnl-amount-input__field::placeholder {
+  color: var(--mnl-subtext);
+  opacity: 0.8;
+}

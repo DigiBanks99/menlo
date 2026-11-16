@@ -24,7 +24,6 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
     <PackageReference Include="Scalar.AspNetCore" />
-    <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +31,7 @@
     <ProjectReference Include="..\..\lib\Menlo.AI\Menlo.AI.csproj" />
     <ProjectReference Include="..\..\lib\Menlo.Application\Menlo.Application.csproj" />
     <ProjectReference Include="..\..\lib\Menlo.ServiceDefaults\Menlo.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\ui\Menlo.Ui\Menlo.Ui.csproj" />
   </ItemGroup>
 
 </Project>

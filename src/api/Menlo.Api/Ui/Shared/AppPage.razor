@@ -1,0 +1,43 @@
+@*
+    The frame of every signed-in page: the HTML document and the app shell around the page's content.
+    A page passes on the PageContext its endpoint built and gives the tab a title.
+    Use Bare for pages outside the shell, such as sign-in.
+*@
+<MnlDocument Title="@($"{Title} · Menlo")" StylesBundle="Menlo.Api.styles.css" Toasts="Page.Toasts">
+    @if (Bare)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <MnlAppShell NavItems="PageContext.NavItems" CurrentPath="@Page.CurrentPath" UserName="@Page.UserName">
+            <HeaderActions>
+                @if (Page.UserName is not null)
+                {
+                    <form method="post" action="/auth/logout" hx-boost="false">
+                        <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.LogOut" data-testid="sign-out-button">Sign out</MnlButton>
+                    </form>
+                }
+            </HeaderActions>
+            <ChildContent>@ChildContent</ChildContent>
+        </MnlAppShell>
+    }
+</MnlDocument>
+
+@code {
+    /// <summary>The request-level context from the endpoint.</summary>
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    /// <summary>The page's name, shown in the browser tab.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>Whether to leave out the navigation and header.</summary>
+    [Parameter]
+    public bool Bare { get; set; }
+
+    /// <summary>The page content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

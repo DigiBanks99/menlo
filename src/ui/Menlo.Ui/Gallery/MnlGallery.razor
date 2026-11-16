@@ -1,0 +1,39 @@
+@*
+    The component gallery: every design-system component with its variants, when to use it and the
+    markup that produces it. The host maps it at /design in development. It replaces Storybook.
+
+    When you add or change a component, add or update its example here: the gallery is the
+    component's documentation and its visual test.
+*@
+<div class="gallery" data-testid="gallery">
+    <nav class="gallery__nav" aria-label="Gallery sections">
+        <MnlHeading Level="1" Size="MnlTextSize.Xl">Menlo design system</MnlHeading>
+        <ul class="gallery__links">
+            <li><a href="#foundations">Tokens</a></li>
+            <li><a href="#actions">Buttons, badges and tags</a></li>
+            <li><a href="#surfaces">Cards, panels and feedback</a></li>
+            <li><a href="#forms">Form fields</a></li>
+            <li><a href="#layout">Layout</a></li>
+            <li><a href="#charts">Charts</a></li>
+        </ul>
+        <MnlThemeToggle data-testid="gallery-theme-toggle" />
+    </nav>
+    <div class="gallery__content">
+        <GalleryFoundations />
+        <GalleryActions ToastUrl="@ToastUrl" />
+        <GallerySurfaces PanelUrl="@PanelUrl" ToastUrl="@ToastUrl" />
+        <GalleryForms />
+        <GalleryLayout />
+        <GalleryCharts />
+    </div>
+</div>
+
+@code {
+    /// <summary>The address of an endpoint that returns a GalleryPanelExample fragment. It takes an optional ?mode=dialog.</summary>
+    [Parameter, EditorRequired]
+    public string PanelUrl { get; set; } = string.Empty;
+
+    /// <summary>The address of an endpoint that answers a POST with a toast event. It takes an optional ?tone=error.</summary>
+    [Parameter, EditorRequired]
+    public string ToastUrl { get; set; } = string.Empty;
+}

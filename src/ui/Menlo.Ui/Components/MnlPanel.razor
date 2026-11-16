@@ -1,0 +1,54 @@
+@inherits MnlComponent
+@*
+    A modal panel for a focused task: a form or a confirmation. It is a native <dialog>, so focus
+    trapping, Escape and the backdrop come from the browser.
+
+    Return it from a fragment endpoint and swap it into the shell's panel host (MnlPanel.HostSelector).
+    menlo.js opens it when it arrives, removes it when it closes, and closes it when the server sends
+    the "mnl:close-panel" event. Any element inside with data-mnl-close also closes it.
+*@
+<dialog @attributes="Attributes"
+        class="@RootClass("mnl-panel")"
+        data-mnl-panel
+        data-mode="@Css.Token(Mode)"
+        aria-labelledby="@TitleId">
+    <div class="mnl-panel__surface">
+        <header class="mnl-panel__header">
+            <div class="mnl-panel__title" id="@TitleId">@Header</div>
+            <button type="button" class="mnl-panel__close" data-mnl-close aria-label="Close panel">
+                <MnlIcon Name="MnlIconName.X" />
+            </button>
+        </header>
+        <div class="mnl-panel__body">@ChildContent</div>
+    </div>
+</dialog>
+
+@code {
+    /// <summary>The id of the element in the app shell that panels are swapped into.</summary>
+    public const string HostId = "mnl-panel-host";
+
+    /// <summary>A CSS selector for the panel host, for use as an hx-target.</summary>
+    public const string HostSelector = "#" + HostId;
+
+    /// <summary>The name of the event that closes the open panel. Send it in an HX-Trigger response header.</summary>
+    public const string CloseEvent = "mnl:close-panel";
+
+    private readonly string _generatedId = $"mnl-panel-title-{Guid.NewGuid():N}";
+
+    /// <summary>Auto is a sheet on small screens and a dialog on large ones. Dialog is always a narrow dialog.</summary>
+    [Parameter]
+    public MnlPanelMode Mode { get; set; } = MnlPanelMode.Auto;
+
+    /// <summary>The title area. It names the dialog for screen readers.</summary>
+    [Parameter]
+    public RenderFragment? Header { get; set; }
+
+    /// <summary>The panel's content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string TitleId =>
+        Attributes is not null && Attributes.TryGetValue("id", out object? id) && id is not null
+            ? $"{id}-title"
+            : _generatedId;
+}

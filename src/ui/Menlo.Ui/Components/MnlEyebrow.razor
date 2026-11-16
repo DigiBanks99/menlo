@@ -1,0 +1,15 @@
+@inherits MnlComponent
+@*
+    A small uppercase line above a heading that names the section.
+*@
+<p @attributes="Attributes" class="@RootClass("mnl-eyebrow")" data-tone="@Css.Token(Tone)">@ChildContent</p>
+
+@code {
+    /// <summary>Accent by default. Use Inherit on a page header's gradient and Subtle for quiet labels.</summary>
+    [Parameter]
+    public MnlTextTone Tone { get; set; } = MnlTextTone.Accent;
+
+    /// <summary>The text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

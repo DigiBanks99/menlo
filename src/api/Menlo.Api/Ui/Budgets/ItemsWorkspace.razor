@@ -1,0 +1,93 @@
+@* The items of the open leaf category, with the actions on each. Every action opens a panel. *@
+<MnlCard Padding="MnlSize.Lg" data-testid="budget-items-workspace">
+    <Header>
+        <MnlCluster Justify="MnlJustify.Between" Gap="MnlGap.Md">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlHeading Level="3" data-testid="category-title">@Model.CategoryName</MnlHeading>
+                <MnlText Tone="MnlTextTone.Subtle">Manage the monthly line items and supporting actions for this category.</MnlText>
+            </MnlStack>
+            @if (Model.CanEdit)
+            {
+                <MnlCluster Gap="MnlGap.Md" StackOnMobile="true">
+                    <MnlButton hx-get="@($"{Model.ItemsUrl}/new")" hx-target="@MnlPanel.HostSelector" data-testid="btn-open-single-create">Add item</MnlButton>
+                    <MnlButton Variant="MnlButtonVariant.Secondary" hx-get="@($"{Model.ItemsUrl}/bulk/new")" hx-target="@MnlPanel.HostSelector" data-testid="btn-open-bulk-create">Add line items</MnlButton>
+                </MnlCluster>
+            }
+        </MnlCluster>
+    </Header>
+    <ChildContent>
+        @if (Model.Error is not null)
+        {
+            <MnlAlert Tone="MnlTone.Error" data-testid="state-error">@Model.Error</MnlAlert>
+        }
+        else if (Model.Items.Count == 0)
+        {
+            <MnlEmptyState Message="No items for this category yet." data-testid="state-empty" />
+        }
+        else
+        {
+            <ul data-testid="items-list">
+                <MnlStack>
+                    @foreach (ItemRowModel item in Model.Items)
+                    {
+                        string itemUrl = $"{Model.ItemsUrl}/{item.Id}";
+                        <li data-testid="@($"item-row-{item.Id}")">
+                            <MnlCard>
+                                <MnlStack>
+                                    <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Start" Gap="MnlGap.Md">
+                                        <MnlCluster>
+                                            <MnlText Size="MnlTextSize.Md" Weight="MnlWeight.Semibold" Inline="true" data-testid="item-month">@item.MonthName</MnlText>
+                                            <MnlBadge Tone="item.FlowTone" Size="MnlSize.Sm" data-testid="item-flow">@item.BudgetFlow</MnlBadge>
+                                        </MnlCluster>
+                                        @if (Model.CanEdit)
+                                        {
+                                            <MnlCluster>
+                                                <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" hx-get="@($"{itemUrl}/edit")" hx-target="@MnlPanel.HostSelector" data-testid="@($"btn-edit-{item.Id}")">Edit</MnlButton>
+                                                <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary" hx-get="@($"{itemUrl}/fill-forward")" hx-target="@MnlPanel.HostSelector" data-testid="@($"btn-fill-forward-{item.Id}")">Fill forward</MnlButton>
+                                                <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Destructive" hx-get="@($"{itemUrl}/delete")" hx-target="@MnlPanel.HostSelector" data-testid="@($"btn-delete-{item.Id}")">Delete</MnlButton>
+                                            </MnlCluster>
+                                        }
+                                    </MnlCluster>
+
+                                    <MnlGrid Columns="MnlGridColumns.AutoNarrow">
+                                        <MnlStack Gap="MnlGap.Xs">
+                                            <MnlEyebrow Tone="MnlTextTone.Subtle">Planned</MnlEyebrow>
+                                            <MnlText Size="MnlTextSize.Md" Weight="MnlWeight.Semibold" Numeric="true" data-testid="planned-amount">@item.Planned</MnlText>
+                                        </MnlStack>
+                                        @if (item.Realized is not null)
+                                        {
+                                            <MnlStack Gap="MnlGap.Xs">
+                                                <MnlEyebrow Tone="MnlTextTone.Subtle">Realized</MnlEyebrow>
+                                                <MnlText Size="MnlTextSize.Md" Weight="MnlWeight.Semibold" Numeric="true" data-testid="realized-amount">@item.Realized</MnlText>
+                                            </MnlStack>
+                                        }
+                                        @if (item.Spent is not null)
+                                        {
+                                            <MnlStack Gap="MnlGap.Xs">
+                                                <MnlEyebrow Tone="MnlTextTone.Subtle">Spent</MnlEyebrow>
+                                                <MnlText Size="MnlTextSize.Md" Weight="MnlWeight.Semibold" Numeric="true" data-testid="spent-amount">@item.Spent</MnlText>
+                                            </MnlStack>
+                                        }
+                                    </MnlGrid>
+
+                                    @if (Model.CanEdit)
+                                    {
+                                        <MnlCluster>
+                                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary" hx-get="@($"{itemUrl}/realize")" hx-target="@MnlPanel.HostSelector" data-testid="@($"btn-realize-{item.Id}")">Record bill</MnlButton>
+                                            <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" hx-get="@($"{itemUrl}/spent")" hx-target="@MnlPanel.HostSelector" data-testid="@($"btn-spent-{item.Id}")">Record payment</MnlButton>
+                                        </MnlCluster>
+                                    }
+                                </MnlStack>
+                            </MnlCard>
+                        </li>
+                    }
+                </MnlStack>
+            </ul>
+        }
+    </ChildContent>
+</MnlCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public ItemsWorkspaceModel Model { get; set; } = null!;
+}

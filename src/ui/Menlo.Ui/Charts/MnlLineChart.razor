@@ -1,0 +1,93 @@
+@inherits MnlComponent
+@*
+    A line chart rendered as SVG on the server, for values over time. Each series is one line.
+    Hovering a point shows its value (the SVG <title>).
+*@
+<figure @attributes="Attributes" class="@RootClass("mnl-chart")" data-chart="line">
+    <svg class="mnl-chart__plot" viewBox="0 0 @Width @Height" role="img" aria-label="@Title">
+        @foreach (decimal tick in _ticks)
+        {
+            string y = ChartMath.Coordinate(Y(tick));
+            <line class="mnl-chart__grid" x1="@MarginLeft" x2="@(Width - MarginRight)" y1="@y" y2="@y" />
+            <MnlSvgText class="mnl-chart__tick" x="@(MarginLeft - 8)" y="@y" text-anchor="end" dominant-baseline="middle">@FormatValue(tick)</MnlSvgText>
+        }
+
+        @for (int category = 0; category < Categories.Count; category++)
+        {
+            string categoryLabel = Categories[category];
+            <MnlSvgText class="mnl-chart__tick" x="@ChartMath.Coordinate(X(category))" y="@(Height - 12)" text-anchor="middle">@categoryLabel</MnlSvgText>
+        }
+
+        @for (int series = 0; series < Series.Count; series++)
+        {
+            MnlChartSeries current = Series[series];
+            string points = string.Join(' ', current.Values
+                .Take(Categories.Count)
+                .Select((value, index) => $"{ChartMath.Coordinate(X(index))},{ChartMath.Coordinate(Y(value))}"));
+
+            <polyline class="mnl-chart__line" data-series="@ChartMath.ColourSlot(series)" points="@points" />
+
+            @for (int index = 0; index < Math.Min(current.Values.Count, Categories.Count); index++)
+            {
+                <circle class="mnl-chart__point"
+                        data-series="@ChartMath.ColourSlot(series)"
+                        cx="@ChartMath.Coordinate(X(index))"
+                        cy="@ChartMath.Coordinate(Y(current.Values[index]))"
+                        r="4">
+                    <title>@current.Name, @Categories[index]: @FormatValue(current.Values[index])</title>
+                </circle>
+            }
+        }
+    </svg>
+    @if (Series.Count > 1)
+    {
+        <MnlChartLegend Labels="@([.. Series.Select(s => s.Name)])" />
+    }
+</figure>
+
+@code {
+    private const int Width = 640;
+    private const int Height = 320;
+    private const int MarginLeft = 64;
+    private const int MarginRight = 24;
+    private const int MarginTop = 16;
+    private const int MarginBottom = 40;
+    private const double PlotHeight = Height - MarginTop - MarginBottom;
+    private const double PlotWidth = Width - MarginLeft - MarginRight;
+
+    private IReadOnlyList<decimal> _ticks = [];
+    private decimal _top;
+
+    /// <summary>What the chart shows. It is the chart's accessible name.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The labels along the horizontal axis, in order.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Categories { get; set; } = [];
+
+    /// <summary>The lines to draw. Each has one value per category.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MnlChartSeries> Series { get; set; } = [];
+
+    /// <summary>How to format axis ticks and tooltips. Defaults to a whole number with grouping.</summary>
+    [Parameter]
+    public Func<decimal, string>? Format { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        decimal max = Series.SelectMany(series => series.Values).DefaultIfEmpty(0m).Max();
+        _ticks = ChartMath.Ticks(max);
+        _top = _ticks[^1];
+    }
+
+    private double X(int index) =>
+        Categories.Count <= 1
+            ? MarginLeft + (PlotWidth / 2)
+            : MarginLeft + (index * PlotWidth / (Categories.Count - 1));
+
+    private double Y(decimal value) => Height - MarginBottom - ChartMath.Scale(value, _top, PlotHeight);
+
+    private string FormatValue(decimal value) =>
+        Format?.Invoke(value) ?? value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+}

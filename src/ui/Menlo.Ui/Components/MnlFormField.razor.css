@@ -1,0 +1,27 @@
+.mnl-form-field {
+  display: grid;
+  align-content: start;
+  gap: var(--mnl-space-2);
+  min-width: 0;
+}
+
+.mnl-form-field__label {
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-semibold);
+  color: var(--mnl-text);
+}
+
+.mnl-form-field__required {
+  color: var(--mnl-error);
+}
+
+.mnl-form-field__hint {
+  font-size: var(--mnl-text-xs);
+  color: var(--mnl-subtext);
+}
+
+.mnl-form-field__error {
+  font-size: var(--mnl-text-sm);
+  font-weight: var(--mnl-weight-medium);
+  color: var(--mnl-error);
+}

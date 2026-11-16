@@ -1,0 +1,19 @@
+@*
+    The key under a chart: one coloured swatch and name per series, in series order.
+    Charts render it themselves; use it directly only when building a new chart.
+*@
+<ul class="mnl-chart__legend">
+    @for (int index = 0; index < Labels.Count; index++)
+    {
+        <li class="mnl-chart__legend-item">
+            <span class="mnl-chart__swatch" data-series="@ChartMath.ColourSlot(index)" aria-hidden="true"></span>
+            @Labels[index]
+        </li>
+    }
+</ul>
+
+@code {
+    /// <summary>The series names, in the order the chart draws them.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Labels { get; set; } = [];
+}

@@ -1,0 +1,71 @@
+@* Charts. *@
+<GallerySection Id="charts" Eyebrow="Components" Title="Charts"
+                Description="Charts are SVG rendered on the server: no chart script, and the colours follow the theme. Hover a mark to see its value.">
+    <GalleryExample Id="bar-chart" Title="Bar chart"
+                    Description="Compare amounts across categories. Several series draw grouped bars."
+                    Code="@BarCode">
+        <MnlBarChart Title="Planned and spent by category" Categories="Categories" Series="Bars" data-testid="bar-chart" />
+    </GalleryExample>
+
+    <GalleryExample Id="line-chart" Title="Line chart"
+                    Description="Show how amounts change over time."
+                    Code="@LineCode">
+        <MnlLineChart Title="Monthly spending" Categories="Months" Series="Lines" data-testid="line-chart" />
+    </GalleryExample>
+
+    <GalleryExample Id="donut-chart" Title="Donut and radial charts"
+                    Description="A donut for parts of a whole (six slices or fewer). A radial for one headline percentage."
+                    Code="@DonutCode">
+        <MnlGrid Columns="MnlGridColumns.Two">
+            <MnlDonutChart Title="Spending by category" Slices="Slices" CenterValue="R 11 350" CenterLabel="spent" data-testid="donut-chart" />
+            <MnlRadialChart Title="Budget used" Value="73" Label="of budget used" Tone="MnlTone.Warning" data-testid="radial-chart" />
+        </MnlGrid>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    private static readonly string[] Categories = ["Groceries", "Utilities", "Transport", "Leisure"];
+
+    private static readonly MnlChartSeries[] Bars =
+    [
+        new("Planned", [3200m, 1800m, 2100m, 850m]),
+        new("Spent", [2720m, 1350m, 1470m, 357m])
+    ];
+
+    private static readonly string[] Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+
+    private static readonly MnlChartSeries[] Lines =
+    [
+        new("This year", [9800m, 10400m, 9900m, 11200m, 10800m, 11350m]),
+        new("Last year", [9100m, 9300m, 9800m, 9600m, 10100m, 10400m])
+    ];
+
+    private static readonly MnlChartSlice[] Slices =
+    [
+        new("Groceries", 3200m),
+        new("Utilities", 1800m),
+        new("Transport", 2100m),
+        new("Healthcare", 1200m),
+        new("Other", 3050m)
+    ];
+
+    private const string BarCode = """
+        <MnlBarChart Title="Planned and spent by category"
+                     Categories="Model.Categories"
+                     Series="Model.Series" />
+
+        // In the model:
+        Categories = ["Groceries", "Utilities"];
+        Series = [new MnlChartSeries("Planned", [3200m, 1800m]), new MnlChartSeries("Spent", [2720m, 1350m])];
+        """;
+
+    private const string LineCode = """
+        <MnlLineChart Title="Monthly spending" Categories="Model.Months" Series="Model.Series"
+                      Format="@(value => MoneyFormat.Format(value))" />
+        """;
+
+    private const string DonutCode = """
+        <MnlDonutChart Title="Spending by category" Slices="Model.Slices" CenterValue="R 11 350" CenterLabel="spent" />
+        <MnlRadialChart Title="Budget used" Value="73" Label="of budget used" Tone="MnlTone.Warning" />
+        """;
+}

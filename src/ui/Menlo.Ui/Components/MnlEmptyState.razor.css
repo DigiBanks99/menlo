@@ -1,0 +1,25 @@
+.mnl-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--mnl-space-3);
+  padding: var(--mnl-space-8) var(--mnl-space-4);
+  text-align: center;
+}
+
+.mnl-empty-state[data-bordered] {
+  border: 1px dashed var(--mnl-border);
+  border-radius: var(--mnl-radius-xl);
+}
+
+.mnl-empty-state__title {
+  font-size: var(--mnl-text-xl);
+  font-weight: var(--mnl-weight-semibold);
+  color: var(--mnl-text);
+}
+
+.mnl-empty-state__message {
+  max-width: 32rem;
+  font-size: var(--mnl-text-sm);
+  line-height: var(--mnl-leading-relaxed);
+  color: var(--mnl-subtext);
+}

@@ -1,0 +1,50 @@
+@inherits MnlComponent
+@*
+    A single percentage drawn as a ring, with the figure in the middle: "73% of budget used".
+    For a plain bar use MnlProgress; use this when the figure is a headline.
+*@
+<figure @attributes="Attributes" class="@RootClass("mnl-chart")" data-chart="radial" data-tone="@Css.Token(Tone)">
+    <svg class="mnl-chart__plot" viewBox="0 0 200 200" role="img" aria-label="@($"{Title}: {Percent}%")">
+        <circle class="mnl-chart__track" cx="100" cy="100" r="@Radius" />
+        <circle class="mnl-chart__arc"
+                data-series="1"
+                cx="100"
+                cy="100"
+                r="@Radius"
+                stroke-linecap="round"
+                stroke-dasharray="@ChartMath.Coordinate(Length) @ChartMath.Coordinate(Circumference - Length)"
+                transform="rotate(-90 100 100)" />
+        <MnlSvgText class="mnl-chart__center-value" x="100" y="@(Label is null ? 100 : 96)" text-anchor="middle" dominant-baseline="middle">@Percent%</MnlSvgText>
+        @if (Label is not null)
+        {
+            <MnlSvgText class="mnl-chart__center-label" x="100" y="118" text-anchor="middle" dominant-baseline="middle">@Label</MnlSvgText>
+        }
+    </svg>
+</figure>
+
+@code {
+    private const double Radius = 78;
+    private const double Circumference = 2 * Math.PI * Radius;
+
+    /// <summary>What the percentage measures. It is the chart's accessible name.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The percentage, 0 to 100. Values outside the range are clamped.</summary>
+    [Parameter]
+    public decimal Value { get; set; }
+
+    /// <summary>A caption under the figure.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>The ring's colour. Neutral and Accent use the accent colour.</summary>
+    [Parameter]
+    public MnlTone Tone { get; set; } = MnlTone.Accent;
+
+    private decimal Clamped => Math.Clamp(Value, 0m, 100m);
+
+    private string Percent => Clamped.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+
+    private double Length => (double)(Clamped / 100m) * Circumference;
+}

@@ -1,0 +1,47 @@
+@inherits MnlComponent
+@*
+    A checkbox with its label. With Switch it looks like a toggle and is announced as a switch;
+    use that for settings that apply immediately. Extra attributes go to the <input>.
+*@
+<label class="mnl-checkbox" data-switch="@Css.Flag(Switch)">
+    <input @attributes="Attributes"
+           class="@RootClass("mnl-checkbox__input")"
+           type="checkbox"
+           role="@(Switch ? "switch" : null)"
+           id="@(Id ?? Name)"
+           name="@Name"
+           value="@Value"
+           checked="@Checked"
+           disabled="@Disabled" />
+    <span class="mnl-checkbox__label">@Label</span>
+</label>
+
+@code {
+    /// <summary>The form field name.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The element id. Defaults to Name.</summary>
+    [Parameter]
+    public string? Id { get; set; }
+
+    /// <summary>The visible label.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>The value submitted when checked.</summary>
+    [Parameter]
+    public string Value { get; set; } = "true";
+
+    /// <summary>Whether it is checked.</summary>
+    [Parameter]
+    public bool Checked { get; set; }
+
+    /// <summary>Whether it is unavailable.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Whether to render as a toggle switch.</summary>
+    [Parameter]
+    public bool Switch { get; set; }
+}

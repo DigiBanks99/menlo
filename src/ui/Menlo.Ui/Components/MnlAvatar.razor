@@ -1,0 +1,35 @@
+@inherits MnlComponent
+@*
+    A person, shown as their initials. Pass the full name; the component works out the initials.
+*@
+<span @attributes="Attributes"
+      class="@RootClass("mnl-avatar")"
+      data-size="@Css.Token(Size)"
+      role="img"
+      aria-label="@Name">
+    <span aria-hidden="true">@Initials</span>
+</span>
+
+@code {
+    /// <summary>The person's name. It is the accessible label and the source of the initials.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The avatar's size.</summary>
+    [Parameter]
+    public MnlSize Size { get; set; } = MnlSize.Md;
+
+    private string Initials
+    {
+        get
+        {
+            string[] parts = Name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return parts.Length switch
+            {
+                0 => "?",
+                1 => parts[0][..1].ToUpperInvariant(),
+                _ => string.Concat(parts[0].AsSpan(0, 1), parts[^1].AsSpan(0, 1)).ToUpperInvariant()
+            };
+        }
+    }
+}

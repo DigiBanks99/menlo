@@ -1,3 +1,4 @@
+using Menlo.Api.Ui.Shared;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -44,7 +45,7 @@ internal static class MenloAntiforgeryExtensions
                     }
                 }
 
-                if (context.Request.IsHttps && RequiresValidation(context.Request))
+                if (context.Request.IsHttps && RequiresValidation(context))
                 {
                     IAntiforgery antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
 
@@ -81,11 +82,14 @@ internal static class MenloAntiforgeryExtensions
         }
     }
 
-    private static bool RequiresValidation(HttpRequest request) =>
-        request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
-        && (HttpMethods.IsPost(request.Method)
-            || HttpMethods.IsPut(request.Method)
-            || HttpMethods.IsDelete(request.Method));
+    // JSON API calls and UI form posts both change data on behalf of the signed-in person
+    private static bool RequiresValidation(HttpContext context) =>
+        (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
+            || UiEndpointMetadata.IsOn(context))
+        && (HttpMethods.IsPost(context.Request.Method)
+            || HttpMethods.IsPut(context.Request.Method)
+            || HttpMethods.IsPatch(context.Request.Method)
+            || HttpMethods.IsDelete(context.Request.Method));
 
     private static bool ShouldEmitRequestToken(HttpRequest request)
     {

@@ -1,0 +1,57 @@
+@inherits MnlComponent
+@*
+    A row of mutually exclusive choices: Yearly | Monthly. Each choice is a link, so the selection
+    lives in the URL. Attributes on the component that start with "hx-" are copied to every link,
+    with the link's own address as hx-get, so a choice can swap a fragment instead of the page.
+*@
+<div class="@RootClass("mnl-segmented")" role="group" aria-label="@Label" data-testid="@TestId">
+    @foreach (MnlSegment segment in Segments)
+    {
+        <a class="mnl-segmented__item"
+           href="@segment.Href"
+           data-value="@segment.Value"
+           aria-current="@(segment.Value == Value ? "true" : null)"
+           @attributes="LinkAttributes(segment)">@segment.Label</a>
+    }
+</div>
+
+@code {
+    /// <summary>An accessible name for the group.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>The choices.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MnlSegment> Segments { get; set; } = [];
+
+    /// <summary>The value of the selected choice.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    private object? TestId =>
+        Attributes is not null && Attributes.TryGetValue("data-testid", out object? value) ? value : null;
+
+    private Dictionary<string, object> LinkAttributes(MnlSegment segment)
+    {
+        Dictionary<string, object> attributes = [];
+        if (Attributes is null)
+        {
+            return attributes;
+        }
+
+        foreach ((string key, object value) in Attributes)
+        {
+            if (key.StartsWith("hx-", StringComparison.OrdinalIgnoreCase))
+            {
+                attributes[key] = value;
+            }
+        }
+
+        if (attributes.Count > 0)
+        {
+            attributes["hx-get"] = segment.Href;
+        }
+
+        return attributes;
+    }
+}

@@ -1,0 +1,17 @@
+@* The panel that holds the category form. Only the form inside is re-rendered when validation fails. *@
+<MnlPanel data-testid="category-form-panel">
+    <Header>
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlHeading Level="3">@Model.Title</MnlHeading>
+            <MnlText Tone="MnlTextTone.Subtle">@Model.Subtitle</MnlText>
+        </MnlStack>
+    </Header>
+    <ChildContent>
+        <CategoryForm Model="Model" />
+    </ChildContent>
+</MnlPanel>
+
+@code {
+    [Parameter, EditorRequired]
+    public CategoryFormModel Model { get; set; } = null!;
+}

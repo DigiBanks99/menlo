@@ -1,0 +1,14 @@
+@* Shown for an address that matches no page. *@
+<AppPage Page="Page" Title="Not found">
+    <MnlCard Padding="MnlSize.Lg" data-testid="not-found-page">
+        <MnlEmptyState Title="We couldn't find that page"
+                       Message="The address may be mistyped, or the page may have moved.">
+            <MnlButton Href="/" Variant="MnlButtonVariant.Secondary">Back to home</MnlButton>
+        </MnlEmptyState>
+    </MnlCard>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+}

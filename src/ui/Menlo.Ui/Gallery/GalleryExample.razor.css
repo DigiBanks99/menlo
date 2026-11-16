@@ -1,0 +1,30 @@
+.gallery-example {
+  display: grid;
+  gap: var(--mnl-space-4);
+  min-width: 0;
+  scroll-margin-top: var(--mnl-space-6);
+}
+
+.gallery-example__stage {
+  min-width: 0;
+  padding: var(--mnl-space-6);
+  border: 1px solid var(--mnl-border-subtle);
+  border-radius: var(--mnl-radius-xl);
+  background-color: var(--mnl-surface);
+}
+
+.gallery-example__stage[data-surface='background'] {
+  background-color: var(--mnl-bg);
+}
+
+.gallery-example__code {
+  margin: 0;
+  padding: var(--mnl-space-4);
+  overflow-x: auto;
+  border-radius: var(--mnl-radius-lg);
+  background-color: var(--ctp-crust);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: var(--mnl-text-xs);
+  line-height: var(--mnl-leading-relaxed);
+  color: var(--ctp-text);
+}

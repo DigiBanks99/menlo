@@ -1,0 +1,235 @@
+@* Cards, panels, alerts, toasts and other containers. *@
+<GallerySection Id="surfaces" Eyebrow="Components" Title="Cards, panels and feedback">
+    <GalleryExample Id="cards" Title="Cards" OnBackground="true"
+                    Description="A raised surface that groups related content. Header and Footer are optional. Interactive cards lift on hover."
+                    Code="@CardCode">
+        <MnlGrid Columns="MnlGridColumns.Three">
+            <MnlCard>
+                <MnlStack Gap="MnlGap.Sm">
+                    <MnlHeading Level="4" Size="MnlTextSize.Lg">Body only</MnlHeading>
+                    <MnlText Tone="MnlTextTone.Subtle">The simplest card: content with medium padding.</MnlText>
+                </MnlStack>
+            </MnlCard>
+            <MnlCard Interactive="true" data-testid="card-interactive">
+                <Header>
+                    <MnlCluster Justify="MnlJustify.Between">
+                        <MnlHeading Level="4" Size="MnlTextSize.Lg">Budget 2026</MnlHeading>
+                        <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm">Active</MnlBadge>
+                    </MnlCluster>
+                </Header>
+                <ChildContent>
+                    <MnlProgress Value="62" Tone="MnlTone.Success" AriaLabel="Spending this month" />
+                </ChildContent>
+                <Footer>
+                    <MnlCluster Justify="MnlJustify.End">
+                        <MnlButton Size="MnlSize.Sm" Href="#surfaces">View Details</MnlButton>
+                    </MnlCluster>
+                </Footer>
+            </MnlCard>
+            <MnlCard Padding="MnlSize.Lg">
+                <MnlStat Label="Planned this month" Value="R 12 000.00" Trend="+4.8% vs last month" TrendDirection="MnlTrendDirection.Up" TrendTone="MnlTone.Success" />
+            </MnlCard>
+        </MnlGrid>
+    </GalleryExample>
+
+    <GalleryExample Id="page-header" Title="Page header" OnBackground="true"
+                    Description="The gradient banner at the top of a page. Cards in ChildContent overlap its lower edge."
+                    Code="@PageHeaderCode">
+        <MnlPageHeader>
+            <Hero>
+                <MnlStack Gap="MnlGap.Sm" Align="MnlAlign.Start">
+                    <MnlBadge Size="MnlSize.Sm">Household budgets</MnlBadge>
+                    <MnlHeading Level="2" Size="MnlTextSize.Display">Budget Management</MnlHeading>
+                    <MnlText Size="MnlTextSize.Lg" Tone="MnlTextTone.Inherit">Track and manage your family budgets.</MnlText>
+                </MnlStack>
+            </Hero>
+            <ChildContent>
+                <MnlCard Padding="MnlSize.Lg">
+                    <MnlStat Label="Total planned monthly" Value="R 24 500.00" />
+                </MnlCard>
+            </ChildContent>
+        </MnlPageHeader>
+    </GalleryExample>
+
+    <GalleryExample Id="panels" Title="Panels"
+                    Description="A modal for a focused task. The server returns the panel as a fragment; it is swapped into the shell's panel host and opens itself. Auto is a bottom sheet on phones; Dialog is for confirmations."
+                    Code="@PanelCode">
+        <MnlCluster Gap="MnlGap.Md">
+            <MnlButton Variant="MnlButtonVariant.Secondary" hx-get="@PanelUrl" hx-target="@MnlPanel.HostSelector" data-testid="open-panel">Open a panel</MnlButton>
+            <MnlButton Variant="MnlButtonVariant.Destructive" hx-get="@($"{PanelUrl}?mode=dialog")" hx-target="@MnlPanel.HostSelector" data-testid="open-dialog">Open a confirmation</MnlButton>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="alerts" Title="Alerts"
+                    Description="A message that stays on the page: a load failure, a form-level error, a notice."
+                    Code="@AlertCode">
+        <MnlStack>
+            <MnlAlert Tone="MnlTone.Error" Title="We couldn't load your budgets.">The server didn't respond. Try again in a moment.</MnlAlert>
+            <MnlAlert Tone="MnlTone.Warning">This category is five levels deep. Consider flattening it.</MnlAlert>
+            <MnlAlert Tone="MnlTone.Success">All twelve months are planned.</MnlAlert>
+            <MnlAlert Tone="MnlTone.Info">Budget analytics is showing sample data.</MnlAlert>
+        </MnlStack>
+    </GalleryExample>
+
+    <GalleryExample Id="toasts" Title="Toasts"
+                    Description="A message that confirms an action and disappears after five seconds. The server sends it as an event in the HX-Trigger response header, or stores it across a redirect."
+                    Code="@ToastCode">
+        <MnlCluster Gap="MnlGap.Md">
+            <MnlButton Variant="MnlButtonVariant.Secondary" hx-post="@ToastUrl" hx-swap="none" data-testid="toast-success">Success toast</MnlButton>
+            <MnlButton Variant="MnlButtonVariant.Secondary" hx-post="@($"{ToastUrl}?tone=error")" hx-swap="none" data-testid="toast-error">Error toast</MnlButton>
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="empty-state" Title="Empty state"
+                    Description="What a list shows when there is nothing in it, with the next step when there is one."
+                    Code="@EmptyCode">
+        <MnlEmptyState Title="No budgets yet" Message="Create your first budget to start tracking your family's finances.">
+            <MnlButton>Create Your First Budget</MnlButton>
+        </MnlEmptyState>
+    </GalleryExample>
+
+    <GalleryExample Id="list-items" Title="List items"
+                    Description="A row with optional leading and trailing content. With Href the whole row is a link."
+                    Code="@ListCode">
+        <ul>
+            <li>
+                <MnlListItem>
+                    <Leading><MnlIcon Name="MnlIconName.Wallet" /></Leading>
+                    <ChildContent>
+                        <MnlText Weight="MnlWeight.Semibold">Groceries</MnlText>
+                        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Depth 1 · Leaf category</MnlText>
+                    </ChildContent>
+                    <Trailing>
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost">View items</MnlButton>
+                    </Trailing>
+                </MnlListItem>
+            </li>
+            <li>
+                <MnlListItem Selected="true">
+                    <ChildContent>
+                        <MnlText Weight="MnlWeight.Semibold">Utilities (selected)</MnlText>
+                    </ChildContent>
+                    <Trailing>
+                        <MnlTag>75%</MnlTag>
+                    </Trailing>
+                </MnlListItem>
+            </li>
+        </ul>
+    </GalleryExample>
+
+    <GalleryExample Id="disclosure" Title="Disclosure"
+                    Description="A row that expands, built on the native details element: no script, and the browser keeps it open while you work."
+                    Code="@DisclosureCode">
+        <MnlStack Gap="MnlGap.Sm">
+            <MnlDisclosure data-testid="disclosure">
+                <Summary>
+                    <MnlCluster Justify="MnlJustify.Between">
+                        <MnlText Weight="MnlWeight.Medium" Inline="true">Housing</MnlText>
+                        <MnlText Weight="MnlWeight.Semibold" Numeric="true" Inline="true">9 500.00</MnlText>
+                    </MnlCluster>
+                </Summary>
+                <ChildContent>
+                    <MnlDisclosure>
+                        <Summary>
+                            <MnlCluster Justify="MnlJustify.Between">
+                                <MnlText Inline="true">Rent</MnlText>
+                                <MnlText Numeric="true" Inline="true">8 000.00</MnlText>
+                            </MnlCluster>
+                        </Summary>
+                    </MnlDisclosure>
+                </ChildContent>
+            </MnlDisclosure>
+        </MnlStack>
+    </GalleryExample>
+
+    <GalleryExample Id="stats" Title="Stats and progress" Code="@StatCode">
+        <MnlGrid Columns="MnlGridColumns.Three">
+            <MnlStat Label="Total budget" Value="R 15 500" Trend="+5.2% from last month" TrendDirection="MnlTrendDirection.Up" TrendTone="MnlTone.Success" />
+            <MnlStat Label="Spent this month" Value="R 11 350" Trend="73% of budget used" />
+            <MnlStack>
+                <MnlProgress Value="42" Tone="MnlTone.Success" Label="Entertainment" />
+                <MnlProgress Value="88" Tone="MnlTone.Warning" Label="Shopping" />
+                <MnlProgress Value="100" Tone="MnlTone.Error" Label="Groceries" />
+            </MnlStack>
+        </MnlGrid>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    /// <summary>The address of an endpoint that returns an MnlPanel fragment.</summary>
+    [Parameter, EditorRequired]
+    public string PanelUrl { get; set; } = string.Empty;
+
+    /// <summary>The address of an endpoint that answers with a toast event.</summary>
+    [Parameter, EditorRequired]
+    public string ToastUrl { get; set; } = string.Empty;
+
+    private const string CardCode = """
+        <MnlCard Interactive="true">
+            <Header>...</Header>
+            <ChildContent>...</ChildContent>
+            <Footer>...</Footer>
+        </MnlCard>
+        """;
+
+    private const string PageHeaderCode = """
+        <MnlPageHeader>
+            <Hero>
+                <MnlHeading Level="1">Budget Management</MnlHeading>
+            </Hero>
+            <ChildContent>
+                <MnlCard>...</MnlCard>
+            </ChildContent>
+        </MnlPageHeader>
+        """;
+
+    private const string PanelCode = """
+        @* In the page: ask for the panel and put it in the panel host *@
+        <MnlButton hx-get="/budgets/{id}/categories/new" hx-target="@MnlPanel.HostSelector">Add category</MnlButton>
+
+        @* The fragment the endpoint returns *@
+        <MnlPanel>
+            <Header><MnlHeading Level="3">Add category</MnlHeading></Header>
+            <ChildContent>...the form...</ChildContent>
+        </MnlPanel>
+        """;
+
+    private const string AlertCode = """
+        <MnlAlert Tone="MnlTone.Error" Title="We couldn't load your budgets.">Try again in a moment.</MnlAlert>
+        """;
+
+    private const string ToastCode = """
+        // In an endpoint, after the work is done:
+        return new HxResponse().Toast("Category created.").ClosePanel().NoContent(context);
+
+        // Before a redirect:
+        Flash.Set(context, "Budget 2027 created.");
+        """;
+
+    private const string EmptyCode = """
+        <MnlEmptyState Title="No budgets yet" Message="Create your first budget to start tracking.">
+            <MnlButton>Create Your First Budget</MnlButton>
+        </MnlEmptyState>
+        """;
+
+    private const string ListCode = """
+        <MnlListItem>
+            <Leading><MnlIcon Name="MnlIconName.Wallet" /></Leading>
+            <ChildContent>Groceries</ChildContent>
+            <Trailing><MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost">View items</MnlButton></Trailing>
+        </MnlListItem>
+        """;
+
+    private const string DisclosureCode = """
+        <MnlDisclosure>
+            <Summary>Housing</Summary>
+            <ChildContent>...child rows...</ChildContent>
+        </MnlDisclosure>
+        """;
+
+    private const string StatCode = """
+        <MnlStat Label="Total budget" Value="R 15 500" Trend="+5.2% from last month"
+                 TrendDirection="MnlTrendDirection.Up" TrendTone="MnlTone.Success" />
+        <MnlProgress Value="88" Tone="MnlTone.Warning" Label="Shopping" />
+        """;
+}

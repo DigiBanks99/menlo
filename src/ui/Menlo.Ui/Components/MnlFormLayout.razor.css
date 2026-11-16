@@ -1,0 +1,29 @@
+.mnl-form-layout {
+  display: grid;
+  gap: var(--mnl-space-6);
+}
+
+.mnl-form-layout__title {
+  display: grid;
+  gap: var(--mnl-space-2);
+}
+
+.mnl-form-layout__sections {
+  display: grid;
+  gap: var(--mnl-space-6);
+}
+
+.mnl-form-layout__actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--mnl-space-3);
+  padding-top: var(--mnl-space-4);
+  border-top: 1px solid var(--mnl-border-subtle);
+}
+
+@media (min-width: 40rem) {
+  .mnl-form-layout__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

@@ -1,0 +1,157 @@
+@* Form fields and form layout. *@
+<GallerySection Id="forms" Eyebrow="Components" Title="Form fields"
+                Description="Controls are plain HTML inputs with names, so a form posts without script. Wrap each one in MnlFormField for its label, hint and error. The server validates and renders the form again with the errors.">
+    <GalleryExample Id="form-fields" Title="Fields"
+                    Description="MnlFormField's For matches the control's id. When Error is set, also set the control's Invalid."
+                    Code="@FieldCode">
+        <MnlGrid Columns="MnlGridColumns.Two">
+            <MnlFormField Label="Name" For="gallery-name" Required="true" Hint="Shown in the category tree.">
+                <MnlInput Name="name" Id="gallery-name" Value="Groceries" />
+            </MnlFormField>
+            <MnlFormField Label="Name" For="gallery-name-invalid" Required="true" Error="Name is required">
+                <MnlInput Name="nameInvalid" Id="gallery-name-invalid" Invalid="true" />
+            </MnlFormField>
+            <MnlFormField Label="Budget flow" For="gallery-flow" Required="true">
+                <MnlSelect Name="flow" Id="gallery-flow" Options="FlowOptions" Value="Expense" Placeholder="-- Select --" />
+            </MnlFormField>
+            <MnlFormField Label="Planned amount" For="gallery-amount" Required="true">
+                <MnlAmountInput Name="amount" Id="gallery-amount" Value="1250.5m" />
+            </MnlFormField>
+            <MnlFormField Label="Month" For="gallery-month">
+                <MnlInput Name="month" Id="gallery-month" Type="number" Value="3" min="1" max="12" />
+            </MnlFormField>
+            <MnlFormField Label="Search" For="gallery-search">
+                <MnlInput Name="q" Id="gallery-search" Type="search" Placeholder="Search..." />
+            </MnlFormField>
+            <MnlFormField Label="Disabled" For="gallery-disabled">
+                <MnlInput Name="disabled" Id="gallery-disabled" Value="Can't touch this" Disabled="true" />
+            </MnlFormField>
+        </MnlGrid>
+    </GalleryExample>
+
+    <GalleryExample Id="checkboxes" Title="Checkbox and switch"
+                    Description="A checkbox for a choice submitted with a form. A switch for a setting that applies as soon as it is flipped."
+                    Code="@CheckboxCode">
+        <MnlCluster Gap="MnlGap.Lg">
+            <MnlCheckbox Name="remember" Label="Include in summary" Checked="true" />
+            <MnlCheckbox Name="deleted" Id="gallery-switch" Label="Show deleted" Switch="true" data-testid="switch" />
+        </MnlCluster>
+    </GalleryExample>
+
+    <GalleryExample Id="segmented" Title="Segmented control"
+                    Description="Mutually exclusive views, such as Yearly and Monthly. Each choice is a link, so the selection lives in the URL."
+                    Code="@SegmentedCode">
+        <MnlSegmented Label="Summary period" Segments="Periods" Value="monthly" />
+    </GalleryExample>
+
+    <GalleryExample Id="repeated-rows" Title="Repeated rows with a running total"
+                    Description="Rows the person can add and remove, with a total that updates as they type. This is presentation behaviour, so menlo.js handles it through data-mnl-rows attributes; the server still checks the total."
+                    Code="@RowsCode">
+        <div data-mnl-rows data-testid="rows">
+            <MnlStack>
+                <MnlCluster Justify="MnlJustify.Between">
+                    <MnlHeading Level="4">Payer split</MnlHeading>
+                    <output class="gallery-total" data-mnl-rows-total data-target="100" data-suffix="%" data-on-target="true" data-testid="rows-total">100%</output>
+                </MnlCluster>
+                <div class="gallery-rows" data-mnl-rows-list>
+                    <div class="gallery-row" data-mnl-row>
+                        <MnlInput Name="payer" Value="Sam" aria-label="Payer" />
+                        <MnlInput Name="percent" Type="number" Value="100" aria-label="Percent" data-mnl-rows-value />
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove>Remove</MnlButton>
+                    </div>
+                </div>
+                <template data-mnl-rows-template>
+                    <div class="gallery-row" data-mnl-row>
+                        <MnlInput Name="payer" aria-label="Payer" />
+                        <MnlInput Name="percent" Type="number" Value="0" aria-label="Percent" data-mnl-rows-value />
+                        <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Ghost" data-mnl-rows-remove>Remove</MnlButton>
+                    </div>
+                </template>
+                <MnlCluster>
+                    <MnlButton Size="MnlSize.Sm" Variant="MnlButtonVariant.Secondary" data-mnl-rows-add data-testid="rows-add">Add payer</MnlButton>
+                </MnlCluster>
+            </MnlStack>
+        </div>
+    </GalleryExample>
+
+    <GalleryExample Id="form-layout" Title="Form layout"
+                    Description="The frame of a form: a title, the fields, and the actions with the primary one last."
+                    Code="@LayoutCode">
+        <form>
+            <MnlFormLayout>
+                <Title>
+                    <MnlEyebrow>Category</MnlEyebrow>
+                    <MnlHeading Level="3">Add category</MnlHeading>
+                    <MnlText Tone="MnlTextTone.Subtle">Define the budget flow and ownership for this category.</MnlText>
+                </Title>
+                <ChildContent>
+                    <MnlGrid Columns="MnlGridColumns.Two">
+                        <MnlFormField Label="Name" For="layout-name" Required="true">
+                            <MnlInput Name="name" Id="layout-name" />
+                        </MnlFormField>
+                        <MnlFormField Label="Description" For="layout-description">
+                            <MnlInput Name="description" Id="layout-description" />
+                        </MnlFormField>
+                    </MnlGrid>
+                </ChildContent>
+                <Actions>
+                    <MnlButton Variant="MnlButtonVariant.Ghost">Cancel</MnlButton>
+                    <MnlButton>Create</MnlButton>
+                </Actions>
+            </MnlFormLayout>
+        </form>
+    </GalleryExample>
+</GallerySection>
+
+@code {
+    private static readonly MnlOption[] FlowOptions = [new("Income", "Income"), new("Expense", "Expense"), new("Both", "Both")];
+
+    private static readonly MnlSegment[] Periods = [new("yearly", "Yearly", "#segmented"), new("monthly", "Monthly", "#segmented")];
+
+    private const string FieldCode = """
+        <MnlFormField Label="Name" For="name" Required="true" Error="@Model.Errors.For("name")">
+            <MnlInput Name="name" Value="@Model.Name" Invalid="@Model.Errors.Has("name")" />
+        </MnlFormField>
+
+        <MnlFormField Label="Planned amount" For="plannedAmount" Required="true">
+            <MnlAmountInput Name="plannedAmount" Value="@Model.PlannedAmount" />
+        </MnlFormField>
+        """;
+
+    private const string CheckboxCode = """
+        <MnlCheckbox Name="includeDeleted" Label="Show deleted" Switch="true"
+                     hx-get="/budgets/{id}/categories" hx-target="#category-tree" />
+        """;
+
+    private const string SegmentedCode = """
+        <MnlSegmented Label="Summary period" Segments="Model.Periods" Value="@Model.Period"
+                      hx-target="#budget-summary" hx-swap="outerHTML" />
+        """;
+
+    private const string RowsCode = """
+        <div data-mnl-rows>
+            <output data-mnl-rows-total data-target="100" data-suffix="%">100%</output>
+            <div data-mnl-rows-list>
+                <div data-mnl-row>
+                    <MnlInput Name="payerPercent" Type="number" Value="100" data-mnl-rows-value />
+                    <MnlButton data-mnl-rows-remove>Remove</MnlButton>
+                </div>
+            </div>
+            <template data-mnl-rows-template>...one empty row...</template>
+            <MnlButton data-mnl-rows-add>Add payer</MnlButton>
+        </div>
+        """;
+
+    private const string LayoutCode = """
+        <form hx-post="..." hx-swap="outerHTML">
+            <MnlFormLayout>
+                <Title>...</Title>
+                <ChildContent>...fields...</ChildContent>
+                <Actions>
+                    <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close>Cancel</MnlButton>
+                    <MnlButton Type="MnlButtonType.Submit">Create</MnlButton>
+                </Actions>
+            </MnlFormLayout>
+        </form>
+        """;
+}

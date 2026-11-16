@@ -22,4 +22,8 @@
     <Project Path="src/lib/Menlo.Lib/Menlo.Lib.csproj" />
     <Project Path="src/lib/Menlo.ServiceDefaults/Menlo.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/ui/">
+    <Project Path="src/ui/Menlo.Ui.Tests/Menlo.Ui.Tests.csproj" />
+    <Project Path="src/ui/Menlo.Ui/Menlo.Ui.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,19 @@
+@inherits MnlComponent
+@*
+    A responsive grid of equal columns, for cards and form fields. It is one column on small screens.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-grid")" data-columns="@Css.Token(Columns)" data-gap="@Css.Token(Gap)">@ChildContent</div>
+
+@code {
+    /// <summary>How many columns, or Auto to fit as many as there is room for.</summary>
+    [Parameter]
+    public MnlGridColumns Columns { get; set; } = MnlGridColumns.Auto;
+
+    /// <summary>The space between cells.</summary>
+    [Parameter]
+    public MnlGap Gap { get; set; } = MnlGap.Md;
+
+    /// <summary>The cells.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

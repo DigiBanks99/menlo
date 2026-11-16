@@ -1,0 +1,48 @@
+@* The home page's current-budget card, once loaded. It replaces the loading card. *@
+<MnlCard Padding="MnlSize.Lg" data-testid="budget-widget-card">
+    <Header>
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Start">
+            <MnlStack Gap="MnlGap.Sm">
+                <MnlEyebrow>Current budget</MnlEyebrow>
+                <MnlHeading Level="2" data-testid="widget-title">Budget @Model.Year</MnlHeading>
+            </MnlStack>
+            @if (Model.Budget is not null)
+            {
+                <MnlBadge Tone="Model.Budget.StatusTone" Size="MnlSize.Sm" data-testid="widget-status">@Model.Budget.Status</MnlBadge>
+            }
+            else
+            {
+                <MnlBadge Tone="MnlTone.Error" Size="MnlSize.Sm">Needs attention</MnlBadge>
+            }
+        </MnlCluster>
+    </Header>
+    <ChildContent>
+        @if (Model.Budget is not null)
+        {
+            <MnlStack>
+                <MnlStat Label="Planned this month" Value="@Model.Budget.PlannedThisMonth" data-testid="widget-total" />
+                <MnlText Tone="MnlTextTone.Subtle">
+                    Review status and jump straight into the household budget workspace when you are ready to refine categories and items.
+                </MnlText>
+            </MnlStack>
+        }
+        else
+        {
+            <MnlStack Gap="MnlGap.Sm" data-testid="widget-error">
+                <MnlText Tone="MnlTextTone.Error" Weight="MnlWeight.Semibold">We couldn't load this year's budget.</MnlText>
+                <MnlText Tone="MnlTextTone.Subtle">@Model.Error</MnlText>
+            </MnlStack>
+        }
+    </ChildContent>
+    <Footer>
+        <MnlButton Href="@(Model.Budget is null ? "/budgets" : $"/budgets/{Model.Budget.Id}")"
+                   Size="MnlSize.Sm"
+                   Disabled="Model.Budget is null"
+                   data-testid="view-budget-button">View Budget</MnlButton>
+    </Footer>
+</MnlCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public BudgetWidgetModel Model { get; set; } = null!;
+}

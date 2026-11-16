@@ -1,0 +1,43 @@
+@*
+    One example in the gallery: a title, when to use it, the live component, and the markup that made it.
+*@
+<section class="gallery-example" data-testid="@($"example-{Id}")" id="@Id">
+    <MnlStack Gap="MnlGap.Sm">
+        <MnlHeading Level="3">@Title</MnlHeading>
+        @if (Description is not null)
+        {
+            <MnlText Tone="MnlTextTone.Subtle">@Description</MnlText>
+        }
+    </MnlStack>
+    <div class="gallery-example__stage" data-surface="@(OnBackground ? "background" : null)">@ChildContent</div>
+    @if (Code is not null)
+    {
+        <pre class="gallery-example__code"><code>@Code.Trim()</code></pre>
+    }
+</section>
+
+@code {
+    /// <summary>The anchor id of the example.</summary>
+    [Parameter, EditorRequired]
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>The example's name.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>When to use what is shown.</summary>
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>The markup that produced the example.</summary>
+    [Parameter]
+    public string? Code { get; set; }
+
+    /// <summary>Whether the stage uses the page background instead of a surface, for components that are surfaces themselves.</summary>
+    [Parameter]
+    public bool OnBackground { get; set; }
+
+    /// <summary>The live example.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

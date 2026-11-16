@@ -1,0 +1,41 @@
+@inherits MnlComponent
+@*
+    One headline figure with its label and, optionally, how it is trending.
+*@
+<div @attributes="Attributes" class="@RootClass("mnl-stat")">
+    <p class="mnl-stat__label">@Label</p>
+    <p class="mnl-stat__value">@Value</p>
+    @if (Trend is not null)
+    {
+        <MnlBadge Tone="TrendTone" Size="MnlSize.Sm" Icon="TrendIcon" data-direction="@Css.Token(TrendDirection)">@Trend</MnlBadge>
+    }
+</div>
+
+@code {
+    /// <summary>What the figure measures.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>The figure, already formatted.</summary>
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    /// <summary>A short note on the trend, such as "+4.8% vs last month". Null hides the trend.</summary>
+    [Parameter]
+    public string? Trend { get; set; }
+
+    /// <summary>Which way the trend arrow points.</summary>
+    [Parameter]
+    public MnlTrendDirection TrendDirection { get; set; } = MnlTrendDirection.Neutral;
+
+    /// <summary>Whether the trend is good, bad or neutral news.</summary>
+    [Parameter]
+    public MnlTone TrendTone { get; set; } = MnlTone.Neutral;
+
+    private MnlIconName TrendIcon => TrendDirection switch
+    {
+        MnlTrendDirection.Up => MnlIconName.ArrowUpRight,
+        MnlTrendDirection.Down => MnlIconName.ArrowDownRight,
+        _ => MnlIconName.Minus
+    };
+}
