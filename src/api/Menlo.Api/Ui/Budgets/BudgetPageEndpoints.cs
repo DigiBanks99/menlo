@@ -134,7 +134,7 @@ internal static class BudgetPageEndpoints
             budget.Year,
             budget.Status,
             BudgetPresentation.StatusTone(budget.Status),
-            budget.CategoryCount == 1 ? "1 category" : $"{budget.CategoryCount} categories",
+            BudgetPresentation.CategoryCount(budget.CategoryCount),
             percent,
             BudgetPresentation.SpendTone(percent),
             $"{spentText} spent of {MoneyFormat.Format(planned, budget.PlannedExpenses.Currency)} planned this month",
