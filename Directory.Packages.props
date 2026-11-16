@@ -40,10 +40,10 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.20.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.21.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
-    <PackageVersion Include="TUnit.Core" Version="1.83.8" />
-    <PackageVersion Include="TUnit.Engine" Version="1.83.8" />
+    <PackageVersion Include="TUnit.Core" Version="1.84.0" />
+    <PackageVersion Include="TUnit.Engine" Version="1.84.0" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
   </ItemGroup>
 </Project>
