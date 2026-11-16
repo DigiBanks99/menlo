@@ -72,6 +72,8 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Budget Domain](explanations/budget-domain.md)** - How budgets, categories and items work today, and the rules they follow
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 - **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
+- **[ADR-007: Server-Rendered UI](decisions/adr-007-server-rendered-ui.md)** - Why the UI is Razor components and HTMX, with no Node toolchain
+- **[UI Architecture](explanations/ui-architecture.md)** - Pages, fragments, components and utilities, and where state and behaviour live
 - **[ADR-006: llama.cpp and Agent Framework](decisions/adr-006-llamacpp-and-agent-framework.md)** - One local model runtime and the framework Menlo.AI uses
 
 ### 🏗️ Architecture & Design
@@ -84,8 +86,8 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 - **[Use Domain Abstractions](guides/domain-abstractions-howto.md)** - Practical examples for using core domain abstractions
 - **[Add Authorization Policy](guides/auth-policy-howto.md)** - Define new roles and policies
-- **[Add Angular Auth Guard](guides/angular-auth-guard-howto.md)** - Create route guards for role-based access
-- **[Write .NET Tests](guides/testing-howto.md)** - TUnit style, API test fixtures, isolated test data and feature flags
+- **[Add a Page to the UI](guides/ui-page-howto.md)** - A page, a region that refreshes, and a form in a panel
+- **[Write .NET Tests](guides/testing-howto.md)** - TUnit style, API test fixtures, isolated test data, feature flags and UI tests
 
 ### 📚 Tutorials
 
@@ -102,7 +104,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
 - **[Repository Structure](reference/repo-structure.md)** - Where the code lives and how the projects depend on each other
 - **[App Shell](reference/app-shell.md)** - The navigation, header and content area around every signed-in page
-- **[Angular Result Pattern](reference/angular-result-pattern-api.md)** - `Result`, `ApiError` and the `toResult()` operator
+- **[Design System](reference/design-system.md)** - Tokens, components, charts and the gallery at `/design`
 
 ### 📊 Project Status
 
@@ -116,7 +118,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 | **CFO-COO Dynamic**                | Strategic vs operational family roles                   | [Concepts Guide](explanations/concepts-and-terminology.md#the-cfo-coo-family-dynamic)                      |
 | **Natural Workflow Preservation**  | Enhance existing habits, don't replace them             | [Concepts Guide](explanations/concepts-and-terminology.md#natural-workflow-preservation)                   |
 | **Privacy-First Local AI**         | All AI processing on home server                        | [Concepts Guide](explanations/concepts-and-terminology.md#privacy-first-local-ai)                          |
-| **Hybrid Cloud-Local**             | Cloudflare Tunnel + home server (API with bundled SPA)  | [ADR-005](decisions/adr-005-bundled-spa-hosting.md)                                                        |
+| **Hybrid Cloud-Local**             | Cloudflare Tunnel + home server (the API serves the UI) | [ADR-005](decisions/adr-005-bundled-spa-hosting.md)                                                        |
 | **Cost-Conscious Experimentation** | Low-cost validation approach                            | [Concepts Guide](explanations/concepts-and-terminology.md#cost-conscious-experimentation)                  |
 
 ## 🛤️ Reading Paths
@@ -126,6 +128,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 1. [Concepts & Terminology Guide](explanations/concepts-and-terminology.md) - Understand the philosophy
 2. [Work Items](reference/work-items.md) - Start here: how requirements, specs and tasks flow through the [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2)
 3. [Product Vision](explanations/product-vision.md) - Learn the features
+4. [UI Architecture](explanations/ui-architecture.md) - How pages, components and state fit together
 5. [C4 Component Diagram](diagrams/c4-component-diagram.md) - Understand the architecture
 6. [C4 Code Diagram](diagrams/c4-code-diagram.md) - Understand the domain model
 7. [ADR-001](decisions/adr-001-hosting-strategy.md) - Know the infrastructure decisions
@@ -175,7 +178,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **Microsoft Agent Framework**: AI orchestration framework
 - **llama.cpp**: Local AI model hosting
 - **Cloudflare Tunnel**: Secure home server connectivity
-- **Bundled SPA**: The API image serves the Angular frontend ([ADR-005](decisions/adr-005-bundled-spa-hosting.md))
+- **htmx**: Swaps server-rendered HTML into the page ([ADR-007](decisions/adr-007-server-rendered-ui.md))
 
 ---
 

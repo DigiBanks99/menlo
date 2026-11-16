@@ -13,7 +13,7 @@ The architecture is document in full in the [Architecture Document](docs/explana
 
 In summary it is a **Hybrid Cloud-Local Design** optimized for cost-conscious experimentation:
 
-- **Frontend**: Angular PWA on Azure Static Web Apps (Free tier)
+- **Frontend**: HTML rendered by the API with Razor components and htmx
 - **Backend**: .NET Core API on home server via Cloudflare Tunnel
 - **Database**: PostgreSQL (local)
 - **AI**: Local llama.cpp serving Qwen3.5-4B (privacy-first)
@@ -56,16 +56,17 @@ Ready to begin development? Follow these paths based on your focus:
 - .NET 11.0 with clean architecture patterns
 - Docker stack: PostgreSQL + llama.cpp for local AI
 - Test-driven development: Unit → Integration → API testing
-- Local web development runs through the Menlo API URL from Aspire; the Angular app is proxied same-origin instead of being accessed directly on port 4200
-- Production container builds bundle the Angular output into `wwwroot/`, so the SPA, health endpoint, and API ship from one image on one port
+- The API renders the UI, so local web development runs through the Menlo API URL from Aspire. There is no Node toolchain
+- Every UI component is shown at `/design` when running locally
+- Enable the format-on-commit hook once per clone with `git config core.hooksPath .githooks`
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Angular 21, TypeScript, PWA capabilities
+- **Frontend**: Razor components, htmx and Menlo's own design system (Catppuccin Latte and Mocha)
 - **Backend**: .NET Core, Entity Framework Core
 - **Database**: PostgreSQL
 - **AI Framework**: Microsoft Agent Framework + llama.cpp (Qwen3.5-4B)
-- **Hosting**: Single ASP.NET Core container image serving both the API and Angular SPA
+- **Hosting**: Single ASP.NET Core container image serving both the API and the UI
 - **Infrastructure**: Home server with UPS for load shedding resilience
 
 ## 🔑 Key Features

@@ -138,7 +138,7 @@ As an alternative we have the **Blueberry Muffin Pattern**:
 
 **Architecture Components**:
 
-- **Bundled Frontend**: The API image serves the Angular PWA from the same origin, so one deploy ships both
+- **Server-Rendered UI**: The API renders the UI as HTML and serves it from the same origin, so one deploy ships both
 - **Secure Tunnel**: Cloudflare Tunnel eliminates static IP requirement
 - **Local Backend**: Home server provides full data control and AI processing
 - **Cost Optimization**: ~80% cost reduction vs. full cloud hosting
@@ -321,7 +321,7 @@ public class LlamaBudgetImpactAnalyser : IBudgetImpactAnalyser
 **Guidelines**:
 
 - **Local-First**: Prefer local processing over complex cloud orchestration
-- **Standard Technologies**: Use established frameworks (EF Core, Angular) over cutting-edge alternatives
+- **Standard Technologies**: Use established frameworks (EF Core, ASP.NET Core, htmx) over cutting-edge alternatives
 - **Clear Abstractions**: AI integration through well-defined interfaces
 - **Documentation-Driven**: Every pattern and decision documented for future reference
 

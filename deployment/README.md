@@ -10,7 +10,7 @@ This setup is designed for:
 - **Docker or Podman** (pick one with the `CONTAINER_RUNTIME` variable)
 - **Local llama.cpp** (the `llama-server` already running on the host, shared with the knowledge base)
 - **Cloudflare Tunnels** (secure remote access without exposing IPs)
-- **Bundled SPA** (the API image serves the Angular 21 frontend, see [ADR-005](../docs/decisions/adr-005-bundled-spa-hosting.md))
+- **Server-rendered UI** (the API renders and serves the UI, see [ADR-007](../docs/decisions/adr-007-server-rendered-ui.md))
 
 ## 📁 Files Overview
 
@@ -144,7 +144,7 @@ sudo chmod 440 /etc/sudoers.d/ghrunner-cloudflared
 |---------------|-------|-------------|----------|
 | `CONTAINER_RUNTIME` | `docker` or `podman` | Container runtime on the host; unset auto-detects, preferring Podman | - |
 | `CLOUDFLARE_TUNNEL_ENABLED` | `true` | Enable Cloudflare tunnel restart | - |
-| `FRONTEND_URL` | `https://menlo.yourdomain.com` | Production URL (API with the bundled SPA); CD smoke-checks it after every deploy | ✅ |
+| `FRONTEND_URL` | `https://menlo.yourdomain.com` | Production URL (the API, which serves the UI); CD smoke-checks it after every deploy | ✅ |
 
 ### Step 4: Prepare the llama.cpp Server
 
@@ -169,7 +169,7 @@ The image is built once, in CI, and CD deploys that exact image:
    2. Writes `~/menlo/docker-compose.prod.yml` on the host and restarts the stack via the self-hosted runner
    3. Verifies the local health check (the job fails if `/health` never returns 200)
    4. Restarts the Cloudflare tunnel (if configured)
-   5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/budgets` 401 without auth, `/` and a deep link return the SPA with a CSP header), retrying for up to 3 minutes
+   5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/budgets` 401 without auth, `/` redirects to sign-in, `/sign-in` renders with a CSP header, and the UI's stylesheets and script are served), retrying for up to 3 minutes
    6. Moves the `main` tag to the deployed image only if the smoke check passed, so `menlo-api:main` is always the last image that passed
 
 If the smoke check fails, the `main` tag still points at the previous image, so `gh workflow run cd.yml --ref main` rolls back. Run the smoke check yourself with `deployment/smoke-check.sh https://menlo.yourdomain.com`.
@@ -410,7 +410,7 @@ curl https://YOUR_SUBDOMAIN.YOUR_DOMAIN/health
 
 ## 🌐 Frontend Hosting
 
-The Angular SPA is not deployed separately. The root `Dockerfile` builds it in its `spa-build` stage and copies it into the API's `wwwroot`. The API then serves the SPA and `/api` from one origin (`FRONTEND_URL`), falling back to `index.html` for client-side routes. Deploying the API image deploys the frontend.
+The UI is not deployed separately. The API renders it, and publishing the API copies the UI library's stylesheets, script and fonts into `wwwroot`, so the API serves the UI and `/api` from one origin (`FRONTEND_URL`). Deploying the API image deploys the UI. See [ADR-007](../docs/decisions/adr-007-server-rendered-ui.md).
 
 Cloudflare Pages hosted the frontend until 2026; [ADR-005](../docs/decisions/adr-005-bundled-spa-hosting.md) records why it was retired.
 

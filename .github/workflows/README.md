@@ -12,7 +12,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 
 - **Change Detection**: Intelligently detects which parts of the codebase changed
 - **Backend Testing**: .NET tests with PostgreSQL, security scanning with CodeQL
-- **Frontend Testing**: Angular tests, builds, and Storybook generation
+- **UI Testing**: Component, page and browser tests run in the .NET test job
 - **Integration Testing**: End-to-end testing across the full stack
 - **Documentation**: Markdown linting and link checking
 - **Container Image**: Builds the arm64 `menlo-api` image on every PR (no push) and pushes `sha-<full commit sha>` on `main` for CD to deploy
@@ -22,7 +22,7 @@ Comprehensive CI pipeline that runs on every push and pull request:
 
 **File**: `cd.yml`
 
-The only deploy workflow. The API image bundles the Angular SPA, so one deploy ships both (see [ADR-005](../../docs/decisions/adr-005-bundled-spa-hosting.md)).
+The only deploy workflow. The API renders the UI, so one deploy ships both (see [ADR-007](../../docs/decisions/adr-007-server-rendered-ui.md)).
 
 - Starts when CI succeeds on `main` and deploys the exact image CI built for that commit (`menlo-api:sha-<full commit sha>`); it never builds images itself
 - Skips commits that produced no image (e.g. docs-only); a manual run redeploys production, or deploys a given `sha` for rollback
@@ -54,11 +54,11 @@ graph LR
     C --> F[llama.cpp on the host]
 ```
 
-The home server runs the API container, which serves the bundled SPA and `/api` from one origin.
+The home server runs the API container, which serves the UI and `/api` from one origin.
 
 ### Cost Optimization
 
-- **App**: Home server deployment (API with the bundled SPA) with minimal cloud costs
+- **App**: Home server deployment (the API, which serves the UI) with minimal cloud costs
 - **Container Registry**: Free GitHub Container Registry
 - **CI/CD**: GitHub Actions free tier (generous limits)
 
@@ -99,7 +99,7 @@ Configure these variables in GitHub repository settings:
 
 ### Application Configuration
 
-- `FRONTEND_URL`: Production URL (API with the bundled SPA); CD smoke-checks it after every deploy
+- `FRONTEND_URL`: Production URL (the API, which serves the UI); CD smoke-checks it after every deploy
 
 ### Optional Features
 
@@ -118,7 +118,7 @@ Configure these variables in GitHub repository settings:
 
 ### Production Deployment
 
-1. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64, API plus bundled SPA) for commits on `main`
+1. **Image**: CI's `Container Image` job pushes `menlo-api:sha-<full commit sha>` (arm64, the API and the UI it serves) for commits on `main`
 2. **Deploy**: CD deploys that exact image to the home server once CI succeeds, then moves the `main` tag to it
 3. **Health Checks**: The deploy job fails if `/health` never returns 200 on the host; then `deployment/smoke-check.sh` checks `FRONTEND_URL` from outside, and the `main` tag only moves if it passes
 4. **Rollback**: Re-run CD for an earlier commit: `gh workflow run cd.yml --ref main -f sha=<full sha>`
@@ -158,6 +158,7 @@ act push --eventpath .github/test-events/push.json
 
 - [Hosting Strategy ADR](../../docs/decisions/adr-001-hosting-strategy.md) - Architecture decisions
 - [Bundled SPA Hosting ADR](../../docs/decisions/adr-005-bundled-spa-hosting.md) - Why the API serves the frontend
+- [Server-Rendered UI ADR](../../docs/decisions/adr-007-server-rendered-ui.md) - Why the UI is Razor components and HTMX
 - [Menlo Roadmap](https://github.com/users/DigiBanks99/projects/2) - Development plan
 - [Architecture Document](../../docs/explanations/architecture-document.md) - System architecture
 

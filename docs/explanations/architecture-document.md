@@ -77,7 +77,7 @@ The system is organized as independent vertical slices, each representing a comp
 
 ```tree
 Planning & Inventory Slice
-├── UI Components (Angular)
+├── Pages and Fragments (Razor components, htmx)
 ├── API Endpoints (Minimal API)
 ├── Command/Query Handlers
 ├── Domain Models & Business Logic
@@ -127,10 +127,13 @@ The system is organized into **5 primary bounded contexts**:
 
 **Frontend Stack** (Fixed Architecture Decisions):
 
-- **Framework**: Angular 21+ with TypeScript
-- **UI Library**: Bootstrap 5 with Angular Material components
-- **State Management**: Angular Signals (RxJS for complex flows)
-- **Build**: Angular CLI with Vite
+- **Rendering**: Static Razor components rendered by the API (no Blazor interactivity)
+- **Interaction**: htmx swaps server-rendered HTML; one small script for presentation behaviour
+- **UI Library**: `Menlo.Ui`, Menlo's own design system (Catppuccin Latte and Mocha)
+- **State Management**: On the server and in the URL
+- **Build**: `dotnet build`; there is no Node toolchain
+
+See [ADR-007](../decisions/adr-007-server-rendered-ui.md) and [UI Architecture](ui-architecture.md).
 
 **Infrastructure Standards**:
 
@@ -141,11 +144,11 @@ The system is organized into **5 primary bounded contexts**:
 
 ### Hosting Strategy
 
-**ARCHITECTURAL DECISION**: **Hybrid Cloud-Local Architecture** (per [ADR-001](../decisions/adr-001-hosting-strategy.md), with the frontend bundled into the API per [ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
+**ARCHITECTURAL DECISION**: **Hybrid Cloud-Local Architecture** (per [ADR-001](../decisions/adr-001-hosting-strategy.md), with the UI served by the API per [ADR-005](../decisions/adr-005-bundled-spa-hosting.md) and [ADR-007](../decisions/adr-007-server-rendered-ui.md))
 
 ```md
 [Browser] → [Cloudflare Tunnel] → [Home Server]
-               (Secure Proxy)     (API + bundled Angular PWA + AI)
+               (Secure Proxy)     (API + server-rendered UI + AI)
 ```
 
 **Benefits**:
@@ -417,7 +420,7 @@ main (production-ready)
 - **.NET Aspire**: Service orchestration and dependency management
 - **Docker Compose**: Database and supporting services
 - **llama.cpp**: Local AI model development and testing
-- **Angular CLI**: Frontend development server with hot reload
+- **Design gallery**: Every UI component at `/design` on the API
 
 ### Development Constraints
 
@@ -469,10 +472,9 @@ src/
 │   │   └── Migrations/          # EF Core migrations
 │   ├── Menlo.AI/                # AI infrastructure layer
 │   └── Menlo.ServiceDefaults/   # Shared infrastructure
-└── ui/                          # Frontend application
-    └── web/                     # Angular application
-        ├── projects/menlo-app/  # Main application
-        └── projects/menlo-lib/  # Shared UI components
+└── ui/                          # UI library
+    ├── Menlo.Ui/                # Design system: tokens, components, layouts, charts
+    └── Menlo.Ui.Tests/          # Component tests
 ```
 
 **Slice Context Interface Pattern**: Feature code does not inject `MenloDbContext` directly. Instead, each bounded context has a focused interface (e.g., `IUserContext`) exposing only its own `DbSet<T>` and `SaveChangesAsync()`. `MenloDbContext` implements all slice interfaces, ensuring shared change tracking while enforcing domain boundary access control at the type system level.
@@ -693,6 +695,7 @@ This document serves as the master architecture guide. Specific technical decisi
 - **[ADR-003](../decisions/adr-003-cd-authentication-strategy.md)**: CD Pipeline Authentication Strategy
 - **[ADR-004](../decisions/adr-004-linux-deployment-host.md)**: Linux Deployment Host
 - **[ADR-005](../decisions/adr-005-bundled-spa-hosting.md)**: Bundled SPA Hosting
+- **[ADR-007](../decisions/adr-007-server-rendered-ui.md)**: Server-Rendered UI with Razor Components and HTMX
 
 ---
 

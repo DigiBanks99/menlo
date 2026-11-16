@@ -13,7 +13,7 @@ graph TB
     subgraph HomeServer["🏠 Home Server"]
         %% API Host
         APIHost[🌐 API Host<br/>ASP.NET Core Minimal APIs<br/>Hosts feature endpoints with<br/>authentication middleware]
-        SPA[📱 Angular 21 PWA<br/>Bundled in the API image<br/>and served by the API Host<br/>from the same origin]
+        SPA[📱 Web UI<br/>HTML rendered by the API Host<br/>Razor components and htmx<br/>same origin]
         
         %% Budget Feature
         subgraph BudgetFeature["💰 Budget Management Feature"]
@@ -109,7 +109,7 @@ graph TB
     %% Main Flow
     FamilyDevices -->|Loads PWA and calls API<br/>HTTPS| CFTunnel
     CFTunnel -->|Forwards to home server<br/>Encrypted tunnel| APIHost
-    APIHost -->|Serves static files<br/>index.html fallback| SPA
+    APIHost -->|Renders pages<br/>and fragments| SPA
     
     %% API Host to Features
     APIHost --> BudgetEndpoints
@@ -235,7 +235,7 @@ graph TB
 
 ### Hybrid Cloud-Local Architecture
 
-- **Frontend**: Bundled in the API image and served from the same origin ([ADR-005](../decisions/adr-005-bundled-spa-hosting.md))
+- **Frontend**: Rendered by the API and served from the same origin ([ADR-007](../decisions/adr-007-server-rendered-ui.md))
 - **Backend**: Home server via Cloudflare Tunnel (no static IP needed)
 - **Database**: PostgreSQL with EF Core
 - **AI**: Local llama.cpp with Qwen3.5-4B
