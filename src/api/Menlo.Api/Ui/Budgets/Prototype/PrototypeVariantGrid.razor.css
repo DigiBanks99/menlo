@@ -224,3 +224,90 @@
         max-inline-size: calc(100vw - 2rem);
     }
 }
+
+/* Variant D: B's month strip above the grid, and a legend that says what the numbers are. */
+.month-strip {
+    display: grid;
+    grid-template-columns: repeat(13, minmax(4.5rem, 1fr));
+    gap: var(--mnl-space-1);
+    overflow-x: auto;
+    padding-block-end: var(--mnl-space-1);
+}
+
+.month-strip__month {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--mnl-space-2);
+    border-radius: var(--mnl-radius-md);
+    border: 1px solid var(--mnl-border);
+    background: var(--mnl-surface);
+    color: var(--mnl-text);
+    text-decoration: none;
+    font-size: var(--mnl-text-xs);
+}
+
+.month-strip__month[data-month="frozen"] {
+    background: var(--mnl-surface-muted);
+}
+
+.month-strip__month[data-month="current"] {
+    border-color: var(--mnl-accent);
+    border-width: 2px;
+}
+
+.month-strip__month[aria-current="true"] {
+    background: var(--mnl-accent-soft);
+    border-color: var(--mnl-accent);
+    box-shadow: var(--mnl-shadow-sm);
+}
+
+.month-strip__month:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+}
+
+.month-strip__name {
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.month-strip__net {
+    font-variant-numeric: tabular-nums;
+    color: var(--mnl-subtext);
+}
+
+.month-strip__net[data-tone="success"] { color: var(--mnl-success); }
+.month-strip__net[data-tone="warning"] { color: var(--mnl-warning); }
+.month-strip__net[data-tone="error"] { color: var(--mnl-error); }
+
+.month-strip__what {
+    font-size: 0.6rem;
+    color: var(--mnl-subtext);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.grid-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mnl-space-1) var(--mnl-space-4);
+    margin: 0;
+    font-size: var(--mnl-text-xs);
+    color: var(--mnl-subtext);
+}
+
+.grid-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mnl-space-1);
+}
+
+.grid-legend strong {
+    color: var(--mnl-text);
+}
+
+@media (max-width: 48rem) {
+    .month-strip {
+        max-inline-size: calc(100vw - 2rem);
+    }
+}

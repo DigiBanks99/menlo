@@ -1,0 +1,149 @@
+@*
+    PROTOTYPE (#596) variant D: a slim rail of icons pinned to the grid's left edge. Clicking an icon opens a
+    frosted panel that floats over the grid; it stays while the pointer is over it and folds away when the
+    pointer leaves (proto-rail.js). The open section is in the URL (?panel=), so toggling a proposal reloads
+    with the panel still open. Without the script the icons are plain links and the panel opens on reload.
+*@
+@{
+    ProtoQuery q = Sheet.Query;
+    int m = q.Month;
+}
+<div class="rail-host" data-proto-rail data-open="@(q.Panel is null ? "false" : "true")" data-testid="proto-rail">
+    <nav class="rail" aria-label="Budget tools">
+        @foreach ((string key, string label) in ProtoQuery.Panels)
+        {
+            string k = key;
+            int count = k switch
+            {
+                "proposals" => Sheet.Active.Count,
+                "filters" => (q.Filter == "all" ? 0 : 1) + (q.Who == "all" ? 0 : 1),
+                _ => 0
+            };
+            <a class="rail__icon" href="@q.WithPanel(k)" data-proto-rail-open="@k"
+               aria-expanded="@(q.Panel == k ? "true" : "false")" aria-controls="rail-@k" title="@label">
+                <MnlIcon Name="@Icon(k)" Size="MnlSize.Md" />
+                <span class="mnl-visually-hidden">@label</span>
+                @if (count > 0)
+                {
+                    <span class="rail__count" aria-label="@($"{count} on")">@count</span>
+                }
+            </a>
+        }
+    </nav>
+
+    <div class="rail__flyout" role="region" aria-label="Budget tools panel">
+        @foreach ((string key, string label) in ProtoQuery.Panels)
+        {
+            string k = key;
+            <details class="rail__section" id="rail-@k" data-proto-rail-section="@k" open="@(q.Panel == k)">
+                <summary>
+                    <MnlIcon Name="@Icon(k)" Size="MnlSize.Sm" />
+                    @label
+                </summary>
+                <div class="rail__body">
+                    @switch (k)
+                    {
+                        case "proposals":
+                            <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">
+                                Switch a proposal on to see it in the grid. Changed cells are highlighted.
+                            </MnlText>
+                            <ul class="rail__proposals">
+                                @foreach (ProtoProposal proposal in ProtoBudget.Proposals)
+                                {
+                                    ProtoProposal p = proposal;
+                                    bool on = Sheet.Active.Contains(p);
+                                    string? reason = Sheet.Blocked.FirstOrDefault(b => b.Proposal == p).Reason;
+                                    decimal effect = Sheet.Effects[p.Id];
+                                    <li class="rail__proposal" data-state="@(on ? "on" : reason is null ? "off" : "blocked")">
+                                        <a class="rail__toggle" href="@q.ToggleProposal(p.Id)" aria-pressed="@(on ? "true" : "false")">
+                                            <span class="rail__switch" aria-hidden="true"></span>
+                                            <span class="rail__proposal-name">@p.Name</span>
+                                        </a>
+                                        <span class="rail__proposal-summary">@p.Summary</span>
+                                        <span class="rail__proposal-effect" data-tone="@(effect >= 0 ? "success" : "warning")">
+                                            Net @ProtoFormat.Delta(effect) for the year
+                                        </span>
+                                        @if (reason is not null)
+                                        {
+                                            <span class="rail__blocked" role="note">Blocked. @reason</span>
+                                        }
+                                        @if (on)
+                                        {
+                                            <MnlButton Href="@q.WithCommit(p.Id)" Variant="MnlButtonVariant.Primary" Size="MnlSize.Sm">Commit this proposal</MnlButton>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                            break;
+                        case "filters":
+                            <MnlSegmented Label="Lines" Value="@q.Filter"
+                                          Segments="@([.. ProtoQuery.Filters.Select(f => new MnlSegment(f.Key, f.Label, (q with { Filter = f.Key }).Href))])" />
+                            <MnlSegmented Label="Who it is for" Value="@q.Who"
+                                          Segments="@([.. ProtoBudget.Beneficiaries.Select(b => new MnlSegment(b.Key, b.Label, (q with { Who = b.Key }).Href))])" />
+                            <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Net always counts every line, whatever the filters.</MnlText>
+                            break;
+                        case "views":
+                            <ul class="rail__views">
+                                @foreach (ViewNet view in Sheet.Views)
+                                {
+                                    ViewNet v = view;
+                                    <li>
+                                        <a href="@q.WithView(v.Key)" aria-current="@(v.Key == q.View ? "true" : null)">
+                                            <span>@v.Label</span>
+                                            <span class="rail__views-net">
+                                                Net @ProtoFormat.Money(v.Preview)
+                                                @if (v.Actual is not null && (q.IsYear || m <= ProtoBudget.CurrentMonth))
+                                                {
+                                                    <small>actual @ProtoFormat.Money(v.Actual)</small>
+                                                }
+                                            </span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                            break;
+                        default:
+                            <dl class="rail__key">
+                                <dt><span class="rail__sample"><span>R 1 200</span><span class="rail__sample-actual">R 1 260</span></span></dt>
+                                <dd>Each month cell: the <strong>planned</strong> amount on top, the <strong>actual</strong> below. Future months have no actual yet.</dd>
+                                <dt><span class="rail__dot" data-tone="success"></span></dt>
+                                <dd>On plan: within 2%.</dd>
+                                <dt><span class="rail__dot" data-tone="warning"></span></dt>
+                                <dd>Worse than plan: spent more or earned less.</dd>
+                                <dt><span class="rail__dot" data-tone="error"></span></dt>
+                                <dd>More than 15% worse than plan.</dd>
+                                <dt><span class="rail__dot" data-tone="info"></span></dt>
+                                <dd>Better than plan.</dd>
+                                <dt><span class="rail__sample-override">O</span></dt>
+                                <dd>An override replaces the plan for that month. Hover it for the calculated amount.</dd>
+                                <dt><s>R 900</s></dt>
+                                <dd>A switched-on proposal changes this cell; the new amount is shown beside it.</dd>
+                            </dl>
+                            break;
+                    }
+                </div>
+            </details>
+        }
+    </div>
+
+    <div class="rail-host__content">
+        @ChildContent
+    </div>
+</div>
+<script src="/prototype/proto-rail.js" defer></script>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProtoSheet Sheet { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    private static MnlIconName Icon(string key) => key switch
+    {
+        "proposals" => MnlIconName.Pencil,
+        "filters" => MnlIconName.Search,
+        "views" => MnlIconName.House,
+        _ => MnlIconName.Info
+    };
+}

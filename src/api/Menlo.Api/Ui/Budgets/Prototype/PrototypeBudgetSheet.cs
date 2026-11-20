@@ -13,13 +13,21 @@ public sealed record ProtoQuery(
     IReadOnlyList<string> Open,
     string Filter,
     string Who,
-    IReadOnlyList<string> Proposals)
+    IReadOnlyList<string> Proposals,
+    string? Panel = null,
+    string? Commit = null)
 {
+    /// <summary>The side-rail sections variant D offers, in rail order.</summary>
+    public static readonly (string Key, string Label)[] Panels =
+    [
+        ("proposals", "Proposals"), ("filters", "Filters"), ("views", "Whose budget"), ("key", "How to read the grid")
+    ];
+
     public const int YearPeriod = -1;
 
     public static readonly (string Key, string Name)[] Variants =
     [
-        ("A", "Year grid"), ("B", "Month focus"), ("C", "By line type")
+        ("D", "Grid with side rail"), ("A", "Year grid"), ("B", "Month focus"), ("C", "By line type")
     ];
 
     public static readonly (string Key, string Label)[] Filters =
@@ -34,7 +42,7 @@ public sealed record ProtoQuery(
     public static ProtoQuery From(HttpRequest request)
     {
         IQueryCollection q = request.Query;
-        string variant = Variants.Any(v => v.Key == q["variant"]) ? q["variant"].ToString() : "A";
+        string variant = Variants.Any(v => v.Key == q["variant"]) ? q["variant"].ToString() : "D";
         string view = ProtoBudget.Views.Any(v => v.Key == q["view"]) ? q["view"].ToString() : "household";
         int month = int.TryParse(q["month"], out int m) && m is >= YearPeriod and <= 11
             ? m
@@ -43,7 +51,9 @@ public sealed record ProtoQuery(
         string who = ProtoBudget.Beneficiaries.Any(b => b.Key == q["who"]) ? q["who"].ToString() : "all";
         IReadOnlyList<string> open = [.. q["open"].Where(s => !string.IsNullOrEmpty(s)).Select(s => s!).Distinct()];
         IReadOnlyList<string> proposals = [.. q["p"].Where(s => ProtoBudget.Proposals.Any(p => p.Id == s)).Select(s => s!).Distinct()];
-        return new ProtoQuery(variant, view, month, open, filter, who, proposals);
+        string? panel = Panels.Any(x => x.Key == q["panel"]) ? q["panel"].ToString() : null;
+        string? commit = ProtoBudget.Proposals.Any(x => x.Id == q["commit"]) ? q["commit"].ToString() : null;
+        return new ProtoQuery(variant, view, month, open, filter, who, proposals, panel, commit);
     }
 
     public string Href
@@ -56,12 +66,28 @@ public sealed record ProtoQuery(
             ];
             parts.AddRange(Open.Select(o => $"open={Uri.EscapeDataString(o)}"));
             parts.AddRange(Proposals.Select(p => $"p={p}"));
+            if (Panel is not null)
+            {
+                parts.Add($"panel={Panel}");
+            }
+
+            if (Commit is not null)
+            {
+                parts.Add($"commit={Commit}");
+            }
             return "/budgets/prototype?" + string.Join('&', parts);
         }
     }
 
     public string WithVariant(string variant) =>
         (this with { Variant = variant, Month = variant == "B" ? (IsYear ? ProtoBudget.CurrentMonth : Month) : Month }).Href;
+
+    /// <summary>The same state with the side rail closed and no commit message: for links outside the rail.</summary>
+    public ProtoQuery Closed => this with { Panel = null, Commit = null };
+
+    public string WithPanel(string panel) => (this with { Panel = panel, Commit = null }).Href;
+
+    public string WithCommit(string proposal) => (this with { Commit = proposal }).Href;
 
     public string WithView(string view) => (this with { View = view }).Href;
 
@@ -79,7 +105,7 @@ public sealed record ProtoQuery(
     public bool IsOn(string proposal) => Proposals.Contains(proposal);
 
     public string ToggleProposal(string proposal) =>
-        (this with { Proposals = IsOn(proposal) ? [.. Proposals.Where(p => p != proposal)] : [.. Proposals, proposal] }).Href;
+        (this with { Proposals = IsOn(proposal) ? [.. Proposals.Where(p => p != proposal)] : [.. Proposals, proposal], Commit = null }).Href;
 }
 
 /// <summary>A budget line as one view sees it, with proposals applied on top for the preview.</summary>

@@ -15,8 +15,11 @@
             case "C":
                 <PrototypeVariantLineTypes Sheet="Model" />
                 break;
-            default:
+            case "A":
                 <PrototypeVariantGrid Sheet="Model" />
+                break;
+            default:
+                <PrototypeVariantGrid Sheet="Model" Rail="true" />
                 break;
         }
     </MnlStack>
