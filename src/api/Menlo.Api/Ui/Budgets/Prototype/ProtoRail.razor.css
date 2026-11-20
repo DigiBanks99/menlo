@@ -24,10 +24,16 @@
     position: relative;
     display: grid;
     place-items: center;
-    inline-size: 2.5rem;
-    block-size: 2.5rem;
+    inline-size: 2rem;
+    block-size: 2rem;
     border-radius: var(--mnl-radius-md);
     color: var(--mnl-subtext);
+}
+
+/* Rail icons at 80% of the medium size. */
+.rail__icon ::deep .mnl-icon {
+    inline-size: 1rem;
+    block-size: 1rem;
 }
 
 .rail__icon:hover {
@@ -67,7 +73,7 @@
 .rail__flyout {
     position: absolute;
     inset-block: 0;
-    inset-inline-start: calc(2.5rem + 2 * var(--mnl-space-1) + 2px);
+    inset-inline-start: calc(2rem + 2 * var(--mnl-space-1) + 2px);
     inline-size: min(24rem, calc(100% - 4rem));
     overflow-y: auto;
     z-index: 5;

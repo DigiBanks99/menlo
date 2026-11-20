@@ -123,10 +123,10 @@
   }
 
   .mnl-app-shell__header {
-    padding-inline: var(--mnl-space-8);
+    padding-inline: var(--mnl-space-4);
   }
 
   .mnl-app-shell__content {
-    padding: var(--mnl-space-6) var(--mnl-space-8) var(--mnl-space-10);
+    padding: var(--mnl-space-6) var(--mnl-space-4) var(--mnl-space-10);
   }
 }
