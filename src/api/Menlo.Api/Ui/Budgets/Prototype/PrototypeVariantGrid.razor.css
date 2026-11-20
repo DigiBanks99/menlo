@@ -371,9 +371,27 @@
 }
 
 /* The actual line takes the variance colour, on a soft band of the same colour. */
+/* A stacked cell fills its row however tall the row is (a line's description can make it taller):
+   the plan sits at the top and the actual band stretches to the bottom edge. height: 1px on the cell
+   lets the inner stack resolve height: 100% against the row. */
+.grid td.grid__cell--stack {
+    padding: 0;
+    block-size: 1px;
+}
+
+.grid__cell--stack .grid__stack {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+}
+
+.grid__cell--stack .grid__plan {
+    padding: var(--mnl-space-2) var(--mnl-space-2) var(--mnl-space-1);
+}
+
 .grid__actual--toned {
     display: block;
-    margin: var(--mnl-space-1) calc(-1 * var(--mnl-space-2)) calc(-1 * var(--mnl-space-2));
+    flex: 1;
     padding: var(--mnl-space-1) var(--mnl-space-2);
     font-weight: var(--mnl-weight-semibold);
 }

@@ -292,8 +292,9 @@
         string? title = overridden
             ? $"Override {ProtoFormat.Money(planned)}. Calculated amount underneath: {ProtoFormat.Money(line!.Line.OverrideCalculated)}"
             : changed ? $"Preview {ProtoFormat.Money(preview)}, plan {ProtoFormat.Money(planned)} ({ProtoFormat.Delta(preview - planned)})" : null;
-        <td class="grid__cell @(total ? "grid__total" : "")" data-month="@(m >= 0 ? ProtoFormat.MonthState(m) : null)"
+        <td class="grid__cell @(total ? "grid__total" : "") @(Rail && !single ? "grid__cell--stack" : "")" data-month="@(m >= 0 ? ProtoFormat.MonthState(m) : null)"
             data-changed="@(changed ? "true" : null)" title="@title">
+            <div class="grid__stack">
             <span class="grid__plan">
                 @if (changed)
                 {
@@ -324,6 +325,7 @@
                     <span class="grid__actual"><span class="grid__dot" data-tone="@ProtoFormat.ToneKey(tone)" aria-hidden="true"></span>@ProtoFormat.Money(actual)</span>
                 }
             }
+            </div>
         </td>
     };
 }
