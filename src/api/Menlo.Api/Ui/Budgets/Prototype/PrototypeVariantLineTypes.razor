@@ -1,0 +1,288 @@
+@*
+    PROTOTYPE (#596) variant C, "By line type": the budget organised by how each line is judged, not by
+    category. Net through the year leads, then the views side by side, then one section per line type with
+    the picture that suits it: dots for fixed lines, trends for variable lines, year-to-date bars for
+    provisions and a timeline for event lines. Categories are tags on each line.
+*@
+@{
+    ProtoQuery q = Sheet.Query;
+    decimal top = new[] { Sheet.NetPlanned.Max(), Sheet.NetPreview.Max(), Sheet.NetActual.Max(a => a ?? 0) }.Max() * 1.15m;
+    decimal bottom = Math.Min(0, new[] { Sheet.NetPlanned.Min(), Sheet.NetPreview.Min(), Sheet.NetActual.Min(a => a ?? 0) }.Min());
+    const int W = 720;
+    const int H = 180;
+    double X(int month) => 40 + month * ((W - 60) / 11.0);
+    double Y(decimal v) => 10 + (double)((top - v) / (top - bottom)) * (H - 40);
+    string Line(IEnumerable<decimal?> values) => string.Join(' ', values.Select((v, i) => v is null ? null : $"{ProtoFormat.Coord(X(i))},{ProtoFormat.Coord(Y(v.Value))}").Where(s => s is not null));
+}
+<MnlStack Gap="MnlGap.Lg">
+    <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlEyebrow>@Sheet.ViewLabel view</MnlEyebrow>
+            <MnlHeading Level="1">@ProtoBudget.Year budget, by line type</MnlHeading>
+        </MnlStack>
+        <MnlSegmented Label="Who it is for" Value="@q.Who"
+                      Segments="@([.. ProtoBudget.Beneficiaries.Select(b => new MnlSegment(b.Key, b.Label, q.WithWho(b.Key)))])" />
+    </MnlCluster>
+
+    <MnlCard>
+        <Header>
+            <MnlCluster Justify="MnlJustify.Between">
+                <MnlHeading Level="2" Size="MnlTextSize.Md">Net through the year</MnlHeading>
+                <span class="lt-legend">
+                    <span data-series="plan">Planned</span>
+                    <span data-series="actual">Actual</span>
+                    @if (Sheet.Previewing)
+                    {
+                        <span data-series="preview">With proposals</span>
+                    }
+                </span>
+            </MnlCluster>
+        </Header>
+        <ChildContent>
+            <svg class="lt-net" viewBox="0 0 @W @H" role="img"
+                 aria-label="@($"Net by month. Planned for the year {ProtoFormat.Money(Sheet.NetPlanned.Sum())}; with proposals {ProtoFormat.Money(Sheet.NetPreview.Sum())}.")">
+                <rect class="lt-net__frozen" x="@ProtoFormat.Coord(X(0) - 10)" y="0" width="@ProtoFormat.Coord(X(ProtoBudget.CurrentMonth) - X(0))" height="@(H - 24)" />
+                <line class="lt-net__zero" x1="40" x2="@(W - 20)" y1="@ProtoFormat.Coord(Y(0))" y2="@ProtoFormat.Coord(Y(0))" />
+                <polyline class="lt-net__plan" points="@Line(Sheet.NetPlanned.Select(v => (decimal?)v))" />
+                @if (Sheet.Previewing)
+                {
+                    <polyline class="lt-net__preview" points="@Line(Sheet.NetPreview.Select(v => (decimal?)v))" />
+                }
+                <polyline class="lt-net__actual" points="@Line(Sheet.NetActual.Take(ProtoBudget.CurrentMonth))" />
+                @for (int i = 0; i < 12; i++)
+                {
+                    int month = i;
+                    <MnlSvgText class="lt-net__tick" x="@ProtoFormat.Coord(X(month))" y="@(H - 6)" text-anchor="middle">@ProtoBudget.MonthName(month)</MnlSvgText>
+                }
+                <MnlSvgText class="lt-net__tick" x="@ProtoFormat.Coord(X(2))" y="14" text-anchor="middle">frozen</MnlSvgText>
+            </svg>
+        </ChildContent>
+    </MnlCard>
+
+    <div class="lt-views-wrap" role="region" aria-label="Views compared" tabindex="0">
+        <table class="lt-views">
+            <caption>Every view, for the year</caption>
+            <thead>
+                <tr>
+                    <th scope="col">View</th>
+                    <th scope="col">Net planned</th>
+                    <th scope="col">Net to date (Jan to Jun)</th>
+                    <th scope="col">Against plan to date</th>
+                    <th scope="col">Net with proposals</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ((string key, string label) in ProtoBudget.Views)
+                {
+                    string k = key;
+                    ProtoSheet s = ProtoSheet.Build(q with { View = k, Month = ProtoQuery.YearPeriod });
+                    decimal ytdPlanned = s.NetPlanned.Take(ProtoBudget.CurrentMonth).Sum();
+                    decimal ytdActual = s.NetActual.Take(ProtoBudget.CurrentMonth).Sum(a => a ?? 0);
+                    <tr aria-current="@(k == q.View ? "true" : null)">
+                        <th scope="row"><a href="@q.WithView(k)">@label</a></th>
+                        <td>@ProtoFormat.Money(s.NetPlanned.Sum())</td>
+                        <td>@ProtoFormat.Money(ytdActual)</td>
+                        <td data-tone="@ProtoFormat.ToneKey(ProtoFormat.NetTone(ytdPlanned, ytdActual))">@ProtoFormat.Delta(ytdActual - ytdPlanned)</td>
+                        <td data-changed="@(s.Previewing && s.NetPreview.Sum() != s.NetPlanned.Sum() ? "true" : null)">@ProtoFormat.Money(s.NetPreview.Sum())</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <MnlStack Gap="MnlGap.Xs">
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Proposals</MnlText>
+        <ProtoProposals Sheet="Sheet" />
+    </MnlStack>
+
+    <MnlSegmented Label="Filter" Value="@q.Filter"
+                  Segments="@([.. ProtoQuery.Filters.Where(f => f.Key is "all" or "over").Select(f => new MnlSegment(f.Key, f.Label, q.WithFilter(f.Key)))])" />
+
+    @* Fixed lines: one dot per month *@
+    <MnlCard>
+        <Header>
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlHeading Level="2" Size="MnlTextSize.Md">Fixed lines</MnlHeading>
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Should match the plan every month. A filled dot matched, an amber one didn't, a hollow one is still to come.</MnlText>
+            </MnlStack>
+        </Header>
+        <ChildContent>
+            <div class="lt-table-wrap" role="region" aria-label="Fixed lines" tabindex="0">
+                <table class="lt-fixed">
+                    <thead>
+                        <tr>
+                            <th scope="col">Line</th>
+                            @for (int i = 0; i < 12; i++)
+                            {
+                                <th scope="col" data-month="@ProtoFormat.MonthState(i)">@ProtoBudget.MonthName(i)</th>
+                            }
+                            <th scope="col">How it is doing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SheetLine line in Sheet.OfType(ProtoLineType.Fixed))
+                        {
+                            SheetLine l = line;
+                            (string text, MnlTone tone) = ProtoFormat.Judge(l);
+                            <tr>
+                                <th scope="row">@LineName(l)</th>
+                                @for (int i = 0; i < 12; i++)
+                                {
+                                    int m = i;
+                                    decimal p = l.Planned[m];
+                                    decimal? a = l.Actual[m];
+                                    string state = m > ProtoBudget.CurrentMonth || (m == ProtoBudget.CurrentMonth && a is 0) ? "future"
+                                        : p == 0 && a == 0 ? "none"
+                                        : ProtoFormat.ToneKey(ProtoFormat.VarianceTone(l.Line.Income, p, a));
+                                    string label = state == "future"
+                                        ? $"{ProtoBudget.MonthName(m)}: {ProtoFormat.Money(l.Preview[m])} planned"
+                                        : $"{ProtoBudget.MonthName(m)}: {ProtoFormat.Money(a)} against {ProtoFormat.Money(p)}";
+                                    <td data-month="@ProtoFormat.MonthState(m)">
+                                        <span class="lt-dot" data-state="@state" data-changed="@(l.Changed[m] ? "true" : null)" role="img" aria-label="@label" title="@label"></span>
+                                    </td>
+                                }
+                                <td class="lt-judge" data-tone="@ProtoFormat.ToneKey(tone)">@text</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </ChildContent>
+    </MnlCard>
+
+    @* Variable lines: the trend *@
+    <MnlCard>
+        <Header>
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlHeading Level="2" Size="MnlTextSize.Md">Variable lines</MnlHeading>
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">A monthly allowance that actuals swing around. Judged on the trend; under-spend doesn't carry over. Dashed is the allowance.</MnlText>
+            </MnlStack>
+        </Header>
+        <ChildContent>
+            <ul class="lt-list">
+                @foreach (SheetLine line in Sheet.OfType(ProtoLineType.Variable))
+                {
+                    SheetLine l = line;
+                    (string text, MnlTone tone) = ProtoFormat.Judge(l);
+                    decimal max = Math.Max(l.Preview.Max(), l.Actual.Max(a => a ?? 0)) * 1.15m;
+                    <li class="lt-row">
+                        <div class="lt-row__name">@LineName(l)</div>
+                        <svg class="lt-spark" viewBox="0 0 240 44" role="img" aria-label="@($"{l.Line.Name}: actual against allowance by month")">
+                            <polyline class="spark-plan" points="@ProtoFormat.Points(l.Planned.Select(v => (decimal?)v), max, 240, 44)" />
+                            @if (l.AnyChanged)
+                            {
+                                <polyline class="spark-preview" points="@ProtoFormat.Points(l.Preview.Select(v => (decimal?)v), max, 240, 44)" />
+                            }
+                            <polyline class="spark-actual" points="@ProtoFormat.Points(l.Actual.Take(ProtoBudget.CurrentMonth), max, 240, 44)" />
+                        </svg>
+                        <div class="lt-judge" data-tone="@ProtoFormat.ToneKey(tone)">@text</div>
+                    </li>
+                }
+            </ul>
+        </ChildContent>
+    </MnlCard>
+
+    @* Provisions: year to date *@
+    <MnlCard>
+        <Header>
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlHeading Level="2" Size="MnlTextSize.Md">Provisions</MnlHeading>
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">An annual amount with unknown timing, judged on what's been used so far this year.</MnlText>
+            </MnlStack>
+        </Header>
+        <ChildContent>
+            <ul class="lt-list">
+                @foreach (SheetLine line in Sheet.OfType(ProtoLineType.Provision))
+                {
+                    SheetLine l = line;
+                    (string text, MnlTone tone) = ProtoFormat.Judge(l);
+                    <li class="lt-row">
+                        <div class="lt-row__name">@LineName(l)</div>
+                        <div class="lt-provision">
+                            <MnlProgress Value="@(l.YearPlanned == 0 ? 0 : Math.Round(l.ToDateActual / l.YearPlanned * 100, 0))" Tone="@tone"
+                                         AriaLabel="@($"{l.Line.Name}: share of the year's amount used")" />
+                            <span class="lt-provision__marker" data-at="@ProtoBudget.CurrentMonth" aria-hidden="true"></span>
+                        </div>
+                        <div class="lt-judge" data-tone="@ProtoFormat.ToneKey(tone)">@text</div>
+                    </li>
+                }
+            </ul>
+        </ChildContent>
+    </MnlCard>
+
+    @* Event lines: a timeline *@
+    <MnlCard>
+        <Header>
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlHeading Level="2" Size="MnlTextSize.Md">Event lines</MnlHeading>
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Planned only in known months.</MnlText>
+            </MnlStack>
+        </Header>
+        <ChildContent>
+            <div class="lt-timeline" role="table" aria-label="Event lines by month">
+                <div class="lt-timeline__row lt-timeline__head" role="row">
+                    <span role="columnheader">Line</span>
+                    @for (int i = 0; i < 12; i++)
+                    {
+                        <span role="columnheader" data-month="@ProtoFormat.MonthState(i)">@ProtoBudget.MonthName(i)</span>
+                    }
+                </div>
+                @foreach (SheetLine line in Sheet.OfType(ProtoLineType.Event))
+                {
+                    SheetLine l = line;
+                    <div class="lt-timeline__row" role="row">
+                        <span role="rowheader">@LineName(l)</span>
+                        @for (int i = 0; i < 12; i++)
+                        {
+                            int m = i;
+                            decimal shown = l.Preview[m];
+                            decimal? a = m < ProtoBudget.CurrentMonth ? l.Actual[m] : null;
+                            <span role="cell" data-month="@ProtoFormat.MonthState(m)">
+                                @if (shown != 0 || l.Planned[m] != 0)
+                                {
+                                    <span class="lt-event" data-changed="@(l.Changed[m] ? "true" : null)"
+                                          data-tone="@(a is null ? null : ProtoFormat.ToneKey(ProtoFormat.VarianceTone(false, l.Planned[m], a)))">
+                                        @if (l.Changed[m] && !l.FromProposal)
+                                        {
+                                            <s>@ProtoFormat.Money(l.Planned[m])</s>
+                                        }
+                                        @ProtoFormat.Money(shown)
+                                        @if (a is not null)
+                                        {
+                                            <small>spent @ProtoFormat.Money(a)</small>
+                                        }
+                                    </span>
+                                }
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        </ChildContent>
+    </MnlCard>
+</MnlStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProtoSheet Sheet { get; set; } = null!;
+
+    private static RenderFragment LineName(SheetLine l) => __builder =>
+    {
+        <span class="lt-name">
+            <strong>@l.Line.Name</strong>
+            <span class="lt-tag">@l.Line.Group › @l.Line.Category</span>
+            @if (l.FromProposal)
+            {
+                <MnlTag Tone="MnlTone.Accent">new in proposal</MnlTag>
+            }
+            @if (l.Line.OverrideMonth is int om)
+            {
+                <span class="lt-override">Override in @ProtoBudget.MonthName(om): @ProtoFormat.Money(l.Planned[om]), calculated @ProtoFormat.Money(l.Line.OverrideCalculated)</span>
+            }
+            @if (l.Line.Story is not null)
+            {
+                <span class="lt-story">@l.Line.Story</span>
+            }
+        </span>
+    };
+}

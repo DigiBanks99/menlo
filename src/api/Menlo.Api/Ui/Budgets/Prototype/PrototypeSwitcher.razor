@@ -1,0 +1,20 @@
+@*
+    PROTOTYPE (#596): the floating variant switcher. Arrows are links, so the variant is in the URL.
+    No keyboard shortcut: the CSP and the no-script rule leave no place for one in a throwaway.
+*@
+<nav class="proto-switcher" aria-label="Prototype variants" data-testid="prototype-switcher">
+    <a class="proto-switcher__arrow" href="@Query.WithVariant(Previous)" aria-label="Previous variant">←</a>
+    <span class="proto-switcher__label">@Query.Variant (@Query.VariantName)</span>
+    <a class="proto-switcher__arrow" href="@Query.WithVariant(Next)" aria-label="Next variant">→</a>
+</nav>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProtoQuery Query { get; set; } = null!;
+
+    private int Index => Array.FindIndex(ProtoQuery.Variants, v => v.Key == Query.Variant);
+
+    private string Previous => ProtoQuery.Variants[(Index + ProtoQuery.Variants.Length - 1) % ProtoQuery.Variants.Length].Key;
+
+    private string Next => ProtoQuery.Variants[(Index + 1) % ProtoQuery.Variants.Length].Key;
+}

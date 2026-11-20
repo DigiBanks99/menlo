@@ -1,0 +1,38 @@
+@*
+    PROTOTYPE (#596): proposals as toggles. Each shows what it alone does to Net for the year.
+    A proposal that clashes with one already on is shown as blocked, with the reason.
+*@
+<div class="proto-proposals" data-layout="@Layout" role="group" aria-label="Proposals" data-testid="proto-proposals">
+    @foreach (ProtoProposal proposal in ProtoBudget.Proposals)
+    {
+        ProtoProposal current = proposal;
+        bool on = Sheet.Active.Contains(current);
+        string? reason = Sheet.Blocked.FirstOrDefault(b => b.Proposal == current).Reason;
+        decimal effect = Sheet.Effects[current.Id];
+        <a class="proto-proposal" href="@Sheet.Query.ToggleProposal(current.Id)"
+           aria-pressed="@(on ? "true" : "false")" data-state="@(on ? "on" : reason is null ? "off" : "blocked")">
+            <span class="proto-proposal__name">
+                <span class="proto-proposal__switch" aria-hidden="true"></span>
+                @current.Name
+            </span>
+            <span class="proto-proposal__effect" data-tone="@(effect >= 0 ? "success" : "warning")">Net @ProtoFormat.Delta(effect) for the year</span>
+            @if (Layout != "inline")
+            {
+                <span class="proto-proposal__summary">@current.Summary</span>
+            }
+            @if (reason is not null)
+            {
+                <span class="proto-proposal__blocked" role="note">Blocked. @reason</span>
+            }
+        </a>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProtoSheet Sheet { get; set; } = null!;
+
+    /// <summary>inline (chips in a row) or panel (stacked cards).</summary>
+    [Parameter]
+    public string Layout { get; set; } = "inline";
+}

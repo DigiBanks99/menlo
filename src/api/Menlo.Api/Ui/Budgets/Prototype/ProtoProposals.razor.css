@@ -1,0 +1,95 @@
+.proto-proposals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-2);
+}
+
+.proto-proposals[data-layout="panel"] {
+    flex-direction: column;
+}
+
+.proto-proposal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    padding: var(--mnl-space-2) var(--mnl-space-3);
+    border: 1px solid var(--mnl-border);
+    border-radius: var(--mnl-radius-lg);
+    background: var(--mnl-surface);
+    color: var(--mnl-text);
+    text-decoration: none;
+    font-size: var(--mnl-text-sm);
+}
+
+.proto-proposal:hover {
+    border-color: var(--mnl-accent);
+}
+
+.proto-proposal:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+    outline-offset: 2px;
+}
+
+.proto-proposal[data-state="on"] {
+    border-color: var(--mnl-accent);
+    background: var(--mnl-accent-soft);
+}
+
+.proto-proposal[data-state="blocked"] {
+    border-style: dashed;
+    border-color: var(--mnl-error);
+}
+
+.proto-proposal__name {
+    display: flex;
+    align-items: center;
+    gap: var(--mnl-space-2);
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.proto-proposal__switch {
+    inline-size: 1.75rem;
+    block-size: 1rem;
+    border-radius: var(--mnl-radius-full);
+    background: var(--mnl-border);
+    position: relative;
+    flex: none;
+}
+
+.proto-proposal__switch::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 2px;
+    inset-inline-start: 2px;
+    inline-size: 12px;
+    block-size: 12px;
+    border-radius: 50%;
+    background: var(--mnl-surface);
+}
+
+.proto-proposal[data-state="on"] .proto-proposal__switch {
+    background: var(--mnl-accent);
+}
+
+.proto-proposal[data-state="on"] .proto-proposal__switch::after {
+    inset-inline-start: calc(100% - 14px);
+}
+
+.proto-proposal__effect,
+.proto-proposal__summary {
+    color: var(--mnl-subtext);
+    font-size: var(--mnl-text-xs);
+}
+
+.proto-proposal__effect[data-tone="warning"] {
+    color: var(--mnl-warning);
+}
+
+.proto-proposal__effect[data-tone="success"] {
+    color: var(--mnl-success);
+}
+
+.proto-proposal__blocked {
+    color: var(--mnl-error);
+    font-size: var(--mnl-text-xs);
+}

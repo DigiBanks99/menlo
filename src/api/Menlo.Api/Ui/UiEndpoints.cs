@@ -1,6 +1,7 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Ui.Analytics;
 using Menlo.Api.Ui.Budgets;
+using Menlo.Api.Ui.Budgets.Prototype;
 using Menlo.Api.Ui.Design;
 using Menlo.Api.Ui.Errors;
 using Menlo.Api.Ui.Home;
@@ -44,6 +45,7 @@ internal static class UiEndpoints
         if (DesignEndpoints.IsEnabled(app))
         {
             ui.MapDesignGallery();
+            ui.MapBudgetPrototype(); // PROTOTYPE (#596)
         }
 
         // Unknown API routes and well-known probes get a bare 404, not a page

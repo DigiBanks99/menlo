@@ -1,0 +1,32 @@
+@*
+    PROTOTYPE (#596): three structurally different budget views on one route, switched with ?variant=.
+    Made-up data, read-only, mapped only in Development. Throwaway: it lives on prototype/596-budget-views.
+*@
+<AppPage Page="Page" Title="Budget views prototype">
+    <MnlStack Gap="MnlGap.Lg">
+        <MnlAlert Tone="MnlTone.Info" Title="@($"Prototype {Model.Query.Variant}: {Model.Query.VariantName}")">
+            Made-up data. "Today" is fixed at 15 July @ProtoBudget.Year, so January to June are frozen. Proposals preview only.
+        </MnlAlert>
+        @switch (Model.Query.Variant)
+        {
+            case "B":
+                <PrototypeVariantMonth Sheet="Model" />
+                break;
+            case "C":
+                <PrototypeVariantLineTypes Sheet="Model" />
+                break;
+            default:
+                <PrototypeVariantGrid Sheet="Model" />
+                break;
+        }
+    </MnlStack>
+    <PrototypeSwitcher Query="Model.Query" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public ProtoSheet Model { get; set; } = null!;
+}

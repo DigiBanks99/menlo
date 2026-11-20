@@ -1,0 +1,235 @@
+@*
+    PROTOTYPE (#596) variant A, "Year grid": the budget as a spreadsheet. Categories are rows that open to
+    their lines, months are columns. Frozen months are shaded, the current month is marked, and a switched-on
+    proposal shows its new amount in the cells it changes. Pick a month to see that month in detail.
+*@
+@{
+    ProtoQuery q = Sheet.Query;
+    int[] months = q.IsYear ? [.. Enumerable.Range(0, 12)] : [q.Month];
+}
+<MnlStack Gap="MnlGap.Md">
+    <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+        <MnlStack Gap="MnlGap.Xs">
+            <MnlEyebrow>@Sheet.ViewLabel view</MnlEyebrow>
+            <MnlHeading Level="1">@ProtoFormat.PeriodLabel(q.Month) budget</MnlHeading>
+        </MnlStack>
+        <MnlSegmented Label="View" Value="@q.View"
+                      Segments="@([.. ProtoBudget.Views.Select(v => new MnlSegment(v.Key, v.Label, q.WithView(v.Key)))])" />
+    </MnlCluster>
+
+    <div class="grid-periods" role="group" aria-label="Period">
+        <a href="@q.WithMonth(ProtoQuery.YearPeriod)" aria-current="@(q.IsYear ? "true" : null)">Year</a>
+        @for (int m = 0; m < 12; m++)
+        {
+            int month = m;
+            <a href="@q.WithMonth(month)" aria-current="@(q.Month == month ? "true" : null)" data-month="@ProtoFormat.MonthState(month)">
+                @ProtoBudget.MonthName(month)
+            </a>
+        }
+    </div>
+
+    <MnlCluster Gap="MnlGap.Md" StackOnMobile="true">
+        <MnlSegmented Label="Filter" Value="@q.Filter"
+                      Segments="@([.. ProtoQuery.Filters.Select(f => new MnlSegment(f.Key, f.Label, q.WithFilter(f.Key)))])" />
+        <MnlSegmented Label="Who it is for" Value="@q.Who"
+                      Segments="@([.. ProtoBudget.Beneficiaries.Select(b => new MnlSegment(b.Key, b.Label, q.WithWho(b.Key)))])" />
+    </MnlCluster>
+
+    <MnlStack Gap="MnlGap.Xs">
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Switch on proposals to preview them</MnlText>
+        <ProtoProposals Sheet="Sheet" />
+    </MnlStack>
+
+    <div class="grid-wrap" tabindex="0" role="region" aria-label="Budget grid">
+        <table class="grid" data-mode="@(q.IsYear ? "year" : "month")">
+            <thead>
+                <tr>
+                    <th scope="col" class="grid__name">Category</th>
+                    @if (q.IsYear)
+                    {
+                        @foreach (int m in months)
+                        {
+                            <th scope="col" data-month="@ProtoFormat.MonthState(m)">
+                                @ProtoBudget.MonthName(m)
+                                @if (m < ProtoBudget.CurrentMonth)
+                                {
+                                    <span class="grid__state">frozen</span>
+                                }
+                                else if (m == ProtoBudget.CurrentMonth)
+                                {
+                                    <span class="grid__state">now</span>
+                                }
+                            </th>
+                        }
+                        <th scope="col" class="grid__total">Year</th>
+                    }
+                    else
+                    {
+                        <th scope="col">Type</th>
+                        <th scope="col">Planned</th>
+                        <th scope="col">Actual</th>
+                        <th scope="col">Variance</th>
+                        <th scope="col">Year to date (planned / actual)</th>
+                        <th scope="col">How it is doing</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (SheetGroup group in Sheet.Groups)
+                {
+                    SheetGroup g = group;
+                    string gKey = "g:" + g.Name;
+                    bool gOpen = q.IsOpen(gKey);
+                    <tr class="grid__group">
+                        <th scope="row" class="grid__name">
+                            <a href="@q.ToggleOpen(gKey)" aria-expanded="@(gOpen ? "true" : "false")">
+                                <MnlIcon Name="@(gOpen ? MnlIconName.ChevronDown : MnlIconName.ChevronRight)" Size="MnlSize.Sm" />
+                                @g.Name
+                            </a>
+                            @if (g.AnyChanged)
+                            {
+                                <MnlTag Tone="MnlTone.Accent">preview</MnlTag>
+                            }
+                        </th>
+                        @RowCells(g.Income, months, g.PlannedFor, g.PreviewFor, g.ActualFor, null)
+                    </tr>
+                    @if (gOpen)
+                    {
+                        @foreach (SheetCategory category in g.Categories)
+                        {
+                            SheetCategory c = category;
+                            string cKey = "c:" + c.Key;
+                            bool cOpen = q.IsOpen(cKey);
+                            <tr class="grid__category">
+                                <th scope="row" class="grid__name">
+                                    @if (c.Lines.Count == 0)
+                                    {
+                                        <span class="grid__indent">@c.Name <em>(no lines)</em></span>
+                                    }
+                                    else
+                                    {
+                                        <a class="grid__indent" href="@q.ToggleOpen(cKey)" aria-expanded="@(cOpen ? "true" : "false")">
+                                            <MnlIcon Name="@(cOpen ? MnlIconName.ChevronDown : MnlIconName.ChevronRight)" Size="MnlSize.Sm" />
+                                            @c.Name
+                                        </a>
+                                    }
+                                </th>
+                                @RowCells(g.Income, months, c.PlannedFor, c.PreviewFor, c.ActualFor, null)
+                            </tr>
+                            @if (cOpen)
+                            {
+                                @foreach (SheetLine line in c.Lines)
+                                {
+                                    SheetLine l = line;
+                                    <tr class="grid__line">
+                                        <th scope="row" class="grid__name">
+                                            <span class="grid__indent grid__indent--2">
+                                                @l.Line.Name
+                                                <span class="grid__type">@ProtoFormat.TypeLabel(l.Line.Type)</span>
+                                                @if (l.FromProposal)
+                                                {
+                                                    <MnlTag Tone="MnlTone.Accent">new in proposal</MnlTag>
+                                                }
+                                            </span>
+                                            @if (l.Line.Story is not null)
+                                            {
+                                                <span class="grid__story">@l.Line.Story</span>
+                                            }
+                                        </th>
+                                        @RowCells(l.Line.Income, months, l.PlannedFor, l.PreviewFor, l.ActualFor, l)
+                                    </tr>
+                                }
+                            }
+                        }
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr class="grid__net">
+                    <th scope="row" class="grid__name">Net</th>
+                    @RowCells(true, months, Sheet.NetPlannedFor, Sheet.NetPreviewFor, Sheet.NetActualFor, null, net: true)
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">
+        Each cell: planned on top, actual below, with a dot showing how the actual compares. Net always counts every line, whatever the filters.
+    </MnlText>
+</MnlStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProtoSheet Sheet { get; set; } = null!;
+
+    private RenderFragment RowCells(bool income, int[] months, Func<int, decimal> planned, Func<int, decimal> preview,
+        Func<int, decimal?> actual, SheetLine? line, bool net = false) => __builder =>
+    {
+        if (Sheet.Query.IsYear)
+        {
+            foreach (int m in months)
+            {
+                @Cell(income, m, planned(m), preview(m), actual(m), line, net)
+            }
+
+            @Cell(income, ProtoQuery.YearPeriod, planned(ProtoQuery.YearPeriod), preview(ProtoQuery.YearPeriod), actual(ProtoQuery.YearPeriod), line, net, total: true)
+        }
+        else
+        {
+            int m = months[0];
+            decimal p = planned(m);
+            decimal? a = m > ProtoBudget.CurrentMonth ? null : actual(m);
+            decimal ytdP = Enumerable.Range(0, ProtoBudget.CurrentMonth).Sum(planned);
+            decimal ytdA = Enumerable.Range(0, ProtoBudget.CurrentMonth).Sum(x => actual(x) ?? 0);
+            MnlTone tone = net ? ProtoFormat.NetTone(p, a) : ProtoFormat.VarianceTone(income, p, a);
+            <td>@(line is null ? "" : ProtoFormat.TypeLabel(line.Line.Type))</td>
+            @Cell(income, m, p, preview(m), a, line, net, single: true)
+            <td class="grid__num">@ProtoFormat.Money(a)</td>
+            <td class="grid__num" data-tone="@ProtoFormat.ToneKey(tone)">@(a is null ? "" : ProtoFormat.Delta(a.Value - p))</td>
+            <td class="grid__num">@ProtoFormat.Money(ytdP) / @ProtoFormat.Money(ytdA)</td>
+            <td class="grid__judge">
+                @if (line is not null)
+                {
+                    (string text, MnlTone t) = ProtoFormat.Judge(line);
+                    <span data-tone="@ProtoFormat.ToneKey(t)">@text</span>
+                }
+            </td>
+        }
+    };
+
+    private RenderFragment Cell(bool income, int m, decimal planned, decimal preview, decimal? actual, SheetLine? line,
+        bool net, bool total = false, bool single = false) => __builder =>
+    {
+        bool changed = preview != planned;
+        bool overridden = line?.Line.OverrideMonth == m;
+        MnlTone tone = net ? ProtoFormat.NetTone(planned, actual) : ProtoFormat.VarianceTone(income, planned, actual);
+        string? title = overridden
+            ? $"Override {ProtoFormat.Money(planned)}. Calculated amount underneath: {ProtoFormat.Money(line!.Line.OverrideCalculated)}"
+            : changed ? $"Preview {ProtoFormat.Money(preview)}, plan {ProtoFormat.Money(planned)} ({ProtoFormat.Delta(preview - planned)})" : null;
+        <td class="grid__cell @(total ? "grid__total" : "")" data-month="@(m >= 0 ? ProtoFormat.MonthState(m) : null)"
+            data-changed="@(changed ? "true" : null)" title="@title">
+            <span class="grid__plan">
+                @if (changed)
+                {
+                    <s>@ProtoFormat.Money(planned)</s>
+                    <span class="grid__preview">@ProtoFormat.Money(preview)</span>
+                }
+                else
+                {
+                    @ProtoFormat.Money(planned)
+                }
+                @if (overridden)
+                {
+                    <span class="grid__override" aria-label="Override">O</span>
+                }
+            </span>
+            @if (overridden && single)
+            {
+                <span class="grid__story">Override. Calculated: @ProtoFormat.Money(line!.Line.OverrideCalculated)</span>
+            }
+            @if (!single && actual is not null && (m < 0 || m <= ProtoBudget.CurrentMonth))
+            {
+                <span class="grid__actual"><span class="grid__dot" data-tone="@ProtoFormat.ToneKey(tone)" aria-hidden="true"></span>@ProtoFormat.Money(actual)</span>
+            }
+        </td>
+    };
+}
