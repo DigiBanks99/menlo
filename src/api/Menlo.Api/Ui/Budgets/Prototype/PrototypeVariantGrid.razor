@@ -13,13 +13,38 @@
             <MnlEyebrow>@Sheet.ViewLabel view</MnlEyebrow>
             <MnlHeading Level="1">@ProtoFormat.PeriodLabel(q.Month) budget</MnlHeading>
         </MnlStack>
-        <MnlSegmented Label="View" Value="@q.View"
-                      Segments="@([.. ProtoBudget.Views.Select(v => new MnlSegment(v.Key, v.Label, q.WithView(v.Key)))])" />
+        @if (Rail)
+        {
+            <details class="view-menu" data-testid="view-menu">
+                <summary>
+                    <MnlIcon Name="MnlIconName.House" Size="MnlSize.Sm" />
+                    @Sheet.ViewLabel
+                    <MnlIcon Name="MnlIconName.ChevronDown" Size="MnlSize.Sm" />
+                </summary>
+                <ul class="view-menu__list" aria-label="View">
+                    @foreach ((string key, string label) in ProtoBudget.Views)
+                    {
+                        ViewNet net = Sheet.Views.First(v => v.Key == key);
+                        <li>
+                            <a href="@q.WithView(key)" aria-current="@(key == q.View ? "true" : null)">
+                                <span>@label</span>
+                                <span class="view-menu__net">Net @ProtoFormat.Money(net.Preview)</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </details>
+        }
+        else
+        {
+            <MnlSegmented Label="View" Value="@q.View"
+                          Segments="@([.. ProtoBudget.Views.Select(v => new MnlSegment(v.Key, v.Label, q.WithView(v.Key)))])" />
+        }
     </MnlCluster>
 
     @if (Rail)
     {
-        <nav class="month-strip" aria-label="Months">
+        <nav class="month-strip" role="group" aria-label="Months">
             @for (int i = 0; i < 12; i++)
             {
                 int month = i;
@@ -30,23 +55,21 @@
                     <span class="month-strip__net" data-tone="@ProtoFormat.ToneKey(ProtoFormat.NetTone(Sheet.NetPlannedFor(month), actual))">
                         @ProtoFormat.Money(actual ?? Sheet.NetPreviewFor(month))
                     </span>
-                    <span class="month-strip__what">@(month < ProtoBudget.CurrentMonth ? "frozen · actual" : month == ProtoBudget.CurrentMonth ? "now · actual" : "planned")</span>
                 </a>
             }
             <a href="@q.WithMonth(ProtoQuery.YearPeriod)" class="month-strip__month" aria-current="@(q.IsYear ? "true" : null)">
                 <span class="month-strip__name">Year</span>
                 <span class="month-strip__net">@ProtoFormat.Money(Sheet.NetPreviewFor(ProtoQuery.YearPeriod))</span>
-                <span class="month-strip__what">planned Net</span>
             </a>
         </nav>
 
         <p class="grid-legend" data-testid="grid-legend">
             <span><strong>Top:</strong> planned</span>
             <span><strong>Below:</strong> actual</span>
-            <span><span class="grid__dot" data-tone="success"></span>on plan</span>
-            <span><span class="grid__dot" data-tone="warning"></span>worse</span>
-            <span><span class="grid__dot" data-tone="error"></span>15%+ worse</span>
-            <span><span class="grid__dot" data-tone="info"></span>better</span>
+            <span class="grid-legend__chip" data-tone="success">on plan</span>
+            <span class="grid-legend__chip" data-tone="warning">worse</span>
+            <span class="grid-legend__chip" data-tone="error">15%+ worse</span>
+            <span class="grid-legend__chip" data-tone="info">better</span>
             <span>More in the <MnlIcon Name="MnlIconName.Info" Size="MnlSize.Sm" /> panel</span>
         </p>
 
@@ -292,7 +315,14 @@
             }
             @if (!single && actual is not null && (m < 0 || m <= ProtoBudget.CurrentMonth))
             {
-                <span class="grid__actual"><span class="grid__dot" data-tone="@ProtoFormat.ToneKey(tone)" aria-hidden="true"></span>@ProtoFormat.Money(actual)</span>
+                if (Rail)
+                {
+                    <span class="grid__actual grid__actual--toned" data-tone="@ProtoFormat.ToneKey(tone)">@ProtoFormat.Money(actual)</span>
+                }
+                else
+                {
+                    <span class="grid__actual"><span class="grid__dot" data-tone="@ProtoFormat.ToneKey(tone)" aria-hidden="true"></span>@ProtoFormat.Money(actual)</span>
+                }
             }
         </td>
     };

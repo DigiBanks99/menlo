@@ -296,3 +296,15 @@
     color: var(--mnl-warning);
     font-weight: var(--mnl-weight-bold);
 }
+
+.rail__chip {
+    padding: 1px var(--mnl-space-1);
+    border-radius: var(--mnl-radius-sm);
+    font-size: var(--mnl-text-xs);
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.rail__chip[data-tone="success"] { color: var(--mnl-success); background: var(--mnl-success-soft); }
+.rail__chip[data-tone="warning"] { color: var(--mnl-warning); background: var(--mnl-warning-soft); }
+.rail__chip[data-tone="error"] { color: var(--mnl-error); background: var(--mnl-error-soft); }
+.rail__chip[data-tone="info"] { color: var(--mnl-info); background: var(--mnl-info-soft); }
