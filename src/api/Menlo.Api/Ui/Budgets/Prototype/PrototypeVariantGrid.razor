@@ -134,7 +134,7 @@
     {
         ProtoQuery q = Rail ? Sheet.Query.Closed : Sheet.Query;
         int[] months = q.IsYear ? [.. Enumerable.Range(0, 12)] : [q.Month];
-    <div class="grid-wrap" tabindex="0" role="region" aria-label="Budget grid">
+    <div class="grid-wrap @(Rail ? "grid-wrap--framed" : "")" tabindex="0" role="region" aria-label="Budget grid">
             <table class="grid" data-mode="@(q.IsYear ? "year" : "month")">
                 <thead>
                     <tr>

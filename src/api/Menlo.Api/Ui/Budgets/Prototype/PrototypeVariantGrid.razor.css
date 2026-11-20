@@ -226,20 +226,28 @@
 }
 
 /* Variant D: B's month strip as one joined button group, and a legend that says what the numbers are. */
+/* The "pronounced" look being tried for the design system: a 2px border, thin dividers inside,
+   a soft shadow below and round ends. */
+.month-strip,
+.view-menu summary,
+.grid-wrap--framed {
+    border: 2px solid var(--mnl-border);
+    background: var(--mnl-surface);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 3px 8px rgb(0 0 0 / 0.07);
+}
+
 .month-strip {
     display: grid;
     grid-template-columns: repeat(13, minmax(4.5rem, 1fr));
     overflow-x: auto;
-    border: 1px solid var(--mnl-border);
-    border-radius: var(--mnl-radius-md);
-    background: var(--mnl-surface);
+    border-radius: var(--mnl-radius-xl, 1rem);
 }
 
 .month-strip__month {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: var(--mnl-space-2);
+    padding: var(--mnl-space-2) var(--mnl-space-3);
     border-inline-start: 1px solid var(--mnl-border);
     color: var(--mnl-text);
     text-decoration: none;
@@ -263,12 +271,12 @@
 }
 
 .month-strip__month[aria-current="true"] {
-    background: var(--mnl-accent);
-    color: var(--mnl-on-accent);
+    background: var(--mnl-text);
+    color: var(--mnl-surface);
 }
 
 .month-strip__month[aria-current="true"] .month-strip__net {
-    color: var(--mnl-on-accent);
+    color: var(--mnl-surface);
 }
 
 .month-strip__month:focus-visible {
@@ -299,9 +307,7 @@
     align-items: center;
     gap: var(--mnl-space-2);
     padding: var(--mnl-space-2) var(--mnl-space-4);
-    border: 1px solid var(--mnl-border);
     border-radius: var(--mnl-radius-full);
-    background: var(--mnl-surface);
     color: var(--mnl-text);
     font-weight: var(--mnl-weight-semibold);
     cursor: pointer;
@@ -366,10 +372,9 @@
 
 /* The actual line takes the variance colour, on a soft band of the same colour. */
 .grid__actual--toned {
-    margin-block-start: 2px;
-    margin-inline: calc(-1 * var(--mnl-space-1));
-    padding: 1px var(--mnl-space-1);
-    border-radius: var(--mnl-radius-sm);
+    display: block;
+    margin: var(--mnl-space-1) calc(-1 * var(--mnl-space-2)) calc(-1 * var(--mnl-space-2));
+    padding: var(--mnl-space-1) var(--mnl-space-2);
     font-weight: var(--mnl-weight-semibold);
 }
 
@@ -413,4 +418,10 @@
     .month-strip {
         max-inline-size: calc(100vw - 2rem);
     }
+}
+
+.grid-wrap--framed {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    border-inline-start-width: 1px;
 }

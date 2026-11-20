@@ -10,11 +10,12 @@
     flex-direction: column;
     gap: var(--mnl-space-1);
     padding: var(--mnl-space-2) var(--mnl-space-1);
-    border: 1px solid var(--mnl-border);
+    border: 2px solid var(--mnl-border);
     border-inline-end: none;
     border-start-start-radius: var(--mnl-radius-lg);
     border-end-start-radius: var(--mnl-radius-lg);
     background: var(--mnl-surface-alt);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 3px 8px rgb(0 0 0 / 0.07);
     position: relative;
     z-index: 6;
 }
@@ -66,7 +67,7 @@
 .rail__flyout {
     position: absolute;
     inset-block: 0;
-    inset-inline-start: calc(2.5rem + 2 * var(--mnl-space-1) + 1px);
+    inset-inline-start: calc(2.5rem + 2 * var(--mnl-space-1) + 2px);
     inline-size: min(24rem, calc(100% - 4rem));
     overflow-y: auto;
     z-index: 5;
