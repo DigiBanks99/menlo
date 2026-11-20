@@ -77,27 +77,30 @@ A budget line's regular monthly amount, before any temporary variation.
 _Avoid_: Default amount
 
 **Dated change**:
-A committed change to a budget line that applies from a given month onwards and never to earlier months.
+A committed change to a budget line's baseline that applies from a given month onwards and never to earlier months. It can only start in the current month or later.
 _Avoid_: Edit, fill forward, cascade
 
 **Yearly change**:
-A dated change that recurs in the same month every year, such as an annual rates increase. Copying a budget plans it again in the new year.
+A dated change that recurs in the same month every year, such as an annual rates increase. It moves the baseline and stays, unlike a seasonal variation. Copying a budget plans it again in the new year, with last year's amount or percentage until it is changed.
 
 **Year copy**:
-Creating next year's budget from this year's: the baseline carries every dated change applied, while actuals and overrides are left behind.
+Creating next year's budget from this year's: the baseline carries every dated change applied, while actuals and overrides are left behind. The copy is planned from the moment it is made. It asks whether each trigger is realized and whether to keep each event line.
 _Avoid_: Clone, rollover
 
 **Seasonal variation**:
-A relative change to a budget line in the same months every year, expressed as a percentage or amount on top of the baseline.
+A relative change to a budget line in the same months every year, expressed as a percentage or amount on top of the baseline. Outside those months the line returns to its baseline.
 
 **Conditional change**:
 A relative change to one or more budget lines that applies from a trigger's expected date onwards.
 
 **Trigger**:
-A household event with an expected date that may move, such as a tenant moving in. Moving the date moves every conditional change tied to it.
+An expected household event with a date that may move, such as a tenant moving in. Moving the date moves every conditional change tied to it, and the date can only be set to the current month or later. A trigger is still expected until it is realized.
+
+**Realized trigger**:
+A trigger whose expected event has actually happened. At year copy, a realized trigger's conditional changes fold into the new baseline; a trigger not yet realized carries over, and a date already past moves to January.
 
 **Override**:
-An amount typed over a budget line's calculated planned amount for one month. It is rare and always visible.
+An amount typed over a budget line's calculated planned amount for one month. It is rare and always visible. It stays in place when the plan beneath it changes, and can only be set on the current month or later.
 
 **Line type**:
 How a budget line's actuals are judged against its plan: fixed, variable, provision or event.
@@ -118,15 +121,15 @@ A budget line with planned amounts only in known months, such as a yearly servic
 _Avoid_: One-off adjustment
 
 **Commit**:
-The owner's decision to make something part of the budget. The plan only changes by commit, never as a side effect of actuals.
+The owner's decision to make something part of the budget. The plan only changes by commit, never as a side effect of actuals. Saving a direct edit to a budget line commits it; a proposal is committed as a whole. A commit applies from the current month onwards.
 _Avoid_: Accept, approve, realize
 
 **Proposal**:
-A named, uncommitted set of changes to the budget (event lines, dated changes or conditional changes) that can be kept, switched on to see its effect, and later committed or dropped.
+A named, uncommitted set of changes to the budget (event lines, dated changes or conditional changes) that can be kept, switched on to see its effect, and later committed or dropped. Two proposals that change the same thing can't be switched on together.
 _Avoid_: Scenario, draft, plan
 
 **Planned amount**:
-What the budget expects for a budget line in a given month. It is frozen once that month is in the past.
+What the budget expects for a budget line in a given month: its baseline plus any seasonal variation and conditional changes, or its override if it has one. It is frozen once that month is in the past.
 _Avoid_: Budgeted amount, estimate
 
 **Frozen month**:
