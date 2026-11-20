@@ -44,8 +44,11 @@
     outline: 2px solid var(--mnl-focus-ring);
 }
 
+/* Separate borders: collapsed borders belong to the table, so they don't move with the sticky
+   Category column and the scrolled cells' lines showed through it. */
 .grid {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     inline-size: 100%;
     font-size: var(--mnl-text-xs);
     font-variant-numeric: tabular-nums;
@@ -442,4 +445,76 @@
     border-start-start-radius: 0;
     border-end-start-radius: 0;
     border-inline-start-width: 1px;
+}
+
+/* The pinned Category column gets an edge so scrolled cells pass under it cleanly. */
+.grid .grid__name {
+    box-shadow: inset -1px 0 0 var(--mnl-border), 4px 0 6px -4px rgb(0 0 0 / 0.25);
+}
+
+.grid__name-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--mnl-space-2);
+}
+
+.grid__names-toggle {
+    display: none;
+    padding: 0 var(--mnl-space-2);
+    border: 1px solid var(--mnl-border);
+    border-radius: var(--mnl-radius-sm);
+    background: var(--mnl-surface);
+    color: var(--mnl-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.grid__names-toggle[aria-pressed="true"] {
+    background: var(--mnl-accent-soft);
+    border-color: var(--mnl-accent);
+}
+
+.grid__names-toggle:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+}
+
+/* Small screens: the Category column folds to a narrow strip of names; the toggle in its header
+   opens it to full width (with types and descriptions) until tapped again. */
+@media (max-width: 48rem) {
+    .grid__names-toggle {
+        display: inline-block;
+    }
+
+    .grid[data-names="narrow"] .grid__name {
+        min-inline-size: 0;
+        inline-size: 6.5rem;
+        max-inline-size: 6.5rem;
+    }
+
+    .grid[data-names="narrow"] .grid__name a,
+    .grid[data-names="narrow"] .grid__indent {
+        padding-inline-start: var(--mnl-space-2);
+        overflow-wrap: anywhere;
+    }
+
+    .grid[data-names="narrow"] .grid__group .grid__name a {
+        padding-inline-start: 0;
+    }
+
+    .grid[data-names="narrow"] .grid__indent--2 {
+        padding-inline-start: var(--mnl-space-4);
+    }
+
+    .grid[data-names="narrow"] .grid__type,
+    .grid[data-names="narrow"] .grid__story,
+    .grid[data-names="narrow"] .grid__name em,
+    .grid[data-names="narrow"] .grid__name .mnl-tag {
+        display: none;
+    }
+
+    .grid[data-names="narrow"] .grid__category .grid__name,
+    .grid[data-names="narrow"] .grid__line .grid__name {
+        font-size: 0.7rem;
+    }
 }

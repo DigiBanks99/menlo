@@ -135,10 +135,20 @@
         ProtoQuery q = Rail ? Sheet.Query.Closed : Sheet.Query;
         int[] months = q.IsYear ? [.. Enumerable.Range(0, 12)] : [q.Month];
     <div class="grid-wrap @(Rail ? "grid-wrap--framed" : "")" tabindex="0" role="region" aria-label="Budget grid">
-            <table class="grid" data-mode="@(q.IsYear ? "year" : "month")">
+            <table class="grid" data-names="narrow" data-mode="@(q.IsYear ? "year" : "month")">
                 <thead>
                     <tr>
-                        <th scope="col" class="grid__name">Category</th>
+                        <th scope="col" class="grid__name">
+                            <span class="grid__name-head">
+                                Category
+                                @if (Rail)
+                                {
+                                    <button type="button" class="grid__names-toggle" data-proto-names aria-pressed="false" aria-label="Show full category names">
+                                        <span aria-hidden="true">↔</span>
+                                    </button>
+                                }
+                            </span>
+                        </th>
                         @if (q.IsYear)
                         {
                             @foreach (int m in months)

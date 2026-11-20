@@ -55,3 +55,31 @@
     });
   });
 })();
+
+// PROTOTYPE (#596): the Category column's width toggle on small screens. Remembered for the tab, so
+// opening a category (a page load) keeps the column as it was.
+(function () {
+  if (window.__protoNames) return;
+  window.__protoNames = true;
+
+  function apply() {
+    var wide = sessionStorage.getItem('proto-names') === 'wide';
+    document.querySelectorAll('table[data-names]').forEach(function (t) {
+      t.dataset.names = wide ? 'wide' : 'narrow';
+    });
+    document.querySelectorAll('[data-proto-names]').forEach(function (b) {
+      b.setAttribute('aria-pressed', wide ? 'true' : 'false');
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('[data-proto-names]');
+    if (!button) return;
+    var wide = sessionStorage.getItem('proto-names') === 'wide';
+    sessionStorage.setItem('proto-names', wide ? 'narrow' : 'wide');
+    apply();
+  });
+
+  document.addEventListener('htmx:afterSettle', apply);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
+})();
