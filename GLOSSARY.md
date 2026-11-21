@@ -23,7 +23,7 @@ _Avoid_: Account holder, customer
 ## Budgeting and spend
 
 **Budget**:
-A household's committed statement, for one year, of what it expects to earn and spend.
+A household's committed statement, for one calendar year, of what it expects to earn and spend.
 _Avoid_: Budget file, spreadsheet
 
 **Budget line**:
@@ -71,6 +71,10 @@ _Avoid_: Service provider share, rebate
 
 **Rental view**:
 A rental unit's income minus its rental shares of expenses, which is its rental profit.
+
+**Tax year**:
+The year March to February that tax is assessed on. It spans two budgets. The rental view reports a rental unit's rental profit for a tax year, from actuals for months that have passed and the plan for months to come.
+_Avoid_: Financial year, fiscal year
 
 **Baseline**:
 A budget line's regular monthly amount, before any temporary variation.
