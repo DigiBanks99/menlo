@@ -76,6 +76,44 @@
   }, true);
 })();
 
+// PROTOTYPE (#658): every click here reloads the page through htmx, and a boosted swap scrolls to the top,
+// so a change made further down landed out of sight. Keep the page's and the grid's scroll position across
+// the reload, then bring an opened editor into view.
+(function () {
+  if (window.__planScroll) return;
+  window.__planScroll = true;
+  var KEY = 'plan-scroll';
+
+  function onPlan() {
+    return window.location.pathname.indexOf('/budgets/prototype/plan') === 0;
+  }
+
+  document.addEventListener('htmx:beforeRequest', function () {
+    if (!onPlan()) return;
+    var grid = document.querySelector('.grid-wrap');
+    sessionStorage.setItem(KEY, JSON.stringify({ y: window.scrollY, x: grid ? grid.scrollLeft : 0 }));
+  });
+
+  function restore() {
+    var saved = sessionStorage.getItem(KEY);
+    if (!saved || !onPlan()) return;
+    sessionStorage.removeItem(KEY);
+    var s = JSON.parse(saved);
+    requestAnimationFrame(function () {
+      window.scrollTo(0, s.y);
+      var grid = document.querySelector('.grid-wrap');
+      if (grid) grid.scrollLeft = s.x;
+      var editor = document.querySelector('.grid__editor');
+      if (editor) {
+        var box = editor.getBoundingClientRect();
+        if (box.top < 0 || box.top > window.innerHeight - 120) editor.scrollIntoView({ block: 'center' });
+      }
+    });
+  }
+
+  document.addEventListener('htmx:afterSettle', restore);
+})();
+
 // PROTOTYPE (#596, reused): the Category column's width toggle on small screens, remembered for the tab.
 (function () {
   if (window.__planNames) return;
