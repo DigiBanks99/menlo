@@ -1,67 +1,200 @@
 @*
-    PROTOTYPE (#658): three ways of capturing the plan on one route, switched with ?variant=.
-    A edits in the grid, B opens a panel per line, C sets up one category at a time.
-    In-memory, made-up data, mapped only in Development. Throwaway: it lives on prototype/658-capture-plan.
+    PROTOTYPE (#658): capturing the plan inside the views prototype's (#596) variant D, "Grid with side rail".
+    The month strip, view menu, rail and grid are the same; the variants try three places to make a change:
+    A in the grid (a cell opens an editor under its line), B in the rail (a line opens in the rail), and
+    C by category (a category opens a form for all its lines). In-memory, made-up data, mapped only in
+    Development. Throwaway: it lives on prototype/658-capture-plan.
 *@
 @{
-    PQuery q = Model.Query;
+    PQuery q = Model.Query.Shut;
     PYear y = Model.Plan;
+    PBoard b = Model.Board;
+    PProposal? t = Model.Target;
 }
 <AppPage Page="Page" Title="Capture the plan prototype">
     <MnlStack Gap="MnlGap.Lg">
         <MnlAlert Tone="MnlTone.Info" Title="@($"Prototype {q.Variant}: {q.VariantName}")">
             @if (y.Current > 0)
             {
-                <span>Made-up data, kept in memory. "Today" is in @PFormat.MonthLong(y.Current) @y.Year, so January to @PFormat.MonthLong(y.Current - 1) are frozen.</span>
+                <span>Made-up data, kept in memory until you reset it (Year, in the rail). "Today" is in @PFormat.MonthLong(y.Current) @y.Year, so January to @PFormat.MonthLong(y.Current - 1) are frozen.</span>
             }
             else
             {
-                <span>@y.Year was made by year copy. It's planned from January, and every month can still change.</span>
+                <span>@y.Year was made by year copy. It's planned from January, every month can still change, and there are no actuals yet.</span>
             }
+            <span>@(" " + Hint)</span>
         </MnlAlert>
 
-        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
-            <MnlStack Gap="MnlGap.Xs">
-                <MnlEyebrow>Household plan</MnlEyebrow>
-                <MnlHeading Level="1">@y.Year budget</MnlHeading>
-            </MnlStack>
-            <MnlCluster Gap="MnlGap.Sm">
-                @if (PlanStore.Years.Count > 1)
-                {
-                    <MnlSegmented Label="Year" Value="@y.Year.ToString()"
-                                  Segments="@([.. PlanStore.Years.Keys.Order().Select(k => new MnlSegment(k.ToString(), k.ToString(), (q.Closed with { Year = k, Target = "plan", Category = null }).Href))])" />
-                }
-                <MnlButton Href="@($"/budgets/prototype/plan/copy?variant={q.Variant}&year={y.Year}")" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus" data-testid="year-copy">
-                    Copy to @(y.Year + 1)
-                </MnlButton>
-                <form method="post" action="/budgets/prototype/plan/act">
-                    <PlanHidden Sheet="Model" Op="reset" />
-                    <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Reset prototype</MnlButton>
-                </form>
+        <MnlStack Gap="MnlGap.Md">
+            <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+                <MnlStack Gap="MnlGap.Xs">
+                    <MnlEyebrow>@q.ViewLabel view</MnlEyebrow>
+                    <MnlHeading Level="1">@(q.IsYear ? $"{y.Year}" : $"{PFormat.MonthLong(q.Period)} {y.Year}") budget</MnlHeading>
+                </MnlStack>
+                <MnlCluster Gap="MnlGap.Sm">
+                    @if (PlanStore.Years.Count > 1)
+                    {
+                        <MnlSegmented Label="Year" Value="@y.Year.ToString()"
+                                      Segments="@([.. PlanStore.Years.Keys.Order().Select(k => new MnlSegment(k.ToString(), k.ToString(), (q.Closed with { Year = k, Target = "plan", Period = PQuery.YearPeriod }).Href))])" />
+                    }
+                    <details class="view-menu" data-testid="view-menu">
+                        <summary>
+                            <MnlIcon Name="MnlIconName.House" Size="MnlSize.Sm" />
+                            @q.ViewLabel
+                            <MnlIcon Name="MnlIconName.ChevronDown" Size="MnlSize.Sm" />
+                        </summary>
+                        <ul class="view-menu__list" aria-label="View">
+                            @foreach (BViewNet view in b.Views)
+                            {
+                                BViewNet v = view;
+                                <li>
+                                    <a href="@q.WithView(v.Key)" aria-current="@(v.Key == q.View ? "true" : null)">
+                                        <span>@v.Label</span>
+                                        <span class="view-menu__net">Net @ProtoFormat.Money(v.Preview)</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </details>
+                </MnlCluster>
             </MnlCluster>
-        </MnlCluster>
 
-        <PlanWorkingOn Sheet="Model" />
+            <nav class="month-strip" role="group" aria-label="Months">
+                @for (int i = 0; i < 12; i++)
+                {
+                    int month = i;
+                    decimal? actual = month > y.Current ? null : b.NetActualFor(month);
+                    <a href="@q.WithPeriod(month)" class="month-strip__month" data-month="@PBoard.MonthState(y.Current, month)"
+                       aria-current="@(month == q.Period ? "true" : null)">
+                        <span class="month-strip__name">@PFormat.Month(month)</span>
+                        <span class="month-strip__net" data-tone="@ProtoFormat.ToneKey(ProtoFormat.NetTone(b.NetPlannedFor(month), actual))">
+                            @ProtoFormat.Money(actual ?? b.NetPreviewFor(month))
+                        </span>
+                    </a>
+                }
+                <a href="@q.WithPeriod(PQuery.YearPeriod)" class="month-strip__month" aria-current="@(q.IsYear ? "true" : null)">
+                    <span class="month-strip__name">Year</span>
+                    <span class="month-strip__net">@ProtoFormat.Money(b.NetPreviewFor(PQuery.YearPeriod))</span>
+                </a>
+            </nav>
 
-        @switch (q.Variant)
-        {
-            case "B":
-                <PlanVariantPanel Sheet="Model" />
-                break;
-            case "C":
-                <PlanVariantSetup Sheet="Model" />
-                break;
-            default:
-                <PlanVariantGrid Sheet="Model" />
-                break;
-        }
+            <p class="grid-legend" data-testid="grid-legend">
+                <span><strong>Top:</strong> planned</span>
+                <span><strong>Below:</strong> actual</span>
+                <span class="grid-legend__chip" data-tone="success">on plan</span>
+                <span class="grid-legend__chip" data-tone="warning">worse</span>
+                <span class="grid-legend__chip" data-tone="error">15%+ worse</span>
+                <span class="grid-legend__chip" data-tone="info">better</span>
+                <span>
+                    <span class="grid-legend__mark" data-mark="D">D</span>
+                    <span class="grid-legend__mark" data-mark="Y">Y</span>
+                    <span class="grid-legend__mark" data-mark="S">S</span>
+                    <span class="grid-legend__mark" data-mark="C">C</span>
+                    <span class="grid-legend__mark" data-mark="O">O</span>
+                    what shapes it
+                </span>
+                <span>More in the <MnlIcon Name="MnlIconName.Info" Size="MnlSize.Sm" /> panel</span>
+            </p>
 
-        <PlanTools Sheet="Model" />
+            <div class="working" data-target="@(t is null ? "plan" : "proposal")" data-testid="working-on">
+                @if (t is null)
+                {
+                    <MnlIcon Name="MnlIconName.Check" Size="MnlSize.Sm" />
+                    <span class="working__text">
+                        <strong>Changes go into the plan.</strong> Each one is committed from @PFormat.MonthLong(y.Current) onwards; frozen months don't change.
+                        To stage changes instead, work on a proposal: Proposals, in the rail.
+                    </span>
+                }
+                else
+                {
+                    <MnlIcon Name="MnlIconName.Pencil" Size="MnlSize.Sm" />
+                    <span class="working__text">
+                        <strong>Working on "@t.Name".</strong> @t.Edits.Count change(s) staged, Net @ProtoFormat.Delta(Model.Effects[t.Id]) for the year.
+                        Changes go into it, shown with the plan struck through, until you commit it.
+                    </span>
+                    <form method="post" action="/budgets/prototype/plan/act">
+                        <PlanHidden Sheet="Model" Op="proposal-commit" Direct="true" />
+                        <input type="hidden" name="id" value="@t.Id" />
+                        <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm" Disabled="@(t.Edits.Count == 0)">Commit it</MnlButton>
+                    </form>
+                    <MnlButton Href="@Model.Query.WithTarget("plan")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Back to the plan</MnlButton>
+                }
+            </div>
+
+            <PlanRail Sheet="Model">
+                @switch (q.Variant)
+                {
+                    case "B":
+                        <PlanBoardGrid Sheet="Model"
+                                       LineHref="@(l => Model.Query.Line == l.Id ? Model.Query.Closed.Href : (Model.Query with { Line = l.Id, Month = null, Edit = null, Category = null, Panel = "line" }).Href)"
+                                       CategoryHref="@(c => IsEditing(c) ? Model.Query.Closed.Href : (Model.Query with { Edit = "cat:" + c.Id, Line = null, Month = null, Panel = "category" }).Href)"
+                                       IsSelected="IsEditing" />
+                        break;
+                    case "C":
+                        <PlanBoardGrid Sheet="Model"
+                                       CategoryHref="@(c => Model.Query.Category == c.Id ? Model.Query.Shut.Closed.Href : Model.Query.Shut.WithCategory(c.Id))"
+                                       IsSelected="@(c => Model.Query.Category == c.Id)"
+                                       CategoryBelow="Setup"
+                                       Done="@(c => y.Reviewed.Contains(c.Id))" />
+                        break;
+                    default:
+                        <PlanBoardGrid Sheet="Model" CellLinks="true" Below="CellEditor"
+                                       CategoryHref="@(c => IsEditing(c) ? Model.Query.Shut.Closed.Href : Model.Query.Shut.Editing("cat:" + c.Id))"
+                                       IsSelected="IsEditing" CategoryBelow="CategoryEditor" />
+                        break;
+                }
+            </PlanRail>
+        </MnlStack>
     </MnlStack>
-    <PlanSwitcher Query="q" />
+    <PlanSwitcher Query="Model.Query" />
 </AppPage>
 
 @code {
     [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
     [Parameter, EditorRequired] public PSheet Model { get; set; } = null!;
+
+    private string Hint => Model.Query.Variant switch
+    {
+        "B" => "Open a category, then click a line's name: the line opens in the rail. The pencil beside a category edits it there.",
+        "C" => "Click the pencil beside a category for a form with all its lines' amounts. The checklist is under Set up the year in the rail.",
+        _ => "Open a category, then click a planned amount: an editor opens under the line for that month. The pencil beside a category edits it."
+    };
+
+    private bool IsEditing(PCategory c) => Model.Query.Edit == "cat:" + c.Id;
+
+    private RenderFragment<PLine> CellEditor => line => __builder =>
+    {
+        if (Model.Query.Month is not int m)
+        {
+            return;
+        }
+
+        bool frozen = m < Model.Plan.Current;
+        decimal current = line.Type == ProtoLineType.Event ? line.Events.GetValueOrDefault(m) : Model.Preview.BaselineAt(line, m);
+        string close = Model.Query.Shut.Closed.Href;
+        <div class="aedit" data-testid="cell-editor">
+            <PlanBreakdown Sheet="Model" Line="line" Month="m" />
+            @if (frozen)
+            {
+                <MnlCluster Gap="MnlGap.Sm">
+                    <MnlButton Href="@Model.Query.Cell(line.Id, Model.Plan.Current)" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Change it from @PFormat.MonthLong(Model.Plan.Current)</MnlButton>
+                    <MnlButton Href="@close" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Close</MnlButton>
+                </MnlCluster>
+            }
+            else
+            {
+                <PlanChangeForm Sheet="Model" Line="line" Month="m" Current="current" CloseHref="@close" />
+            }
+        </div>
+    };
+
+    private RenderFragment<PCategory> CategoryEditor => category => __builder =>
+    {
+        <PlanCategoryEditor Sheet="Model" Category="category" Back="@Model.Query.Shut.Closed.Href" />
+    };
+
+    private RenderFragment<PCategory> Setup => category => __builder =>
+    {
+        <PlanSetupForm Sheet="Model" Category="category" />
+    };
 }

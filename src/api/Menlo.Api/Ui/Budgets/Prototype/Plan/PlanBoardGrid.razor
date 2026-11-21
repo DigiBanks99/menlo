@@ -1,0 +1,332 @@
+@*
+    PROTOTYPE (#658): the views prototype's (#596) variant D grid, unchanged in look: categories open to their
+    lines, planned on top and the actual below in its variance colour, frozen months shaded. Added for capturing
+    the plan: letters in a planned amount name the layers that shape it, a line's description lists its layers,
+    and the variant decides what a click opens (a cell editor, the rail, or a category's set-up form).
+*@
+@{
+    PQuery q = Sheet.Query.Shut;
+    PBoard b = Sheet.Board;
+    int cols = q.IsYear ? 14 : 7;
+}
+<div class="grid-wrap grid-wrap--framed" tabindex="0" role="region" aria-label="Budget grid" data-testid="plan-grid">
+    <table class="grid" data-names="narrow" data-mode="@(q.IsYear ? "year" : "month")">
+        <thead>
+            <tr>
+                <th scope="col" class="grid__name">
+                    <span class="grid__name-head">
+                        Category
+                        <button type="button" class="grid__names-toggle" data-plan-names aria-pressed="false" aria-label="Show full category names">
+                            <span aria-hidden="true">↔</span>
+                        </button>
+                    </span>
+                </th>
+                @if (q.IsYear)
+                {
+                    @for (int i = 0; i < 12; i++)
+                    {
+                        int m = i;
+                        <th scope="col" data-month="@PBoard.MonthState(b.Current, m)">
+                            @PFormat.Month(m)
+                            @if (m < b.Current)
+                            {
+                                <span class="grid__state">frozen</span>
+                            }
+                            else if (m == b.Current)
+                            {
+                                <span class="grid__state">now</span>
+                            }
+                        </th>
+                    }
+                    <th scope="col" class="grid__total">Year</th>
+                }
+                else
+                {
+                    <th scope="col">Type</th>
+                    <th scope="col">Planned</th>
+                    <th scope="col">Actual</th>
+                    <th scope="col">Variance</th>
+                    <th scope="col">Year to date (planned / actual)</th>
+                    <th scope="col">How it is doing</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BGroup group in b.Groups)
+            {
+                BGroup g = group;
+                string gKey = "g:" + g.Top.Id;
+                bool gOpen = b.IsOpen(gKey);
+                <tr class="grid__group">
+                    <th scope="row" class="grid__name">
+                        <span class="grid__name-row">
+                            <a href="@Toggle(gKey)" aria-expanded="@(gOpen ? "true" : "false")">
+                                <MnlIcon Name="@(gOpen ? MnlIconName.ChevronDown : MnlIconName.ChevronRight)" Size="MnlSize.Sm" />
+                                @g.Top.Name
+                            </a>
+                            @if (g.AnyChanged)
+                            {
+                                <MnlTag Tone="MnlTone.Accent">preview</MnlTag>
+                            }
+                            @Pencil(g.Top)
+                        </span>
+                    </th>
+                    @RowCells(g.Income, g.PlannedFor, g.PreviewFor, g.ActualFor, null)
+                </tr>
+                @if (CategoryBelow is not null && Selected(g.Top))
+                {
+                    <tr class="grid__editor"><td colspan="@cols"><div class="grid__editor-body">@CategoryBelow(g.Top)</div></td></tr>
+                }
+                @if (gOpen)
+                {
+                    @foreach (BCategory category in g.Categories)
+                    {
+                        BCategory c = category;
+                        string cKey = "c:" + c.Category.Id;
+                        bool cOpen = b.IsOpen(cKey);
+                        <tr class="grid__category" data-selected="@(Selected(c.Category) ? "true" : null)">
+                            <th scope="row" class="grid__name">
+                                <span class="grid__name-row grid__indent">
+                                    @if (c.Lines.Count == 0)
+                                    {
+                                        <span>@c.Category.Name <em>(no lines)</em></span>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Toggle(cKey)" aria-expanded="@(cOpen ? "true" : "false")">
+                                            <MnlIcon Name="@(cOpen ? MnlIconName.ChevronDown : MnlIconName.ChevronRight)" Size="MnlSize.Sm" />
+                                            @c.Category.Name
+                                        </a>
+                                    }
+                                    @if (Done is not null && Done(c.Category))
+                                    {
+                                        <span class="grid__done" title="Set up">✓<span class="mnl-visually-hidden"> set up</span></span>
+                                    }
+                                    @Pencil(c.Category)
+                                </span>
+                            </th>
+                            @RowCells(g.Income, c.PlannedFor, c.PreviewFor, c.ActualFor, null)
+                        </tr>
+                        @if (CategoryBelow is not null && Selected(c.Category))
+                        {
+                            <tr class="grid__editor"><td colspan="@cols"><div class="grid__editor-body">@CategoryBelow(c.Category)</div></td></tr>
+                        }
+                        @if (cOpen)
+                        {
+                            @foreach (BLine line in c.Lines)
+                            {
+                                BLine l = line;
+                                bool selected = Sheet.Query.Line == l.Line.Id;
+                                <tr class="grid__line" data-selected="@(selected ? "true" : null)">
+                                    <th scope="row" class="grid__name">
+                                        <span class="grid__indent grid__indent--2">
+                                            @if (LineHref is not null)
+                                            {
+                                                <a href="@LineHref(l.Line)" aria-expanded="@(selected ? "true" : "false")" class="grid__line-link">@l.Line.Name</a>
+                                            }
+                                            else
+                                            {
+                                                @l.Line.Name
+                                            }
+                                            <span class="grid__type">@ProtoFormat.TypeLabel(l.Line.Type)</span>
+                                            @if (l.New)
+                                            {
+                                                <MnlTag Tone="MnlTone.Accent">new in proposal</MnlTag>
+                                            }
+                                        </span>
+                                        @if (Story(l.Line) is string story)
+                                        {
+                                            <span class="grid__story">@story</span>
+                                        }
+                                    </th>
+                                    @RowCells(l.Line.Income, l.PlannedFor, l.PreviewFor, l.ActualFor, l)
+                                </tr>
+                                @if (Below is not null && selected)
+                                {
+                                    <tr class="grid__editor"><td colspan="@cols"><div class="grid__editor-body">@Below(l.Line)</div></td></tr>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr class="grid__net">
+                <th scope="row" class="grid__name">Net</th>
+                @RowCells(true, b.NetPlannedFor, b.NetPreviewFor, b.NetActualFor, null, net: true)
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+
+    /// <summary>Variant A: a planned amount opens an editor for that month, in a row under the line.</summary>
+    [Parameter] public bool CellLinks { get; set; }
+
+    /// <summary>Where a line's name goes (variant B: the rail). Null leaves the name as text.</summary>
+    [Parameter] public Func<PLine, string>? LineHref { get; set; }
+
+    /// <summary>Shown in a row under the selected line.</summary>
+    [Parameter] public RenderFragment<PLine>? Below { get; set; }
+
+    /// <summary>Shown in a row under the category being edited.</summary>
+    [Parameter] public RenderFragment<PCategory>? CategoryBelow { get; set; }
+
+    /// <summary>Where a category's pencil goes. Null shows no pencil.</summary>
+    [Parameter] public Func<PCategory, string>? CategoryHref { get; set; }
+
+    /// <summary>Whether a category is being edited.</summary>
+    [Parameter] public Func<PCategory, bool>? IsSelected { get; set; }
+
+    /// <summary>Variant C: categories already set up get a tick.</summary>
+    [Parameter] public Func<PCategory, bool>? Done { get; set; }
+
+    private bool Selected(PCategory c) => IsSelected?.Invoke(c) ?? false;
+
+    private string Toggle(string key)
+    {
+        PQuery q = Sheet.Query.Shut;
+        return Sheet.Board.IsOpen(key) && !q.IsOpen(key) ? q.Closed.Href : q.ToggleOpen(key);
+    }
+
+    private RenderFragment Pencil(PCategory c) => __builder =>
+    {
+        if (CategoryHref is not null)
+        {
+            bool open = Selected(c);
+            <a class="grid__edit" href="@CategoryHref(c)" aria-expanded="@(open ? "true" : "false")"
+               aria-label="@($"Edit {c.Name}, or add to it")" title="Edit it, or add to it">
+                <MnlIcon Name="MnlIconName.Pencil" Size="MnlSize.Sm" />
+            </a>
+        }
+    };
+
+    // A line's layers in a sentence, under its name
+    private string? Story(PLine l)
+    {
+        PYear y = Sheet.Preview;
+        List<string> parts = [];
+        if (l.Type == ProtoLineType.Event)
+        {
+            return null;
+        }
+
+        parts.AddRange(l.Dated.Skip(1).Select(d => $"{PFormat.Money(d.Amount)} a month from {PFormat.Month(d.From)}"));
+        parts.AddRange(l.Yearly.Select(x => $"yearly {PFormat.Change(x.Value, x.Kind)} in {PFormat.Month(x.Month)}"));
+        parts.AddRange(l.Seasonal.Select(x => $"seasonal {PFormat.Change(x.Value, x.Kind)} {PFormat.Months(x.Months)}"));
+        parts.AddRange(l.Conditional.Select(x =>
+        {
+            PTrigger? t = y.Triggers.FirstOrDefault(t => t.Id == x.TriggerId);
+            return $"{PFormat.Change(x.Value, x.Kind)} once \"{t?.Name}\" ({(t?.Realized == true ? "realized" : "expected")} {PFormat.Month(t?.Expected ?? 0)})";
+        }));
+        if (parts.Count == 0)
+        {
+            return null;
+        }
+
+        string text = string.Join("; ", parts) + ".";
+        return char.ToUpperInvariant(text[0]) + text[1..];
+    }
+
+    private RenderFragment RowCells(bool income, Func<int, decimal> planned, Func<int, decimal> preview,
+        Func<int, decimal?> actual, BLine? line, bool net = false) => __builder =>
+    {
+        int current = Sheet.Board.Current;
+        if (Sheet.Query.IsYear)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                int m = i;
+                @Cell(income, m, planned(m), preview(m), m > current ? null : actual(m), line, net)
+            }
+
+            @Cell(income, PQuery.YearPeriod, planned(PQuery.YearPeriod), preview(PQuery.YearPeriod), actual(PQuery.YearPeriod), line, net, total: true)
+        }
+        else
+        {
+            int m = Sheet.Query.Period;
+            decimal p = planned(m);
+            decimal? a = m > current ? null : actual(m);
+            decimal ytdP = Enumerable.Range(0, current).Sum(planned);
+            decimal ytdA = Enumerable.Range(0, current).Sum(x => actual(x) ?? 0);
+            MnlTone tone = net ? ProtoFormat.NetTone(p, a) : ProtoFormat.VarianceTone(income, p, a);
+            <td>@(line is null ? "" : ProtoFormat.TypeLabel(line.Line.Type))</td>
+            @Cell(income, m, p, preview(m), a, line, net, single: true)
+            <td class="grid__num">@ProtoFormat.Money(a)</td>
+            <td class="grid__num" data-tone="@ProtoFormat.ToneKey(tone)">@(a is null ? "" : ProtoFormat.Delta(a.Value - p))</td>
+            <td class="grid__num">@ProtoFormat.Money(ytdP) / @ProtoFormat.Money(ytdA)</td>
+            <td class="grid__judge">
+                @if (line is not null)
+                {
+                    (string text, MnlTone t) = PBoard.Judge(line);
+                    <span data-tone="@ProtoFormat.ToneKey(t)">@text</span>
+                }
+            </td>
+        }
+    };
+
+    private RenderFragment Cell(bool income, int m, decimal planned, decimal preview, decimal? actual, BLine? line,
+        bool net, bool total = false, bool single = false) => __builder =>
+    {
+        int current = Sheet.Board.Current;
+        bool changed = preview != planned;
+        PCalc? calc = line is not null && m >= current ? Sheet.Preview.Calc(line.Line, m) : null;
+        string[] marks = calc is null ? [] : [.. calc.MarksAt(m)];
+        MnlTone tone = net ? ProtoFormat.NetTone(planned, actual) : ProtoFormat.VarianceTone(income, planned, actual);
+        bool selected = line is not null && Sheet.Query.Line == line.Line.Id && Sheet.Query.Month == m;
+        string? title = line is null ? null
+            : $"{line.Line.Name}, {(m < 0 ? "the year" : PFormat.MonthLong(m))}: {ProtoFormat.Money(preview)}"
+              + (changed ? $", plan {ProtoFormat.Money(planned)} ({ProtoFormat.Delta(preview - planned)})" : "")
+              + (calc is { Overridden: true } ? $". Override; calculated {ProtoFormat.Money(calc.Calculated)}" : "")
+              + (marks.Length > 0 ? $". Shaped by: {string.Join(", ", calc!.Steps.Select(s => s.Layer).Distinct())}" : "");
+        bool link = CellLinks && line is not null && m >= 0;
+        <td class="grid__cell @(total ? "grid__total" : "") @(!single ? "grid__cell--stack" : "")" data-month="@(m >= 0 ? PBoard.MonthState(current, m) : null)"
+            data-changed="@(changed ? "true" : null)" data-selected="@(selected ? "true" : null)" title="@title">
+            <div class="grid__stack">
+                @if (link)
+                {
+                    <a class="grid__plan grid__plan--link" href="@(selected ? Sheet.Query.Shut.Closed.Href : Sheet.Query.Cell(line!.Line.Id, m))" aria-label="@($"Change {title}")">
+                        @Amounts(planned, preview, changed, marks)
+                    </a>
+                }
+                else
+                {
+                    <span class="grid__plan">@Amounts(planned, preview, changed, marks)</span>
+                }
+                @if (single && calc is { Overridden: true })
+                {
+                    <span class="grid__story">Override. Calculated: @ProtoFormat.Money(calc.Calculated)</span>
+                }
+                @if (!single && actual is not null && (m < 0 || m <= current))
+                {
+                    <span class="grid__actual grid__actual--toned" data-tone="@ProtoFormat.ToneKey(tone)">@ProtoFormat.Money(actual)</span>
+                }
+            </div>
+        </td>
+    };
+
+    private static RenderFragment Amounts(decimal planned, decimal preview, bool changed, string[] marks) => __builder =>
+    {
+        if (changed)
+        {
+            <s>@ProtoFormat.Money(planned)</s>
+            <span class="grid__preview">@ProtoFormat.Money(preview)</span>
+        }
+        else
+        {
+            @ProtoFormat.Money(planned)
+        }
+        @if (marks.Length > 0)
+        {
+            <span class="grid__marks" aria-hidden="true">
+                @foreach (string mark in marks)
+                {
+                    <span data-mark="@mark">@mark</span>
+                }
+            </span>
+        }
+    };
+}

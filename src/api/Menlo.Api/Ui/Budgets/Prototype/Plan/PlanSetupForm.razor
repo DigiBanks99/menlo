@@ -1,0 +1,140 @@
+@*
+    PROTOTYPE (#658) variant C, "Set up by category": a category's form, opened in the grid under its row.
+    Every line's amount in one form, saved together and marked set up; anything beyond a monthly amount
+    is an "Adjust" under the line. Built for setting up a new year one category at a time.
+*@
+@{
+    PQuery q = Sheet.Query.Shut;
+    PCategory selected = Category;
+    List<PCategory> subs = [.. Sheet.Preview.Tops.SelectMany(t => Sheet.Preview.Children(t.Id))];
+    PCategory? next = subs.SkipWhile(c => c != selected).Skip(1).FirstOrDefault(c => !Sheet.Plan.Reviewed.Contains(c.Id))
+                      ?? subs.FirstOrDefault(c => c != selected && !Sheet.Plan.Reviewed.Contains(c.Id));
+    PYear y = Sheet.Preview;
+    PQuery here = q with { Category = selected.Id };
+}
+<section class="csetup__main" aria-labelledby="setup-title" data-testid="setup-category">
+    @if (selected.ParentId is null)
+    {
+        <MnlHeading Level="2" id="setup-title">@selected.Name</MnlHeading>
+        <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Lines live in subcategories. Use the pencil beside one of its subcategories, or add one here.</MnlText>
+        <PlanCategoryEditor Sheet="Sheet" Category="selected" Back="@here.Href" />
+    }
+    else
+    {
+        List<PLine> lines = [.. Sheet.LinesIn(selected.Id)];
+        List<PLine> monthly = [.. lines.Where(l => l.Type != ProtoLineType.Event)];
+        List<PLine> events = [.. lines.Where(l => l.Type == ProtoLineType.Event)];
+        int from = Sheet.Plan.Current;
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlEyebrow>@y.Path(selected.Id)</MnlEyebrow>
+                <MnlHeading Level="2" id="setup-title">@selected.Name</MnlHeading>
+            </MnlStack>
+            @if (next is not null)
+            {
+                <MnlButton Href="@q.WithCategory(next.Id)" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.ChevronRight">Skip to @next.Name</MnlButton>
+            }
+        </MnlCluster>
+
+        <form method="post" action="/budgets/prototype/plan/act" class="csetup__form" data-testid="setup-form">
+            <PlanHidden Sheet="Sheet" Op="setup-save" Back="@(next is null ? here.Href : q.WithCategory(next.Id))" />
+            <input type="hidden" name="category" value="@selected.Id" />
+            <MnlFormField Label="Amounts apply from" For="setup-from" Hint="Each changed amount becomes a dated change from this month">
+                <MnlSelect Name="month" Id="setup-from" Value="@from.ToString()" Options="Sheet.MonthOptions()" />
+            </MnlFormField>
+
+            @if (monthly.Count == 0)
+            {
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">No monthly lines here yet.</MnlText>
+            }
+            else
+            {
+                <table class="csetup__table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Line</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">A month</th>
+                            <th scope="col">Also shaped by</th>
+                            <th scope="col"><span class="mnl-visually-hidden">Adjust</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (PLine line in monthly)
+                        {
+                            PLine l = line;
+                            <tr data-selected="@(q.Line == l.Id ? "true" : null)">
+                                <th scope="row">@l.Name</th>
+                                <td>@PFormat.Type(l.Type)</td>
+                                <td>
+                                    <input type="hidden" name="lineId" value="@l.Id" />
+                                    <MnlAmountInput Name="lineAmount" Id="@($"amt-{l.Id}")" Value="@Sheet.Preview.BaselineAt(l, from)" aria-label="@($"{l.Name}, a month")" />
+                                </td>
+                                <td class="csetup__layers">@Layers(l)</td>
+                                <td><a href="@(q.Line == l.Id ? here.WithLine(null) : here.WithLine(l.Id))" aria-expanded="@(q.Line == l.Id ? "true" : "false")">Adjust</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            <MnlCluster Gap="MnlGap.Sm">
+                <MnlButton Type="MnlButtonType.Submit" Icon="MnlIconName.Check">
+                    @(Sheet.Target is null ? "Save and mark done" : $"Add to \"{Sheet.Target.Name}\" and mark done")
+                </MnlButton>
+                @if (next is not null)
+                {
+                    <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Then on to @next.Name.</MnlText>
+                }
+            </MnlCluster>
+        </form>
+
+        @if (Sheet.Line is PLine adjusting && adjusting.CategoryId == selected.Id)
+        {
+            <section class="csetup__adjust" aria-label="@($"Adjust {adjusting.Name}")">
+                <MnlHeading Level="3">Adjust @adjusting.Name</MnlHeading>
+                <PlanChangeForm Sheet="Sheet" Line="adjusting" CloseHref="@here.WithLine(null)" Current="@(adjusting.Type == ProtoLineType.Event ? null : Sheet.Preview.BaselineAt(adjusting, from))" />
+            </section>
+        }
+
+        @if (events.Count > 0)
+        {
+            <section class="csetup__events" aria-labelledby="events-title">
+                <MnlHeading Level="3" id="events-title">Event lines</MnlHeading>
+                <ul>
+                    @foreach (PLine line in events)
+                    {
+                        PLine l = line;
+                        <li>
+                            <strong>@l.Name</strong>
+                            <span>@(l.Events.Count == 0 ? "Nothing planned" : string.Join(", ", l.Events.OrderBy(e => e.Key).Select(e => $"{PFormat.Money(e.Value)} in {PFormat.MonthLong(e.Key)}")))</span>
+                            <a href="@(q.Line == l.Id ? here.WithLine(null) : here.WithLine(l.Id))">Set a month</a>
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+
+        <MnlDisclosure Open="false">
+            <Summary>Add a line, or rename, move or remove @selected.Name</Summary>
+            <ChildContent>
+                <PlanCategoryEditor Sheet="Sheet" Category="selected" Back="@here.Href" />
+            </ChildContent>
+        </MnlDisclosure>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public PCategory Category { get; set; } = null!;
+
+    private string Layers(PLine l)
+    {
+        List<string> parts = [];
+        parts.AddRange(l.Dated.Skip(1).Select(d => $"{PFormat.Money(d.Amount)} from {PFormat.Month(d.From)}"));
+        parts.AddRange(l.Yearly.Select(x => $"yearly {PFormat.Change(x.Value, x.Kind)} in {PFormat.Month(x.Month)}"));
+        parts.AddRange(l.Seasonal.Select(x => $"seasonal {PFormat.Change(x.Value, x.Kind)} {PFormat.Months(x.Months)}"));
+        parts.AddRange(l.Conditional.Select(x => $"{PFormat.Change(x.Value, x.Kind)} once \"{Sheet.Plan.Triggers.FirstOrDefault(t => t.Id == x.TriggerId)?.Name}\""));
+        parts.AddRange(l.Overrides.Select(o => $"override {PFormat.Money(o.Value)} in {PFormat.Month(o.Key)}"));
+        return parts.Count == 0 ? "Nothing else" : string.Join("; ", parts);
+    }
+}

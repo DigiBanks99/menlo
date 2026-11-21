@@ -1,0 +1,65 @@
+.csetup__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-4);
+}
+
+.csetup__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-3);
+}
+
+.csetup__table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--mnl-text-sm);
+}
+
+.csetup__table th,
+.csetup__table td {
+    text-align: start;
+    padding: var(--mnl-space-2);
+    border-block-end: 1px solid var(--mnl-border-subtle);
+    vertical-align: middle;
+}
+
+.csetup__table thead th {
+    font-size: var(--mnl-text-xs);
+    color: var(--mnl-subtext);
+}
+
+.csetup__table tr[data-selected="true"] {
+    background: var(--mnl-accent-soft);
+}
+
+.csetup__layers {
+    font-size: var(--mnl-text-xs);
+    color: var(--mnl-subtext);
+    max-inline-size: 22rem;
+}
+
+.csetup__adjust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-2);
+    padding: var(--mnl-space-3);
+    border: 2px solid var(--mnl-accent);
+    border-radius: var(--mnl-radius-md);
+}
+
+.csetup__events ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    font-size: var(--mnl-text-sm);
+}
+
+.csetup__events li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-3);
+}

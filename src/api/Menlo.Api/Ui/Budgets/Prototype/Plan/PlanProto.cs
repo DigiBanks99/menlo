@@ -47,6 +47,9 @@ public sealed class PLine
     /// <summary>What was committed for each month. Frozen months show this and are never rewritten.</summary>
     public decimal[] Stored { get; set; } = new decimal[12];
 
+    /// <summary>What was spent or received. Future months have none.</summary>
+    public decimal?[] Actual { get; set; } = new decimal?[12];
+
     public PLine Clone() => new()
     {
         Id = Id,
@@ -63,7 +66,8 @@ public sealed class PLine
         Conditional = [.. Conditional],
         Overrides = new(Overrides),
         Events = new(Events),
-        Stored = [.. Stored]
+        Stored = [.. Stored],
+        Actual = [.. Actual]
     };
 }
 
@@ -234,6 +238,16 @@ public sealed class PYear
     public IEnumerable<PCategory> Tops => Categories.Where(c => c.ParentId is null);
 
     public IEnumerable<PCategory> Children(string id) => Categories.Where(c => c.ParentId == id);
+
+    public PCategory TopOf(string categoryId)
+    {
+        PCategory c = Categories.First(x => x.Id == categoryId);
+        return c.ParentId is null ? c : Categories.First(x => x.Id == c.ParentId);
+    }
+
+    public bool IsPreTax(PLine line) => TopOf(line.CategoryId).Id == "pretax";
+
+    public bool IsRentalIncome(PLine line) => line.Income && line.CategoryId == "rental";
 
     public string Path(string categoryId)
     {
@@ -412,6 +426,8 @@ public static class PlanStore
         Cat("income", "Income");
         Cat("salaries", "Salaries", "income");
         Cat("rental", "Rental", "income");
+        Cat("pretax", "Pre-tax deductions");
+        Cat("retirement", "Retirement", "pretax");
         Cat("home", "Home");
         Cat("utilities", "Utilities", "home");
         Cat("maintenance", "Maintenance", "home");
@@ -444,6 +460,9 @@ public static class PlanStore
             .Conditional.Add(new PConditional("tenant", 6_000, PKind.Rand));
         L("recovery", "Utility recovery", "rental", ProtoLineType.Variable, 0, income: true, shareA: 100)
             .Conditional.Add(new PConditional("tenant", 700, PKind.Rand));
+
+        L("pension-a", "Pension (Member A)", "retirement", ProtoLineType.Fixed, 3_000, who: "a", shareA: 100);
+        L("pension-b", "Pension (Member B)", "retirement", ProtoLineType.Fixed, 2_500, who: "b", shareA: 0);
 
         PLine electricity = L("electricity", "Electricity", "utilities", ProtoLineType.Variable, 1_800, shareA: 60);
         electricity.Yearly.Add(new PYearly(6, 12, PKind.Percent));
@@ -481,6 +500,8 @@ public static class PlanStore
             }
         }
 
+        SeedActuals(y);
+
         y.Proposals.Add(new PProposal
         {
             Id = "holiday",
@@ -492,6 +513,41 @@ public static class PlanStore
         y.Proposals.Add(new PProposal { Id = "fuel-up", Name = "Raise the fuel allowance", Edits = [new DatedEdit("fuel", 7, 3_300)] });
 
         return new Dictionary<int, PYear> { [FirstYear] = y };
+    }
+
+    // Made-up actuals for January to June and part of July, like the views prototype's: fixed lines paid as
+    // planned (insurance went up in April without a committed change), variable lines swinging around their allowance.
+    private static void SeedActuals(PYear y)
+    {
+        int now = y.Current;
+        foreach (PLine line in y.Lines)
+        {
+            int seed = line.Id.Sum(c => c) % 13;
+            for (int m = 0; m <= now; m++)
+            {
+                decimal planned = line.Stored[m];
+                line.Actual[m] = line.Type switch
+                {
+                    ProtoLineType.Variable when m < now => Math.Round(planned * (1 + ((((seed * 31) + (m * 17)) % 25) - 10) / 100m), 0),
+                    ProtoLineType.Variable => Math.Round(planned * 0.45m, 0),
+                    ProtoLineType.Provision => 0,
+                    _ when m < now => planned,
+                    _ => line.Id is "rates" or "school-fees" or "security" ? planned : 0
+                };
+            }
+        }
+
+        decimal?[] Set(string id, params decimal[] values)
+        {
+            PLine l = y.Line(id);
+            for (int m = 0; m < values.Length; m++) l.Actual[m] = values[m];
+            return l.Actual;
+        }
+
+        Set("maintenance", 0, 3_200, 0, 0, 4_500, 0, 0);
+        Set("fuel", 2_850, 3_100, 2_950, 3_300, 3_450, 3_600, 1_500);
+        Set("insurance", 1_200, 1_200, 1_200, 1_350, 1_350, 1_350, 1_350);
+        Set("car-service", 0, 0, 4_600, 0, 0, 0, 0);
     }
 
     /// <summary>
@@ -520,6 +576,7 @@ public static class PlanStore
             PLine n = line.Clone();
             n.Overrides = [];
             n.Stored = new decimal[12];
+            n.Actual = new decimal?[12];
             if (line.Type != ProtoLineType.Event)
             {
                 decimal baseline = from.BaselineAt(line, 11);

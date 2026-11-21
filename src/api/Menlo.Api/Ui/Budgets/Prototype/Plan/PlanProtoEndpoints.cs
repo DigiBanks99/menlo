@@ -6,16 +6,48 @@ namespace Menlo.Api.Ui.Budgets.Prototype.Plan;
 
 // PROTOTYPE (#658): the URL state, the page model and one POST that applies every change.
 
-public sealed record PQuery(string Variant, int Year, string Target, string? Line, int? Month, string? Category, string? Edit)
+public sealed record PQuery(string Variant, int Year, string Target, string? Line, int? Month, string? Category, string? Edit,
+    string View = "household", int Period = PQuery.YearPeriod, IReadOnlyList<string>? Open = null, string Filter = "all", string Who = "all",
+    string? Panel = null)
 {
+    public const int YearPeriod = -1;
+
     public static readonly (string Key, string Name)[] Variants =
     [
-        ("A", "Edit in the grid"), ("B", "Line panel"), ("C", "Set up by category")
+        ("A", "Edit in the grid"), ("B", "Edit in the rail"), ("C", "Set up by category")
+    ];
+
+    /// <summary>The side-rail sections, in rail order. "line" and "category" only show when one is open (variant B).</summary>
+    public static readonly (string Key, string Label)[] Panels =
+    [
+        ("line", "Line"), ("category", "Category"), ("setup", "Set up the year"), ("proposals", "Proposals"), ("triggers", "Triggers"),
+        ("year", "Year"), ("filters", "Filters"), ("views", "Whose budget"), ("key", "How to read the grid")
+    ];
+
+    public static readonly (string Key, string Label)[] Views =
+    [
+        ("household", "Household"), ("a", "Member A"), ("b", "Member B"), ("rental", "Rental unit")
+    ];
+
+    public static readonly (string Key, string Label)[] Filters =
+    [
+        ("all", "All"), ("over", "Over plan"), ("with", "With lines"), ("without", "Without lines")
+    ];
+
+    public static readonly (string Key, string Label)[] Beneficiaries =
+    [
+        ("all", "Everyone"), ("household", "Household"), ("a", "Member A"), ("b", "Member B"), ("child", "Child")
     ];
 
     public string VariantName => Variants.FirstOrDefault(v => v.Key == Variant).Name ?? Variant;
 
+    public string ViewLabel => Views.First(v => v.Key == View).Label;
+
     public bool InProposal => Target != "plan";
+
+    public bool IsYear => Period == YearPeriod;
+
+    public IReadOnlyList<string> Opened => Open ?? [];
 
     public static PQuery From(HttpRequest request)
     {
@@ -24,11 +56,17 @@ public sealed record PQuery(string Variant, int Year, string Target, string? Lin
         int year = int.TryParse(q["year"], out int y) && PlanStore.Years.ContainsKey(y) ? y : PlanStore.FirstYear;
         PYear py = PlanStore.Get(year);
         string target = py.Proposals.Any(p => p.Id == q["target"]) ? q["target"].ToString() : "plan";
-        string? line = py.Lines.Any(l => l.Id == q["line"]) ? q["line"].ToString() : null;
+        string? line = py.Lines.Any(l => l.Id == q["line"]) || py.Proposals.SelectMany(p => p.Edits).Any(e => e.LineId == q["line"]) ? q["line"].ToString() : null;
         int? month = int.TryParse(q["month"], out int m) && m is >= 0 and <= 11 ? m : null;
         string? category = py.Categories.Any(c => c.Id == q["cat"]) ? q["cat"].ToString() : null;
         string? edit = string.IsNullOrEmpty(q["edit"]) ? null : q["edit"].ToString();
-        return new PQuery(variant, year, target, line, month, category, edit);
+        string view = Views.Any(v => v.Key == q["view"]) ? q["view"].ToString() : "household";
+        int period = int.TryParse(q["period"], out int pm) && pm is >= YearPeriod and <= 11 ? pm : YearPeriod;
+        string filter = Filters.Any(f => f.Key == q["filter"]) ? q["filter"].ToString() : "all";
+        string who = Beneficiaries.Any(b => b.Key == q["who"]) ? q["who"].ToString() : "all";
+        IReadOnlyList<string> open = [.. q["open"].Where(s => !string.IsNullOrEmpty(s)).Select(s => s!).Distinct()];
+        string? panel = Panels.Any(x => x.Key == q["panel"]) ? q["panel"].ToString() : null;
+        return new PQuery(variant, year, target, line, month, category, edit, view, period, open, filter, who, panel);
     }
 
     public string Href
@@ -37,27 +75,51 @@ public sealed record PQuery(string Variant, int Year, string Target, string? Lin
         {
             List<string> parts = [$"variant={Variant}", $"year={Year}"];
             if (Target != "plan") parts.Add($"target={Target}");
+            if (View != "household") parts.Add($"view={View}");
+            if (Period != YearPeriod) parts.Add($"period={Period}");
+            if (Filter != "all") parts.Add($"filter={Filter}");
+            if (Who != "all") parts.Add($"who={Who}");
+            parts.AddRange(Opened.Select(o => $"open={Uri.EscapeDataString(o)}"));
             if (Line is not null) parts.Add($"line={Line}");
             if (Month is not null) parts.Add($"month={Month}");
             if (Category is not null) parts.Add($"cat={Category}");
             if (Edit is not null) parts.Add($"edit={Uri.EscapeDataString(Edit)}");
+            if (Panel is not null) parts.Add($"panel={Panel}");
             return "/budgets/prototype/plan?" + string.Join('&', parts);
         }
     }
 
-    public PQuery Closed => this with { Line = null, Month = null, Edit = null };
+    /// <summary>No line, cell or category open.</summary>
+    public PQuery Closed => this with { Line = null, Month = null, Edit = null, Category = null, Panel = Panel is "line" or "category" ? null : Panel };
 
-    public string WithVariant(string v) => (this with { Variant = v, Line = null, Month = null, Edit = null }).Href;
+    /// <summary>The same state with the side rail shut: for links outside the rail.</summary>
+    public PQuery Shut => this with { Panel = null };
+
+    public string WithVariant(string v) => (this with { Variant = v, Line = null, Month = null, Edit = null, Category = null, Panel = null }).Href;
 
     public string WithTarget(string t) => (this with { Target = t }).Href;
 
-    public string Cell(string line, int month) => (this with { Line = line, Month = month, Edit = null }).Href;
+    public string Cell(string line, int month) => (this with { Line = line, Month = month, Edit = null, Category = null, Panel = null }).Href;
 
     public string WithLine(string? line) => (this with { Line = line, Month = null, Edit = null }).Href;
 
-    public string WithCategory(string category) => (this with { Category = category, Edit = null }).Href;
+    public string WithCategory(string category) => (this with { Category = category, Edit = null, Line = null, Month = null }).Href;
 
-    public string Editing(string what) => (this with { Edit = what }).Href;
+    public string Editing(string what) => (this with { Edit = what, Line = null, Month = null }).Href;
+
+    public string WithPanel(string panel) => (this with { Panel = panel }).Href;
+
+    public string WithView(string view) => (this with { View = view }).Href;
+
+    public string WithPeriod(int period) => (this with { Period = period }).Href;
+
+    public string WithFilter(string filter) => (this with { Filter = filter }).Href;
+
+    public string WithWho(string who) => (this with { Who = who }).Href;
+
+    public bool IsOpen(string key) => Opened.Contains(key);
+
+    public string ToggleOpen(string key) => (this with { Open = IsOpen(key) ? [.. Opened.Where(o => o != key)] : [.. Opened, key] }).Href;
 }
 
 /// <summary>Everything the page renders: the year as committed, and the preview with proposals on.</summary>
@@ -105,6 +167,11 @@ public sealed record PSheet(PQuery Query, PYear Plan, PYear Preview, PProposal? 
     public string SaveLabel => Target is null ? "Save and commit" : $"Add to \"{Target.Name}\"";
 
     public IEnumerable<PLine> LinesIn(string categoryId) => Preview.Lines.Where(l => l.CategoryId == categoryId);
+
+    /// <summary>The grid as the views prototype (#596) shows it, built from this year.</summary>
+    public PBoard Board => board ??= PBoard.Build(this);
+
+    private PBoard? board;
 }
 
 internal static class PlanProtoEndpoints

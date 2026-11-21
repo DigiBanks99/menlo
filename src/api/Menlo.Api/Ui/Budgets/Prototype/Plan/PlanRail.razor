@@ -1,0 +1,360 @@
+@*
+    PROTOTYPE (#658): the views prototype's (#596) side rail, with the plan's tools added. Proposals now stage
+    changes as well as preview them; triggers, the year (copy, reset) and, in variant C, the set-up checklist
+    get their own sections. In variant B the open line or category is a section too. The panel folds away when
+    the pointer leaves it, unless something in it has focus (plan-rail.js).
+*@
+@{
+    PQuery q = Sheet.Query;
+    PYear y = Sheet.Plan;
+    (string Key, string Label)[] panels = [.. PQuery.Panels.Where(p => p.Key switch
+    {
+        "line" => q.Variant == "B" && Sheet.Line is not null,
+        "category" => q.Variant == "B" && EditingCategory is not null,
+        "setup" => q.Variant == "C",
+        _ => true
+    })];
+    List<PCategory> subs = [.. Sheet.Preview.Tops.SelectMany(t => Sheet.Preview.Children(t.Id))];
+}
+<div class="rail-host" data-plan-rail data-open="@(q.Panel is null ? "false" : "true")" data-wide="@(q.Panel is "line" or "category" ? "true" : "false")" data-testid="plan-rail">
+    <nav class="rail" aria-label="Budget tools">
+        @foreach ((string key, string label) in panels)
+        {
+            string k = key;
+            int count = k switch
+            {
+                "proposals" => y.Proposals.Count(p => p.On) + (Sheet.Target is { On: false } ? 1 : 0),
+                "filters" => (q.Filter == "all" ? 0 : 1) + (q.Who == "all" ? 0 : 1),
+                "setup" => subs.Count - subs.Count(c => y.Reviewed.Contains(c.Id)),
+                _ => 0
+            };
+            <a class="rail__icon" href="@q.WithPanel(k)" data-plan-rail-open="@k" data-section="@k"
+               aria-expanded="@(q.Panel == k ? "true" : "false")" aria-controls="rail-@k" title="@label">
+                <MnlIcon Name="@Icon(k)" Size="MnlSize.Md" />
+                <span class="mnl-visually-hidden">@label</span>
+                @if (count > 0)
+                {
+                    <span class="rail__count" aria-label="@($"{count}")">@count</span>
+                }
+            </a>
+        }
+    </nav>
+
+    <div class="rail__flyout" role="region" aria-label="Budget tools panel">
+        @foreach ((string key, string label) in panels)
+        {
+            string k = key;
+            <details class="rail__section" id="rail-@k" data-plan-rail-section="@k" open="@(q.Panel == k)">
+                <summary>
+                    <MnlIcon Name="@Icon(k)" Size="MnlSize.Sm" />
+                    @(k switch { "line" => Sheet.Line!.Name, "category" => EditingCategory!.Name, _ => label })
+                </summary>
+                <div class="rail__body">
+                    @switch (k)
+                    {
+                        case "line":
+                            <PlanLinePanel Sheet="Sheet" />
+                            break;
+                        case "category":
+                            <PlanCategoryEditor Sheet="Sheet" Category="EditingCategory!" Back="@q.Closed.Href" />
+                            break;
+                        case "setup":
+                            @SetupList(subs)
+                            break;
+                        case "proposals":
+                            @Proposals()
+                            break;
+                        case "triggers":
+                            @Triggers()
+                            break;
+                        case "year":
+                            @Year()
+                            break;
+                        case "filters":
+                            <MnlSegmented Label="Lines" Value="@q.Filter"
+                                          Segments="@([.. PQuery.Filters.Select(f => new MnlSegment(f.Key, f.Label, (q with { Filter = f.Key }).Href))])" />
+                            <MnlSegmented Label="Who it is for" Value="@q.Who"
+                                          Segments="@([.. PQuery.Beneficiaries.Select(b => new MnlSegment(b.Key, b.Label, (q with { Who = b.Key }).Href))])" />
+                            <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Net always counts every line, whatever the filters.</MnlText>
+                            break;
+                        case "views":
+                            <ul class="rail__views">
+                                @foreach (BViewNet view in Sheet.Board.Views)
+                                {
+                                    BViewNet v = view;
+                                    <li>
+                                        <a href="@q.WithView(v.Key)" aria-current="@(v.Key == q.View ? "true" : null)">
+                                            <span>@v.Label</span>
+                                            <span class="rail__views-net">
+                                                Net @ProtoFormat.Money(v.Preview)
+                                                @if (v.Actual is not null && (q.IsYear || q.Period <= y.Current))
+                                                {
+                                                    <small>actual @ProtoFormat.Money(v.Actual)</small>
+                                                }
+                                            </span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                            break;
+                        default:
+                            @Key()
+                            break;
+                    }
+                </div>
+            </details>
+        }
+    </div>
+
+    <div class="rail-host__content">
+        @ChildContent
+    </div>
+</div>
+<script src="/prototype/plan-rail.js" defer></script>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+
+    private PCategory? EditingCategory => Sheet.Query.Edit?.StartsWith("cat:", StringComparison.Ordinal) == true
+        ? Sheet.Preview.Categories.FirstOrDefault(c => "cat:" + c.Id == Sheet.Query.Edit)
+        : null;
+
+    private static MnlIconName Icon(string key) => key switch
+    {
+        "line" => MnlIconName.Wallet,
+        "category" => MnlIconName.ChevronDown,
+        "setup" => MnlIconName.CircleCheck,
+        "proposals" => MnlIconName.Pencil,
+        "triggers" => MnlIconName.CircleAlert,
+        "year" => MnlIconName.ArrowUpRight,
+        "filters" => MnlIconName.Search,
+        "views" => MnlIconName.House,
+        _ => MnlIconName.Info
+    };
+
+    private RenderFragment SetupList(List<PCategory> subs) => __builder =>
+    {
+        PQuery q = Sheet.Query;
+        PYear y = Sheet.Preview;
+        int done = subs.Count(c => Sheet.Plan.Reviewed.Contains(c.Id));
+        <div class="rail__progress">
+            <strong>@done of @subs.Count set up</strong>
+            <MnlProgress Value="@done" Max="@Math.Max(subs.Count, 1)" Label="Categories set up" />
+        </div>
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Pick one to open its form in the grid. Saving it marks it set up.</MnlText>
+        <ul class="rail__checklist">
+            @foreach (PCategory top in y.Tops)
+            {
+                PCategory t = top;
+                <li>
+                    <span class="rail__checklist-top">@t.Name</span>
+                    <ul>
+                        @foreach (PCategory child in y.Children(t.Id))
+                        {
+                            PCategory c = child;
+                            bool isDone = Sheet.Plan.Reviewed.Contains(c.Id);
+                            <li>
+                                <a href="@q.Shut.WithCategory(c.Id)" aria-current="@(q.Category == c.Id ? "true" : null)">
+                                    <span class="rail__tick" aria-hidden="true">@(isDone ? "✓" : "")</span>
+                                    @c.Name
+                                    <span class="rail__checklist-count">@y.Lines.Count(l => l.CategoryId == c.Id)</span>
+                                    @if (isDone)
+                                    {
+                                        <span class="mnl-visually-hidden">(set up)</span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+        </ul>
+    };
+
+    private RenderFragment Proposals() => __builder =>
+    {
+        PQuery q = Sheet.Query;
+        PYear y = Sheet.Plan;
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">
+            Switch a proposal on to see it in the grid. Work on one to stage changes in it instead of committing them.
+        </MnlText>
+        <ul class="rail__proposals">
+            @foreach (PProposal proposal in y.Proposals)
+            {
+                PProposal p = proposal;
+                bool on = p.On;
+                bool working = Sheet.Target == p;
+                string? reason = Sheet.Conflicts[p.Id];
+                decimal effect = Sheet.Effects[p.Id];
+                <li class="rail__proposal" data-state="@(working ? "working" : on ? "on" : reason is null ? "off" : "blocked")">
+                    <form method="post" action="/budgets/prototype/plan/act">
+                        <PlanHidden Sheet="Sheet" Op="proposal-toggle" Direct="true" />
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <button type="submit" class="rail__toggle" aria-pressed="@(on ? "true" : "false")">
+                            <span class="rail__switch" aria-hidden="true"></span>
+                            <span class="rail__proposal-name">@p.Name</span>
+                        </button>
+                    </form>
+                    <span class="rail__proposal-effect" data-tone="@(effect >= 0 ? "success" : "warning")">Net @ProtoFormat.Delta(effect) for the year</span>
+                    @if (reason is not null)
+                    {
+                        <span class="rail__blocked" role="note">Blocked. @reason</span>
+                    }
+                    @if (p.Edits.Count == 0)
+                    {
+                        <span class="rail__proposal-summary">No changes yet.</span>
+                    }
+                    else
+                    {
+                        <ol class="rail__edits">
+                            @for (int i = 0; i < p.Edits.Count; i++)
+                            {
+                                int index = i;
+                                <li>
+                                    <span>@p.Edits[index].Describe(Sheet.Preview)</span>
+                                    @if (working)
+                                    {
+                                        <form method="post" action="/budgets/prototype/plan/act">
+                                            <PlanHidden Sheet="Sheet" Op="proposal-remove-edit" Direct="true" />
+                                            <input type="hidden" name="id" value="@p.Id" />
+                                            <input type="hidden" name="index" value="@index" />
+                                            <button type="submit" class="rail__x" aria-label="Take this change out" title="Take it out">×</button>
+                                        </form>
+                                    }
+                                </li>
+                            }
+                        </ol>
+                    }
+                    <div class="rail__actions">
+                        @if (working)
+                        {
+                            <MnlButton Href="@q.WithTarget("plan")" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Stop working on it</MnlButton>
+                        }
+                        else
+                        {
+                            <MnlButton Href="@q.WithTarget(p.Id)" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Pencil">Work on it</MnlButton>
+                        }
+                        @if (on || working)
+                        {
+                            <form method="post" action="/budgets/prototype/plan/act">
+                                <PlanHidden Sheet="Sheet" Op="proposal-commit" Direct="true" />
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm" Disabled="@(p.Edits.Count == 0)">Commit</MnlButton>
+                            </form>
+                        }
+                        <form method="post" action="/budgets/prototype/plan/act">
+                            <PlanHidden Sheet="Sheet" Op="proposal-drop" Direct="true" />
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Drop</MnlButton>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+        <form method="post" action="/budgets/prototype/plan/act" class="rail__form">
+            <PlanHidden Sheet="Sheet" Op="proposal-new" Direct="true" />
+            <MnlFormField Label="New proposal" For="proposal-name" Hint="You'll be working on it straight away">
+                <MnlInput Name="name" Id="proposal-name" Placeholder="e.g. New car in October" />
+            </MnlFormField>
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Start a proposal</MnlButton>
+        </form>
+    };
+
+    private RenderFragment Triggers() => __builder =>
+    {
+        PYear y = Sheet.Plan;
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Moving a trigger moves every conditional change tied to it. It can't move into a frozen month.</MnlText>
+        <ul class="rail__proposals">
+            @foreach (PTrigger trigger in y.Triggers)
+            {
+                PTrigger t = trigger;
+                List<string> tied = [.. y.Lines.Where(l => l.Conditional.Any(c => c.TriggerId == t.Id)).Select(l => l.Name)];
+                <li class="rail__proposal">
+                    <strong>@t.Name</strong>
+                    <span class="rail__proposal-summary">
+                        @(t.Realized ? "Realized" : "Expected") @PFormat.MonthLong(t.Expected).
+                        @(tied.Count == 0 ? "No lines change with it yet." : $"Changes {string.Join(", ", tied)}.")
+                    </span>
+                    @if (!t.Realized)
+                    {
+                        <form method="post" action="/budgets/prototype/plan/act" class="rail__inline">
+                            <PlanHidden Sheet="Sheet" Op="trigger-move" Direct="true" />
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <MnlSelect Name="month" Id="@($"move-{t.Id}")" Value="@t.Expected.ToString()" Options="Sheet.MonthOptions()" aria-label="@($"Expected month for {t.Name}")" />
+                            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Move</MnlButton>
+                        </form>
+                        <form method="post" action="/budgets/prototype/plan/act">
+                            <PlanHidden Sheet="Sheet" Op="trigger-realize" Direct="true" />
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Check">It happened</MnlButton>
+                        </form>
+                    }
+                </li>
+            }
+        </ul>
+        <form method="post" action="/budgets/prototype/plan/act" class="rail__form">
+            <PlanHidden Sheet="Sheet" Op="trigger-add" Direct="true" />
+            <MnlFormField Label="New trigger" For="trigger-name" Hint="Then tie conditional changes to it from a line">
+                <MnlInput Name="name" Id="trigger-name" Placeholder="e.g. Tenant moves out" />
+            </MnlFormField>
+            <MnlFormField Label="Expected" For="trigger-month">
+                <MnlSelect Name="month" Id="trigger-month" Options="Sheet.MonthOptions()" />
+            </MnlFormField>
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add trigger</MnlButton>
+        </form>
+    };
+
+    private RenderFragment Year() => __builder =>
+    {
+        PQuery q = Sheet.Query;
+        PYear y = Sheet.Plan;
+        if (PlanStore.Years.Count > 1)
+        {
+            <MnlSegmented Label="Year" Value="@y.Year.ToString()"
+                          Segments="@([.. PlanStore.Years.Keys.Order().Select(k => new MnlSegment(k.ToString(), k.ToString(), (q.Closed with { Year = k, Target = "plan", Period = PQuery.YearPeriod }).Href))])" />
+        }
+        <MnlButton Href="@($"/budgets/prototype/plan/copy?variant={q.Variant}&year={y.Year}")" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.ArrowUpRight" data-testid="year-copy">
+            Copy to @(y.Year + 1)
+        </MnlButton>
+        <form method="post" action="/budgets/prototype/plan/act" class="rail__form">
+            <PlanHidden Sheet="Sheet" Op="cat-add" Direct="true" />
+            <MnlFormField Label="New category" For="rail-top" Hint="Add subcategories and lines with its pencil">
+                <MnlInput Name="name" Id="rail-top" Placeholder="e.g. Pets" />
+            </MnlFormField>
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add category</MnlButton>
+        </form>
+        <form method="post" action="/budgets/prototype/plan/act">
+            <PlanHidden Sheet="Sheet" Op="reset" />
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Trash">Reset the prototype's data</MnlButton>
+        </form>
+    };
+
+    private static RenderFragment Key() => __builder =>
+    {
+        <dl class="rail__key">
+            <dt><span class="rail__sample"><span>R 1 200</span><span class="rail__sample-actual">R 1 260</span></span></dt>
+            <dd>Each month cell: the <strong>planned</strong> amount on top, the <strong>actual</strong> below, coloured by how it compares. Future months have no actual yet.</dd>
+            <dt><span class="rail__chip" data-tone="success">R 1 260</span></dt>
+            <dd>On plan: within 2%.</dd>
+            <dt><span class="rail__chip" data-tone="warning">R 1 260</span></dt>
+            <dd>Worse than plan: spent more or earned less.</dd>
+            <dt><span class="rail__chip" data-tone="error">R 1 260</span></dt>
+            <dd>More than 15% worse than plan.</dd>
+            <dt><span class="rail__chip" data-tone="info">R 1 260</span></dt>
+            <dd>Better than plan.</dd>
+            <dt><span class="rail__mark" data-mark="D">D</span></dt>
+            <dd>A dated change starts here: the baseline changes from this month on.</dd>
+            <dt><span class="rail__mark" data-mark="Y">Y</span></dt>
+            <dd>A yearly change starts here, like a tariff increase. It's planned again every year.</dd>
+            <dt><span class="rail__mark" data-mark="S">S</span></dt>
+            <dd>A seasonal variation adds to the baseline in this month.</dd>
+            <dt><span class="rail__mark" data-mark="C">C</span></dt>
+            <dd>A conditional change: a trigger's expected or realized date has passed.</dd>
+            <dt><span class="rail__mark" data-mark="O">O</span></dt>
+            <dd>An override replaces the plan for this month only. Hover the cell for the calculated amount.</dd>
+            <dt><s>R 900</s></dt>
+            <dd>A proposal that's on, or being worked on, changes this cell; the new amount is shown below.</dd>
+        </dl>
+    };
+}
