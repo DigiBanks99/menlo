@@ -1,0 +1,86 @@
+@*
+    PROTOTYPE (#658): where changes go. "The plan" commits each change straight away, from the current
+    month on. Picking a proposal stages changes in it instead; it's previewed in the grid and committed as a whole.
+*@
+@{
+    PQuery q = Sheet.Query;
+    PProposal? t = Sheet.Target;
+}
+<section class="working" data-target="@(t is null ? "plan" : "proposal")" aria-labelledby="working-title" data-testid="working-on">
+    <div class="working__row">
+        <span class="working__label" id="working-title">Changes go into</span>
+        <nav class="working__targets" aria-label="Where changes go">
+            <a href="@q.WithTarget("plan")" aria-current="@(t is null ? "true" : null)">
+                <MnlIcon Name="MnlIconName.Check" Size="MnlSize.Sm" /> The plan
+            </a>
+            @foreach (PProposal proposal in Sheet.Plan.Proposals)
+            {
+                PProposal p = proposal;
+                <a href="@q.WithTarget(p.Id)" aria-current="@(t == p ? "true" : null)">
+                    <MnlIcon Name="MnlIconName.Pencil" Size="MnlSize.Sm" /> @p.Name
+                    <span class="working__count">@p.Edits.Count</span>
+                </a>
+            }
+        </nav>
+        <form method="post" action="/budgets/prototype/plan/act" class="working__new">
+            <PlanHidden Sheet="Sheet" Op="proposal-new" Direct="true" />
+            <MnlInput Name="name" Id="proposal-name" Placeholder="New proposal name" aria-label="New proposal name" />
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">New proposal</MnlButton>
+        </form>
+    </div>
+
+    @if (t is null)
+    {
+        <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">
+            Saving a change commits it to the plan from @PFormat.MonthLong(Sheet.Plan.Current) onwards. Frozen months don't change.
+        </MnlText>
+    }
+    else
+    {
+        <div class="working__proposal">
+            <MnlText Size="MnlTextSize.Sm">
+                <strong>Working on "@t.Name".</strong> Changes are staged in it and shown in the grid with the old amount struck through.
+                Nothing is committed until you commit the proposal.
+            </MnlText>
+            @if (t.Edits.Count == 0)
+            {
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">No changes yet. Make one anywhere on the page.</MnlText>
+            }
+            else
+            {
+                <ol class="working__edits">
+                    @for (int i = 0; i < t.Edits.Count; i++)
+                    {
+                        int index = i;
+                        <li>
+                            <span>@t.Edits[index].Describe(Sheet.Preview)</span>
+                            <form method="post" action="/budgets/prototype/plan/act">
+                                <PlanHidden Sheet="Sheet" Op="proposal-remove-edit" Direct="true" />
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <input type="hidden" name="index" value="@index" />
+                                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.X" aria-label="Take this change out">Take out</MnlButton>
+                            </form>
+                        </li>
+                    }
+                </ol>
+            }
+            <MnlCluster Gap="MnlGap.Sm">
+                <form method="post" action="/budgets/prototype/plan/act">
+                    <PlanHidden Sheet="Sheet" Op="proposal-commit" Direct="true" />
+                    <input type="hidden" name="id" value="@t.Id" />
+                    <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm" Disabled="@(t.Edits.Count == 0)">Commit this proposal</MnlButton>
+                </form>
+                <form method="post" action="/budgets/prototype/plan/act">
+                    <PlanHidden Sheet="Sheet" Op="proposal-drop" Direct="true" />
+                    <input type="hidden" name="id" value="@t.Id" />
+                    <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Trash">Drop it</MnlButton>
+                </form>
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Net @PFormat.Change(Sheet.Effects[t.Id], PKind.Rand) for the year</MnlText>
+            </MnlCluster>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+}

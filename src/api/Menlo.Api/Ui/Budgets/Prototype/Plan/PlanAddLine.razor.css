@@ -1,0 +1,6 @@
+.addline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-2);
+    align-items: flex-end;
+}

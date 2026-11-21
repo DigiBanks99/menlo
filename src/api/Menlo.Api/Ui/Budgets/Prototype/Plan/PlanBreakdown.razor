@@ -1,0 +1,40 @@
+@* PROTOTYPE (#658): where one month's planned amount comes from, layer by layer. *@
+@{
+    PCalc c = Sheet.Preview.Calc(Line, Month);
+    bool frozen = Month < Sheet.Plan.Current;
+    PLine? committed = Sheet.Plan.Lines.FirstOrDefault(l => l.Id == Line.Id);
+}
+<div class="breakdown" data-testid="breakdown">
+    <MnlHeading Level="3">@Line.Name in @PFormat.MonthLong(Month): @PFormat.Money(frozen && committed is not null ? Sheet.Plan.Planned(committed, Month) : c.Amount)</MnlHeading>
+    @if (frozen)
+    {
+        <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Frozen. This is what was committed for @PFormat.MonthLong(Month), and it can't change. A change that was missed shows as variance.</MnlText>
+    }
+    else if (c.Steps.Count == 0)
+    {
+        <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Nothing planned in this month.</MnlText>
+    }
+    else
+    {
+        <ol class="breakdown__steps" aria-label="How the amount is made up">
+            @foreach (PStep step in c.Steps)
+            {
+                <li data-layer="@step.Layer">
+                    <span class="breakdown__layer">@step.Layer</span>
+                    <span>@step.What</span>
+                    <span class="breakdown__running">@PFormat.Money(step.Running)</span>
+                </li>
+            }
+        </ol>
+        @if (c.Overridden)
+        {
+            <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">The override stays in place if the layers beneath it change. Calculated: @PFormat.Money(c.Calculated).</MnlText>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public PLine Line { get; set; } = null!;
+    [Parameter, EditorRequired] public int Month { get; set; }
+}

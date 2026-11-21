@@ -1,0 +1,70 @@
+@*
+    PROTOTYPE (#658): rename, move or remove a category, and add a subcategory or a budget line to it.
+    Categories nest at most two deep, so only a subcategory moves, and lines only go into subcategories.
+*@
+@{
+    PYear y = Sheet.Plan;
+    bool top = Category.ParentId is null;
+    string id = Category.Id;
+}
+<div class="cated" data-testid="category-editor">
+    <MnlHeading Level="3">@(top ? "Category" : "Subcategory"): @Category.Name</MnlHeading>
+    <div class="cated__row">
+        <form method="post" action="/budgets/prototype/plan/act" class="cated__form">
+            <PlanHidden Sheet="Sheet" Op="cat-rename" Direct="true" Back="@Back" />
+            <input type="hidden" name="id" value="@id" />
+            <MnlFormField Label="Name" For="@($"rename-{id}")">
+                <MnlInput Name="name" Id="@($"rename-{id}")" Value="@Category.Name" />
+            </MnlFormField>
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Rename</MnlButton>
+        </form>
+
+        @if (!top)
+        {
+            <form method="post" action="/budgets/prototype/plan/act" class="cated__form">
+                <PlanHidden Sheet="Sheet" Op="cat-move" Direct="true" Back="@Back" />
+                <input type="hidden" name="id" value="@id" />
+                <MnlFormField Label="Move under" For="@($"move-{id}")">
+                    <MnlSelect Name="parent" Id="@($"move-{id}")" Value="@Category.ParentId" Options="@([.. y.Tops.Select(t => new MnlOption(t.Id, t.Name))])" />
+                </MnlFormField>
+                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Move</MnlButton>
+            </form>
+        }
+
+        <form method="post" action="/budgets/prototype/plan/act" class="cated__form">
+            <PlanHidden Sheet="Sheet" Op="cat-remove" Direct="true" Back="@Back" />
+            <input type="hidden" name="id" value="@id" />
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Trash">Remove</MnlButton>
+        </form>
+    </div>
+
+    @if (top)
+    {
+        <form method="post" action="/budgets/prototype/plan/act" class="cated__form">
+            <PlanHidden Sheet="Sheet" Op="cat-add" Direct="true" Back="@Back" />
+            <input type="hidden" name="parent" value="@id" />
+            <MnlFormField Label="New subcategory" For="@($"sub-{id}")">
+                <MnlInput Name="name" Id="@($"sub-{id}")" Placeholder="e.g. Insurance" />
+            </MnlFormField>
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add subcategory</MnlButton>
+        </form>
+    }
+    else
+    {
+        <PlanAddLine Sheet="Sheet" CategoryId="@id" Back="@Back" />
+    }
+
+    <form method="post" action="/budgets/prototype/plan/act" class="cated__form">
+        <PlanHidden Sheet="Sheet" Op="cat-add" Direct="true" Back="@Back" />
+        <MnlFormField Label="New top-level category" For="@($"top-{id}")">
+            <MnlInput Name="name" Id="@($"top-{id}")" Placeholder="e.g. Pets" />
+        </MnlFormField>
+        <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add category</MnlButton>
+    </form>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public PCategory Category { get; set; } = null!;
+    [Parameter] public string? Back { get; set; }
+}

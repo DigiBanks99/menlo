@@ -1,0 +1,45 @@
+@*
+    PROTOTYPE (#658) variant A, "Edit in the grid": click any month of a line. A row opens under the line with
+    where that month's amount comes from and one form for the change, already set to that month.
+    The pencil beside a category opens its editor in the same way.
+*@
+<MnlStack Gap="MnlGap.Sm">
+    <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">
+        Click a month of a line to change it. The pencil beside a category renames, moves or removes it, or adds a line.
+    </MnlText>
+    <PlanGrid Sheet="Sheet" CellLinks="true" Below="Editor" CategoryBelow="CategoryEditor" />
+</MnlStack>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+
+    private RenderFragment<PLine> Editor => line => __builder =>
+    {
+        if (Sheet.Query.Month is not int m)
+        {
+            return;
+        }
+
+        bool frozen = m < Sheet.Plan.Current;
+        decimal current = line.Type == ProtoLineType.Event ? line.Events.GetValueOrDefault(m) : Sheet.Preview.BaselineAt(line, m);
+        <div class="aedit" data-testid="cell-editor">
+            <PlanBreakdown Sheet="Sheet" Line="line" Month="m" />
+            @if (frozen)
+            {
+                <MnlCluster Gap="MnlGap.Sm">
+                    <MnlButton Href="@Sheet.Query.Cell(line.Id, Sheet.Plan.Current)" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Change it from @PFormat.MonthLong(Sheet.Plan.Current)</MnlButton>
+                    <MnlButton Href="@Sheet.Query.WithLine(null)" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Close</MnlButton>
+                </MnlCluster>
+            }
+            else
+            {
+                <PlanChangeForm Sheet="Sheet" Line="line" Month="m" Current="current" CloseHref="@Sheet.Query.WithLine(null)" />
+            }
+        </div>
+    };
+
+    private RenderFragment<PCategory> CategoryEditor => category => __builder =>
+    {
+        <PlanCategoryEditor Sheet="Sheet" Category="category" Back="@Sheet.Query.Closed.Href" />
+    };
+}

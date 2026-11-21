@@ -1,0 +1,81 @@
+@*
+    PROTOTYPE (#658): one form for every kind of change to a line. The owner picks what kind of change it is;
+    the fields for the others stay visible but are ignored. With Month set (variant A) the month is the cell's.
+*@
+@{
+    PYear y = Sheet.Plan;
+    bool ev = Line.Type == ProtoLineType.Event;
+    string m = Month?.ToString() ?? y.Current.ToString();
+    string monthName = Month is int mm ? PFormat.MonthLong(mm) : "the month you pick";
+    string p = $"cf-{Line.Id}-{Month}";
+}
+<form method="post" action="/budgets/prototype/plan/act" class="change" data-testid="change-form">
+    <PlanHidden Sheet="Sheet" Op="change" />
+    <input type="hidden" name="line" value="@Line.Id" />
+    @if (Month is not null)
+    {
+        <input type="hidden" name="month" value="@Month" />
+    }
+
+    <fieldset class="change__kinds">
+        <legend>What kind of change?</legend>
+        @if (ev)
+        {
+            <label><input type="radio" name="change" value="event" checked /> <span><strong>The amount in @monthName</strong> <small>an event line</small></span></label>
+        }
+        else
+        {
+            <label><input type="radio" name="change" value="dated" checked /> <span><strong>From @monthName onwards</strong> <small>a dated change to the baseline</small></span></label>
+            <label><input type="radio" name="change" value="override" /> <span><strong>Only in @monthName</strong> <small>an override, shown on the line</small></span></label>
+            <label><input type="radio" name="change" value="yearly" /> <span><strong>Every year in @monthName</strong> <small>a yearly change, like a tariff increase</small></span></label>
+            <label><input type="radio" name="change" value="seasonal" /> <span><strong>In the same months every year</strong> <small>a seasonal variation; back to the baseline after</small></span></label>
+            <label><input type="radio" name="change" value="conditional" /> <span><strong>Once something happens</strong> <small>a conditional change tied to a trigger</small></span></label>
+        }
+    </fieldset>
+
+    <div class="change__fields">
+        @if (Month is null)
+        {
+            <MnlFormField Label="Month" For="@($"{p}-month")">
+                <MnlSelect Name="month" Id="@($"{p}-month")" Value="@m" Options="Sheet.MonthOptions(fromCurrent: false)" />
+            </MnlFormField>
+        }
+        <MnlFormField Label="Amount" For="@($"{p}-amount")" Hint="@(ev ? "R 0 takes it out" : "Yearly, seasonal and conditional: the amount added, or a percentage")">
+            <MnlAmountInput Name="amount" Id="@($"{p}-amount")" Value="@Current" />
+        </MnlFormField>
+        @if (!ev)
+        {
+            <fieldset class="change__unit">
+                <legend>As</legend>
+                <label><input type="radio" name="valueKind" value="rand" checked /> Rand</label>
+                <label><input type="radio" name="valueKind" value="percent" /> Percent</label>
+            </fieldset>
+            <fieldset class="change__months">
+                <legend>Seasonal months</legend>
+                @for (int i = 0; i < 12; i++)
+                {
+                    int month = i;
+                    <label><input type="checkbox" name="months" value="@month" checked="@(month == Month)" /> @PFormat.Month(month)</label>
+                }
+            </fieldset>
+            <MnlFormField Label="Trigger" For="@($"{p}-trigger")" Hint="Add triggers under Triggers">
+                <MnlSelect Name="trigger" Id="@($"{p}-trigger")" Options="Sheet.TriggerOptions" Placeholder="-- Pick a trigger --" />
+            </MnlFormField>
+        }
+    </div>
+    <MnlCluster Gap="MnlGap.Sm">
+        <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm">@Sheet.SaveLabel</MnlButton>
+        @if (CloseHref is not null)
+        {
+            <MnlButton Href="@CloseHref" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Close</MnlButton>
+        }
+    </MnlCluster>
+</form>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public PLine Line { get; set; } = null!;
+    [Parameter] public int? Month { get; set; }
+    [Parameter] public decimal? Current { get; set; }
+    [Parameter] public string? CloseHref { get; set; }
+}

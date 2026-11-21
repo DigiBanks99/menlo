@@ -1,0 +1,40 @@
+.breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-2);
+}
+
+.breakdown__steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    font-size: var(--mnl-text-sm);
+}
+
+.breakdown__steps li {
+    display: grid;
+    grid-template-columns: 9.5rem 1fr auto;
+    gap: var(--mnl-space-2);
+    padding: var(--mnl-space-1) var(--mnl-space-2);
+    border-inline-start: 3px solid var(--mnl-border);
+    background: var(--mnl-surface-alt);
+    border-radius: var(--mnl-radius-sm);
+}
+
+.breakdown__steps li[data-layer="Override"] { border-color: var(--mnl-warning); }
+.breakdown__steps li[data-layer="Seasonal variation"] { border-color: var(--mnl-info); }
+.breakdown__steps li[data-layer="Yearly change"] { border-color: var(--mnl-success); }
+.breakdown__steps li[data-layer="Conditional change"] { border-color: var(--mnl-chart-3); }
+.breakdown__steps li[data-layer="Dated change"] { border-color: var(--mnl-accent); }
+
+.breakdown__layer {
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.breakdown__running {
+    font-variant-numeric: tabular-nums;
+    color: var(--mnl-subtext);
+}

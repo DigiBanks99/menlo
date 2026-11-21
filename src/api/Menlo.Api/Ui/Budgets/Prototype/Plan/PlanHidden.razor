@@ -1,0 +1,17 @@
+@* PROTOTYPE (#658): the fields every action form carries, so the server knows where to send the change and where to go back to. *@
+<input type="hidden" name="op" value="@Op" />
+<input type="hidden" name="back" value="@(Back ?? Sheet.Query.Href)" />
+<input type="hidden" name="year" value="@Sheet.Query.Year" />
+<input type="hidden" name="variant" value="@Sheet.Query.Variant" />
+@if (Sheet.Target is not null && !Direct)
+{
+    <input type="hidden" name="target" value="@Sheet.Target.Id" />
+}
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public string Op { get; set; } = "";
+    [Parameter] public string? Back { get; set; }
+    /// <summary>Structural actions (categories, line details, triggers) always apply to the plan directly.</summary>
+    [Parameter] public bool Direct { get; set; }
+}

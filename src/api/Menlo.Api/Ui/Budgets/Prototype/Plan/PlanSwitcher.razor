@@ -1,0 +1,11 @@
+@* PROTOTYPE (#658): the floating variant switcher. Arrows are links, so the variant is in the URL. *@
+<nav class="proto-switcher" aria-label="Prototype variants" data-testid="prototype-switcher">
+    <a class="proto-switcher__arrow" href="@Query.WithVariant(PQuery.Variants[(Index + 2) % 3].Key)" aria-label="Previous variant">←</a>
+    <span class="proto-switcher__label">@Query.Variant (@Query.VariantName)</span>
+    <a class="proto-switcher__arrow" href="@Query.WithVariant(PQuery.Variants[(Index + 1) % 3].Key)" aria-label="Next variant">→</a>
+</nav>
+
+@code {
+    [Parameter, EditorRequired] public PQuery Query { get; set; } = null!;
+    private int Index => Array.FindIndex(PQuery.Variants, v => v.Key == Query.Variant);
+}

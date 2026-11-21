@@ -1,0 +1,127 @@
+@*
+    PROTOTYPE (#658): year copy as a checklist on one page. It asks the two questions year copy has to ask
+    (is each trigger realized, and keep each event line?), shows what carries and what's left behind, then
+    makes next year's budget, planned from January.
+*@
+@{
+    PQuery q = Model.Query;
+    PYear y = Model.Plan;
+    int next = y.Year + 1;
+    bool exists = PlanStore.Years.ContainsKey(next);
+    string back = $"/budgets/prototype/plan?variant={q.Variant}&year={y.Year}";
+    List<PLine> monthly = [.. y.Lines.Where(l => l.Type != ProtoLineType.Event)];
+    List<PLine> events = [.. y.Lines.Where(l => l.Type == ProtoLineType.Event)];
+}
+<AppPage Page="Page" Title="Year copy prototype">
+    <MnlStack Gap="MnlGap.Lg">
+        <MnlAlert Tone="MnlTone.Info" Title="Prototype: year copy">Made-up data, in memory. Nothing is saved for real.</MnlAlert>
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlEyebrow>Year copy</MnlEyebrow>
+                <MnlHeading Level="1">Create @next from @y.Year</MnlHeading>
+            </MnlStack>
+            <MnlButton Href="@back" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Back to @y.Year</MnlButton>
+        </MnlCluster>
+
+        @if (exists)
+        {
+            <MnlAlert Tone="MnlTone.Success" Title="@($"{next} already exists")">
+                <MnlCluster Gap="MnlGap.Sm">
+                    <MnlButton Href="@($"/budgets/prototype/plan?variant={q.Variant}&year={next}")" Size="MnlSize.Sm">Open @next</MnlButton>
+                    <form method="post" action="/budgets/prototype/plan/act">
+                        <PlanHidden Sheet="Model" Op="copy-undo" Direct="true" />
+                        <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Undo the copy (prototype only)</MnlButton>
+                    </form>
+                </MnlCluster>
+            </MnlAlert>
+        }
+        else
+        {
+            <form method="post" action="/budgets/prototype/plan/act" class="copy" data-testid="year-copy-form">
+                <PlanHidden Sheet="Model" Op="copy" Direct="true" />
+
+                <section class="copy__step" aria-labelledby="copy-triggers">
+                    <MnlHeading Level="2" id="copy-triggers">1. Has each trigger happened?</MnlHeading>
+                    <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">A realized trigger's conditional changes fold into the new baseline. One still expected carries over; if its date has passed, it moves to January.</MnlText>
+                    @if (y.Triggers.Count == 0)
+                    {
+                        <MnlText Size="MnlTextSize.Sm">No triggers.</MnlText>
+                    }
+                    @foreach (PTrigger trigger in y.Triggers)
+                    {
+                        PTrigger t = trigger;
+                        List<PLine> tied = [.. y.Lines.Where(l => l.Conditional.Any(c => c.TriggerId == t.Id))];
+                        <fieldset class="copy__choice">
+                            <legend><strong>@t.Name</strong> · @(t.Realized ? "realized" : "expected") @PFormat.MonthLong(t.Expected) · changes @string.Join(", ", tied.Select(l => l.Name))</legend>
+                            @if (t.Realized)
+                            {
+                                <span>Realized. Folds into the baseline.</span>
+                            }
+                            else
+                            {
+                                <label><input type="radio" name="@($"trigger-{t.Id}")" value="realized" /> It happened: fold it into the baseline</label>
+                                <label><input type="radio" name="@($"trigger-{t.Id}")" value="expected" checked /> Still expected: carry it@(t.Expected < y.Current ? ", moved to January" : $", still {PFormat.MonthLong(t.Expected)}")</label>
+                            }
+                        </fieldset>
+                    }
+                </section>
+
+                <section class="copy__step" aria-labelledby="copy-events">
+                    <MnlHeading Level="2" id="copy-events">2. Keep each event line?</MnlHeading>
+                    <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">A kept event line keeps its months and amounts in @next. A dropped one isn't copied.</MnlText>
+                    @foreach (PLine line in events)
+                    {
+                        PLine l = line;
+                        <fieldset class="copy__choice">
+                            <legend><strong>@l.Name</strong> · @string.Join(", ", l.Events.OrderBy(e => e.Key).Select(e => $"{PFormat.Money(e.Value)} in {PFormat.MonthLong(e.Key)}"))</legend>
+                            <label><input type="radio" name="@($"event-{l.Id}")" value="keep" checked /> Keep</label>
+                            <label><input type="radio" name="@($"event-{l.Id}")" value="drop" /> Drop</label>
+                        </fieldset>
+                    }
+                </section>
+
+                <section class="copy__step" aria-labelledby="copy-carry">
+                    <MnlHeading Level="2" id="copy-carry">3. What carries over</MnlHeading>
+                    <table class="copy__table">
+                        <thead>
+                            <tr><th scope="col">Line</th><th scope="col">@y.Year baseline (Jan)</th><th scope="col">@next baseline</th><th scope="col">Carries with it</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (PLine line in monthly)
+                            {
+                                PLine l = line;
+                                List<string> carry = [];
+                                carry.AddRange(l.Yearly.Select(x => $"yearly {PFormat.Change(x.Value, x.Kind)} in {PFormat.Month(x.Month)}, planned again"));
+                                carry.AddRange(l.Seasonal.Select(x => $"seasonal {PFormat.Change(x.Value, x.Kind)} {PFormat.Months(x.Months)}"));
+                                carry.AddRange(l.Conditional.Select(x => $"{PFormat.Change(x.Value, x.Kind)} once \"{y.Triggers.FirstOrDefault(t => t.Id == x.TriggerId)?.Name}\", unless it's realized"));
+                                <tr>
+                                    <th scope="row">@l.Name</th>
+                                    <td>@PFormat.Money(y.BaselineAt(l, 0))</td>
+                                    <td><strong>@PFormat.Money(y.BaselineAt(l, 11))</strong></td>
+                                    <td>@(carry.Count == 0 ? "Nothing else" : string.Join("; ", carry))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <ul class="copy__notes">
+                        <li>The @next baseline is @y.Year's with every dated change and yearly change applied.</li>
+                        <li><strong>Proposals carry:</strong> @(y.Proposals.Count == 0 ? "none" : string.Join(", ", y.Proposals.Select(p => p.Name))). They start switched off.</li>
+                        <li><strong>Left behind:</strong> actuals, and @y.Lines.Sum(l => l.Overrides.Count) override(s) (@string.Join(", ", y.Lines.SelectMany(l => l.Overrides.Select(o => $"{l.Name} in {PFormat.Month(o.Key)}"))).</li>
+                        <li>@next is planned from the start: there's no draft. Every month can still change until it's past.</li>
+                    </ul>
+                </section>
+
+                <MnlCluster Gap="MnlGap.Sm">
+                    <MnlButton Type="MnlButtonType.Submit" Icon="MnlIconName.Check">Create the @next budget</MnlButton>
+                    <MnlButton Href="@back" Variant="MnlButtonVariant.Ghost">Cancel</MnlButton>
+                </MnlCluster>
+            </form>
+        }
+    </MnlStack>
+    <PlanSwitcher Query="q" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
+    [Parameter, EditorRequired] public PSheet Model { get; set; } = null!;
+}

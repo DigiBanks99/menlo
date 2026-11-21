@@ -1,0 +1,67 @@
+@*
+    PROTOTYPE (#658): three ways of capturing the plan on one route, switched with ?variant=.
+    A edits in the grid, B opens a panel per line, C sets up one category at a time.
+    In-memory, made-up data, mapped only in Development. Throwaway: it lives on prototype/658-capture-plan.
+*@
+@{
+    PQuery q = Model.Query;
+    PYear y = Model.Plan;
+}
+<AppPage Page="Page" Title="Capture the plan prototype">
+    <MnlStack Gap="MnlGap.Lg">
+        <MnlAlert Tone="MnlTone.Info" Title="@($"Prototype {q.Variant}: {q.VariantName}")">
+            @if (y.Current > 0)
+            {
+                <span>Made-up data, kept in memory. "Today" is in @PFormat.MonthLong(y.Current) @y.Year, so January to @PFormat.MonthLong(y.Current - 1) are frozen.</span>
+            }
+            else
+            {
+                <span>@y.Year was made by year copy. It's planned from January, and every month can still change.</span>
+            }
+        </MnlAlert>
+
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlEyebrow>Household plan</MnlEyebrow>
+                <MnlHeading Level="1">@y.Year budget</MnlHeading>
+            </MnlStack>
+            <MnlCluster Gap="MnlGap.Sm">
+                @if (PlanStore.Years.Count > 1)
+                {
+                    <MnlSegmented Label="Year" Value="@y.Year.ToString()"
+                                  Segments="@([.. PlanStore.Years.Keys.Order().Select(k => new MnlSegment(k.ToString(), k.ToString(), (q.Closed with { Year = k, Target = "plan", Category = null }).Href))])" />
+                }
+                <MnlButton Href="@($"/budgets/prototype/plan/copy?variant={q.Variant}&year={y.Year}")" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus" data-testid="year-copy">
+                    Copy to @(y.Year + 1)
+                </MnlButton>
+                <form method="post" action="/budgets/prototype/plan/act">
+                    <PlanHidden Sheet="Model" Op="reset" />
+                    <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Reset prototype</MnlButton>
+                </form>
+            </MnlCluster>
+        </MnlCluster>
+
+        <PlanWorkingOn Sheet="Model" />
+
+        @switch (q.Variant)
+        {
+            case "B":
+                <PlanVariantPanel Sheet="Model" />
+                break;
+            case "C":
+                <PlanVariantSetup Sheet="Model" />
+                break;
+            default:
+                <PlanVariantGrid Sheet="Model" />
+                break;
+        }
+
+        <PlanTools Sheet="Model" />
+    </MnlStack>
+    <PlanSwitcher Query="q" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
+    [Parameter, EditorRequired] public PSheet Model { get; set; } = null!;
+}

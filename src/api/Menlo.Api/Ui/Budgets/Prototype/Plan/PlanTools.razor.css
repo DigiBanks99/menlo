@@ -1,0 +1,101 @@
+.tools {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-2);
+    padding: var(--mnl-space-3);
+    border: 1px solid var(--mnl-border);
+    border-radius: var(--mnl-radius-lg);
+    background: var(--mnl-surface);
+}
+
+.tools__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-2);
+}
+
+.tools__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    padding: var(--mnl-space-2);
+    border: 1px solid var(--mnl-border-subtle);
+    border-radius: var(--mnl-radius-md);
+}
+
+.tools__item[data-state="on"] {
+    border-color: var(--mnl-accent);
+    background: var(--mnl-accent-soft);
+}
+
+.tools__item[data-state="blocked"] {
+    border-style: dashed;
+}
+
+.tools__meta {
+    font-size: var(--mnl-text-xs);
+    color: var(--mnl-subtext);
+}
+
+.tools__blocked {
+    font-size: var(--mnl-text-xs);
+    color: var(--mnl-warning);
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.tools__switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mnl-space-2);
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-weight: var(--mnl-weight-semibold);
+    color: var(--mnl-text);
+    cursor: pointer;
+}
+
+.tools__switch:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--mnl-radius-sm);
+}
+
+.tools__knob {
+    inline-size: 2rem;
+    block-size: 1.1rem;
+    border-radius: var(--mnl-radius-full);
+    background: var(--mnl-border);
+    position: relative;
+    flex: none;
+}
+
+.tools__knob::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.15rem;
+    inset-inline-start: 0.15rem;
+    inline-size: 0.8rem;
+    block-size: 0.8rem;
+    border-radius: 50%;
+    background: var(--mnl-surface);
+}
+
+.tools__switch[aria-checked="true"] .tools__knob {
+    background: var(--mnl-accent);
+}
+
+.tools__switch[aria-checked="true"] .tools__knob::after {
+    inset-inline-start: 1.05rem;
+}
+
+.tools__inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-2);
+    align-items: center;
+}

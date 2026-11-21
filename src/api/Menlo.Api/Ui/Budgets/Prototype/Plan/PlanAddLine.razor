@@ -1,0 +1,30 @@
+@*
+    PROTOTYPE (#658): add a budget line to a subcategory with its line type and first amount. In a proposal
+    the new line waits in it; otherwise it's committed from the month picked.
+*@
+@{
+    string p = $"add-{CategoryId}";
+}
+<form method="post" action="/budgets/prototype/plan/act" class="addline" data-testid="add-line">
+    <PlanHidden Sheet="Sheet" Op="line-add" Back="@Back" />
+    <input type="hidden" name="category" value="@CategoryId" />
+    <MnlFormField Label="New line" For="@($"{p}-name")">
+        <MnlInput Name="name" Id="@($"{p}-name")" Placeholder="e.g. Internet" />
+    </MnlFormField>
+    <MnlFormField Label="Line type" For="@($"{p}-type")">
+        <MnlSelect Name="type" Id="@($"{p}-type")" Value="Fixed" Options="PSheet.TypeOptions" />
+    </MnlFormField>
+    <MnlFormField Label="Amount" For="@($"{p}-amount")" Hint="A month, or the event's amount">
+        <MnlAmountInput Name="amount" Id="@($"{p}-amount")" />
+    </MnlFormField>
+    <MnlFormField Label="From" For="@($"{p}-month")" Hint="Or the event's month">
+        <MnlSelect Name="month" Id="@($"{p}-month")" Value="@Sheet.Plan.Current.ToString()" Options="Sheet.MonthOptions()" />
+    </MnlFormField>
+    <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm" Icon="MnlIconName.Plus">@(Sheet.Target is null ? "Add line" : $"Add to \"{Sheet.Target.Name}\"")</MnlButton>
+</form>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+    [Parameter, EditorRequired] public string CategoryId { get; set; } = "";
+    [Parameter] public string? Back { get; set; }
+}

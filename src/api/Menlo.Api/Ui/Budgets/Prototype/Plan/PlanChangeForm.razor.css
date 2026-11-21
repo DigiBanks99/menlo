@@ -1,0 +1,65 @@
+.change {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-3);
+}
+
+.change fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-1) var(--mnl-space-3);
+}
+
+.change legend {
+    font-size: var(--mnl-text-sm);
+    font-weight: var(--mnl-weight-semibold);
+    margin-block-end: var(--mnl-space-1);
+}
+
+.change__kinds {
+    flex-direction: column;
+}
+
+.change__kinds label {
+    display: flex;
+    gap: var(--mnl-space-2);
+    align-items: baseline;
+    font-size: var(--mnl-text-sm);
+}
+
+.change__kinds small {
+    color: var(--mnl-subtext);
+    margin-inline-start: var(--mnl-space-1);
+}
+
+.change__fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-3);
+    align-items: flex-start;
+}
+
+.change__months label,
+.change__unit label {
+    font-size: var(--mnl-text-xs);
+    display: inline-flex;
+    gap: var(--mnl-space-1);
+    align-items: center;
+}
+
+.change__months {
+    max-inline-size: 22rem;
+}
+
+.change input[type="radio"],
+.change input[type="checkbox"] {
+    accent-color: var(--mnl-accent);
+}
+
+.change input:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+    outline-offset: 2px;
+}

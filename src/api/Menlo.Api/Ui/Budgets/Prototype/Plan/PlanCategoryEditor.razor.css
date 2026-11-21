@@ -1,0 +1,19 @@
+.cated {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-3);
+}
+
+.cated__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-4);
+    align-items: flex-end;
+}
+
+.cated__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mnl-space-2);
+    align-items: flex-end;
+}

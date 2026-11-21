@@ -1,0 +1,78 @@
+@*
+    PROTOTYPE (#658): proposals to switch on for the preview, and the triggers conditional changes hang on.
+    In the real page these would sit in the side rail from the views prototype (#596).
+*@
+@{
+    PYear y = Sheet.Plan;
+}
+<MnlGrid Columns="MnlGridColumns.Two">
+    <section class="tools" aria-labelledby="tools-proposals" data-testid="tools-proposals">
+        <MnlHeading Level="2" id="tools-proposals">Proposals</MnlHeading>
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Switch one on to see it in the grid. Two that change the same month of a line can't be on together.</MnlText>
+        <ul class="tools__list">
+            @foreach (PProposal proposal in y.Proposals)
+            {
+                PProposal p = proposal;
+                string? why = Sheet.Conflicts[p.Id];
+                <li class="tools__item" data-state="@(p.On ? "on" : why is null ? "off" : "blocked")">
+                    <form method="post" action="/budgets/prototype/plan/act" class="tools__toggle">
+                        <PlanHidden Sheet="Sheet" Op="proposal-toggle" Direct="true" />
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <button type="submit" class="tools__switch" role="switch" aria-checked="@(p.On ? "true" : "false")" aria-describedby="@($"why-{p.Id}")">
+                            <span class="tools__knob" aria-hidden="true"></span>
+                            <span>@p.Name</span>
+                        </button>
+                    </form>
+                    <span class="tools__meta">@p.Edits.Count change(s) · Net @PFormat.Change(Sheet.Effects[p.Id], PKind.Rand) for the year</span>
+                    <span class="tools__meta">@string.Join("; ", p.Edits.Select(e => e.Describe(Sheet.Preview)))</span>
+                    @if (why is not null)
+                    {
+                        <span class="tools__blocked" id="@($"why-{p.Id}")" role="note">Blocked. @why</span>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+
+    <section class="tools" aria-labelledby="tools-triggers" data-testid="tools-triggers">
+        <MnlHeading Level="2" id="tools-triggers">Triggers</MnlHeading>
+        <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Moving a trigger's date moves every conditional change tied to it. It can't move into a frozen month.</MnlText>
+        <ul class="tools__list">
+            @foreach (PTrigger trigger in y.Triggers)
+            {
+                PTrigger t = trigger;
+                int tied = y.Lines.Count(l => l.Conditional.Any(c => c.TriggerId == t.Id));
+                <li class="tools__item">
+                    <strong>@t.Name</strong>
+                    <span class="tools__meta">@(t.Realized ? "Realized" : "Expected") @PFormat.MonthLong(t.Expected) · @tied line(s) change with it</span>
+                    @if (!t.Realized)
+                    {
+                        <MnlCluster Gap="MnlGap.Sm">
+                            <form method="post" action="/budgets/prototype/plan/act" class="tools__inline">
+                                <PlanHidden Sheet="Sheet" Op="trigger-move" Direct="true" />
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <MnlSelect Name="month" Id="@($"move-{t.Id}")" Value="@t.Expected.ToString()" Options="Sheet.MonthOptions()" aria-label="@($"Expected month for {t.Name}")" />
+                                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm">Move</MnlButton>
+                            </form>
+                            <form method="post" action="/budgets/prototype/plan/act">
+                                <PlanHidden Sheet="Sheet" Op="trigger-realize" Direct="true" />
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Check">It happened</MnlButton>
+                            </form>
+                        </MnlCluster>
+                    }
+                </li>
+            }
+        </ul>
+        <form method="post" action="/budgets/prototype/plan/act" class="tools__inline">
+            <PlanHidden Sheet="Sheet" Op="trigger-add" Direct="true" />
+            <MnlInput Name="name" Id="trigger-name" Placeholder="New trigger, e.g. Tenant moves out" aria-label="New trigger name" />
+            <MnlSelect Name="month" Id="trigger-month" Options="Sheet.MonthOptions()" aria-label="Expected month" />
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add trigger</MnlButton>
+        </form>
+    </section>
+</MnlGrid>
+
+@code {
+    [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
+}
