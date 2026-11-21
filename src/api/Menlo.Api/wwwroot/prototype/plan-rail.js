@@ -1,7 +1,9 @@
 // PROTOTYPE (#658): the views prototype's side rail (proto-rail.js), for the plan prototype. Same behaviour:
 // an icon opens its panel, and the panel folds away when the pointer leaves, on Escape or on a tap elsewhere.
-// Two changes for forms: it doesn't fold while a field in it has focus, and a form sent from the panel comes
-// back with the panel open. Delegated on document, so htmx body swaps keep working.
+// Changes for editing: only a panel opened from a rail icon folds away when the pointer leaves it. One the
+// page opens (a line or category in variant B, or the panel still open after a save) stays until it's closed,
+// so it doesn't vanish when the page scrolls back to where you were. It also doesn't fold while a field in it
+// has focus, and a form sent from the panel comes back with the panel open. Delegated on document, so htmx body swaps keep working.
 (function () {
   if (window.__planRail) return;
   window.__planRail = true;
@@ -15,8 +17,9 @@
     return !!(active && host.contains(active) && active.closest('.rail__flyout') && active.matches('input, select, textarea'));
   }
 
-  function setPanel(host, key) {
+  function setPanel(host, key, fromIcon) {
     host.dataset.open = key ? 'true' : 'false';
+    host.dataset.transient = key && fromIcon && key !== 'line' && key !== 'category' ? 'true' : 'false';
     host.dataset.wide = key === 'line' || key === 'category' ? 'true' : 'false';
     host.querySelectorAll('[data-plan-rail-open]').forEach(function (a) {
       a.setAttribute('aria-expanded', a.dataset.planRailOpen === key ? 'true' : 'false');
@@ -38,14 +41,14 @@
     var host = icon.closest('[data-plan-rail]');
     var key = icon.dataset.planRailOpen;
     var already = host.dataset.open === 'true' && icon.getAttribute('aria-expanded') === 'true';
-    setPanel(host, already ? null : key);
+    setPanel(host, already ? null : key, true);
   });
 
   document.addEventListener('pointerout', function (e) {
     if (e.pointerType === 'touch') return;
     if (!zone(e.target) || zone(e.relatedTarget)) return;
     var host = e.target.closest('[data-plan-rail]');
-    if (host && host.dataset.open === 'true' && !typing(host)) setPanel(host, null);
+    if (host && host.dataset.open === 'true' && host.dataset.transient === 'true' && !typing(host)) setPanel(host, null);
   });
 
   document.addEventListener('pointerdown', function (e) {
