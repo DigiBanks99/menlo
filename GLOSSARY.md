@@ -31,11 +31,11 @@ One thing the household earns or spends on, such as water or a salary. It has a 
 _Avoid_: Budget item (for the line as a whole), row
 
 **Payer**:
-The household member who pays for a budget line, or one of several who share it by percentage. Who pays changes by dated change.
+The household member who pays for a budget line, or one of several who share it by percentage. The payer split shares the line's plan between personal views; the payments each member actually makes share its actual. Who pays changes by dated change.
 _Avoid_: Owner, responsible person
 
 **Personal view**:
-One household member's cash flow: their income, their pre-tax deductions, the share of budget lines they pay, and their own net.
+One household member's cash flow: their income, their pre-tax deductions, the share of budget lines they pay, and their own net. Its plan follows the payer split; its actuals follow the payments the member made or received.
 _Avoid_: My sheet, user budget
 
 **Household view**:
@@ -145,7 +145,7 @@ The sum of splits recorded against a budget line, or a category, in a given mont
 _Avoid_: Spent amount, realized amount
 
 **Payment**:
-One recorded movement of money: a kind, a date, an amount and an optional note, entered by hand or imported from a bank statement. Its amount is divided into one or more splits. Who a payment is for and who pays it come from the budget lines it is split onto, never from the payment itself.
+One recorded movement of money: a kind, a date, an amount, the household member who made or received it, and an optional note, entered by hand or imported from a bank statement. Its amount is divided into one or more splits. Who a payment is for comes from the budget lines it is split onto.
 _Avoid_: Spend, transaction (for the domain concept), expense entry
 
 **Expense payment**:
