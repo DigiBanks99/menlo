@@ -1,6 +1,6 @@
 # Menlo
 
-Menlo is a household management app. This glossary holds the language of its domain, starting with budgeting and spend.
+Menlo is a household management app. This glossary holds the language of its domain, starting with budgeting and payments.
 
 ## Product
 
@@ -20,7 +20,7 @@ _Avoid_: Family account, tenant, workspace
 A person who has signed in to Menlo. Sign-in is limited by the Entra app registration, so Menlo keeps no member list of its own; on first sign-in it creates the member's `User` record. Every member sees the same household data.
 _Avoid_: Account holder, customer
 
-## Budgeting and spend
+## Budgeting and payments
 
 **Budget**:
 A household's committed statement, for one calendar year, of what it expects to earn and spend.
@@ -141,12 +141,30 @@ A month before the current month. Its planned amounts can no longer change.
 _Avoid_: Closed month, locked month
 
 **Actual**:
-The sum of spends recorded against a budget line, or a category, in a given month. Spends can be recorded for any month, including frozen ones.
+The sum of splits recorded against a budget line, or a category, in a given month. Expense and income payments raise it; refunds lower it. Payments can be recorded for any month, including frozen ones. A line with nothing recorded in a month takes its planned amount as its actual, unless an unsorted split in its category covers it.
 _Avoid_: Spent amount, realized amount
 
-**Spend**:
-One recorded movement of money (date, amount, and the budget line or category it belongs to), entered by hand or imported from a bank statement. One spend can be split across several lines.
-_Avoid_: Transaction (for the domain concept), expense entry
+**Payment**:
+One recorded movement of money: a kind, a date, an amount and an optional note, entered by hand or imported from a bank statement. Its amount is divided into one or more splits. Who a payment is for and who pays it come from the budget lines it is split onto, never from the payment itself.
+_Avoid_: Spend, transaction (for the domain concept), expense entry
+
+**Expense payment**:
+A payment of money out, split onto expense lines.
+
+**Income payment**:
+A payment of money in, such as a salary or a utility recovery, split onto income lines.
+
+**Refund**:
+A payment of money back for an expense, split onto the expense lines it reverses. It lowers their actuals in the month it is recorded for.
+_Avoid_: Negative payment, reversal
+
+**Split**:
+A part of a payment: an amount on one budget line, or on a lowest-level category when it is not yet sorted. A payment's splits add up to its amount, share its kind, and may sit in different categories.
+_Avoid_: Allocation, line part
+
+**Unsorted split**:
+A split on a category instead of a budget line. It counts towards the category's actual but not towards any line's, and it may stay unsorted.
+_Avoid_: Uncategorised payment, pending split
 
 **Variance**:
 The difference between the actual and the planned amount for a budget line in a month.
