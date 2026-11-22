@@ -79,20 +79,20 @@
       },
       "TUnit.Core": {
         "type": "Direct",
-        "requested": "[1.84.0, )",
-        "resolved": "1.84.0",
-        "contentHash": "njfQ8FhLVpeJ6dWKeF9eHdKkON+fOzmqb1Xcr0WxilsHIdrfkhtTi8ug0VCl8Q330A23tzAH/idW4+/7Iop0Ww=="
+        "requested": "[1.87.0, )",
+        "resolved": "1.87.0",
+        "contentHash": "YxDHsrdAOIXukw1xyAO9Ix4N4P5suIDCCbHBFyqXCMFEaMESWTv8WTa5AQTDeMs3mkQDV5r+mnkOXatbwNmdzg=="
       },
       "TUnit.Engine": {
         "type": "Direct",
-        "requested": "[1.84.0, )",
-        "resolved": "1.84.0",
-        "contentHash": "JKOtDmB90utnh8ULHDE0S4yVXRkzTbRNsK44EHYLkFGOe0GMkQtkURSB+OGHiqEwN6Pi69ABna6jZtcZwlF9VA==",
+        "requested": "[1.87.0, )",
+        "resolved": "1.87.0",
+        "contentHash": "baGmm9o4UrcKEk6f0dtl50O6otDzZOVqbitXgXWeyo1iSle461hX3cS6V4F4KwUPEFxKZMOA0xx5wLnsr5RbqA==",
         "dependencies": {
           "Microsoft.Testing.Extensions.TrxReport.Abstractions": "2.5.3",
           "Microsoft.Testing.Platform": "2.5.3",
           "Microsoft.Testing.Platform.MSBuild": "2.5.3",
-          "TUnit.Core": "1.84.0"
+          "TUnit.Core": "1.87.0"
         }
       },
       "Castle.Core": {
