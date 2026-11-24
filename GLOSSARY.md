@@ -109,19 +109,23 @@ An amount typed over a budget line's calculated planned amount for one month. It
 **Line type**:
 How a budget line's actuals are judged against its plan: fixed, variable, provision or event.
 
+**Judgement**:
+How a budget line, a category or the net is doing against its plan: on plan, better than plan, worse than plan, or well worse than plan. Only recorded months count, and the current month shows only what is already certain, such as an expense already over. A judgement flags; it does not suggest.
+_Avoid_: Status, health, score
+
 **Fixed line**:
-A budget line whose actual should match its planned amount every month, such as a levy.
+A budget line whose actual should match its planned amount every month, such as a levy. It is judged on its variance to date this year.
 
 **Variable line**:
-A budget line whose planned amount is a monthly allowance that actuals are expected to swing around, such as fuel. It is judged on its trend. Under-spend does not carry into the next month.
+A budget line whose planned amount is a monthly allowance that actuals are expected to swing around, such as fuel. It is judged on its trend: its last three completed months of the year against their allowances, so one heavy month alone does not count. Under-spend does not carry into the next month.
 _Avoid_: Envelope
 
 **Provision**:
-A budget line with an annual amount but unknown timing, judged on its year-to-date actuals.
+A budget line with an annual amount but unknown timing, judged on its year-to-date actuals against the annual amount. Because the timing is unknown, using it early is not worse than plan; only going over the annual amount is.
 _Avoid_: Sinking fund, buffer
 
 **Event line**:
-A budget line with planned amounts only in known months, such as a yearly service.
+A budget line with planned amounts only in known months, such as a yearly service. It is judged on its variance to date this year, so an event paid a month late nets out.
 _Avoid_: One-off adjustment
 
 **Commit**:
