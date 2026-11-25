@@ -133,8 +133,19 @@ The owner's decision to make something part of the budget. The plan only changes
 _Avoid_: Accept, approve, realize
 
 **Proposal**:
-A named, uncommitted set of changes to the budget (event lines, dated changes or conditional changes) that can be kept, switched on to see its effect, and later committed or dropped. Two proposals that change the same thing can't be switched on together.
+A named, uncommitted set of changes to the budget (event lines, dated changes or conditional changes) that can be kept, switched on to see its effect, and later committed or dropped. Dropping a proposal deletes it. Two proposals that change the same thing can't be switched on together.
 _Avoid_: Scenario, draft, plan
+
+**Suggestion**:
+A proposal the agent wrote, with the reason it was made: what it noticed and the figures behind it. It aims to keep every budget line on plan and every net at zero or above, as far as it can.
+_Avoid_: Recommendation, reallocation, option set
+
+**Follow**:
+A suggested change that moves a budget line's plan to what is actually being paid. Any line can be followed.
+
+**Cut**:
+A suggested change that plans a budget line below what is being paid, which only works if the household spends less. Only a line marked as one that can be cut is ever cut.
+_Avoid_: Lock, minimum, earmark
 
 **Planned amount**:
 What the budget expects for a budget line in a given month: its baseline plus any seasonal variation and conditional changes, or its override if it has one. It is frozen once that month is in the past.
