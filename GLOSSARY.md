@@ -35,15 +35,30 @@ The household member who pays for a budget line, or one of several who share it 
 _Avoid_: Owner, responsible person
 
 **Personal view**:
-One household member's cash flow: their income, their pre-tax deductions, the share of budget lines they pay, and their own net. Its plan follows the payer split; its actuals follow the payments the member made or received.
+One household member's cash flow: their payslip and other income, the share of budget lines they pay, and their own net. Its plan follows the payer split; its actuals follow the payments the member made or received.
 _Avoid_: My sheet, user budget
 
 **Household view**:
 The sum of every personal view.
 _Avoid_: Main sheet, consolidated view
 
-**Pre-tax deduction**:
-An amount taken from a household member's gross salary before it is paid out, such as a pension contribution. It sits between gross and net pay, not among expenses.
+**Payslip**:
+A household member's planned pay, as budget lines that each have a payslip kind: earning, company contribution, deduction before tax, tax, or deduction after tax. Payslip lines are planned like any line, but payments don't land on them; their plan stands in as their actual.
+_Avoid_: Salary sheet
+
+**Deduction before tax**:
+A payslip line taken from earnings before tax, such as a member's own pension contribution. It lowers taxable income.
+_Avoid_: Pre-tax deduction
+
+**Company contribution**:
+A payslip line the employer pays on a member's behalf, such as an employer pension contribution. It is never paid to the member, but it counts towards taxable income.
+
+**Taxable income**:
+A payslip's earnings plus company contributions, minus deductions before tax. It is a plain sum to help plan the tax line, not a tax calculation.
+
+**Net pay**:
+A payslip's earnings minus its deductions and tax: what the employer pays into the bank. It is a budget line whose plan is worked out from the payslip, and the salary payment is recorded on it.
+_Avoid_: Take-home pay, salary (for the amount paid in)
 
 **Net**:
 Income minus expenses for a view and period. It is positive for a surplus and negative for a deficit.
