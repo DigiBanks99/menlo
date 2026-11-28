@@ -87,11 +87,15 @@
   window.__planScroll = true;
   var KEY = 'plan-scroll';
 
+  // PROTOTYPE (#768): the payments prototype too
   function onPlan() {
-    return window.location.pathname.indexOf('/budgets/prototype/plan') === 0;
+    var p = window.location.pathname;
+    return p.indexOf('/budgets/prototype/plan') === 0 || p === '/budgets/prototype/pay';
   }
 
   document.addEventListener('htmx:beforeRequest', function () {
+    // No jump to the top on a boosted swap here, so the page doesn't flicker; the position is kept below
+    if (window.htmx) window.htmx.config.scrollIntoViewOnBoost = !onPlan();
     if (!onPlan()) return;
     var grid = document.querySelector('.grid-wrap');
     sessionStorage.setItem(KEY, JSON.stringify({ y: window.scrollY, x: grid ? grid.scrollLeft : 0 }));

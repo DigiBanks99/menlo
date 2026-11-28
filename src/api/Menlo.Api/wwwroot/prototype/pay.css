@@ -1100,3 +1100,49 @@ a.pay-actual:focus-visible {
     color: var(--mnl-text);
     font-size: var(--mnl-text-sm);
 }
+
+/* C on a phone: the payments under a line stay in view while the grid scrolls sideways, and the form's fields
+   take a line each */
+.pay-below {
+    position: sticky;
+    inset-inline-start: 0;
+    max-inline-size: min(52rem, calc(100vw - 2rem));
+}
+
+@media (max-width: 48rem) {
+    .pay-below {
+        max-inline-size: calc(100vw - 1.5rem);
+        padding: var(--mnl-space-2);
+    }
+
+    .payform__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .payform__split {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .payform__split .payform__share {
+        grid-column: 1;
+        inline-size: 100%;
+    }
+
+    .payform__split .payform__x {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+
+    .payform__actions .payform__spacer {
+        flex-basis: 100%;
+    }
+
+    .paymonth__row {
+        grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    }
+
+    .paymonth__row > :nth-child(n + 4) {
+        grid-column: 2 / -1;
+        justify-self: start;
+    }
+}
