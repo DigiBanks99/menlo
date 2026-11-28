@@ -175,7 +175,7 @@ The sum of splits recorded against a budget line, or a category, in a given mont
 _Avoid_: Spent amount, realized amount
 
 **Payment**:
-One recorded movement of money: a kind, a date, an amount, the household member who made or received it, and an optional note, entered by hand or imported from a bank statement. Its amount is divided into one or more splits. Who a payment is for comes from the budget lines it is split onto.
+One recorded movement of money: a kind, a date, an amount, the one household member who made or received it, and an optional note, entered by hand or imported from a bank statement. Its amount is divided into one or more splits. Who a payment is for comes from the budget lines it is split onto.
 _Avoid_: Spend, transaction (for the domain concept), expense entry
 
 **Expense payment**:
@@ -195,6 +195,10 @@ _Avoid_: Allocation, line part
 **Unsorted split**:
 A split on a category instead of a budget line. It counts towards the category's actual but not towards any line's, and it may stay unsorted.
 _Avoid_: Uncategorised payment, pending split
+
+**Nothing this month**:
+An R0 payment on one budget line's month, recording that nothing was paid or received, so its actual is R0 and its plan doesn't stand in. It is the only payment that may be R0.
+_Avoid_: Skip, zero payment
 
 **Variance**:
 The difference between the actual and the planned amount for a budget line in a month.
