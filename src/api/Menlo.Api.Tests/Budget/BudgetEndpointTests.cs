@@ -168,6 +168,22 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
     }
 
     [Test]
+    [Arguments("{")]
+    [Arguments("""{"year":"abc"}""")]
+    public async Task TheBudgetIsSwitchedOffAndAMemberCreatesABudgetFromABodyThatIsNotOne(string body)
+    {
+        await using PostgresTestWebApplicationFactory off = fixture.CreateFactory(new Dictionary<string, string?> { ["Features:Budget"] = "false" });
+        using HttpClient client = await off.CreateAntiforgeryClientAsync(cancellationToken: Cancellation);
+
+        HttpResponseMessage create = await client.PostAsync("/api/budgets", JsonBody(body), Cancellation);
+
+        ItShouldNotFindTheBudget();
+
+        // The flag is checked before the body is read, so the switched-off budget doesn't answer 400
+        void ItShouldNotFindTheBudget() => create.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Test]
     public async Task SomeoneWhoIsNotSignedInCallsTheBudget()
     {
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true, ConfigurationOverrides = BudgetOn };
@@ -181,6 +197,8 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
         void ItShouldTurnThemAway() => new[] { create.StatusCode, get.StatusCode }
             .ShouldAllBe(status => status == HttpStatusCode.Unauthorized);
     }
+
+    private static StringContent JsonBody(string json) => new(json, System.Text.Encoding.UTF8, "application/json");
 
     private static async Task<JsonDocument> ReadProblemAsync(HttpResponseMessage response) =>
         JsonDocument.Parse(await response.Content.ReadAsStringAsync(Cancellation));
