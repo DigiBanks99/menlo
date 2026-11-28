@@ -3,26 +3,26 @@
   "evals": [
     {
       "id": 0,
-      "prompt": "On the budget list page, add a small line under each budget card's title that shows how many items are planned for this month, like '12 items this month'. Show nothing when there are none.",
-      "expected_output": "The count and its wording are computed in the endpoint or view model (BudgetCardModel gets a formatted string or null), not in BudgetListPage.razor. The page renders it with MnlText only when present. A test in Menlo.Api.Tests/Ui checks the text appears and is absent at zero.",
+      "prompt": "On the analytics page, add a small line under each category's name in the category breakdown that shows how much is left, like 'R 450 left'. Show nothing when the category is at or over its allocation.",
+      "expected_output": "The amount and its wording are computed in C# (AnalyticsPageModel, the AnalyticsCategory record or an AnalyticsPresentation helper gets a formatted string or null), not in AnalyticsPage.razor. The page renders it with MnlText only when present. A test in Menlo.Api.Tests/Ui checks the text appears and is absent when nothing is left.",
       "assertions": [
-        { "id": "text-in-model", "text": "The '12 items this month' text (including pluralisation) is built in C# (endpoint, view model or a presentation helper), not in the .razor file", "weight": 2 },
-        { "id": "no-rule-in-razor", "text": "BudgetListPage.razor contains no arithmetic, pluralisation logic or number formatting for the new line", "weight": 2 },
+        { "id": "text-in-model", "text": "The 'R 450 left' text (including currency formatting) is built in C# (endpoint, view model or a presentation helper), not in the .razor file", "weight": 2 },
+        { "id": "no-rule-in-razor", "text": "AnalyticsPage.razor contains no arithmetic, comparison or number formatting for the new line", "weight": 2 },
         { "id": "uses-design-system", "text": "The line is rendered with a design-system component (MnlText) and no new CSS or inline style", "weight": 1 },
-        { "id": "handler-not-db", "text": "The data comes through the existing handler/BudgetUi adapter or its DTO, not a new database query in the UI endpoint", "weight": 1 },
-        { "id": "page-test", "text": "A test under src/api/Menlo.Api.Tests/Ui requests /budgets and asserts the new text, including the none case", "weight": 1 }
+        { "id": "model-not-db", "text": "The data comes through the view model (or a <Feature>Ui adapter and its DTO), not a new database query in the UI endpoint", "weight": 1 },
+        { "id": "page-test", "text": "A test under src/api/Menlo.Api.Tests/Ui requests /analytics and asserts the new text, including the nothing-left case", "weight": 1 }
       ]
     },
     {
       "id": 1,
-      "prompt": "Add a 'Rename budget note' style form: on the budget detail page I want an 'Add note' button that opens a panel with a single text field (max 200 characters, required). On save it should show a toast 'Note saved.' and the note should appear under the total. Assume a handler SaveBudgetNoteHandler already exists behind PUT /api/budgets/{id}/note.",
-      "expected_output": "A NoteFormPanel (MnlPanel) and NoteForm (form with hx-put, hx-target=this, hx-swap=outerHTML, novalidate) fragment; GET endpoint returning the panel via Render.Fragment, opened with hx-target MnlPanel.HostSelector; PUT endpoint that parses into a model with FormErrors, returns Render.Invalid (422) on validation failure, and HxResponse().Toast(...).ClosePanel().Raise(event).NoContent on success; the budget region listens for that event; CanEditBudget policy; tests for invalid and valid submits.",
+      "prompt": "Add a note form to the analytics page: I want an 'Add note' button that opens a panel with a single text field (max 200 characters, required). On save it should show a toast 'Note saved.' and the note should appear under the period selector. Assume a handler SavePeriodNoteHandler already exists behind PUT /api/analytics/{period}/note.",
+      "expected_output": "A NoteFormPanel (MnlPanel) and NoteForm (form with hx-put, hx-target=this, hx-swap=outerHTML, novalidate) fragment; GET endpoint returning the panel via Render.Fragment, opened with hx-target MnlPanel.HostSelector; PUT endpoint that parses into a model with FormErrors, calls the handler through an AnalyticsUi adapter, returns Render.Invalid (422) on validation failure, and HxResponse().Toast(...).ClosePanel().Raise(event).NoContent on success; the region showing the note listens for that event; CanEditBudget policy; tests for invalid and valid submits.",
       "assertions": [
         { "id": "panel-fragment", "text": "The form is opened as an MnlPanel fragment swapped into MnlPanel.HostSelector, not a new page or inline toggle", "weight": 2 },
         { "id": "server-validation", "text": "Required and max-length are validated on the server into FormErrors, and the form has novalidate", "weight": 2 },
         { "id": "invalid-422", "text": "A validation failure returns Render.Invalid with the form alone (422), not the panel", "weight": 2 },
         { "id": "success-events", "text": "Success returns 204 via HxResponse with Toast('Note saved.'), ClosePanel and a raised event, rather than returning updated page markup", "weight": 2 },
-        { "id": "region-listens", "text": "The region showing the note reloads on the event (a UiEvents name used in BudgetRegion or an hx-trigger ... from:body)", "weight": 1 },
+        { "id": "region-listens", "text": "The region showing the note reloads on the event (a new UiEvents name, used through a <Feature>Region helper or an hx-trigger ... from:body)", "weight": 1 },
         { "id": "edit-policy", "text": "The GET and PUT endpoints require CanEditBudget and the button is hidden for readers via a CanEdit model flag", "weight": 1 },
         { "id": "no-inject-no-style", "text": "No .razor file added has @inject, inline style, <script> or hx-on", "weight": 1 },
         { "id": "tests", "text": "Tests cover the invalid submit (422 with error text) and the valid submit (204 with the toast in HX-Trigger)", "weight": 1 }
