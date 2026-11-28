@@ -5,6 +5,7 @@ using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Budget;
+using Menlo.Api.Features;
 using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
 using Menlo.Api.Ui;
@@ -42,6 +43,7 @@ app.UseMenloAntiforgery()
     .UseMenloSecurityHeaders()
     .UseAuthentication()
     .UseAuthorization()
+    .UseMenloFeatureFlags()
     .UseMenloUserContext();
 
 if (app.Environment.IsDevelopment())

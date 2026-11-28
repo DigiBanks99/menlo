@@ -131,19 +131,21 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
     }
 
     [Test]
-    public async Task AMemberCreatesABudgetWithoutAYear()
+    public async Task AMemberCreatesABudgetFromAnEmptyObject()
     {
         await using PostgresTestWebApplicationFactory factory = fixture.CreateFactory(BudgetOn);
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: Cancellation);
 
-        HttpResponseMessage response = await client.PostAsync(
-            "/api/budgets",
-            new StringContent("{}", System.Text.Encoding.UTF8, "application/json"),
-            Cancellation);
+        HttpResponseMessage response = await client.PostAsync("/api/budgets", JsonBody("{}"), Cancellation);
+        using JsonDocument problem = await ReadProblemAsync(response);
 
         ItShouldBeRefused();
+        ItShouldSayTheYearIsNotABudgetYear();
 
         void ItShouldBeRefused() => response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        // A missing year binds as 0, which is not a year a budget can cover
+        void ItShouldSayTheYearIsNotABudgetYear() => problem.RootElement.GetProperty("code").GetString().ShouldBe("Budget.InvalidYear");
     }
 
     [Test]
@@ -168,6 +170,22 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
     }
 
     [Test]
+    [Arguments("{")]
+    [Arguments("""{"year":"abc"}""")]
+    public async Task TheBudgetIsSwitchedOffAndAMemberCreatesABudgetFromABodyThatIsNotOne(string body)
+    {
+        await using PostgresTestWebApplicationFactory off = fixture.CreateFactory(new Dictionary<string, string?> { ["Features:Budget"] = "false" });
+        using HttpClient client = await off.CreateAntiforgeryClientAsync(cancellationToken: Cancellation);
+
+        HttpResponseMessage create = await client.PostAsync("/api/budgets", JsonBody(body), Cancellation);
+
+        ItShouldNotFindTheBudget();
+
+        // The flag is checked before the body is read, so the switched-off budget doesn't answer 400
+        void ItShouldNotFindTheBudget() => create.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Test]
     public async Task SomeoneWhoIsNotSignedInCallsTheBudget()
     {
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true, ConfigurationOverrides = BudgetOn };
@@ -181,6 +199,8 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
         void ItShouldTurnThemAway() => new[] { create.StatusCode, get.StatusCode }
             .ShouldAllBe(status => status == HttpStatusCode.Unauthorized);
     }
+
+    private static StringContent JsonBody(string json) => new(json, System.Text.Encoding.UTF8, "application/json");
 
     private static async Task<JsonDocument> ReadProblemAsync(HttpResponseMessage response) =>
         JsonDocument.Parse(await response.Content.ReadAsStringAsync(Cancellation));
