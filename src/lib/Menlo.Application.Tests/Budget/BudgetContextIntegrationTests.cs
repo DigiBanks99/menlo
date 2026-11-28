@@ -12,7 +12,13 @@ namespace Menlo.Application.Tests.Budget;
 [NotInParallel("Persistence")]
 public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
 {
+    // The database is shared by the whole test session and holds one budget per year, so each test takes years no
+    // other test uses
+    private static int _lastYear = Random.Shared.Next(1000, 5000);
+
     private static CancellationToken Cancellation => TestContext.Current!.Execution.CancellationToken;
+
+    private static int UnusedYear() => Interlocked.Increment(ref _lastYear);
 
     [Test]
     public async Task ABudgetIsSaved()
@@ -52,11 +58,6 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
                 e => e.SqlState.ShouldBe(PostgresErrorCodes.UniqueViolation),
                 e => e.ConstraintName.ShouldBe(BudgetEntityTypeConfiguration.YearIndexName));
     }
-
-    private static int _lastYear = Random.Shared.Next(1000, 5000);
-
-    // A year no other test in the session uses, since the database is shared and holds one budget per year
-    private static int UnusedYear() => Interlocked.Increment(ref _lastYear);
 
     private static async Task<Exception?> CatchAsync(Func<Task> action)
     {
