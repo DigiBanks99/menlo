@@ -99,6 +99,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 - **[Domain Abstractions API](reference/domain-abstractions-api.md)** - API reference for Entity, AggregateRoot, and Value Objects
 - **[Authentication API](reference/authentication-api.md)** - Sign-in, session cookie, anti-forgery, roles, policies and user resolution
+- **[Receipts API](reference/receipts-api.md)** - Sending, listing, reading and discarding receipts, and what happens to their photos
 - **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
 - **[AI Services](reference/ai-services.md)** - Chat and vision services, their settings, and the llama.cpp server behind them
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations
