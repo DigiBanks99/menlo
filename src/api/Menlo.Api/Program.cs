@@ -25,6 +25,7 @@ builder
     .AddMenloAi()
     .AddMenloOpenApi()
     .AddMenloBudget()
+    .AddMenloRentalUnits()
     .AddMenloApplication();
 
 // Outside a publish the UI library's CSS, scripts and fonts are served from the build output, not wwwroot
@@ -61,6 +62,7 @@ RouteGroupBuilder apiGroup = app
 
 // Budget endpoints
 apiGroup.MapBudgetEndpoints();
+apiGroup.MapRentalUnitEndpoints();
 
 // Add simple AI health check endpoint
 apiGroup
