@@ -57,6 +57,19 @@ public static class ServiceCollectionExtensions
             });
             builder.Services.AddSingleton<AIAgent>(sp => sp.GetRequiredService<IChatClient>().AsAIAgent());
 
+            // Decisions get their own client so they can move to a stronger model. Callers build their own agents and
+            // options over it (each decision runs in a fresh context), so the client itself asks the model not to think.
+            builder.Services.AddKeyedSingleton<IChatClient>(AiClientKeys.Decision, (sp, _) =>
+            {
+                AiSettings settings = sp.GetRequiredService<IOptions<AiSettings>>().Value;
+                return CreateClient(sp, settings, _ => { })
+                    .GetChatClient(settings.ResolvedDecisionModel)
+                    .AsIChatClient()
+                    .AsBuilder()
+                    .ConfigureOptions(options => LlamaChatOptions.Apply(options, settings.EnableThinking))
+                    .Build(sp);
+            });
+
             // Vision calls can take minutes, so they get their own client: the SDK's 100 s network timeout would cut them
             // off, and its retries would repeat a call that already ran to the timeout. VisionService enforces the timeout;
             // the network timeout sits a margin above it, so it never fires first.

@@ -1,10 +1,12 @@
 using Menlo.AI.Configuration;
 using Menlo.AI.Extensions;
 using Menlo.AI.Interfaces;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenAI.Chat;
 using System.ClientModel.Primitives;
 using System.Text.Json.Nodes;
 
@@ -179,6 +181,132 @@ public sealed class ServiceCollectionExtensionsTests
         ItShouldSendTheKeyAsABearerToken();
 
         void ItShouldSendTheKeyAsABearerToken() => authorization.ShouldBe("Bearer llama-secret");
+    }
+
+    [Test]
+    [Arguments(null)]
+    [Arguments("")]
+    [Arguments(" ")]
+    public async Task NoDecisionModelIsConfigured(string? decisionModel)
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            ["Menlo:AI:ChatModel"] = "household-model",
+            ["Menlo:AI:DecisionModel"] = decisionModel
+        });
+        AiSettings settings = host.Services.GetRequiredService<IOptions<AiSettings>>().Value;
+
+        Exception? startup = await Catch.ExceptionAsync(() => host.StartAsync());
+        string answer = await DecideAsync(host);
+        (Uri uri, JsonObject body) = _llama.Requests.Single();
+
+        ItShouldStart();
+        ItShouldFallBackToTheChatModel();
+        ItShouldAskTheChatModel();
+        ItShouldCallTheConfiguredEndpoint();
+        ItShouldReturnTheServersAnswer();
+
+        void ItShouldStart() => startup.ShouldBeNull();
+
+        void ItShouldFallBackToTheChatModel() => settings.ResolvedDecisionModel.ShouldBe("household-model");
+
+        void ItShouldAskTheChatModel() => body["model"]!.GetValue<string>().ShouldBe("household-model");
+
+        void ItShouldCallTheConfiguredEndpoint() => uri.ShouldBe(new Uri("http://llama.test/v1/chat/completions"));
+
+        void ItShouldReturnTheServersAnswer() => answer.ShouldBe("AI service is working");
+    }
+
+    [Test]
+    public async Task ADecisionModelIsConfigured()
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            ["Menlo:AI:ChatModel"] = "household-model",
+            ["Menlo:AI:DecisionModel"] = "household-decision"
+        });
+        AiSettings settings = host.Services.GetRequiredService<IOptions<AiSettings>>().Value;
+
+        await DecideAsync(host);
+        await AskAsync(host);
+        string[] models = [.. _llama.Requests.Select(request => request.Body["model"]!.GetValue<string>())];
+
+        ItShouldBindIt();
+        ItShouldAskTheDecisionModelForDecisions();
+        ItShouldLeaveChatOnTheChatModel();
+
+        void ItShouldBindIt() => settings.ShouldSatisfyAllConditions(
+            () => settings.DecisionModel.ShouldBe("household-decision"),
+            () => settings.ResolvedDecisionModel.ShouldBe("household-decision"));
+
+        void ItShouldAskTheDecisionModelForDecisions() => models[0].ShouldBe("household-decision");
+
+        void ItShouldLeaveChatOnTheChatModel() => models[1].ShouldBe("household-model");
+    }
+
+    [Test]
+    public async Task ADecisionIsAskedWithTheCallersOptions()
+    {
+        using IHost host = BuildHost(new() { ["Menlo:AI:Endpoint"] = "http://llama.test/v1" });
+        ChatOptions options = new()
+        {
+            Temperature = 0.25f,
+            RawRepresentationFactory = _ => new ChatCompletionOptions { EndUserId = "budget-agent" }
+        };
+
+        await DecideAsync(host, options);
+        JsonObject body = _llama.Requests.Single().Body;
+
+        ItShouldAskTheModelNotToThink();
+        ItShouldKeepTheCallersOptions();
+        ItShouldKeepTheCallersRequestOptions();
+
+        void ItShouldAskTheModelNotToThink() =>
+            body["chat_template_kwargs"]!["enable_thinking"]!.GetValue<bool>().ShouldBeFalse();
+
+        void ItShouldKeepTheCallersOptions() => body["temperature"]!.GetValue<float>().ShouldBe(0.25f);
+
+        void ItShouldKeepTheCallersRequestOptions() => body["user"]!.GetValue<string>().ShouldBe("budget-agent");
+    }
+
+    [Test]
+    public async Task ADecisionIsAskedWithoutOptions()
+    {
+        using IHost host = BuildHost(new() { ["Menlo:AI:Endpoint"] = "http://llama.test/v1" });
+
+        await DecideAsync(host);
+        JsonObject body = _llama.Requests.Single().Body;
+
+        ItShouldAskTheModelNotToThink();
+
+        void ItShouldAskTheModelNotToThink() =>
+            body["chat_template_kwargs"]!["enable_thinking"]!.GetValue<bool>().ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task ADecisionIsAskedWithThinkingEnabled()
+    {
+        using IHost host = BuildHost(new()
+        {
+            ["Menlo:AI:Endpoint"] = "http://llama.test/v1",
+            ["Menlo:AI:EnableThinking"] = "true"
+        });
+
+        await DecideAsync(host);
+        JsonObject body = _llama.Requests.Single().Body;
+
+        ItShouldLeaveTheChatTemplateAlone();
+
+        void ItShouldLeaveTheChatTemplateAlone() => body.ContainsKey("chat_template_kwargs").ShouldBeFalse();
+    }
+
+    private static async Task<string> DecideAsync(IHost host, ChatOptions? options = null)
+    {
+        IChatClient client = host.Services.GetRequiredKeyedService<IChatClient>(AiClientKeys.Decision);
+        ChatResponse response = await client.GetResponseAsync("Rank these", options);
+        return response.Text;
     }
 
     private IHost BuildHost(Dictionary<string, string?> configuration)

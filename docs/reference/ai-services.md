@@ -25,11 +25,12 @@ flowchart LR
 | -------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
 | `IChatClient`                                | Singleton | OpenAI chat client for `ChatModel`                                                             |
 | `AIAgent`                                    | Singleton | Agent over that chat client                                                                    |
+| `IChatClient` keyed `Menlo.AI.Decision` (`AiClientKeys.Decision`) | Singleton | Chat client for the decision model, `DecisionModel` or else `ChatModel`. It asks the model not to think unless `EnableThinking` is on, on top of the caller's options |
 | `AIAgent` keyed `Menlo.AI.Vision`            | Singleton | Agent over a separate client for `VisionModel`, with a longer network timeout and no retries   |
 | `IChatService` → `ChatService`               | Scoped    | Text prompts                                                                                   |
 | `IVisionService` → `VisionService`           | Scoped    | Image prompts                                                                                  |
 
-The OpenAI client uses its own HTTP transport, not `IHttpClientFactory`, so the service defaults' resilience handler doesn't apply to model calls. If a `System.ClientModel.Primitives.PipelineTransport` is registered, both clients use it; the tests register a stub server this way.
+The OpenAI client uses its own HTTP transport, not `IHttpClientFactory`, so the service defaults' resilience handler doesn't apply to model calls. If a `System.ClientModel.Primitives.PipelineTransport` is registered, every client uses it; the tests register a stub server this way.
 
 Startup only validates configuration. It doesn't contact the model server, so the API starts and serves budgets while `llama-server` is down.
 
@@ -41,6 +42,7 @@ Settings bind from `Menlo:AI` (`AiSettings`) and are validated on start.
 | ------------------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
 | `Menlo:AI:Endpoint`       | none         | Required. Absolute `http` or `https` URL, including `/v1`                                               |
 | `Menlo:AI:ChatModel`      | `qwen3.5-4b` | Required. A model name the server serves (a section of its preset file)                                 |
+| `Menlo:AI:DecisionModel`  | `ChatModel`  | Optional. The model for decisions, such as ranking the budget agent's suggestions. When blank, decisions use `ChatModel`; set it to move decisions to a stronger model |
 | `Menlo:AI:VisionModel`    | `qwen3.5-4b` | Required. Separate from `ChatModel` so vision can move to another model; the model needs its projector |
 | `Menlo:AI:ApiKey`         | none         | The server's `--api-key`. When blank, the client sends `no-key`, which llama.cpp ignores unless it has a key |
 | `Menlo:AI:EnableThinking` | `false`      | When false, each request sends `chat_template_kwargs.enable_thinking = false`                           |

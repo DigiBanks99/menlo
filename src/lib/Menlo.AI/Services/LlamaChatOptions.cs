@@ -16,11 +16,27 @@ internal static class LlamaChatOptions
             ? new ChatOptions()
             : new ChatOptions { RawRepresentationFactory = _ => WithThinkingDisabled() };
 
+    /// <summary>
+    /// Unless thinking is enabled, makes <paramref name="options"/> send <c>chat_template_kwargs.enable_thinking = false</c>,
+    /// on top of any request options the caller already builds.
+    /// </summary>
+    public static void Apply(ChatOptions options, bool enableThinking)
+    {
+        if (enableThinking)
+        {
+            return;
+        }
+
+        Func<IChatClient, object?>? callerFactory = options.RawRepresentationFactory;
+        options.RawRepresentationFactory = client =>
+            WithThinkingDisabled(callerFactory?.Invoke(client) as ChatCompletionOptions ?? new ChatCompletionOptions());
+    }
+
     // The field is not part of the OpenAI schema, so it is added to the request body through the SDK's JSON patch.
 #pragma warning disable SCME0001 // JsonPatch is experimental
-    private static ChatCompletionOptions WithThinkingDisabled()
+    private static ChatCompletionOptions WithThinkingDisabled(ChatCompletionOptions? options = null)
     {
-        ChatCompletionOptions options = new();
+        options ??= new ChatCompletionOptions();
         options.Patch.Set("$.chat_template_kwargs.enable_thinking"u8, false);
         return options;
     }

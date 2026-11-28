@@ -18,6 +18,17 @@ public sealed class AiSettings
     public string ChatModel { get; init; } = "qwen3.5-4b";
 
     /// <summary>
+    /// Model name the server serves for decisions, such as ranking the budget agent's suggestions. Optional: when blank,
+    /// decisions use <see cref="ChatModel"/>. A separate key so decisions can move to a stronger model.
+    /// </summary>
+    public string? DecisionModel { get; init; }
+
+    /// <summary>
+    /// The model decisions are asked of: <see cref="DecisionModel"/>, or <see cref="ChatModel"/> when that is blank.
+    /// </summary>
+    public string ResolvedDecisionModel => string.IsNullOrWhiteSpace(DecisionModel) ? ChatModel : DecisionModel;
+
+    /// <summary>
     /// Optional API key for the server. llama.cpp needs none unless started with <c>--api-key</c>.
     /// </summary>
     public string? ApiKey { get; init; }
