@@ -101,19 +101,32 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
 
         HttpResponseMessage response = await client.GetAsync("/openapi/v1.json", Cancellation);
         using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(Cancellation));
-        List<string> budgetPaths = document.RootElement.GetProperty("paths").EnumerateObject()
-            .Select(path => path.Name)
-            .Where(path => path.StartsWith("/api/budgets", StringComparison.Ordinal))
+        List<(string Method, string Path)> budgetOperations = document.RootElement.GetProperty("paths").EnumerateObject()
+            .Where(path => path.Name.StartsWith("/api/budgets", StringComparison.Ordinal))
+            .SelectMany(path => path.Value.EnumerateObject().Select(operation => (operation.Name, path.Name)))
             .ToList();
 
         ItShouldServeTheDocument();
+        ItShouldNotListTheOldBudgetList();
+        ItShouldNotListTheOldCreateByYear();
+        ItShouldNotAddressABudgetByItsId();
         ItShouldOnlyListBudgetPathsByYear();
 
         void ItShouldServeTheDocument() => response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
+        // ListBudgets
+        void ItShouldNotListTheOldBudgetList() => budgetOperations.ShouldNotContain(("get", "/api/budgets"));
+
+        // CreateBudget took the year in the path; the new one takes it in the body
+        void ItShouldNotListTheOldCreateByYear() => budgetOperations.ShouldNotContain(("post", "/api/budgets/{year}"));
+
+        void ItShouldNotAddressABudgetByItsId() => budgetOperations.ShouldAllBe(
+            operation => !operation.Path.Contains("{id}", StringComparison.Ordinal)
+                && !operation.Path.Contains("{budgetId}", StringComparison.Ordinal));
+
         // The old budget was addressed by its ID; the new one is addressed by its year
-        void ItShouldOnlyListBudgetPathsByYear() => budgetPaths.ShouldAllBe(
-            path => path == "/api/budgets" || path.StartsWith("/api/budgets/{year}", StringComparison.Ordinal));
+        void ItShouldOnlyListBudgetPathsByYear() => budgetOperations.ShouldAllBe(
+            operation => operation.Path == "/api/budgets" || operation.Path.StartsWith("/api/budgets/{year}", StringComparison.Ordinal));
     }
 
     // Each route that an endpoint answered, as "METHOD path: status". Unknown API addresses get a bare 404, and so does
