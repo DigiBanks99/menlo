@@ -22,14 +22,14 @@ public sealed class UiShellTests : TestFixture
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true };
         using HttpClient client = factory.CreateClient(NoRedirects);
 
-        HttpResponseMessage response = await client.GetAsync("/budgets?view=yearly", Cancellation);
+        HttpResponseMessage response = await client.GetAsync("/analytics?period=year", Cancellation);
 
         ItShouldSendThemToSignInAndRememberWhereTheyWereGoing();
 
         void ItShouldSendThemToSignInAndRememberWhereTheyWereGoing()
         {
             response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
-            response.Headers.Location!.OriginalString.ShouldBe("/sign-in?returnUrl=%2Fbudgets%3Fview%3Dyearly");
+            response.Headers.Location!.OriginalString.ShouldBe("/sign-in?returnUrl=%2Fanalytics%3Fperiod%3Dyear");
         }
     }
 
@@ -38,7 +38,7 @@ public sealed class UiShellTests : TestFixture
     {
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true };
         using HttpClient client = factory.CreateClient(NoRedirects);
-        HttpRequestMessage request = new(HttpMethod.Get, "/budgets?q=a&b=\"c\"");
+        HttpRequestMessage request = new(HttpMethod.Get, "/analytics?q=a&b=\"c\"");
         request.Headers.Add("Sec-Fetch-Site", "cross-site");
 
         HttpResponseMessage response = await client.SendAsync(request, Cancellation);
@@ -51,8 +51,8 @@ public sealed class UiShellTests : TestFixture
         {
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
             IElement refresh = document.QuerySelector("meta[http-equiv='refresh']")!;
-            refresh.GetAttribute("content").ShouldBe("0;url=/budgets?q=a&b=%22c%22");
-            document.QuerySelector("a")!.GetAttribute("href").ShouldBe("/budgets?q=a&b=%22c%22");
+            refresh.GetAttribute("content").ShouldBe("0;url=/analytics?q=a&b=%22c%22");
+            document.QuerySelector("a")!.GetAttribute("href").ShouldBe("/analytics?q=a&b=%22c%22");
         }
 
         void ItShouldNotBeCached() => response.Headers.CacheControl!.NoStore.ShouldBeTrue();
@@ -64,7 +64,7 @@ public sealed class UiShellTests : TestFixture
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true };
         using HttpClient client = factory.CreateClient(NoRedirects);
 
-        HttpResponseMessage response = await client.HtmxAsync(HttpMethod.Get, "/budgets");
+        HttpResponseMessage response = await client.HtmxAsync(HttpMethod.Get, "/analytics");
 
         ItShouldAnswer401SoTheScriptCanSendTheBrowserToSignIn();
 
@@ -78,7 +78,7 @@ public sealed class UiShellTests : TestFixture
         await using TestWebApplicationFactory factory = new() { SimulateUnauthenticated = true };
         using HttpClient client = factory.CreateClient(NoRedirects);
 
-        HttpResponseMessage response = await client.GetAsync("/sign-in?returnUrl=%2Fbudgets", Cancellation);
+        HttpResponseMessage response = await client.GetAsync("/sign-in?returnUrl=%2Fanalytics", Cancellation);
         IHtmlDocument document = await response.DocumentAsync();
 
         ItShouldShowTheSignInButtonThatLeavesTheAppWithoutHtmx();
@@ -88,7 +88,7 @@ public sealed class UiShellTests : TestFixture
         {
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
             IElement button = document.ByTestId("sign-in-button");
-            button.GetAttribute("href").ShouldBe("/auth/login?returnUrl=%2Fbudgets");
+            button.GetAttribute("href").ShouldBe("/auth/login?returnUrl=%2Fanalytics");
             button.GetAttribute("hx-boost").ShouldBe("false");
         }
 
@@ -158,8 +158,7 @@ public sealed class UiShellTests : TestFixture
         ItShouldRenderAFullHtmlPage();
         ItShouldShowTheNavigationWithHomeCurrent();
         ItShouldShowWhoIsSignedInAndASignOutButton();
-        ItShouldLoadTheBudgetWidgetWithAPostAfterThePageRenders();
-        ItShouldLinkToBudgetsAndAnalytics();
+        ItShouldLinkToAnalytics();
 
         void ItShouldRenderAFullHtmlPage()
         {
@@ -171,8 +170,7 @@ public sealed class UiShellTests : TestFixture
         void ItShouldShowTheNavigationWithHomeCurrent()
         {
             document.ByTestId("mnl-nav-item-/").GetAttribute("aria-current").ShouldBe("page");
-            document.ByTestId("mnl-nav-item-/budgets").HasAttribute("aria-current").ShouldBeFalse();
-            document.ByTestId("mnl-nav-item-/analytics").ShouldNotBeNull();
+            document.ByTestId("mnl-nav-item-/analytics").HasAttribute("aria-current").ShouldBeFalse();
         }
 
         void ItShouldShowWhoIsSignedInAndASignOutButton()
@@ -184,30 +182,53 @@ public sealed class UiShellTests : TestFixture
             form.GetAttribute("hx-boost").ShouldBe("false");
         }
 
-        void ItShouldLoadTheBudgetWidgetWithAPostAfterThePageRenders()
+        void ItShouldLinkToAnalytics()
         {
-            IElement loader = document.QuerySelector("[hx-post='/home/budget-widget']")!;
-            loader.GetAttribute("hx-trigger").ShouldBe("load");
-            document.ByTestId("widget-loading").ShouldNotBeNull();
-        }
-
-        void ItShouldLinkToBudgetsAndAnalytics()
-        {
-            document.ByTestId("home-primary-action").GetAttribute("href").ShouldBe("/budgets");
-            document.ByTestId("home-secondary-action").GetAttribute("href").ShouldBe("/analytics");
+            document.ByTestId("home-primary-action").GetAttribute("href").ShouldBe("/analytics");
             document.QuerySelectorAll("[data-testid='home-feature-card']").Length.ShouldBe(3);
         }
     }
 
     [Test]
-    public async Task GivenSomeoneWithoutABudgetRole_WhenOpeningBudgets()
+    [Arguments("true", true)]
+    [Arguments("false", false)]
+    [Arguments(null, false)]
+    public async Task GivenTheBudgetFlag_WhenOpeningAPage_ThenTheBudgetNavigationItemFollowsIt(string? flag, bool shown)
+    {
+        await using TestWebApplicationFactory factory = new()
+        {
+            // Not set at all when there is no flag
+            ConfigurationOverrides = flag is null
+                ? new Dictionary<string, string?>()
+                : new Dictionary<string, string?> { ["Features:Budget"] = flag }
+        };
+        using HttpClient client = factory.CreateClient(NoRedirects);
+
+        HttpResponseMessage response = await client.GetAsync("/", Cancellation);
+        IHtmlDocument document = await response.DocumentAsync();
+
+        ItShouldShowTheBudgetItemOnlyWhileTheFlagIsOn();
+        ItShouldAlwaysShowHomeAndAnalytics();
+
+        void ItShouldShowTheBudgetItemOnlyWhileTheFlagIsOn() =>
+            (document.FindByTestId("mnl-nav-item-/budgets") is not null).ShouldBe(shown);
+
+        void ItShouldAlwaysShowHomeAndAnalytics()
+        {
+            document.ByTestId("mnl-nav-item-/").ShouldNotBeNull();
+            document.ByTestId("mnl-nav-item-/analytics").ShouldNotBeNull();
+        }
+    }
+
+    [Test]
+    public async Task GivenSomeoneWithoutABudgetRole_WhenOpeningAnalytics()
     {
         await using TestWebApplicationFactory factory = new() { UserRoles = [] };
         using HttpClient client = factory.CreateClient(NoRedirects);
 
-        HttpResponseMessage page = await client.GetAsync("/budgets", Cancellation);
+        HttpResponseMessage page = await client.GetAsync("/analytics", Cancellation);
         IHtmlDocument document = await page.DocumentAsync();
-        HttpResponseMessage fragment = await client.HtmxAsync(HttpMethod.Get, "/budgets");
+        HttpResponseMessage fragment = await client.HtmxAsync(HttpMethod.Get, "/analytics");
 
         ItShouldShowTheNoAccessPage();
         ItShouldAnswerAFragmentRequestWithABare403();
@@ -269,10 +290,13 @@ public sealed class UiShellTests : TestFixture
     [Test]
     public async Task GivenAUiAction_WhenPostedWithoutAnAntiForgeryToken()
     {
-        await using TestWebApplicationFactory factory = new();
+        await using TestWebApplicationFactory factory = new()
+        {
+            ConfigurationOverrides = new Dictionary<string, string?> { ["Features:DesignGallery"] = "true" }
+        };
         using HttpClient client = factory.CreateClient(NoRedirects);
 
-        HttpResponseMessage response = await client.HtmxAsync(HttpMethod.Post, "/home/budget-widget");
+        HttpResponseMessage response = await client.HtmxAsync(HttpMethod.Post, "/design/toast?tone=error");
 
         ItShouldBeRefused();
 

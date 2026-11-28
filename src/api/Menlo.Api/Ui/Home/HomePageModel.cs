@@ -6,15 +6,13 @@ namespace Menlo.Api.Ui.Home;
 /// The home page's view model.
 /// </summary>
 public sealed record HomePageModel(
-    int CurrentYear,
     IReadOnlyList<HomeFeature> Features,
     IReadOnlyList<HomeStat> OverviewStats)
 {
     /// <summary>
     /// The home page content. The overview figures are placeholders until the dashboard is fed by real data.
     /// </summary>
-    public static HomePageModel Create(int currentYear) => new(
-        currentYear,
+    public static HomePageModel Create() => new(
         [
             new HomeFeature(
                 "Smart budgeting",
@@ -44,11 +42,3 @@ public sealed record HomeFeature(string Badge, MnlTone BadgeTone, string Title, 
 
 /// <summary>A figure in the overview card.</summary>
 public sealed record HomeStat(string Label, string Value, string Trend, MnlTrendDirection Direction, MnlTone Tone);
-
-/// <summary>
-/// The current-budget widget's view model. Exactly one of <see cref="Budget"/> and <see cref="Error"/> is set.
-/// </summary>
-public sealed record BudgetWidgetModel(int Year, BudgetWidgetBudget? Budget, string? Error);
-
-/// <summary>The budget shown in the widget.</summary>
-public sealed record BudgetWidgetBudget(Guid Id, string Status, MnlTone StatusTone, string PlannedThisMonth);

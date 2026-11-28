@@ -1,4 +1,4 @@
-@* The landing page: a hero, the current-budget widget, feature highlights and a month overview. *@
+@* The landing page: a hero, the household dashboard card, feature highlights and a month overview. *@
 <AppPage Page="Page" Title="Home">
     <MnlStack Gap="MnlGap.Xl">
         <MnlPageHeader>
@@ -10,48 +10,27 @@
                         <MnlText Size="MnlTextSize.Lg" Tone="MnlTextTone.Inherit">Your intelligent family budget management system.</MnlText>
                     </MnlStack>
                     <MnlCluster Gap="MnlGap.Md" StackOnMobile="true" data-testid="home-actions">
-                        <MnlButton Href="/budgets" data-testid="home-primary-action">View Budgets</MnlButton>
-                        <MnlButton Href="/analytics" Variant="MnlButtonVariant.Secondary" data-testid="home-secondary-action">Analytics</MnlButton>
+                        <MnlButton Href="/analytics" data-testid="home-primary-action">Analytics</MnlButton>
                     </MnlCluster>
                 </MnlStack>
             </Hero>
             <ChildContent>
-                <MnlSplit Ratio="MnlSplitRatio.WideStart" Gap="MnlGap.Md" Align="MnlAlign.Stretch" data-testid="home-overlap">
-                    @* The widget makes sure this year's budget exists, which changes data, so it loads with a POST after the page renders *@
-                    <div hx-post="/home/budget-widget" hx-trigger="load" hx-swap="outerHTML">
-                        <MnlCard Padding="MnlSize.Lg" data-testid="budget-widget-card">
-                            <Header>
-                                <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Start">
-                                    <MnlStack Gap="MnlGap.Sm">
-                                        <MnlEyebrow>Current budget</MnlEyebrow>
-                                        <MnlHeading Level="2" data-testid="widget-title">Budget @Model.CurrentYear</MnlHeading>
-                                    </MnlStack>
-                                    <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Syncing</MnlBadge>
-                                </MnlCluster>
-                            </Header>
-                            <ChildContent>
-                                <MnlText Tone="MnlTextTone.Subtle" Weight="MnlWeight.Medium" data-testid="widget-loading">Loading...</MnlText>
-                            </ChildContent>
-                        </MnlCard>
-                    </div>
-
-                    <MnlCard Padding="MnlSize.Lg">
-                        <MnlStack>
-                            <MnlStack Gap="MnlGap.Sm">
-                                <MnlEyebrow>Household dashboard</MnlEyebrow>
-                                <MnlHeading Level="2">A calm summary for budgets, planning, and quick decisions.</MnlHeading>
-                            </MnlStack>
-                            <MnlText Tone="MnlTextTone.Subtle">
-                                Move from today's household snapshot into detailed budget workspaces without losing context across mobile and desktop.
-                            </MnlText>
-                            <MnlCluster>
-                                <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm">Responsive</MnlBadge>
-                                <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Theme-aware</MnlBadge>
-                                <MnlBadge Size="MnlSize.Sm">Private-first</MnlBadge>
-                            </MnlCluster>
+                <MnlCard Padding="MnlSize.Lg" data-testid="home-dashboard-card">
+                    <MnlStack>
+                        <MnlStack Gap="MnlGap.Sm">
+                            <MnlEyebrow>Household dashboard</MnlEyebrow>
+                            <MnlHeading Level="2">A calm summary for budgets, planning, and quick decisions.</MnlHeading>
                         </MnlStack>
-                    </MnlCard>
-                </MnlSplit>
+                        <MnlText Tone="MnlTextTone.Subtle">
+                            Move from today's household snapshot into detailed budget workspaces without losing context across mobile and desktop.
+                        </MnlText>
+                        <MnlCluster>
+                            <MnlBadge Tone="MnlTone.Success" Size="MnlSize.Sm">Responsive</MnlBadge>
+                            <MnlBadge Tone="MnlTone.Info" Size="MnlSize.Sm">Theme-aware</MnlBadge>
+                            <MnlBadge Size="MnlSize.Sm">Private-first</MnlBadge>
+                        </MnlCluster>
+                    </MnlStack>
+                </MnlCard>
             </ChildContent>
         </MnlPageHeader>
 

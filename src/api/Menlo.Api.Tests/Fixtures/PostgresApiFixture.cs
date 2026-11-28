@@ -4,19 +4,21 @@ using Menlo.Lib.Auth.Errors;
 using Menlo.Lib.Auth.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using NSubstitute;
 using Testcontainers.PostgreSql;
 using TUnit.Core.Interfaces;
 
-namespace Menlo.Api.Tests.Budget;
+namespace Menlo.Api.Tests.Fixtures;
 
-public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
+/// <summary>
+/// One migrated PostgreSQL database for the test session, for tests that run the whole app against a real database.
+/// </summary>
+public sealed class PostgresApiFixture : IAsyncInitializer, IAsyncDisposable
 {
     /// <summary>
     /// Set this environment variable to a PostgreSQL connection string to run against that server and not start a
     /// container, for machines where Testcontainers can not reach a container engine. Point it at a database
-    /// that holds nothing else: the budget tables are emptied before each test.
+    /// that holds nothing else.
     /// </summary>
     public const string ExternalDatabaseVariable = "MENLO_TEST_POSTGRES";
 
@@ -27,61 +29,22 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
         ? new PostgreSqlBuilder("postgres:17").Build()
         : null;
 
-    private BudgetTestWebApplicationFactory _factory = null!;
+    private PostgresTestWebApplicationFactory _factory = null!;
 
     public string ConnectionString { get; private set; } = string.Empty;
 
-    public HttpClient CreateClient() => _factory.CreateClient();
-
     /// <summary>
-    /// Creates an API host on the shared database for one test. Budgets are unique per year across the whole
-    /// database, so the budget tables are emptied first (the budget tests run one at a time) and no test sees
-    /// another's data, whatever order they run in. Pass <paramref name="keepData"/> when a second host in the same
-    /// test must see what the first one wrote, and <paramref name="asDifferentMember"/> to sign in as another member.
+    /// Creates an API host on the shared, already migrated database for one test, signed in as the test user.
     /// </summary>
-    public BudgetTestWebApplicationFactory CreateIsolatedFactory(
-        bool budgetItemsEnabled = false,
-        bool simulateUnauthenticated = false,
-        bool keepData = false,
-        bool asDifferentMember = false,
-        bool useRealStampFactories = false,
-        string[]? userRoles = null)
-    {
-        if (!keepData)
-        {
-            ResetBudgetData();
-        }
-
-        return new()
+    public PostgresTestWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?>? configuration = null) =>
+        new()
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = true,
             UseRealUserProvisioning = true,
-            UseRealStampFactories = useRealStampFactories,
-            SimulateUnauthenticated = simulateUnauthenticated,
-            UserRoles = userRoles ?? ["Menlo.User"],
-            UserId = asDifferentMember ? Guid.NewGuid().ToString() : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultUserId,
-            UserEmail = asDifferentMember ? $"member-{Guid.NewGuid():N}@menlo.test" : Menlo.Api.Tests.Fixtures.TestAuthHandler.DefaultEmail,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true",
-                ["Features:BudgetItems"] = budgetItemsEnabled ? "true" : "false"
-            }
+            UserRoles = ["Menlo.User"],
+            ConfigurationOverrides = configuration ?? new Dictionary<string, string?>()
         };
-    }
-
-    private void ResetBudgetData()
-    {
-        using NpgsqlConnection connection = new(ConnectionString);
-        connection.Open();
-        using NpgsqlCommand command = connection.CreateCommand();
-        command.CommandText = "TRUNCATE budget_schema.budget_items, budget_schema.budget_categories, "
-            + "budget_schema.canonical_categories, budget_schema.budgets CASCADE";
-        command.ExecuteNonQuery();
-    }
-
-    public Task<HttpClient> CreateAntiforgeryClientAsync(CancellationToken cancellationToken = default) =>
-        _factory.CreateAntiforgeryClientAsync(cancellationToken: cancellationToken);
 
     public async Task InitializeAsync()
     {
@@ -95,18 +58,14 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
             ConnectionString = $"{_container.GetConnectionString()};SSL Mode=Disable";
         }
 
-        _factory = new BudgetTestWebApplicationFactory()
+        _factory = new PostgresTestWebApplicationFactory
         {
             MenloConnectionString = ConnectionString,
             SkipMigration = false,
-            UseRealUserProvisioning = true,
-            ConfigurationOverrides = new Dictionary<string, string?>
-            {
-                ["Features:Budget"] = "true"
-            }
+            UseRealUserProvisioning = true
         };
 
-        // Warm up — this triggers EF Core migrations
+        // Warm up: this runs the EF Core migrations
         _ = _factory.CreateClient();
     }
 
@@ -125,7 +84,7 @@ public sealed class BudgetApiFixture : IAsyncInitializer, IAsyncDisposable
 /// <see cref="IUserContextProvider"/> with an NSubstitute mock that always
 /// returns a successful <see cref="UserContext"/>.
 /// </summary>
-public sealed class BudgetTestWebApplicationFactory
+public sealed class PostgresTestWebApplicationFactory
     : TestWebApplicationFactory
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)

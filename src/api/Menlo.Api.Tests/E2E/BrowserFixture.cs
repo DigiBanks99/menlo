@@ -1,4 +1,4 @@
-using Menlo.Api.Tests.Budget;
+using Menlo.Api.Tests.Fixtures;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +9,7 @@ namespace Menlo.Api.Tests.E2E;
 
 /// <summary>
 /// One browser for the whole test session. Each test gets its own <see cref="AppSession"/>: the app
-/// on a real port with an empty budget database, and a fresh browser context pointed at it.
+/// on a real port with a real database, and a fresh browser context pointed at it.
 /// </summary>
 /// <remarks>
 /// The tests drive the installed Chrome, so there is no browser to download. Set
@@ -37,7 +37,7 @@ public sealed class BrowserFixture : IAsyncInitializer, IAsyncDisposable
     /// Starts the app on a free port and opens a page on it, signed in as the test user.
     /// </summary>
     public async Task<AppSession> StartAsync(
-        BudgetTestWebApplicationFactory factory,
+        PostgresTestWebApplicationFactory factory,
         ViewportSize? viewport = null,
         ColorScheme colorScheme = ColorScheme.Light)
     {
@@ -80,10 +80,10 @@ public sealed class BrowserFixture : IAsyncInitializer, IAsyncDisposable
 /// </summary>
 public sealed class AppSession : IAsyncDisposable
 {
-    private readonly BudgetTestWebApplicationFactory _factory;
+    private readonly PostgresTestWebApplicationFactory _factory;
     private readonly IBrowserContext _context;
 
-    internal AppSession(BudgetTestWebApplicationFactory factory, IBrowserContext context, IPage page)
+    internal AppSession(PostgresTestWebApplicationFactory factory, IBrowserContext context, IPage page)
     {
         _factory = factory;
         _context = context;

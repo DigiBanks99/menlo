@@ -4,7 +4,6 @@ using Menlo.Api.Antiforgery;
 using Menlo.Api.Auth;
 using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
-using Menlo.Api.Budget;
 using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
 using Menlo.Api.Ui;
@@ -58,9 +57,6 @@ RouteGroupBuilder apiGroup = app
     .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
 
-// Budget endpoints
-apiGroup.MapBudgetEndpoints();
-
 // Add simple AI health check endpoint
 apiGroup
     .MapGet("/ai/health", async (IChatService chatService) =>
@@ -82,6 +78,5 @@ app.MapDefaultEndpoints();
 app.MapMenloUi();
 
 await app.MigrateDatabaseAsync();
-await app.SeedDemoBudgetAsync();
 
 app.Run();

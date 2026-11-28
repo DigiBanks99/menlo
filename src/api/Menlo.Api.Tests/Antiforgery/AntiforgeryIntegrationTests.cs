@@ -1,19 +1,15 @@
-using Menlo.Api.Budget;
-using Menlo.Api.Tests.Budget;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
-using System.Text.Json;
 
 namespace Menlo.Api.Tests.Antiforgery;
 
-[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
-[NotInParallel("Budget")]
-public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : TestFixture
+public sealed class AntiForgeryIntegrationTests : TestFixture
 {
     private const string RequestTokenCookieName = "XSRF-TOKEN";
     private const string HeaderName = "X-XSRF-TOKEN";
 
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    // The check runs before routing, so a write to any API address shows it, whether or not an endpoint answers
+    private const string ApiWriteUrl = "/api/ai/health";
 
     [Test]
     public async Task GetAsync_WithAuthenticatedApiRequestWithoutAntiForgeryToken()
@@ -28,14 +24,13 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     }
 
     [Test]
-    public async Task PostAsync_WithAuthenticatedBudgetMutationWithoutAntiForgeryToken()
+    public async Task PostAsync_WithAuthenticatedApiWriteWithoutAntiForgeryToken()
     {
-        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
-        int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage response = await client
-            .PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
+            .PostAsync(ApiWriteUrl, null, TestContext.Current!.Execution.CancellationToken);
 
         string problemDetails = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
 
@@ -44,11 +39,10 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     }
 
     [Test]
-    public async Task PostAsync_WithAuthenticatedBudgetMutationAndValidAntiForgeryToken()
+    public async Task PostAsync_WithAuthenticatedApiWriteAndValidAntiForgeryToken()
     {
-        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        await using TestWebApplicationFactory factory = new();
         using HttpClient client = factory.CreateClient();
-        int year = DateTimeOffset.UtcNow.Year;
 
         HttpResponseMessage tokenResponse = await client
             .GetAsync("/api/ai/health", TestContext.Current!.Execution.CancellationToken);
@@ -56,12 +50,10 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         client.DefaultRequestHeaders.Add(HeaderName, requestToken);
 
         HttpResponseMessage response =
-            await client.PostAsync($"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
-        BudgetDto? dto = await DeserializeBudgetDto(response);
+            await client.PostAsync(ApiWriteUrl, null, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(tokenResponse);
-        ItShouldHaveReturned201Created(response);
-        ItShouldHaveTheRequestedBudgetYear(dto, year);
+        ItShouldNotHaveBeenRejectedByAntiforgery(response);
     }
 
     [Test]
@@ -98,19 +90,10 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
     private static void ItShouldHaveReturned400BadRequest(HttpResponseMessage response) =>
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-    private static void ItShouldHaveReturned201Created(HttpResponseMessage response) =>
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-
     private static void ItShouldDescribeTheAntiforgeryFailure(string problemDetails)
     {
         problemDetails.ShouldContain("Invalid anti-forgery token.");
         problemDetails.ShouldContain(HeaderName);
-    }
-
-    private static void ItShouldHaveTheRequestedBudgetYear(BudgetDto? dto, int expectedYear)
-    {
-        dto.ShouldNotBeNull();
-        dto.Year.ShouldBe(expectedYear);
     }
 
     private static void ItShouldSetAReadableRequestTokenCookie(string requestTokenCookie)
@@ -142,11 +125,5 @@ public sealed class AntiForgeryIntegrationTests(BudgetApiFixture fixture) : Test
         headers.ShouldNotBeNull();
 
         return headers.Single(header => header.StartsWith($"{cookieName}=", StringComparison.Ordinal));
-    }
-
-    private static async Task<BudgetDto?> DeserializeBudgetDto(HttpResponseMessage response)
-    {
-        string content = await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken);
-        return JsonSerializer.Deserialize<BudgetDto>(content, JsonOptions);
     }
 }

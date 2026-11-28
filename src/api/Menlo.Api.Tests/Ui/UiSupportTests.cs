@@ -1,10 +1,8 @@
-using Menlo.Api.Ui.Budgets;
 using Menlo.Api.Ui.Shared;
 using Menlo.Ui.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 
 namespace Menlo.Api.Tests.Ui;
 
@@ -90,81 +88,6 @@ public sealed class UiSupportTests
         outcome.IsSuccess.ShouldBeFalse();
         outcome.IsNotFound.ShouldBe(status == 404);
         outcome.Error.ShouldBe(message);
-    }
-
-    [Test]
-    public void GivenAnEmptyQueryString_WhenThePageStateIsRead()
-    {
-        BudgetDetailQuery query = BudgetDetailQuery.From(new QueryCollection(), currentMonth: 7);
-
-        ItShouldDefaultToThisMonthWithNoFilters();
-
-        void ItShouldDefaultToThisMonthWithNoFilters()
-        {
-            query.Category.ShouldBeNull();
-            query.IsMonthly.ShouldBeTrue();
-            query.Month.ShouldBe(7);
-            query.HasFilter.ShouldBeFalse();
-            query.Deleted.ShouldBeFalse();
-        }
-    }
-
-    [Test]
-    public void GivenAFullQueryString_WhenThePageStateIsReadAndWrittenBack()
-    {
-        Guid budget = Guid.NewGuid();
-        Guid category = Guid.NewGuid();
-        BudgetDetailQuery query = BudgetDetailQuery.From(
-            new QueryCollection(new Dictionary<string, StringValues>
-            {
-                ["category"] = category.ToString(),
-                ["q"] = "  rent & rates ",
-                ["flow"] = "Expense",
-                ["attribution"] = "Rental",
-                ["deleted"] = "true",
-                ["view"] = "YEARLY",
-                ["month"] = "3"
-            }),
-            currentMonth: 7);
-
-        string url = query.Url(budget);
-
-        ItShouldReadEveryPart();
-        ItShouldWriteAnAddressThatReadsBackTheSame();
-
-        void ItShouldReadEveryPart()
-        {
-            query.Category.ShouldBe(category);
-            query.Search.ShouldBe("rent & rates");
-            query.Flow.ShouldBe("Expense");
-            query.Attribution.ShouldBe("Rental");
-            query.Deleted.ShouldBeTrue();
-            query.IsMonthly.ShouldBeFalse();
-            query.Month.ShouldBe(3);
-            query.HasFilter.ShouldBeTrue();
-        }
-
-        void ItShouldWriteAnAddressThatReadsBackTheSame()
-        {
-            url.ShouldStartWith($"/budgets/{budget}?category={category}&q=rent%20%26%20rates&flow=Expense&attribution=Rental&deleted=true");
-            url.ShouldEndWith("&view=yearly&month=3");
-        }
-    }
-
-    [Test]
-    [Arguments("0")]
-    [Arguments("13")]
-    [Arguments("march")]
-    [Arguments("-2")]
-    public void GivenAMonthThatIsNotAMonth_WhenThePageStateIsRead_ThenThisMonthIsUsed(string month)
-    {
-        BudgetDetailQuery query = BudgetDetailQuery.From(
-            new QueryCollection(new Dictionary<string, StringValues> { ["month"] = month, ["category"] = "not-a-guid", ["deleted"] = "false" }),
-            currentMonth: 7);
-
-        query.Month.ShouldBe(7);
-        query.Category.ShouldBeNull();
-        query.Deleted.ShouldBeFalse();
     }
 
     [Test]
@@ -255,7 +178,7 @@ public sealed class UiSupportTests
         IResult result = new HxResponse()
             .Toast("Category created.")
             .ClosePanel()
-            .Raise(UiEvents.CategoriesChanged)
+            .Raise("categories-changed")
             .NoContent(context);
         new HxResponse().Apply(quiet.Response);
 
@@ -314,56 +237,5 @@ public sealed class UiSupportTests
         }
 
         void ItShouldStartValid() => FormErrors.None.IsValid.ShouldBeTrue();
-    }
-
-    [Test]
-    public void GivenStatusesPercentagesAndMonths_WhenPresented()
-    {
-        ItShouldToneAStatus();
-        ItShouldToneSpending();
-        ItShouldToneAFlow();
-        ItShouldNameAMonth();
-        ItShouldCountCategories();
-        ItShouldLabelAnAttribution();
-
-        void ItShouldToneAStatus()
-        {
-            BudgetPresentation.StatusTone("Active").ShouldBe(MnlTone.Success);
-            BudgetPresentation.StatusTone("Closed").ShouldBe(MnlTone.Neutral);
-            BudgetPresentation.StatusTone("Draft").ShouldBe(MnlTone.Warning);
-        }
-
-        void ItShouldToneSpending()
-        {
-            BudgetPresentation.SpendTone(79.9m).ShouldBe(MnlTone.Success);
-            BudgetPresentation.SpendTone(80m).ShouldBe(MnlTone.Warning);
-            BudgetPresentation.SpendTone(95m).ShouldBe(MnlTone.Error);
-        }
-
-        void ItShouldToneAFlow()
-        {
-            BudgetPresentation.FlowTone("Income").ShouldBe(MnlTone.Success);
-            BudgetPresentation.FlowTone("Expense").ShouldBe(MnlTone.Info);
-        }
-
-        void ItShouldNameAMonth()
-        {
-            BudgetPresentation.MonthName(1).ShouldBe("January");
-            BudgetPresentation.MonthName(12).ShouldBe("December");
-            BudgetPresentation.MonthName(13).ShouldBe("Month 13");
-        }
-
-        void ItShouldCountCategories()
-        {
-            BudgetPresentation.CategoryCount(0).ShouldBe("0 categories");
-            BudgetPresentation.CategoryCount(1).ShouldBe("1 category");
-            BudgetPresentation.CategoryCount(6).ShouldBe("6 categories");
-        }
-
-        void ItShouldLabelAnAttribution()
-        {
-            CategoryOptions.AttributionLabel("ServiceProvider").ShouldBe("Service Provider");
-            CategoryOptions.AttributionLabel("Unknown").ShouldBe("Unknown");
-        }
     }
 }
