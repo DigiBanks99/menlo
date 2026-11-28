@@ -34,9 +34,19 @@ public static class BudgetEndpoints
         budgets
             .MapGet("/{year:int}", Get)
             .WithName("GetBudget")
-            .WithSummary("Gets the budget for a calendar year.")
+            .WithSummary("Gets the budget for a calendar year, with its category tree.")
             .Produces<BudgetDto>()
             .Produces(StatusCodes.Status404NotFound);
+
+        budgets
+            .MapPost("/{year:int}/categories", AddCategory)
+            .WithName("AddBudgetCategory")
+            .WithSummary("Adds a category to a year's budget, at the top level or under a top-level category. Categories nest at most two deep.")
+            .Produces<CategoryDto>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         return api;
     }
@@ -66,6 +76,28 @@ public static class BudgetEndpoints
         await handlers.GetAsync(year, cancellationToken) is { } budget
             ? Results.Ok(budget)
             : Results.NotFound();
+
+    private static async Task<IResult> AddCategory(
+        int year,
+        AddCategoryRequest request,
+        BudgetHandlers handlers,
+        CancellationToken cancellationToken)
+    {
+        Result<CategoryDto, BudgetError> added = await handlers.AddCategoryAsync(year, request.Name, request.ParentId, cancellationToken);
+        if (added.IsSuccess)
+        {
+            return Results.Created($"/api/budgets/{year}/categories/{added.Value.Id}", added.Value);
+        }
+
+        return added.Error switch
+        {
+            BudgetNotFoundError => Problem(added.Error, "The year has no budget", StatusCodes.Status404NotFound),
+            CategoryNameTakenError => Problem(added.Error, "The name is taken", StatusCodes.Status409Conflict),
+            CategoryTooDeepError or CategoryNotFoundError =>
+                Problem(added.Error, "The category can't go there", StatusCodes.Status422UnprocessableEntity),
+            _ => Problem(added.Error, "The category can't be added", StatusCodes.Status400BadRequest)
+        };
+    }
 
     private static IResult Problem(BudgetError error, string title, int statusCode) =>
         Results.Problem(

@@ -91,3 +91,16 @@ public sealed class CategoryNotFoundError(CategoryId categoryId)
     /// </summary>
     public CategoryId CategoryId { get; } = categoryId;
 }
+
+/// <summary>
+/// Error indicating the year has no budget.
+/// </summary>
+/// <param name="year">The year given.</param>
+public sealed class BudgetNotFoundError(int year)
+    : BudgetError("Budget.NotFound", $"{year} has no budget.")
+{
+    /// <summary>
+    /// Gets the year given.
+    /// </summary>
+    public int Year { get; } = year;
+}
