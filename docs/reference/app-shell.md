@@ -45,7 +45,7 @@ flowchart LR
 
 An `MnlNavItem` has a label, an address and an `MnlIconName`. An item is current when the request path matches its address: exactly for `/`, and the address or any path under it for the others. The current item is highlighted and has `aria-current="page"`.
 
-`Features:Budget` hides the Budgets item while it is off. `/budgets` shows the "not found" page until the rebuilt budget adds its page (see [Budget Domain](../explanations/budget-domain.md)).
+`Features:Budget` hides the Budgets item while it is off, and `/budgets` then shows the "not found" page. While it is on, `/budgets` is the budget page (see [Budget Domain](../explanations/budget-domain.md)).
 
 Links are boosted by htmx: clicking one fetches the page and swaps the body without reloading the document.
 
