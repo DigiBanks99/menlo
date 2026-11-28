@@ -1,0 +1,56 @@
+/* Thirteen joined tiles. On a narrow screen the strip scrolls sideways on its own; the page doesn't. */
+.month-strip {
+    display: grid;
+    grid-template-columns: repeat(13, minmax(min-content, 1fr));
+    overflow-x: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--mnl-border);
+    border-radius: var(--mnl-radius-xl);
+    background: var(--mnl-surface);
+    box-shadow: var(--mnl-shadow-sm);
+}
+
+.month-strip__month {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    padding: var(--mnl-space-2) var(--mnl-space-3);
+    border-inline-start: 1px solid var(--mnl-border-subtle);
+    color: var(--mnl-text);
+    font-size: var(--mnl-text-xs);
+}
+
+.month-strip__month:first-child {
+    border-inline-start: none;
+}
+
+.month-strip__month[data-month="frozen"] {
+    background: var(--mnl-surface-muted);
+    color: var(--mnl-subtext);
+}
+
+.month-strip__month[data-month="current"] {
+    background: var(--mnl-accent-soft);
+    box-shadow: inset 0 calc(-1 * var(--mnl-space-1)) 0 var(--mnl-accent);
+}
+
+.month-strip__month[data-month="year"] {
+    font-weight: var(--mnl-weight-semibold);
+    border-inline-start-color: var(--mnl-border);
+}
+
+.month-strip__name {
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.month-strip__state {
+    color: var(--mnl-subtext);
+    white-space: nowrap;
+}
+
+.month-strip__month[data-month="current"] .month-strip__state {
+    color: var(--mnl-accent-strong);
+    font-weight: var(--mnl-weight-semibold);
+}

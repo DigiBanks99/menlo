@@ -1,0 +1,25 @@
+@*
+    The budget page's month strip: the twelve months and the year, joined into one row. Frozen months are shaded and
+    the current month is marked. Each tile will show its net once the budget has lines.
+*@
+<ol class="month-strip" aria-label="@($"Months of {Model.Year}")" data-testid="budget-month-strip">
+    @foreach (BudgetMonthTile month in Model.Months)
+    {
+        <li class="month-strip__month" data-month="@month.State" aria-current="@month.AriaCurrent" title="@month.FullName"
+            data-testid="budget-month">
+            <span class="month-strip__name">@month.Name</span>
+            @if (month.StateLabel is not null)
+            {
+                <span class="month-strip__state">@month.StateLabel</span>
+            }
+        </li>
+    }
+    <li class="month-strip__month" data-month="@Model.YearTile.State" title="@Model.YearTile.FullName" data-testid="budget-month-year">
+        <span class="month-strip__name">@Model.YearTile.Name</span>
+    </li>
+</ol>
+
+@code {
+    [Parameter, EditorRequired]
+    public BudgetPageModel Model { get; set; } = null!;
+}

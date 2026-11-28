@@ -1,0 +1,66 @@
+/* The rail's icons in a column, then the grid. The open section's panel floats over the grid, tight to the rail. */
+.budget-frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
+}
+
+.budget-rail {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mnl-space-1);
+    padding: var(--mnl-space-2) var(--mnl-space-1);
+    border: 1px solid var(--mnl-border);
+    border-inline-end: none;
+    border-start-start-radius: var(--mnl-radius-lg);
+    border-end-start-radius: var(--mnl-radius-lg);
+    background: var(--mnl-surface-alt);
+    box-shadow: var(--mnl-shadow-sm);
+}
+
+.budget-rail__icon {
+    display: grid;
+    place-items: center;
+    inline-size: var(--mnl-space-8);
+    block-size: var(--mnl-space-8);
+    border-radius: var(--mnl-radius-md);
+    color: var(--mnl-subtext);
+}
+
+.budget-rail__icon:hover {
+    background: var(--mnl-surface);
+    color: var(--mnl-text);
+}
+
+.budget-rail__icon[aria-expanded="true"] {
+    background: var(--mnl-accent-soft);
+    color: var(--mnl-accent-strong);
+}
+
+.budget-rail__icon:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+}
+
+.budget-rail__panel {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: 0;
+    inset-inline-start: calc(var(--mnl-space-8) + 2 * var(--mnl-space-1));
+    inline-size: min(22rem, calc(100% - var(--mnl-space-12)));
+    max-block-size: 100%;
+    overflow-y: auto;
+    padding: var(--mnl-space-3);
+    border: 1px solid var(--mnl-border);
+    border-start-end-radius: var(--mnl-radius-lg);
+    border-end-end-radius: var(--mnl-radius-lg);
+    background: var(--mnl-surface);
+    box-shadow: var(--mnl-shadow-md);
+}
+
+.budget-frame__content {
+    display: grid;
+    min-inline-size: 0;
+}

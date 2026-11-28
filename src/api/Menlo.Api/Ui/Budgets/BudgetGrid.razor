@@ -1,0 +1,36 @@
+@*
+    The budget page's year grid: a row per category and a column per month, with the year at the end. Frozen months
+    are shaded and the current month is marked, as in the month strip. The table scrolls sideways on its own; the
+    empty state sits below it, outside the scroll, so it stays in view on a phone.
+*@
+<div class="budget-grid" data-testid="budget-grid">
+    <div class="budget-grid__scroll" role="region" aria-label="@($"{Model.Title} grid")" tabindex="0">
+        <table class="budget-grid__table">
+            <thead>
+                <tr>
+                    <th scope="col" class="budget-grid__name">Category</th>
+                    @foreach (BudgetMonthTile month in Model.Months)
+                    {
+                        <th scope="col" data-month="@month.State" abbr="@month.FullName" data-testid="budget-grid-month">
+                            @month.Name
+                            @if (month.StateLabel is not null)
+                            {
+                                <span class="budget-grid__state">@month.StateLabel</span>
+                            }
+                        </th>
+                    }
+                    <th scope="col" data-month="@Model.YearTile.State">@Model.YearTile.Name</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <MnlEmptyState Title="No categories yet"
+                   Message="Categories say what each line of the budget is for. Each one gets a row here."
+                   data-testid="budget-grid-empty" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public BudgetPageModel Model { get; set; } = null!;
+}

@@ -47,8 +47,7 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
             ("PUT", $"{items}/{Item}/spent"),
             ("DELETE", $"{items}/{Item}"),
 
-            // Pages, fragments and forms
-            ("GET", "/budgets"),
+            // Pages, fragments and forms. /budgets itself is the rebuilt budget page now, so it isn't listed.
             ("GET", $"/budgets/{Budget}"),
             ("POST", "/budgets/2026"),
             ("POST", "/home/budget-widget"),
