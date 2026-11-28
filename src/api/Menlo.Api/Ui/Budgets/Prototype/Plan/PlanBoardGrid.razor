@@ -192,7 +192,13 @@
     private string Toggle(string key)
     {
         PQuery q = Sheet.Query.Shut;
-        return Sheet.Board.IsOpen(key) && !q.IsOpen(key) ? q.Closed.Href : q.ToggleOpen(key);
+        if (!Sheet.Board.IsOpen(key))
+        {
+            return q.ToggleOpen(key);
+        }
+
+        // Collapsing closes what is open inside it too (a line's editor or payments), or it would open again
+        return (q.Closed with { Open = [.. q.Opened.Where(o => o != key)] }).Href;
     }
 
     private RenderFragment Pencil(PCategory c) => __builder =>
