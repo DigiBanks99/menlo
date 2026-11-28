@@ -41,7 +41,8 @@ public static class BudgetEndpoints
         return api;
     }
 
-    private static async ValueTask<object?> OnlyWithTheBudget(EndpointFilterInvocationContext context, EndpointFilterDelegate next) =>
+    // Shared with the rental unit endpoints, which sit behind the same flag
+    internal static async ValueTask<object?> OnlyWithTheBudget(EndpointFilterInvocationContext context, EndpointFilterDelegate next) =>
         context.HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetValue("Features:Budget", defaultValue: false)
             ? await next(context)
             : Results.NotFound();
