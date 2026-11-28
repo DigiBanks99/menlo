@@ -133,6 +133,51 @@ public sealed class MigrationTests : IAsyncDisposable
     }
 
     [Test]
+    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenTheCategoriesTableHangsOffItsBudget()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        List<string> columns = await ctx.Database
+            .SqlQuery<string>($@"SELECT column_name AS ""Value"" FROM information_schema.columns
+                WHERE table_schema = 'budget' AND table_name = 'categories' ORDER BY column_name")
+            .ToListAsync(ct);
+        List<string> foreignKeys = await ctx.Database
+            .SqlQuery<string>($@"SELECT constraint_name AS ""Value"" FROM information_schema.table_constraints
+                WHERE table_schema = 'budget' AND table_name = 'categories' AND constraint_type = 'FOREIGN KEY'
+                ORDER BY constraint_name")
+            .ToListAsync(ct);
+
+        ItShouldHaveTheCategoryColumns();
+        ItShouldPointToItsBudgetAndItsParent();
+
+        void ItShouldHaveTheCategoryColumns() => columns.ShouldBe(
+            ["budget_id", "created_at", "created_by", "id", "modified_at", "modified_by", "name", "parent_id"]);
+
+        void ItShouldPointToItsBudgetAndItsParent() => foreignKeys.ShouldBe(
+            ["fk_categories_budgets_budget_id", "fk_categories_categories_parent_id"]);
+    }
+
+    [Test]
+    public async Task GivenAMigratedDatabase_WhenRolledBackBeforeAddBudgetCategories_ThenOnlyTheBudgetsTableIsLeft()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
+
+        await migrator.MigrateAsync(AddBudgetsMigration, ct);
+        List<string> tables = await ctx.Database
+            .SqlQuery<string>($@"SELECT table_name AS ""Value"" FROM information_schema.tables WHERE table_schema = 'budget'")
+            .ToListAsync(ct);
+
+        ItShouldHaveDroppedTheCategoriesTable();
+
+        void ItShouldHaveDroppedTheCategoriesTable() => tables.ShouldBe(["budgets"]);
+    }
+
+    [Test]
     public async Task GivenAMigratedDatabase_WhenRolledBackBeforeAddBudgets_ThenTheBudgetSchemaIsGone()
     {
         CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
@@ -170,6 +215,7 @@ public sealed class MigrationTests : IAsyncDisposable
     private const string PreviousMigration = "20261104121202_MapBudgetItemRealizedAndSpentAmounts";
     private const string RemoveHouseholdsMigration = "20261115112130_RemoveHouseholds";
     private const string RemoveShippedBudgetMigration = "20261128141016_RemoveShippedBudget";
+    private const string AddBudgetsMigration = "20261128162354_AddBudgets";
 
     // A user and a budget with a category and an item, in the schema the shipped budget left behind
     private static async Task<Guid> SeedShippedBudgetAsync(MenloDbContext ctx, CancellationToken ct)

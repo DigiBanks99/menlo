@@ -48,6 +48,10 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<BudgetId>()
             .HaveConversion<BudgetIdValueConverter>();
+
+        configurationBuilder
+            .Properties<CategoryId>()
+            .HaveConversion<CategoryIdValueConverter>();
     }
 }
 

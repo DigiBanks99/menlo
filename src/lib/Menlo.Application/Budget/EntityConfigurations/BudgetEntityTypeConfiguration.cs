@@ -37,6 +37,15 @@ public sealed class BudgetEntityTypeConfiguration : IEntityTypeConfiguration<Bud
             .IsUnique()
             .HasDatabaseName(YearIndexName);
 
+        // A budget is always loaded with its categories, so its rules can see the whole tree
+        builder.HasMany(budget => budget.Categories)
+            .WithOne()
+            .HasForeignKey(category => category.BudgetId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(budget => budget.Categories)
+            .AutoInclude();
+
         builder.Ignore(budget => budget.DomainEvents);
     }
 }
