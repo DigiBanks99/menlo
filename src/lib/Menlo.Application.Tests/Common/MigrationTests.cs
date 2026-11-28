@@ -133,6 +133,50 @@ public sealed class MigrationTests : IAsyncDisposable
     }
 
     [Test]
+    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenTheRentalUnitsTableHoldsANameUpTo100Characters()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        List<string> columns = await ctx.Database
+            .SqlQuery<string>($@"SELECT column_name AS ""Value"" FROM information_schema.columns
+                WHERE table_schema = 'budget' AND table_name = 'rental_units' ORDER BY column_name")
+            .ToListAsync(ct);
+        int? nameLength = await ctx.Database
+            .SqlQuery<int?>($@"SELECT character_maximum_length AS ""Value"" FROM information_schema.columns
+                WHERE table_schema = 'budget' AND table_name = 'rental_units' AND column_name = 'name' AND is_nullable = 'NO'")
+            .SingleAsync(ct);
+
+        ItShouldHaveTheRentalUnitColumns();
+        ItShouldRequireANameOfUpTo100Characters();
+
+        void ItShouldHaveTheRentalUnitColumns() => columns.ShouldBe(
+            ["created_at", "created_by", "id", "modified_at", "modified_by", "name"]);
+
+        void ItShouldRequireANameOfUpTo100Characters() => nameLength.ShouldBe(100);
+    }
+
+    [Test]
+    public async Task GivenAMigratedDatabase_WhenRolledBackBeforeAddRentalUnits_ThenOnlyTheRentalUnitsTableIsGone()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
+
+        await migrator.MigrateAsync(AddBudgetsMigration, ct);
+        List<string> tables = await ctx.Database
+            .SqlQuery<string>($@"SELECT table_name AS ""Value"" FROM information_schema.tables
+                WHERE table_schema = 'budget' ORDER BY table_name")
+            .ToListAsync(ct);
+
+        ItShouldKeepOnlyTheBudgetsTable();
+
+        void ItShouldKeepOnlyTheBudgetsTable() => tables.ShouldBe(["budgets"]);
+    }
+
+    [Test]
     public async Task GivenAMigratedDatabase_WhenRolledBackBeforeAddBudgets_ThenTheBudgetSchemaIsGone()
     {
         CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
@@ -170,6 +214,7 @@ public sealed class MigrationTests : IAsyncDisposable
     private const string PreviousMigration = "20261104121202_MapBudgetItemRealizedAndSpentAmounts";
     private const string RemoveHouseholdsMigration = "20261115112130_RemoveHouseholds";
     private const string RemoveShippedBudgetMigration = "20261128141016_RemoveShippedBudget";
+    private const string AddBudgetsMigration = "20261128162354_AddBudgets";
 
     // A user and a budget with a category and an item, in the schema the shipped budget left behind
     private static async Task<Guid> SeedShippedBudgetAsync(MenloDbContext ctx, CancellationToken ct)
