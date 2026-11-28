@@ -56,12 +56,25 @@ public sealed record PayMonthModel(string Variant, string Target, int Month, str
     public string Planned => Line is null ? "" : PayFormat.Money(Year.Planned(Line, Month));
 }
 
-public sealed record PayReceiptsModel(string Variant, string SignedIn)
+/// <summary>Links that keep the budget view a receipt was opened from, so Close and Cancel go back to it.</summary>
+public static class PayLinks
+{
+    public static string Receipts(string variant, string budget) =>
+        $"{PQuery.PayRoot}/receipts?variant={variant}&budget={Uri.EscapeDataString(budget)}";
+
+    public static string Receipt(string id, string variant, string budget, bool hand = false) =>
+        $"{PQuery.PayRoot}/receipts/{id}?variant={variant}&budget={Uri.EscapeDataString(budget)}{(hand ? "&hand=1" : "")}";
+
+    public static string Budget(string? budget, string variant) =>
+        !string.IsNullOrEmpty(budget) && budget.StartsWith(PQuery.PayRoot + "?", StringComparison.Ordinal) ? budget : $"{PQuery.PayRoot}?variant={variant}";
+}
+
+public sealed record PayReceiptsModel(string Variant, string SignedIn, string Budget)
 {
     public IReadOnlyList<PReceipt> Receipts => [.. PayStore.Receipts.OrderByDescending(r => r.TakenAt)];
 }
 
-public sealed record PayReceiptModel(PReceipt Receipt, ReceiptStatus Status, PayFormModel? Form, string Variant);
+public sealed record PayReceiptModel(PReceipt Receipt, ReceiptStatus Status, PayFormModel? Form, string Variant, string Budget);
 
 internal static class PayProtoEndpoints
 {
@@ -157,7 +170,8 @@ internal static class PayProtoEndpoints
                 string where = string.Join(", ", payment.Splits.Select(s => PayStore.TargetName(PayStore.Year, s.Target)));
                 Flash.Set(context, $"{(form.IsNew ? "Saved" : "Changed")}: {PayFormat.Money(payment.Amount)} on {where}, {PayFormat.Date(payment.Date)}."
                                    + (form.ReceiptId is not null ? " The receipt and its photos are deleted." : ""));
-                return Navigate.To(context, form.ReceiptId is not null ? $"{Root}/receipts?variant={form.Variant}" : form.Back);
+                // From a receipt: back to the list while others wait, otherwise to the budget view it came from
+                return Navigate.To(context, form.ReceiptId is not null && PayStore.Receipts.Count > 0 ? PayLinks.Receipts(form.Variant, form.Back) : form.Back);
             })
             .AllowAnonymous();
 
@@ -220,27 +234,31 @@ internal static class PayProtoEndpoints
         app.MapGet(Root + "/receipts", (HttpContext context) =>
             {
                 PayStore.Ensure();
-                return Render.Page<PayReceiptsPage>(context, new PayReceiptsModel(PayVariants.Of(context.Request.Query["variant"]), PayForms.SignedIn(context)));
+                string v = PayVariants.Of(context.Request.Query["variant"]);
+                return Render.Page<PayReceiptsPage>(context, new PayReceiptsModel(v, PayForms.SignedIn(context), PayLinks.Budget(context.Request.Query["budget"], v)));
             })
             .AllowAnonymous();
 
         app.MapGet(Root + "/receipts/list", (HttpContext context) =>
-                Render.Fragment<PayReceiptList>(new PayReceiptsModel(PayVariants.Of(context.Request.Query["variant"]), PayForms.SignedIn(context))))
+                Render.Fragment<PayReceiptList>(new PayReceiptsModel(PayVariants.Of(context.Request.Query["variant"]), PayForms.SignedIn(context),
+                    PayLinks.Budget(context.Request.Query["budget"], PayVariants.Of(context.Request.Query["variant"])))))
             .AllowAnonymous();
 
         app.MapGet(Root + "/receipts/new", (HttpContext context) =>
-                Results.LocalRedirect($"{Root}/receipts?variant={PayVariants.Of(context.Request.Query["variant"])}#take"))
+                Results.LocalRedirect(PayLinks.Receipts(PayVariants.Of(context.Request.Query["variant"]),
+                    PayLinks.Budget(context.Request.Query["budget"], PayVariants.Of(context.Request.Query["variant"]))) + "#take"))
             .AllowAnonymous();
 
         app.MapPost(Root + "/receipts", async (HttpContext context) =>
             {
                 IFormCollection f = await context.Request.ReadFormAsync();
                 string variant = PayVariants.Of(f["variant"]);
+                string budget = PayLinks.Budget(f["budget"], variant);
                 List<IFormFile> files = [.. f.Files.Where(x => x.Length > 0)];
                 if (files.Count is 0 or > 3)
                 {
                     Flash.Set(context, files.Count == 0 ? "Take or pick a photo first." : "A receipt has up to 3 photos: the pages of one slip.", MnlTone.Error);
-                    return Navigate.To(context, $"{Root}/receipts?variant={variant}");
+                    return Navigate.To(context, PayLinks.Receipts(variant, budget));
                 }
 
                 List<PPhoto> photos = [];
@@ -262,7 +280,7 @@ internal static class PayProtoEndpoints
                 Flash.Set(context, PayStore.ModelUp
                     ? "Sent. The agent is reading the slip: you can close this and check it later."
                     : "Sent. The model server is down, so it waits and is read when the server is back.", MnlTone.Info);
-                return Navigate.To(context, $"{Root}/receipts?variant={variant}");
+                return Navigate.To(context, PayLinks.Receipts(variant, budget));
             })
             .AllowAnonymous();
 
@@ -270,14 +288,14 @@ internal static class PayProtoEndpoints
             {
                 PayStore.Ensure();
                 string variant = PayVariants.Of(context.Request.Query["variant"]);
+                string back = PayLinks.Budget(context.Request.Query["budget"], variant);
                 if (PayStore.Receipt(id) is not PReceipt r)
                 {
                     Flash.Set(context, "That receipt was saved or discarded.", MnlTone.Info);
-                    return Results.LocalRedirect($"{Root}/receipts?variant={variant}");
+                    return Results.LocalRedirect(PayLinks.Receipts(variant, back));
                 }
 
                 ReceiptStatus status = PayStore.Status(r);
-                string back = $"{Root}/receipts?variant={variant}";
                 bool hand = context.Request.Query["hand"] == "1";
                 PayFormModel? form = status switch
                 {
@@ -286,7 +304,7 @@ internal static class PayProtoEndpoints
                     _ when hand => PayForms.New(context, variant, PayLayout.Page, back, null, null) with { ReceiptId = r.Id, Member = r.TakenBy, MemberByHand = true },
                     _ => null
                 };
-                return Render.Page<PayReceiptPage>(context, new PayReceiptModel(r, status, form, variant));
+                return Render.Page<PayReceiptPage>(context, new PayReceiptModel(r, status, form, variant, back));
             })
             .AllowAnonymous();
 
@@ -302,7 +320,9 @@ internal static class PayProtoEndpoints
             {
                 PayStore.Change(() => PayStore.Receipts.RemoveAll(r => r.Id == id));
                 Flash.Set(context, "Receipt discarded. Its photos are deleted.", MnlTone.Info);
-                return Navigate.To(context, $"{Root}/receipts?variant={PayVariants.Of(f["variant"])}");
+                string v = PayVariants.Of(f["variant"]);
+                string budget = PayLinks.Budget(f["back"], v);
+                return Navigate.To(context, PayStore.Receipts.Count > 0 ? PayLinks.Receipts(v, budget) : budget);
             })
             .AllowAnonymous();
 

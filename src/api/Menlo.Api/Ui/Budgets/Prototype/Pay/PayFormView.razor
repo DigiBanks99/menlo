@@ -184,7 +184,7 @@
         }
         @if (m.IsNew && m.ReceiptId is null)
         {
-            <MnlButton Href="@($"{Root}/receipts/new?variant={m.Variant}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Camera">From a photo</MnlButton>
+            <MnlButton Href="@(PayLinks.Receipts(m.Variant, m.Back) + "#take")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Camera">From a photo</MnlButton>
         }
         <span class="payform__spacer"></span>
         @if (m.Layout == PayLayout.Panel)

@@ -9,14 +9,17 @@
     int photos = Math.Max(1, r.Photos.Count);
 }
 <AppPage Page="Page" Title="Check the receipt">
-    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <link rel="stylesheet" href="/prototype/pay.css?v=4" />
     <MnlStack Gap="MnlGap.Lg">
         <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
             <MnlStack Gap="MnlGap.Xs">
-                <MnlButton Href="@($"{root}/receipts?variant={Model.Variant}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">← Receipts</MnlButton>
+                <MnlButton Href="@PayLinks.Receipts(Model.Variant, Model.Budget)" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">← All receipts</MnlButton>
                 <MnlHeading Level="1">Check the receipt</MnlHeading>
             </MnlStack>
-            <MnlBadge Tone="@PayFormat.StatusTone(Model.Status)">@PayFormat.Status(Model.Status)</MnlBadge>
+            <MnlCluster Gap="MnlGap.Sm">
+                <MnlBadge Tone="@PayFormat.StatusTone(Model.Status)">@PayFormat.Status(Model.Status)</MnlBadge>
+                <MnlButton Href="@Model.Budget" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.X" data-testid="close-receipt">Close</MnlButton>
+            </MnlCluster>
         </MnlCluster>
 
         <div class="payreceipt">
@@ -43,8 +46,8 @@
                     <MnlStack Gap="MnlGap.Md">
                         <MnlAlert Tone="MnlTone.Info" Title="@WaitTitle">@WaitText</MnlAlert>
                         <MnlCluster Gap="MnlGap.Sm">
-                            <MnlButton Href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}&hand=1")" Variant="MnlButtonVariant.Secondary">Enter it by hand</MnlButton>
-                            <MnlButton Href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}")" Variant="MnlButtonVariant.Ghost">Check again</MnlButton>
+                            <MnlButton Href="@PayLinks.Receipt(r.Id, Model.Variant, Model.Budget, hand: true)" Variant="MnlButtonVariant.Secondary">Enter it by hand</MnlButton>
+                            <MnlButton Href="@PayLinks.Receipt(r.Id, Model.Variant, Model.Budget)" Variant="MnlButtonVariant.Ghost">Check again</MnlButton>
                         </MnlCluster>
                     </MnlStack>
                 }

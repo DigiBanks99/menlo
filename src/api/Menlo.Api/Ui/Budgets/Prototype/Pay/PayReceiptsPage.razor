@@ -5,15 +5,18 @@
 @using Menlo.Api.Ui.Budgets.Prototype.Plan
 @{
     string root = PQuery.PayRoot;
-    string back = $"{root}/receipts?variant={Model.Variant}";
+    string back = PayLinks.Receipts(Model.Variant, Model.Budget);
 }
 <AppPage Page="Page" Title="Receipts">
-    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <link rel="stylesheet" href="/prototype/pay.css?v=4" />
     <div class="payquick">
         <MnlStack Gap="MnlGap.Lg">
             <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
                 <MnlHeading Level="1">Receipts</MnlHeading>
-                <PayAs SignedIn="@Model.SignedIn" Back="@back" />
+                <MnlCluster Gap="MnlGap.Sm">
+                    <PayAs SignedIn="@Model.SignedIn" Back="@back" />
+                    <MnlButton Href="@Model.Budget" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.X" data-testid="close-receipts">Close</MnlButton>
+                </MnlCluster>
             </MnlCluster>
 
             <MnlCard>
@@ -21,6 +24,7 @@
                 <ChildContent>
                     <form method="post" action="@(root + "/receipts")" enctype="multipart/form-data" class="payreceipts__take" data-testid="take-receipt">
                         <input type="hidden" name="variant" value="@Model.Variant" />
+                        <input type="hidden" name="budget" value="@Model.Budget" />
                         <label class="payreceipts__shoot">
                             <MnlIcon Name="MnlIconName.Camera" />
                             <span class="payreceipts__shoot-text"><strong>Camera or gallery</strong><span>Up to 3 photos, for a long slip.</span></span>

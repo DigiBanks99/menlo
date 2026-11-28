@@ -13,7 +13,7 @@
     string here = HereUrl;
 }
 <AppPage Page="Page" Title="Recording a payment prototype">
-    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <link rel="stylesheet" href="/prototype/pay.css?v=4" />
     <MnlStack Gap="MnlGap.Lg">
         <MnlAlert Tone="MnlTone.Info" Title="@($"Prototype {Model.Variant}: {Model.VariantName}")">
             <span>Made-up data, kept in memory. "Today" is @PayFormat.DateLong(PayStore.TodayDate), so January to June are frozen. Actuals come from payments; a lighter, dashed actual is the plan standing in.</span>
@@ -28,7 +28,7 @@
                 </MnlStack>
                 <MnlCluster Gap="MnlGap.Sm">
                     <PayAs SignedIn="@Model.SignedIn" Back="@here" />
-                    <MnlButton Href="@($"{root}/receipts?variant={Model.Variant}")" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.Receipt">
+                    <MnlButton Href="@PayLinks.Receipts(Model.Variant, here)" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.Receipt">
                         Receipts (@PayStore.Waiting)
                     </MnlButton>
                     @switch (Model.Variant)
@@ -65,21 +65,23 @@
 
             <p class="grid-legend">
                 <span><strong>Top:</strong> planned</span>
-                <span><strong>Below:</strong> actual, @(Model.Variant == "C" ? "click it to open the month with its payments" : "click it for its payments")</span>
+                <span><strong>Below:</strong> actual, @(Model.Variant == "C" ? "click it for that month's payments under the line" : "click it for its payments")</span>
                 <span class="pay-legend" data-standin="true">plan standing in</span>
                 <span class="pay-legend" data-unsorted="true">has unsorted splits</span>
             </p>
 
-            @switch (Model.Variant)
-            {
-                case "C":
-                    <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" Below="LineBelow"
-                                   CategoryBelow="CategoryBelow" IsSelected="@(c => Model.Query.Category == c.Id)" />
-                    break;
-                default:
-                    <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" />
-                    break;
-            }
+            <PlanRail Sheet="Model.Sheet" Payments="RailPayments" PaymentsCount="@PayStore.Waiting">
+                @switch (Model.Variant)
+                {
+                    case "C":
+                        <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" Below="LineBelow"
+                                       CategoryBelow="CategoryBelow" IsSelected="@(c => Model.Query.Category == c.Id)" />
+                        break;
+                    default:
+                        <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" />
+                        break;
+                }
+            </PlanRail>
         </MnlStack>
     </MnlStack>
 
@@ -110,7 +112,7 @@
     private string Hint => Model.Variant switch
     {
         "B" => "\"Record a payment\" (or + on a phone, or Pay in the navigation) opens a quick-entry page. Clicking an actual opens that month's payments as a page.",
-        "C" => "Open a month, then click a line's actual: its payments open under it, with a row to add one. In the year, an actual opens its month.",
+        "C" => "Click any underlined actual, in the year or in a month: that month's payments open under the line, with a row to add one and changes made in place.",
         _ => "\"Record a payment\" (or + on a phone) opens the form in a panel. Clicking an actual opens that month's payments in the panel."
     };
 
@@ -146,14 +148,15 @@
     /// <summary>C: an actual opens its month in the table, with the line's (or category's) payments under it.</summary>
     private string CellUrl(PlanBoardGrid.GridActual a)
     {
-        PQuery q = Model.Query.Shut with { Period = a.Month, Month = null, Edit = null };
+        // The year stays the year: the payments open under the line, for the month clicked
+        PQuery q = Model.Query.Shut with { Month = a.Month, Edit = null };
         string url = a.Line is not null
             ? (q with { Line = a.Line.Line.Id, Category = null }).Href
             : (q with { Category = a.Category!.Id, Line = null }).Href;
         return url.Replace("variant=A", "variant=C", StringComparison.Ordinal);
     }
 
-    private int ListMonth => Model.Query.IsYear ? Model.Year.Current : Model.Query.Period;
+    private int ListMonth => Model.Query.Month ?? (Model.Query.IsYear ? Model.Year.Current : Model.Query.Period);
 
     private PayMonthModel ListFor(string target)
     {
@@ -205,6 +208,52 @@
             </MnlCluster>
             <PayMonthList Model="list" />
         </div>
+    };
+
+    /// <summary>The rail's Payments section: the same actions as the header, a tap from the grid.</summary>
+    private RenderFragment RailPayments => __builder =>
+    {
+        string here = HereUrl;
+        <MnlStack Gap="MnlGap.Sm">
+            @switch (Model.Variant)
+            {
+                case "A":
+                    <MnlButton Href="@($"{Root}/form?variant=A")" Icon="MnlIconName.Plus" FullWidth="true"
+                               hx-get="@($"{Root}/form?variant=A")" hx-target="@MnlPanel.HostSelector">Record a payment</MnlButton>
+                    break;
+                case "B":
+                    <MnlButton Href="@($"{Root}/quick?variant=B&back={Uri.EscapeDataString(here)}")" Icon="MnlIconName.Plus" FullWidth="true">Record a payment</MnlButton>
+                    break;
+                default:
+                    <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Click a line's actual to see its payments and add one under it.</MnlText>
+                    break;
+            }
+            <MnlButton Href="@(PayLinks.Receipts(Model.Variant, here) + "#take")" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.Camera" FullWidth="true">Take a photo of a slip</MnlButton>
+            <MnlText Size="MnlTextSize.Sm" Weight="MnlWeight.Semibold">Receipts to check (@PayStore.Waiting)</MnlText>
+            @if (PayStore.Receipts.Count == 0)
+            {
+                <MnlText Size="MnlTextSize.Xs" Tone="MnlTextTone.Subtle">Nothing waiting.</MnlText>
+            }
+            else
+            {
+                <ul class="pay-rail__receipts">
+                    @foreach (PReceipt receipt in PayStore.Receipts.OrderByDescending(r => r.TakenAt))
+                    {
+                        PReceipt r = receipt;
+                        ReceiptStatus status = PayStore.Status(r);
+                        PRead? read = PayStore.Scenario(r.Scenario).Read;
+                        string what = status == ReceiptStatus.Ready ? $"{read?.Merchant}, {PayFormat.Money(read?.Total ?? 0)}" : "A slip";
+                        <li>
+                            <a href="@PayLinks.Receipt(r.Id, Model.Variant, here)">
+                                <span>@what</span>
+                                <MnlBadge Tone="@PayFormat.StatusTone(status)">@PayFormat.Status(status)</MnlBadge>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            <MnlButton Href="@PayLinks.Receipts(Model.Variant, here)" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">All receipts</MnlButton>
+        </MnlStack>
     };
 
     private string CloseUrl => Model.Query.Shut.Closed.Href.Replace("variant=A", "variant=" + Model.Variant, StringComparison.Ordinal);

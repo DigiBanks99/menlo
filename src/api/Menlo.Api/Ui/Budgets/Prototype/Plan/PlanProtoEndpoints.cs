@@ -25,7 +25,7 @@ public sealed record PQuery(string Variant, int Year, string Target, string? Lin
     /// <summary>The side-rail sections, in rail order. "line" and "category" only show when one is open (variant B).</summary>
     public static readonly (string Key, string Label)[] Panels =
     [
-        ("line", "Line"), ("category", "Category"), ("setup", "Set up the year"), ("proposals", "Proposals"), ("triggers", "Triggers"),
+        ("payments", "Payments"), ("line", "Line"), ("category", "Category"), ("setup", "Set up the year"), ("proposals", "Proposals"), ("triggers", "Triggers"),
         ("year", "Year"), ("filters", "Filters"), ("views", "Whose budget"), ("key", "How to read the grid")
     ];
 

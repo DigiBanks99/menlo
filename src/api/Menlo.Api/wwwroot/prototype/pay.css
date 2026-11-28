@@ -585,7 +585,8 @@
     padding: var(--mnl-space-1) var(--mnl-space-2);
     font-weight: var(--mnl-weight-semibold);
     color: inherit;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
     border-radius: var(--mnl-radius-sm);
 }
 
@@ -594,7 +595,7 @@
 }
 
 a.pay-actual:hover {
-    text-decoration: underline;
+    text-decoration-thickness: 2px;
 }
 
 a.pay-actual:focus-visible {
@@ -1080,4 +1081,22 @@ a.pay-actual:focus-visible {
 
 .payreceipt {
     padding-block-end: 6rem;
+}
+
+.pay-rail__receipts {
+    display: grid;
+    gap: var(--mnl-space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pay-rail__receipts a {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--mnl-space-2);
+    align-items: center;
+    padding: var(--mnl-space-1) 0;
+    color: var(--mnl-text);
+    font-size: var(--mnl-text-sm);
 }

@@ -4,7 +4,7 @@
 *@
 @using Menlo.Api.Ui.Budgets.Prototype.Plan
 <AppPage Page="Page" Title="@Model.Title">
-    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <link rel="stylesheet" href="/prototype/pay.css?v=4" />
     <div class="payquick">
         <MnlStack Gap="MnlGap.Lg">
             <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
@@ -13,7 +13,7 @@
             </MnlCluster>
             @if (Model.IsNew)
             {
-                <a class="payquick__camera" href="@($"{PQuery.PayRoot}/receipts?variant={Model.Variant}#take")" data-testid="take-photo">
+                <a class="payquick__camera" href="@(PayLinks.Receipts(Model.Variant, PayLinks.Budget(Model.Back, Model.Variant)) + "#take")" data-testid="take-photo">
                     <MnlIcon Name="MnlIconName.Camera" />
                     <span>
                         <strong>Take a photo of the slip</strong>

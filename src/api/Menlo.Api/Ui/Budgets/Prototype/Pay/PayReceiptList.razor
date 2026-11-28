@@ -5,7 +5,7 @@
     bool moving = PayStore.AnyMoving;
 }
 <section id="receipt-list" class="payreceipts__list" aria-label="Receipts to check" data-testid="receipt-list"
-         hx-get="@(moving ? $"{root}/receipts/list?variant={Model.Variant}" : null)"
+         hx-get="@(moving ? $"{root}/receipts/list?variant={Model.Variant}&budget={Uri.EscapeDataString(Model.Budget)}" : null)"
          hx-trigger="@(moving ? "every 3s" : null)" hx-swap="@(moving ? "outerHTML" : null)">
     <MnlHeading Level="2">To check (@Model.Receipts.Count)</MnlHeading>
     @if (Model.Receipts.Count == 0)
@@ -23,7 +23,7 @@
                 string what = status == ReceiptStatus.Ready ? $"{read?.Merchant ?? "Unknown shop"}, {PayFormat.Money(read?.Total ?? 0)}" : "A slip";
                 string who = $"Taken by {PayFormat.Member(r.TakenBy)}, {PayFormat.Ago(r.TakenAt)}" + (r.Photos.Count > 1 ? $", {r.Photos.Count} photos" : "");
                 <li>
-                    <a class="payreceipts__item" href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}")">
+                    <a class="payreceipts__item" href="@PayLinks.Receipt(r.Id, Model.Variant, Model.Budget)">
                         <img src="@($"{root}/receipts/{r.Id}/photo/0")" alt="" class="payreceipts__thumb" width="48" height="64" />
                         <span class="payreceipts__what">
                             <strong>@what</strong>

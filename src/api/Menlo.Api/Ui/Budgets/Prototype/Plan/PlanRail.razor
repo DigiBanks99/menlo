@@ -7,8 +7,10 @@
 @{
     PQuery q = Sheet.Query;
     PYear y = Sheet.Plan;
-    (string Key, string Label)[] panels = [.. PQuery.Panels.Where(p => p.Key switch
+    bool pay = q.Root == PQuery.PayRoot;
+    (string Key, string Label)[] panels = [.. PQuery.Panels.Where(p => pay ? p.Key is "payments" or "filters" or "views" or "key" : p.Key switch
     {
+        "payments" => false,
         "line" => q.Variant == "B" && Sheet.Line is not null,
         "category" => q.Variant == "B" && EditingCategory is not null,
         "setup" => q.Variant == "C",
@@ -26,6 +28,7 @@
                 "proposals" => y.Proposals.Count(p => p.On) + (Sheet.Target is { On: false } ? 1 : 0),
                 "filters" => (q.Filter == "all" ? 0 : 1) + (q.Who == "all" ? 0 : 1),
                 "setup" => subs.Count - subs.Count(c => y.Reviewed.Contains(c.Id)),
+                "payments" => PaymentsCount,
                 _ => 0
             };
             <a class="rail__icon" href="@q.WithPanel(k)" data-plan-rail-open="@k" data-section="@k"
@@ -52,6 +55,9 @@
                 <div class="rail__body">
                     @switch (k)
                     {
+                        case "payments":
+                            @Payments
+                            break;
                         case "line":
                             <PlanLinePanel Sheet="Sheet" />
                             break;
@@ -116,12 +122,18 @@
     [Parameter, EditorRequired] public PSheet Sheet { get; set; } = null!;
     [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
 
+    /// <summary>PROTOTYPE (#768): the payments page's own section.</summary>
+    [Parameter] public RenderFragment? Payments { get; set; }
+
+    [Parameter] public int PaymentsCount { get; set; }
+
     private PCategory? EditingCategory => Sheet.Query.Edit?.StartsWith("cat:", StringComparison.Ordinal) == true
         ? Sheet.Preview.Categories.FirstOrDefault(c => "cat:" + c.Id == Sheet.Query.Edit)
         : null;
 
     private static MnlIconName Icon(string key) => key switch
     {
+        "payments" => MnlIconName.Receipt,
         "line" => MnlIconName.Wallet,
         "category" => MnlIconName.ChevronDown,
         "setup" => MnlIconName.CircleCheck,
