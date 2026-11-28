@@ -14,12 +14,16 @@ namespace Menlo.Api.Ui.Shared;
 public sealed record PageContext(string CurrentPath, string? UserName, IReadOnlyList<MnlToastMessage> Toasts)
 {
     /// <summary>The app's primary navigation.</summary>
-    public static IReadOnlyList<MnlNavItem> NavItems { get; } =
+    public static IReadOnlyList<MnlNavItem> NavItems =>
     [
         new("Home", "/", MnlIconName.House),
         new("Budgets", "/budgets", MnlIconName.Wallet),
-        new("Analytics", "/analytics", MnlIconName.TrendingUp)
+        new("Analytics", "/analytics", MnlIconName.TrendingUp),
+        .. PrototypeNav()
     ];
+
+    /// <summary>PROTOTYPE (#768): extra navigation items the payments prototype adds in Development.</summary>
+    public static Func<IEnumerable<MnlNavItem>> PrototypeNav { get; set; } = () => [];
 
     /// <summary>
     /// Builds the context for a request. Reading the flash toasts also clears them, so call this once per page.

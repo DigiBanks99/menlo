@@ -1,0 +1,18 @@
+@* PROTOTYPE (#768): variant A's panel: the payment form, or a line's month of payments. *@
+<MnlPanel data-testid="payment-panel">
+    <Header>@(Model.Form?.Title ?? Model.Month?.Title)</Header>
+    <ChildContent>
+        @if (Model.Form is not null)
+        {
+            <PayFormView Model="Model.Form" />
+        }
+        else if (Model.Month is not null)
+        {
+            <PayMonthList Model="Model.Month" />
+        }
+    </ChildContent>
+</MnlPanel>
+
+@code {
+    [Parameter, EditorRequired] public PayPanelModel Model { get; set; } = null!;
+}

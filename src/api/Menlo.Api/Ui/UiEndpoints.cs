@@ -2,6 +2,7 @@ using Menlo.Api.Auth.Policies;
 using Menlo.Api.Ui.Analytics;
 using Menlo.Api.Ui.Budgets;
 using Menlo.Api.Ui.Budgets.Prototype;
+using Menlo.Api.Ui.Budgets.Prototype.Pay;
 using Menlo.Api.Ui.Budgets.Prototype.Plan;
 using Menlo.Api.Ui.Design;
 using Menlo.Api.Ui.Errors;
@@ -48,6 +49,7 @@ internal static class UiEndpoints
             ui.MapDesignGallery();
             ui.MapBudgetPrototype(); // PROTOTYPE (#596)
             ui.MapPlanPrototype(); // PROTOTYPE (#658)
+            ui.MapPayPrototype(); // PROTOTYPE (#768)
         }
 
         // Unknown API routes and well-known probes get a bare 404, not a page

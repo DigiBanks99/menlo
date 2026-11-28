@@ -1,0 +1,16 @@
+@* PROTOTYPE (#768): "signed in as", a switch for trying the member defaults. Not a real feature. *@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+<form method="post" action="@(PQuery.PayRoot + "/settings")" class="payas">
+    <input type="hidden" name="op" value="as" />
+    <input type="hidden" name="back" value="@Back" />
+    <span class="payas__label">Prototype: signed in as</span>
+    @foreach (string key in new[] { "a", "b" })
+    {
+        <button type="submit" name="member" value="@key" class="payas__who" aria-pressed="@(SignedIn == key ? "true" : "false")">@PayFormat.Member(key)</button>
+    }
+</form>
+
+@code {
+    [Parameter, EditorRequired] public string SignedIn { get; set; } = "a";
+    [Parameter, EditorRequired] public string Back { get; set; } = "";
+}

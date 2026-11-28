@@ -1,0 +1,211 @@
+@*
+    PROTOTYPE (#768): recording a payment on the plan prototype's (#658) budget grid. The variants try three places
+    to record and find payments: A in a panel over the budget, B on a quick-entry page of its own, C in the month
+    table under each line. Receipts, "Nothing this month", the duplicate warning and the remove confirm are shared.
+    In-memory, made-up data, mapped only in Development. Throwaway: it lives on prototype/768-record-payment.
+*@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    PQuery q = Model.Query.Shut;
+    PYear y = Model.Year;
+    PBoard b = Model.Sheet.Board;
+    string root = PQuery.PayRoot;
+    string here = HereUrl;
+}
+<AppPage Page="Page" Title="Recording a payment prototype">
+    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <MnlStack Gap="MnlGap.Lg">
+        <MnlAlert Tone="MnlTone.Info" Title="@($"Prototype {Model.Variant}: {Model.VariantName}")">
+            <span>Made-up data, kept in memory. "Today" is @PayFormat.DateLong(PayStore.TodayDate), so January to June are frozen. Actuals come from payments; a lighter, dashed actual is the plan standing in.</span>
+            <span>@(" " + Hint)</span>
+        </MnlAlert>
+
+        <MnlStack Gap="MnlGap.Md">
+            <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+                <MnlStack Gap="MnlGap.Xs">
+                    <MnlEyebrow>@q.ViewLabel view</MnlEyebrow>
+                    <MnlHeading Level="1">@(q.IsYear ? $"{y.Year}" : $"{PFormat.MonthLong(q.Period)} {y.Year}") budget</MnlHeading>
+                </MnlStack>
+                <MnlCluster Gap="MnlGap.Sm">
+                    <PayAs SignedIn="@Model.SignedIn" Back="@here" />
+                    <MnlButton Href="@($"{root}/receipts?variant={Model.Variant}")" Variant="MnlButtonVariant.Secondary" Icon="MnlIconName.Receipt">
+                        Receipts (@PayStore.Waiting)
+                    </MnlButton>
+                    @switch (Model.Variant)
+                    {
+                        case "A":
+                            <MnlButton Href="@($"{root}/form?variant=A")" Icon="MnlIconName.Plus" hx-get="@($"{root}/form?variant=A")" hx-target="@MnlPanel.HostSelector"
+                                       data-testid="record-payment">Record a payment</MnlButton>
+                            break;
+                        case "B":
+                            <MnlButton Href="@($"{root}/quick?variant=B&back={Uri.EscapeDataString(here)}")" Icon="MnlIconName.Plus" data-testid="record-payment">Record a payment</MnlButton>
+                            break;
+                    }
+                </MnlCluster>
+            </MnlCluster>
+
+            <nav class="month-strip" role="group" aria-label="Months">
+                @for (int i = 0; i < 12; i++)
+                {
+                    int month = i;
+                    decimal? actual = month > y.Current ? null : b.NetActualFor(month);
+                    <a href="@q.Closed.WithPeriod(month)" class="month-strip__month" data-month="@PBoard.MonthState(y.Current, month)"
+                       aria-current="@(month == q.Period ? "true" : null)">
+                        <span class="month-strip__name">@PFormat.Month(month)</span>
+                        <span class="month-strip__net" data-tone="@ProtoFormat.ToneKey(ProtoFormat.NetTone(b.NetPlannedFor(month), actual))">
+                            @ProtoFormat.Money(actual ?? b.NetPreviewFor(month))
+                        </span>
+                    </a>
+                }
+                <a href="@q.Closed.WithPeriod(PQuery.YearPeriod)" class="month-strip__month" aria-current="@(q.IsYear ? "true" : null)">
+                    <span class="month-strip__name">Year</span>
+                    <span class="month-strip__net">@ProtoFormat.Money(b.NetPreviewFor(PQuery.YearPeriod))</span>
+                </a>
+            </nav>
+
+            <p class="grid-legend">
+                <span><strong>Top:</strong> planned</span>
+                <span><strong>Below:</strong> actual, @(Model.Variant == "C" ? "click it to open the month with its payments" : "click it for its payments")</span>
+                <span class="pay-legend" data-standin="true">plan standing in</span>
+                <span class="pay-legend" data-unsorted="true">has unsorted splits</span>
+            </p>
+
+            @switch (Model.Variant)
+            {
+                case "C":
+                    <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" Below="LineBelow"
+                                   CategoryBelow="CategoryBelow" IsSelected="@(c => Model.Query.Category == c.Id)" />
+                    break;
+                default:
+                    <PlanBoardGrid Sheet="Model.Sheet" ActualSlot="Actual" />
+                    break;
+            }
+        </MnlStack>
+    </MnlStack>
+
+    @if (Model.Variant == "A")
+    {
+        <button type="button" class="pay-fab" hx-get="@($"{root}/form?variant=A")" hx-target="@MnlPanel.HostSelector" aria-label="Record a payment">
+            <MnlIcon Name="MnlIconName.Plus" />
+        </button>
+    }
+    else if (Model.Variant == "B")
+    {
+        <a class="pay-fab" href="@($"{root}/quick?variant=B&back={Uri.EscapeDataString(here)}")" aria-label="Record a payment">
+            <MnlIcon Name="MnlIconName.Plus" />
+        </a>
+    }
+    <PaySwitcher Variant="@Model.Variant" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
+    [Parameter, EditorRequired] public PayPageModel Model { get; set; } = null!;
+
+    private const string Root = PQuery.PayRoot;
+
+    /// <summary>This page as it stands, for coming back to after a save.</summary>
+    private string HereUrl => Model.Query.Shut.Href.Replace("variant=A", "variant=" + Model.Variant, StringComparison.Ordinal);
+
+    private string Hint => Model.Variant switch
+    {
+        "B" => "\"Record a payment\" (or + on a phone, or Pay in the navigation) opens a quick-entry page. Clicking an actual opens that month's payments as a page.",
+        "C" => "Open a month, then click a line's actual: its payments open under it, with a row to add one. In the year, an actual opens its month.",
+        _ => "\"Record a payment\" (or + on a phone) opens the form in a panel. Clicking an actual opens that month's payments in the panel."
+    };
+
+    private string MonthUrl(string target, int month) =>
+        $"{Root}/month?variant={Model.Variant}&target={Uri.EscapeDataString(target)}&month={month}&back={Uri.EscapeDataString(HereUrl)}";
+
+    /// <summary>An actual in the grid: a link to its payments, styled when the plan stands in.</summary>
+    private RenderFragment<PlanBoardGrid.GridActual> Actual => a => __builder =>
+    {
+        if (a.Month < 0 || (a.Line is null && a.Category is null))
+        {
+            <span class="pay-actual" data-tone="@ProtoFormat.ToneKey(a.Tone)" data-single="@(a.Single ? "true" : null)">@ProtoFormat.Money(a.Amount)</span>
+            return;
+        }
+
+        string target = a.Line is not null ? a.Line.Line.Id : "cat:" + a.Category!.Id;
+        bool standIn = a.Line is not null && PayStore.StandIns.Contains((a.Line.Line.Id, a.Month));
+        bool unsorted = a.Category is not null && PlanHooks.Unsorted(a.Category.Id, a.Month) != 0;
+        string label = $"{(a.Line?.Line.Name ?? a.Category!.Name)}, {PFormat.MonthLong(a.Month)}: {ProtoFormat.Money(a.Amount)}{(standIn ? ", the plan standing in" : "")}. Its payments";
+        string href = Model.Variant == "C" ? CellUrl(a) : MonthUrl(target, a.Month);
+        if (Model.Variant == "A")
+        {
+            <a class="pay-actual" href="@href" hx-get="@href" hx-target="@MnlPanel.HostSelector" data-tone="@ProtoFormat.ToneKey(a.Tone)"
+               data-standin="@(standIn ? "true" : null)" data-unsorted="@(unsorted ? "true" : null)" data-single="@(a.Single ? "true" : null)" aria-label="@label">@ProtoFormat.Money(a.Amount)</a>
+        }
+        else
+        {
+            <a class="pay-actual" href="@href" data-tone="@ProtoFormat.ToneKey(a.Tone)"
+               data-standin="@(standIn ? "true" : null)" data-unsorted="@(unsorted ? "true" : null)" data-single="@(a.Single ? "true" : null)" aria-label="@label">@ProtoFormat.Money(a.Amount)</a>
+        }
+    };
+
+    /// <summary>C: an actual opens its month in the table, with the line's (or category's) payments under it.</summary>
+    private string CellUrl(PlanBoardGrid.GridActual a)
+    {
+        PQuery q = Model.Query.Shut with { Period = a.Month, Month = null, Edit = null };
+        string url = a.Line is not null
+            ? (q with { Line = a.Line.Line.Id, Category = null }).Href
+            : (q with { Category = a.Category!.Id, Line = null }).Href;
+        return url.Replace("variant=A", "variant=C", StringComparison.Ordinal);
+    }
+
+    private int ListMonth => Model.Query.IsYear ? Model.Year.Current : Model.Query.Period;
+
+    private PayMonthModel ListFor(string target)
+    {
+        string back = HereUrl;
+        int month = ListMonth;
+        PayFormModel? form = null;
+        if (Model.Editing is string id && PayStore.Find(id) is PPayment p)
+        {
+            form = PayForms.Edit(HttpContextShim, p, "C", PayLayout.Inline, back);
+        }
+        else if (Model.Adding)
+        {
+            form = PayForms.New(HttpContextShim, "C", PayLayout.Inline, back, target, month);
+        }
+
+        return new PayMonthModel("C", target, month, back, Model.SignedIn, form, Model.Editing);
+    }
+
+    // The page has no HttpContext; the forms only need who is signed in
+    private HttpContext HttpContextShim
+    {
+        get
+        {
+            DefaultHttpContext c = new();
+            c.Request.Headers.Cookie = $"proto-pay-as={Model.SignedIn}";
+            return c;
+        }
+    }
+
+    private RenderFragment<PLine> LineBelow => line => __builder =>
+    {
+        PayMonthModel list = ListFor(line.Id);
+        <div class="pay-below" data-testid="line-payments">
+            <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
+                <MnlHeading Level="2">@list.Title</MnlHeading>
+                <MnlButton Href="@CloseUrl" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Close</MnlButton>
+            </MnlCluster>
+            <PayMonthList Model="list" />
+        </div>
+    };
+
+    private RenderFragment<PCategory> CategoryBelow => category => __builder =>
+    {
+        PayMonthModel list = ListFor("cat:" + category.Id);
+        <div class="pay-below" data-testid="category-payments">
+            <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
+                <MnlHeading Level="2">@list.Title: the category and its lines</MnlHeading>
+                <MnlButton Href="@CloseUrl" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Close</MnlButton>
+            </MnlCluster>
+            <PayMonthList Model="list" />
+        </div>
+    };
+
+    private string CloseUrl => Model.Query.Shut.Closed.Href.Replace("variant=A", "variant=" + Model.Variant, StringComparison.Ordinal);
+}

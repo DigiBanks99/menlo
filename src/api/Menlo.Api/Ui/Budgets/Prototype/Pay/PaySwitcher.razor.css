@@ -1,0 +1,30 @@
+.pay-switcher {
+    position: fixed;
+    inset-block-end: calc(var(--mnl-tabbar-height, 0px) + var(--mnl-space-4));
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: var(--mnl-space-3);
+    padding: var(--mnl-space-2) var(--mnl-space-4);
+    border-radius: var(--mnl-radius-full);
+    background: var(--mnl-text);
+    color: var(--mnl-bg);
+    box-shadow: var(--mnl-shadow-md);
+    font-size: var(--mnl-text-sm);
+    font-weight: var(--mnl-weight-semibold);
+    white-space: nowrap;
+}
+
+.pay-switcher__arrow {
+    color: inherit;
+    text-decoration: none;
+    padding: 0 var(--mnl-space-2);
+    font-size: var(--mnl-text-lg);
+}
+
+.pay-switcher__arrow:focus-visible {
+    outline: 2px solid var(--mnl-accent);
+    border-radius: var(--mnl-radius-sm);
+}

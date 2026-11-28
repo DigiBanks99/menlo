@@ -26,7 +26,9 @@ public enum MnlIconName
     TrendingUp,
     TriangleAlert,
     Wallet,
-    X
+    X,
+    Camera,
+    Receipt
 }
 
 /// <summary>
@@ -56,7 +58,9 @@ internal static class MnlIconShapes
         [MnlIconName.TrendingUp] = """<path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/>""",
         [MnlIconName.TriangleAlert] = """<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>""",
         [MnlIconName.Wallet] = """<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>""",
-        [MnlIconName.X] = """<path d="M18 6 6 18"/><path d="m6 6 12 12"/>"""
+        [MnlIconName.X] = """<path d="M18 6 6 18"/><path d="m6 6 12 12"/>""",
+        [MnlIconName.Camera] = """<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>""",
+        [MnlIconName.Receipt] = """<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>"""
     };
 
     public static string For(MnlIconName name) => Shapes[name];

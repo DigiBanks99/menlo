@@ -1,0 +1,34 @@
+@*
+    PROTOTYPE (#768): variant B's page. On a phone it is the quick entry: the amount first, the likely lines as
+    chips, and the rest folded under "More". It is also where B changes a payment.
+*@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+<AppPage Page="Page" Title="@Model.Title">
+    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <div class="payquick">
+        <MnlStack Gap="MnlGap.Lg">
+            <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
+                <MnlHeading Level="1">@Model.Title</MnlHeading>
+                <PayAs SignedIn="@Model.SignedIn" Back="@Model.Back" />
+            </MnlCluster>
+            @if (Model.IsNew)
+            {
+                <a class="payquick__camera" href="@($"{PQuery.PayRoot}/receipts?variant={Model.Variant}#take")" data-testid="take-photo">
+                    <MnlIcon Name="MnlIconName.Camera" />
+                    <span>
+                        <strong>Take a photo of the slip</strong>
+                        <span>The agent fills it in. Check it later.</span>
+                    </span>
+                </a>
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Or type it in:</MnlText>
+            }
+            <PayFormView Model="Model" />
+        </MnlStack>
+    </div>
+    <PaySwitcher Variant="@Model.Variant" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
+    [Parameter, EditorRequired] public PayFormModel Model { get; set; } = null!;
+}

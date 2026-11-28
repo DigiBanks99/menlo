@@ -8,9 +8,14 @@ namespace Menlo.Api.Ui.Budgets.Prototype.Plan;
 
 public sealed record PQuery(string Variant, int Year, string Target, string? Line, int? Month, string? Category, string? Edit,
     string View = "household", int Period = PQuery.YearPeriod, IReadOnlyList<string>? Open = null, string Filter = "all", string Who = "all",
-    string? Panel = null)
+    string? Panel = null, string Root = PQuery.PlanRoot)
 {
     public const int YearPeriod = -1;
+
+    public const string PlanRoot = "/budgets/prototype/plan";
+
+    /// <summary>PROTOTYPE (#768): the payments prototype reuses this state on its own route.</summary>
+    public const string PayRoot = "/budgets/prototype/pay";
 
     public static readonly (string Key, string Name)[] Variants =
     [
@@ -66,7 +71,8 @@ public sealed record PQuery(string Variant, int Year, string Target, string? Lin
         string who = Beneficiaries.Any(b => b.Key == q["who"]) ? q["who"].ToString() : "all";
         IReadOnlyList<string> open = [.. q["open"].Where(s => !string.IsNullOrEmpty(s)).Select(s => s!).Distinct()];
         string? panel = Panels.Any(x => x.Key == q["panel"]) ? q["panel"].ToString() : null;
-        return new PQuery(variant, year, target, line, month, category, edit, view, period, open, filter, who, panel);
+        string root = request.Path.StartsWithSegments(PayRoot) ? PayRoot : PlanRoot;
+        return new PQuery(variant, year, target, line, month, category, edit, view, period, open, filter, who, panel, root);
     }
 
     public string Href
@@ -85,7 +91,7 @@ public sealed record PQuery(string Variant, int Year, string Target, string? Lin
             if (Category is not null) parts.Add($"cat={Category}");
             if (Edit is not null) parts.Add($"edit={Uri.EscapeDataString(Edit)}");
             if (Panel is not null) parts.Add($"panel={Panel}");
-            return "/budgets/prototype/plan?" + string.Join('&', parts);
+            return Root + "?" + string.Join('&', parts);
         }
     }
 

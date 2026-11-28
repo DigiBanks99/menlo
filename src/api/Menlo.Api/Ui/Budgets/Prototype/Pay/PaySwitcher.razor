@@ -1,0 +1,16 @@
+@* PROTOTYPE (#768): the floating variant switcher. Arrows are links, so the variant is in the URL. *@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    int i = Array.FindIndex(PayVariants.All, v => v.Key == Variant);
+    string prev = PayVariants.All[(i + 2) % 3].Key;
+    string next = PayVariants.All[(i + 1) % 3].Key;
+}
+<nav class="pay-switcher" aria-label="Prototype variants" data-testid="prototype-switcher">
+    <a class="pay-switcher__arrow" href="@($"{PQuery.PayRoot}?variant={prev}")" aria-label="Previous variant">←</a>
+    <span class="pay-switcher__label">@Variant (@PayVariants.Name(Variant))</span>
+    <a class="pay-switcher__arrow" href="@($"{PQuery.PayRoot}?variant={next}")" aria-label="Next variant">→</a>
+</nav>
+
+@code {
+    [Parameter, EditorRequired] public string Variant { get; set; } = "A";
+}

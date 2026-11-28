@@ -1,0 +1,66 @@
+@*
+    PROTOTYPE (#768): checking a receipt (#770). On a computer the photos sit beside the filled-in form; on a phone
+    the form comes first and a tap shows the photo full screen. Saving makes it a payment and deletes the photos.
+*@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    string root = PQuery.PayRoot;
+    PReceipt r = Model.Receipt;
+    int photos = Math.Max(1, r.Photos.Count);
+}
+<AppPage Page="Page" Title="Check the receipt">
+    <link rel="stylesheet" href="/prototype/pay.css?v=3" />
+    <MnlStack Gap="MnlGap.Lg">
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlButton Href="@($"{root}/receipts?variant={Model.Variant}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">← Receipts</MnlButton>
+                <MnlHeading Level="1">Check the receipt</MnlHeading>
+            </MnlStack>
+            <MnlBadge Tone="@PayFormat.StatusTone(Model.Status)">@PayFormat.Status(Model.Status)</MnlBadge>
+        </MnlCluster>
+
+        <div class="payreceipt">
+            <div class="payreceipt__photos">
+                @for (int i = 0; i < photos; i++)
+                {
+                    string src = $"{root}/receipts/{r.Id}/photo/{i}";
+                    string label = $"The slip, photo {i + 1} of {photos}";
+                    <a href="@src" class="payreceipt__photo" target="_blank" rel="noopener">
+                        <img src="@src" alt="@label" />
+                    </a>
+                }
+            </div>
+            <a href="@($"{root}/receipts/{r.Id}/photo/0")" class="payreceipt__view" target="_blank" rel="noopener">
+                <MnlIcon Name="MnlIconName.Receipt" Size="MnlSize.Sm" /> View the photo
+            </a>
+            <div class="payreceipt__form">
+                @if (Model.Form is not null)
+                {
+                    <PayFormView Model="Model.Form" />
+                }
+                else
+                {
+                    <MnlStack Gap="MnlGap.Md">
+                        <MnlAlert Tone="MnlTone.Info" Title="@WaitTitle">@WaitText</MnlAlert>
+                        <MnlCluster Gap="MnlGap.Sm">
+                            <MnlButton Href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}&hand=1")" Variant="MnlButtonVariant.Secondary">Enter it by hand</MnlButton>
+                            <MnlButton Href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}")" Variant="MnlButtonVariant.Ghost">Check again</MnlButton>
+                        </MnlCluster>
+                    </MnlStack>
+                }
+            </div>
+        </div>
+    </MnlStack>
+    <PaySwitcher Variant="@Model.Variant" />
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired] public PageContext Page { get; set; } = null!;
+    [Parameter, EditorRequired] public PayReceiptModel Model { get; set; } = null!;
+
+    private string WaitTitle => Model.Status == ReceiptStatus.Reading ? "The agent is reading it" : "Waiting to be read";
+
+    private static string WaitText => PayStore.ModelUp
+        ? "Receipts are read one at a time. This page doesn't need to stay open."
+        : "The model server is down. It's read when the server is back; you don't need to do anything.";
+}

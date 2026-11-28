@@ -31,13 +31,25 @@ public sealed record BLine(PLine Line, decimal[] Planned, decimal[] Preview, dec
         : Actual[month];
 }
 
+/// <summary>PROTOTYPE (#768): unsorted splits count towards a category's actual but no line's.</summary>
+public static class PlanHooks
+{
+    public static Func<string, int, decimal> Unsorted { get; set; } = (_, _) => 0;
+
+    public static decimal UnsortedFor(string categoryId, int month) => month == PQuery.YearPeriod
+        ? Enumerable.Range(0, 12).Sum(m => Unsorted(categoryId, m))
+        : Unsorted(categoryId, month);
+}
+
 public sealed record BCategory(PCategory Category, IReadOnlyList<BLine> Lines)
 {
     public decimal PlannedFor(int month) => Lines.Sum(l => l.PlannedFor(month));
 
     public decimal PreviewFor(int month) => Lines.Sum(l => l.PreviewFor(month));
 
-    public decimal? ActualFor(int month) => Lines.All(l => l.ActualFor(month) is null) ? null : Lines.Sum(l => l.ActualFor(month) ?? 0);
+    public decimal? ActualFor(int month) => Lines.All(l => l.ActualFor(month) is null) && PlanHooks.UnsortedFor(Category.Id, month) == 0
+        ? null
+        : Lines.Sum(l => l.ActualFor(month) ?? 0) + PlanHooks.UnsortedFor(Category.Id, month);
 
     public bool AnyChanged => Lines.Any(l => l.AnyChanged);
 }
@@ -52,7 +64,7 @@ public sealed record BGroup(PCategory Top, IReadOnlyList<BCategory> Categories)
 
     public decimal PreviewFor(int month) => Lines.Sum(l => l.PreviewFor(month));
 
-    public decimal? ActualFor(int month) => Lines.All(l => l.ActualFor(month) is null) ? null : Lines.Sum(l => l.ActualFor(month) ?? 0);
+    public decimal? ActualFor(int month) => Categories.All(c => c.ActualFor(month) is null) ? null : Categories.Sum(c => c.ActualFor(month) ?? 0);
 
     public bool AnyChanged => Categories.Any(c => c.AnyChanged);
 }

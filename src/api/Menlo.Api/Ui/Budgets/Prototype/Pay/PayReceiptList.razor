@@ -1,0 +1,42 @@
+@* PROTOTYPE (#768): the receipts waiting for a check. It reloads itself while one is waiting or being read. *@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    string root = PQuery.PayRoot;
+    bool moving = PayStore.AnyMoving;
+}
+<section id="receipt-list" class="payreceipts__list" aria-label="Receipts to check" data-testid="receipt-list"
+         hx-get="@(moving ? $"{root}/receipts/list?variant={Model.Variant}" : null)"
+         hx-trigger="@(moving ? "every 3s" : null)" hx-swap="@(moving ? "outerHTML" : null)">
+    <MnlHeading Level="2">To check (@Model.Receipts.Count)</MnlHeading>
+    @if (Model.Receipts.Count == 0)
+    {
+        <MnlEmptyState Title="Nothing to check" Message="Receipts you send show here until they're saved as payments or discarded." />
+    }
+    else
+    {
+        <ul class="payreceipts__items">
+            @foreach (PReceipt receipt in Model.Receipts)
+            {
+                PReceipt r = receipt;
+                ReceiptStatus status = PayStore.Status(r);
+                PRead? read = PayStore.Scenario(r.Scenario).Read;
+                string what = status == ReceiptStatus.Ready ? $"{read?.Merchant ?? "Unknown shop"}, {PayFormat.Money(read?.Total ?? 0)}" : "A slip";
+                string who = $"Taken by {PayFormat.Member(r.TakenBy)}, {PayFormat.Ago(r.TakenAt)}" + (r.Photos.Count > 1 ? $", {r.Photos.Count} photos" : "");
+                <li>
+                    <a class="payreceipts__item" href="@($"{root}/receipts/{r.Id}?variant={Model.Variant}")">
+                        <img src="@($"{root}/receipts/{r.Id}/photo/0")" alt="" class="payreceipts__thumb" width="48" height="64" />
+                        <span class="payreceipts__what">
+                            <strong>@what</strong>
+                            <span>@who</span>
+                        </span>
+                        <MnlBadge Tone="@PayFormat.StatusTone(status)">@PayFormat.Status(status)</MnlBadge>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public PayReceiptsModel Model { get; set; } = null!;
+}

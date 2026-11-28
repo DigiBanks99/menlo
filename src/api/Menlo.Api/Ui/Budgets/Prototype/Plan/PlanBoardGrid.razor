@@ -105,7 +105,7 @@
                                     @Pencil(c.Category)
                                 </span>
                             </th>
-                            @RowCells(g.Income, c.PlannedFor, c.PreviewFor, c.ActualFor, null)
+                            @RowCells(g.Income, c.PlannedFor, c.PreviewFor, c.ActualFor, null, cat: c.Category)
                         </tr>
                         @if (CategoryBelow is not null && Selected(c.Category))
                         {
@@ -181,6 +181,9 @@
     /// <summary>Whether a category is being edited.</summary>
     [Parameter] public Func<PCategory, bool>? IsSelected { get; set; }
 
+    /// <summary>PROTOTYPE (#768): draws a line's or category's actual instead of the plain amount, for linking it to its payments.</summary>
+    [Parameter] public RenderFragment<GridActual>? ActualSlot { get; set; }
+
     /// <summary>Variant C: categories already set up get a tick.</summary>
     [Parameter] public Func<PCategory, bool>? Done { get; set; }
 
@@ -232,7 +235,7 @@
     }
 
     private RenderFragment RowCells(bool income, Func<int, decimal> planned, Func<int, decimal> preview,
-        Func<int, decimal?> actual, BLine? line, bool net = false) => __builder =>
+        Func<int, decimal?> actual, BLine? line, bool net = false, PCategory? cat = null) => __builder =>
     {
         int current = Sheet.Board.Current;
         if (Sheet.Query.IsYear)
@@ -240,10 +243,10 @@
             for (int i = 0; i < 12; i++)
             {
                 int m = i;
-                @Cell(income, m, planned(m), preview(m), m > current ? null : actual(m), line, net)
+                @Cell(income, m, planned(m), preview(m), m > current ? null : actual(m), line, net, cat: cat)
             }
 
-            @Cell(income, PQuery.YearPeriod, planned(PQuery.YearPeriod), preview(PQuery.YearPeriod), actual(PQuery.YearPeriod), line, net, total: true)
+            @Cell(income, PQuery.YearPeriod, planned(PQuery.YearPeriod), preview(PQuery.YearPeriod), actual(PQuery.YearPeriod), line, net, total: true, cat: cat)
         }
         else
         {
@@ -254,8 +257,15 @@
             decimal ytdA = Enumerable.Range(0, current).Sum(x => actual(x) ?? 0);
             MnlTone tone = net ? ProtoFormat.NetTone(p, a) : ProtoFormat.VarianceTone(income, p, a);
             <td>@(line is null ? "" : ProtoFormat.TypeLabel(line.Line.Type))</td>
-            @Cell(income, m, p, preview(m), a, line, net, single: true)
-            <td class="grid__num">@ProtoFormat.Money(a)</td>
+            @Cell(income, m, p, preview(m), a, line, net, single: true, cat: cat)
+            @if (ActualSlot is not null && !net && (line is not null || cat is not null))
+            {
+                <td class="grid__num">@ActualSlot(new GridActual(line, cat, m, a, tone, true))</td>
+            }
+            else
+            {
+                <td class="grid__num">@ProtoFormat.Money(a)</td>
+            }
             <td class="grid__num" data-tone="@ProtoFormat.ToneKey(tone)">@(a is null ? "" : ProtoFormat.Delta(a.Value - p))</td>
             <td class="grid__num">@ProtoFormat.Money(ytdP) / @ProtoFormat.Money(ytdA)</td>
             <td class="grid__judge">
@@ -269,7 +279,7 @@
     };
 
     private RenderFragment Cell(bool income, int m, decimal planned, decimal preview, decimal? actual, BLine? line,
-        bool net, bool total = false, bool single = false) => __builder =>
+        bool net, bool total = false, bool single = false, PCategory? cat = null) => __builder =>
     {
         int current = Sheet.Board.Current;
         bool changed = preview != planned;
@@ -300,7 +310,11 @@
                 {
                     <span class="grid__story">Override. Calculated: @ProtoFormat.Money(calc.Calculated)</span>
                 }
-                @if (!single && actual is not null && (m < 0 || m <= current))
+                @if (!single && ActualSlot is not null && !net && (line is not null || cat is not null) && (m < 0 || m <= current))
+                {
+                    @ActualSlot(new GridActual(line, cat, m, actual, tone, false))
+                }
+                else if (!single && actual is not null && (m < 0 || m <= current))
                 {
                     <span class="grid__actual grid__actual--toned" data-tone="@ProtoFormat.ToneKey(tone)">@ProtoFormat.Money(actual)</span>
                 }
@@ -329,4 +343,9 @@
             </span>
         }
     };
+}
+
+@code {
+    /// <summary>PROTOTYPE (#768): one actual the grid is about to draw.</summary>
+    public sealed record GridActual(BLine? Line, PCategory? Category, int Month, decimal? Amount, MnlTone Tone, bool Single);
 }

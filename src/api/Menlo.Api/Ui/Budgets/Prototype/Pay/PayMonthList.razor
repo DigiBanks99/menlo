@@ -1,0 +1,152 @@
+@*
+    PROTOTYPE (#768): a line's or category's payments in one month, the way a payment is found again without a
+    payments page. A opens it in a panel, B as a page, C under the line in the month table.
+*@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    PayMonthModel m = Model;
+    string root = PQuery.PayRoot;
+}
+<MnlStack Gap="MnlGap.Md" class="paymonth" data-testid="month-payments">
+    <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.Center">
+        <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">
+            @if (m.Line is not null)
+            {
+                <span>Planned @m.Planned. </span>
+            }
+            @if (m.StandIn)
+            {
+                <span>Nothing recorded, so the plan stands in as the actual.</span>
+            }
+            else
+            {
+                <span>Recorded: @m.Total.</span>
+            }
+        </MnlText>
+    </MnlCluster>
+
+    @if (m.Rows.Count == 0)
+    {
+        <MnlEmptyState Title="No payments" Message="@(m.IsCategory ? "Nothing recorded on this category or its lines this month." : "Record one, or mark the month as nothing paid.")" />
+    }
+    else
+    {
+        <ul class="paymonth__list">
+            @foreach ((PPayment payment, PSplit split) in m.Rows)
+            {
+                PPayment p = payment;
+                PSplit s = split;
+                bool editing = m.Editing == p.Id;
+                <li class="paymonth__row" data-editing="@(editing ? "true" : null)">
+                    <span class="paymonth__date">@PayFormat.Date(p.Date)</span>
+                    <span class="paymonth__what">
+                        @if (p.Nothing)
+                        {
+                            <strong>Nothing this month</strong>
+                        }
+                        else
+                        {
+                            <strong>@(p.Note.Length > 0 ? p.Note : "No note")</strong>
+                            <span class="paymonth__sub">
+                                @PayFormat.Member(p.Member)@(p.Kind == PayKind.Refund ? ", refund" : "")@(p.Splits.Count > 1 ? $", {PayFormat.Money(s.Amount)} of {PayFormat.Money(p.Amount)}" : "")@(m.IsCategory ? $", {PayStore.TargetName(m.Year, s.Target)}" : "")
+                            </span>
+                        }
+                    </span>
+                    @if (s.Unsorted)
+                    {
+                        <MnlBadge Tone="MnlTone.Warning">Not sorted</MnlBadge>
+                    }
+                    <span class="paymonth__amount">@PayFormat.Money(p.Sign * s.Amount)</span>
+                    @if (p.Nothing)
+                    {
+                        <form hx-post="@(root + "/remove")" hx-target="this" hx-swap="outerHTML" class="paymonth__inline">
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <input type="hidden" name="variant" value="@m.Variant" />
+                            <input type="hidden" name="back" value="@m.Back" />
+                            <input type="hidden" name="confirm" value="true" />
+                            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Remove</MnlButton>
+                        </form>
+                    }
+                    else
+                    {
+                        @EditLink(p, s.Unsorted ? "Sort it" : "Change")
+                    }
+                </li>
+                @if (editing && m.Form is not null)
+                {
+                    <li class="paymonth__form"><PayFormView Model="m.Form" /></li>
+                }
+            }
+        </ul>
+    }
+
+    @if (m.Form is not null && m.Form.IsNew)
+    {
+        <PayFormView Model="m.Form" />
+    }
+    else
+    {
+        <MnlCluster Gap="MnlGap.Sm">
+            @AddLink()
+            @if (m.CanNothing)
+            {
+                <form hx-post="@(root + "/nothing")" class="paymonth__inline">
+                    <input type="hidden" name="target" value="@m.Target" />
+                    <input type="hidden" name="month" value="@m.Month" />
+                    <input type="hidden" name="back" value="@m.Back" />
+                    <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Secondary" Size="MnlSize.Sm" Icon="MnlIconName.Minus"
+                               data-testid="nothing-this-month">Nothing this month</MnlButton>
+                </form>
+            }
+        </MnlCluster>
+    }
+</MnlStack>
+
+@code {
+    [Parameter, EditorRequired] public PayMonthModel Model { get; set; } = null!;
+
+    private string FormUrl(string query) => $"{PQuery.PayRoot}/form?variant={Model.Variant}&back={Uri.EscapeDataString(Model.Back)}&{query}";
+
+    private RenderFragment EditLink(PPayment p, string label) => __builder =>
+    {
+        switch (Model.Variant)
+        {
+            case "A":
+                <MnlButton Href="@FormUrl($"id={p.Id}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Pencil"
+                           hx-get="@FormUrl($"id={p.Id}")" hx-target="@MnlPanel.HostSelector">@label</MnlButton>
+                break;
+            case "B":
+                <MnlButton Href="@FormUrl($"id={p.Id}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Pencil">@label</MnlButton>
+                break;
+            default:
+                <MnlButton Href="@Swap(Model.Back, "pay", p.Id)" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Pencil">@label</MnlButton>
+                break;
+        }
+    };
+
+    private RenderFragment AddLink() => __builder =>
+    {
+        string query = $"target={Uri.EscapeDataString(Model.Target)}&month={Model.Month}";
+        switch (Model.Variant)
+        {
+            case "A":
+                <MnlButton Href="@FormUrl(query)" Size="MnlSize.Sm" Icon="MnlIconName.Plus" hx-get="@FormUrl(query)" hx-target="@MnlPanel.HostSelector">Add a payment</MnlButton>
+                break;
+            case "B":
+                <MnlButton Href="@FormUrl(query)" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add a payment</MnlButton>
+                break;
+            default:
+                <MnlButton Href="@Swap(Model.Back, "add", "1")" Size="MnlSize.Sm" Icon="MnlIconName.Plus">Add a payment</MnlButton>
+                break;
+        }
+    };
+
+    /// <summary>C: the page URL with one extra parameter set (and the other cleared).</summary>
+    public static string Swap(string url, string key, string value)
+    {
+        string[] parts = url.Split('?', 2);
+        List<string> kept = parts.Length > 1 ? [.. parts[1].Split('&').Where(x => !x.StartsWith("pay=", StringComparison.Ordinal) && !x.StartsWith("add=", StringComparison.Ordinal))] : [];
+        kept.Add($"{key}={Uri.EscapeDataString(value)}");
+        return parts[0] + "?" + string.Join('&', kept);
+    }
+}

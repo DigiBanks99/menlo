@@ -1,0 +1,279 @@
+@*
+    PROTOTYPE (#768): the payment form every variant uses. The server re-renders it on each change that moves a
+    default (kind, note, line, member, adding or removing a split), so the rules live in PayForms, not here.
+    Panel (A) is the full form; Page (B) puts the amount and the likely lines first and folds the rest under "More";
+    Inline (C) is a compact form under a line in the month table.
+*@
+@using Menlo.Api.Ui.Budgets.Prototype.Plan
+@{
+    PayFormModel m = Model;
+    bool quick = m.Layout == PayLayout.Page && m.ReceiptId is null;
+    bool inline = m.Layout == PayLayout.Inline;
+}
+<form class="payform" data-layout="@m.Layout.ToString().ToLowerInvariant()" hx-post="@(Root + "/save")" hx-target="this" hx-swap="outerHTML"
+      novalidate data-testid="payment-form">
+    <input type="hidden" name="id" value="@m.Id" />
+    <input type="hidden" name="receipt" value="@m.ReceiptId" />
+    <input type="hidden" name="variant" value="@m.Variant" />
+    <input type="hidden" name="layout" value="@m.Layout" />
+    <input type="hidden" name="back" value="@m.Back" />
+    <input type="hidden" name="memberByHand" value="@(m.MemberByHand ? "true" : "false")" />
+
+    @if (m.Errors.Form is not null)
+    {
+        <MnlAlert Tone="MnlTone.Error">@m.Errors.Form</MnlAlert>
+    }
+
+    @if (m.ConfirmRemove)
+    {
+        <div class="payform__confirm" role="alertdialog" aria-label="Remove the payment" data-testid="remove-confirm">
+            <MnlText Weight="MnlWeight.Semibold">Remove this @m.Amount payment?</MnlText>
+            <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">It's deleted for good: there's no undo. Its lines go back to what's left, or their plan stands in.</MnlText>
+            <MnlCluster Gap="MnlGap.Sm">
+                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Primary" Size="MnlSize.Sm" name="confirm" value="true"
+                           hx-post="@(Root + "/remove")" hx-target="closest form" hx-swap="outerHTML">Yes, remove it</MnlButton>
+                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm"
+                           hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML">Keep it</MnlButton>
+            </MnlCluster>
+        </div>
+    }
+
+    @if (m.Duplicate is not null)
+    {
+        <div class="payform__duplicate" role="alert" data-testid="duplicate-warning">
+            <MnlIcon Name="MnlIconName.TriangleAlert" Size="MnlSize.Sm" />
+            <div>
+                <MnlText Weight="MnlWeight.Semibold">Possible duplicate</MnlText>
+                <MnlText Size="MnlTextSize.Sm">@m.Duplicate</MnlText>
+                <MnlCluster Gap="MnlGap.Sm">
+                    <MnlButton Type="MnlButtonType.Submit" Size="MnlSize.Sm" name="anyway" value="true">Save anyway</MnlButton>
+                    @if (m.Layout == PayLayout.Panel)
+                    {
+                        <MnlButton Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" data-mnl-close>Cancel</MnlButton>
+                    }
+                    else
+                    {
+                        <MnlButton Href="@m.Back" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm">Cancel</MnlButton>
+                    }
+                </MnlCluster>
+            </div>
+        </div>
+    }
+
+    @foreach ((string text, MnlTone tone) in m.Checks)
+    {
+        <MnlAlert Tone="tone">@text</MnlAlert>
+    }
+
+    @if (quick)
+    {
+        <label class="payform__big" for="pay-amount">
+            <span class="payform__big-label">How much?</span>
+            <span class="payform__big-row">
+                <span class="payform__big-currency" aria-hidden="true">R</span>
+                <input id="pay-amount" name="amount" value="@m.Amount" inputmode="decimal" autocomplete="off" placeholder="0" class="payform__big-input"
+                       aria-invalid="@(m.Errors.Has("amount") ? "true" : null)" />
+            </span>
+            @if (m.Errors.For("amount") is string amountError)
+            {
+                <span class="payform__error">@amountError</span>
+            }
+        </label>
+
+        <fieldset class="payform__pills">
+            <legend class="mnl-visually-hidden">Kind</legend>
+            @foreach (MnlOption kind in PayFormModel.KindOptions)
+            {
+                MnlOption k = kind;
+                bool on = k.Value == m.Kind.ToString();
+                <button type="submit" name="setkind" value="@k.Value" class="payform__pill" aria-pressed="@(on ? "true" : "false")"
+                        hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML">
+                    @(k.Value switch { "Income" => "Received", "Refund" => "Refund", _ => "Paid" })
+                </button>
+            }
+            <input type="hidden" name="kind" value="@m.Kind" />
+        </fieldset>
+
+        <div class="payform__chips" role="group" aria-label="Which line">
+            <span class="payform__chips-label">For</span>
+            @foreach (string line in Chips)
+            {
+                string l = line;
+                bool on = m.Splits.Count == 1 && m.Splits[0].Target == l;
+                <button type="submit" name="pick" value="@l" class="payform__chip" aria-pressed="@(on ? "true" : "false")"
+                        hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML">@m.TargetName(l)</button>
+            }
+        </div>
+        @if (m.SplitHint is not null)
+        {
+            <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Accent">@m.SplitHint</MnlText>
+        }
+
+        <MnlFormField Label="Where" For="pay-note" Hint="A shop or who paid you. A note you used before picks its line.">
+            <MnlInput Id="pay-note" Name="note" Value="@m.Note" list="pay-merchants" autocomplete="off"
+                      hx-post="@(Root + "/form/refresh")" hx-trigger="change" hx-target="closest form" hx-swap="outerHTML" />
+        </MnlFormField>
+
+        <MnlDisclosure Open="@(m.Errors.Has("splits") || m.Errors.Has("date") || !m.OneSplit)">
+            <Summary>More: date, who paid, splits</Summary>
+            <ChildContent>
+                <MnlStack Gap="MnlGap.Md">
+                    @Details(true)
+                </MnlStack>
+            </ChildContent>
+        </MnlDisclosure>
+    }
+    else
+    {
+        <div class="payform__grid" data-inline="@(inline ? "true" : null)">
+            <MnlFormField Label="Kind" For="@Fid("kind")">
+                <MnlSelect Id="@Fid("kind")" Name="kind" Value="@m.Kind.ToString()" Options="PayFormModel.KindOptions"
+                           hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML" />
+            </MnlFormField>
+            <MnlFormField Label="Amount" For="@Fid("amount")" Error="@m.Errors.For("amount")" Hint="@(m.CouldntRead.Contains("amount") ? "Couldn't read: type it from the photo." : null)">
+                <MnlInput Id="@Fid("amount")" Name="amount" Value="@m.Amount" inputmode="decimal" autocomplete="off" Invalid="@(m.Errors.Has("amount") || m.CouldntRead.Contains("amount"))" />
+            </MnlFormField>
+            <MnlFormField Label="Where (note)" For="@Fid("note")" Hint="@(m.CouldntRead.Contains("note") ? "Couldn't read." : inline ? null : "A shop or who paid you. A note you used before picks its line.")">
+                <MnlInput Id="@Fid("note")" Name="note" Value="@m.Note" list="pay-merchants" autocomplete="off" Invalid="@m.CouldntRead.Contains("note")"
+                          hx-post="@(Root + "/form/refresh")" hx-trigger="change" hx-target="closest form" hx-swap="outerHTML" />
+            </MnlFormField>
+        </div>
+        @Details(false)
+    }
+
+    <datalist id="pay-merchants">
+        @foreach (string merchant in PayStore.Merchants(m.Kind))
+        {
+            <option value="@merchant"></option>
+        }
+    </datalist>
+
+    @if (m.Items.Count > 0)
+    {
+        <MnlDisclosure>
+            <Summary>What the agent read: @m.Items.Count item(s)</Summary>
+            <ChildContent>
+                <table class="payform__items">
+                    <thead><tr><th scope="col">Item</th><th scope="col">Amount</th><th scope="col">Put on</th></tr></thead>
+                    <tbody>
+                        @foreach (PItem item in m.Items)
+                        {
+                            <tr>
+                                <td>@item.Text</td>
+                                <td class="payform__num">@PayFormat.Money(item.Amount)</td>
+                                <td>@(item.Target is null ? "Couldn't place: unsorted" : m.TargetName(item.Target))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">The items aren't kept: once saved, each split holds only its line and amount.</MnlText>
+            </ChildContent>
+        </MnlDisclosure>
+    }
+
+    <div class="payform__actions">
+        @if (!m.IsNew && !m.ConfirmRemove)
+        {
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Trash" class="payform__remove"
+                       hx-post="@(Root + "/remove")" hx-target="closest form" hx-swap="outerHTML" data-testid="remove-payment">Remove</MnlButton>
+        }
+        @if (m.ReceiptId is not null)
+        {
+            <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Trash" class="payform__remove"
+                       hx-post="@($"{Root}/receipts/{m.ReceiptId}/discard")">Discard the receipt</MnlButton>
+        }
+        @if (m.IsNew && m.ReceiptId is null)
+        {
+            <MnlButton Href="@($"{Root}/receipts/new?variant={m.Variant}")" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Camera">From a photo</MnlButton>
+        }
+        <span class="payform__spacer"></span>
+        @if (m.Layout == PayLayout.Panel)
+        {
+            <MnlButton Variant="MnlButtonVariant.Ghost" data-mnl-close>Cancel</MnlButton>
+        }
+        else
+        {
+            <MnlButton Href="@m.Back" Variant="MnlButtonVariant.Ghost">Cancel</MnlButton>
+        }
+        <MnlButton Type="MnlButtonType.Submit" Icon="MnlIconName.Check" data-testid="save-payment">@(m.ReceiptId is not null ? "Save as a payment" : quick ? "Save" : "Save payment")</MnlButton>
+    </div>
+</form>
+
+@code {
+    [Parameter, EditorRequired] public PayFormModel Model { get; set; } = null!;
+
+    private const string Root = PQuery.PayRoot;
+
+    private string Fid(string name) => $"pay-{Model.Layout.ToString().ToLowerInvariant()}-{name}";
+
+    /// <summary>B: the lines used most, plus the one picked, as one-tap chips.</summary>
+    private IEnumerable<string> Chips
+    {
+        get
+        {
+            List<string> chips = [.. PayStore.Frequent(Model.Kind, 5)];
+            string picked = Model.Splits.Count == 1 ? Model.Splits[0].Target : "";
+            if (picked.Length > 0 && !chips.Contains(picked)) chips.Insert(0, picked);
+            return chips.Where(c => PayStore.ValidTarget(PayStore.Year, Model.Kind, c));
+        }
+    }
+
+    private string Summary => $"{(Model.Date.Length > 0 ? Model.Date : "no date")}, {PayFormat.Member(Model.Member)}, {(Model.OneSplit ? "one line" : $"{Model.Splits.Count} splits")}";
+
+    private RenderFragment Details(bool quick) => __builder =>
+    {
+        PayFormModel m = Model;
+        <div class="payform__grid">
+            <MnlFormField Label="Date" For="@Fid("date")" Error="@m.Errors.For("date")" Hint="@(m.CouldntRead.Contains("date") ? "Couldn't read: type it from the photo." : null)">
+                <MnlInput Id="@Fid("date")" Name="date" Type="date" Value="@m.Date" Invalid="@(m.Errors.Has("date") || m.CouldntRead.Contains("date"))" />
+            </MnlFormField>
+            <MnlFormField Label="@(m.Kind == PayKind.Income ? "Received by" : "Paid by")" For="@Fid("member")" Hint="@m.MemberHint">
+                <MnlSelect Id="@Fid("member")" Name="member" Value="@m.Member" Options="PayFormModel.MemberOptions"
+                           hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML" />
+            </MnlFormField>
+        </div>
+
+        <fieldset class="payform__splits" data-testid="splits">
+            <legend>@(m.OneSplit ? "Line" : $"Splits (add up to {m.Amount})")</legend>
+            @if (m.Errors.For("splits") is string splitError)
+            {
+                <span class="payform__error">@splitError</span>
+            }
+            @if (!quick && m.SplitHint is not null)
+            {
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Accent">@m.SplitHint</MnlText>
+            }
+            @for (int i = 0; i < m.Splits.Count; i++)
+            {
+                int index = i;
+                SplitRow row = m.Splits[index];
+                <div class="payform__split">
+                    <label class="mnl-visually-hidden" for="@Fid($"target-{index}")">Line for split @(index + 1)</label>
+                    <MnlSelect Id="@Fid($"target-{index}")" Name="target" Value="@row.Target" Options="m.TargetOptions" Placeholder="Pick a line, or a category to sort later"
+                               hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML" />
+                    @if (m.OneSplit)
+                    {
+                        <input type="hidden" name="share" value="@row.Amount" />
+                    }
+                    else
+                    {
+                        <label class="mnl-visually-hidden" for="@Fid($"share-{index}")">Amount for split @(index + 1)</label>
+                        <MnlInput Id="@Fid($"share-{index}")" Name="share" Value="@row.Amount" inputmode="decimal" autocomplete="off" class="payform__share" />
+                        <button type="submit" name="op" value="@($"remove:{index}")" class="payform__x" aria-label="@($"Remove split {index + 1}")"
+                                hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML">
+                            <MnlIcon Name="MnlIconName.X" Size="MnlSize.Sm" />
+                        </button>
+                    }
+                </div>
+            }
+            <MnlCluster Gap="MnlGap.Sm">
+                <MnlButton Type="MnlButtonType.Submit" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.Plus" name="op" value="add"
+                           hx-post="@(Root + "/form/refresh")" hx-target="closest form" hx-swap="outerHTML">@(m.OneSplit ? "Split it across lines" : "Add a split")</MnlButton>
+                @if (!m.OneSplit)
+                {
+                    <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">Splits so far: @m.SplitTotal</MnlText>
+                }
+            </MnlCluster>
+        </fieldset>
+    };
+}
