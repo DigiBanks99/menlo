@@ -26,6 +26,8 @@ services:
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
       - Logging__LogLevel__Microsoft.SemanticKernel=Information
+      # The budget is being rebuilt: off until it has lines and monthly amounts again
+      - Features__Budget=${FEATURES_BUDGET:-false}
     depends_on:
       postgres:
         condition: service_healthy
