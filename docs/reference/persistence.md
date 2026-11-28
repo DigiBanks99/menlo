@@ -27,7 +27,7 @@ Feature code never takes `MenloDbContext` directly. Each bounded context has a s
 | Interface           | Sets                                                                |
 | ------------------- | ------------------------------------------------------------------- |
 | `IUserContext`      | `Users`                                                             |
-| `IBudgetContext`    | `Budgets`                                                           |
+| `IBudgetContext`    | `Budgets`, `RentalUnits`                                            |
 
 ### Schemas
 
@@ -36,7 +36,7 @@ Tables are grouped by bounded context:
 | Schema          | Tables                                                                 |
 | --------------- | ---------------------------------------------------------------------- |
 | `shared`        | `users`                             |
-| `budget`        | `budgets` (unique index on `year`: one budget per year) |
+| `budget`        | `budgets` (unique index on `year`: one budget per year), `rental_units` (household-wide, not tied to a budget) |
 
 New bounded contexts get their own schema.
 
