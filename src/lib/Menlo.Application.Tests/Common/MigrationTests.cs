@@ -97,13 +97,57 @@ public sealed class MigrationTests : IAsyncDisposable
     }
 
     [Test]
-    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenNoBudgetTablesAreLeft()
+    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenNoShippedBudgetTablesAreLeft()
     {
         CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
         using IServiceScope scope = _host.Services.CreateScope();
         MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
 
-        await ItShouldHaveNoBudgetTablesOrSchema(ctx, ct);
+        await ItShouldHaveNoShippedBudgetTablesOrSchema(ctx, ct);
+    }
+
+    [Test]
+    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenTheBudgetsTableKeepsOneBudgetPerYear()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        List<string> columns = await ctx.Database
+            .SqlQuery<string>($@"SELECT column_name AS ""Value"" FROM information_schema.columns
+                WHERE table_schema = 'budget' AND table_name = 'budgets' ORDER BY column_name")
+            .ToListAsync(ct);
+        long uniqueYearIndexes = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM pg_indexes
+                WHERE schemaname = 'budget' AND tablename = 'budgets' AND indexname = 'ix_budgets_year'
+                  AND indexdef LIKE 'CREATE UNIQUE INDEX%(year)'")
+            .SingleAsync(ct);
+
+        ItShouldHaveTheBudgetColumns();
+        ItShouldHaveAUniqueIndexOnTheYear();
+
+        void ItShouldHaveTheBudgetColumns() => columns.ShouldBe(
+            ["created_at", "created_by", "id", "modified_at", "modified_by", "year"]);
+
+        void ItShouldHaveAUniqueIndexOnTheYear() => uniqueYearIndexes.ShouldBe(1);
+    }
+
+    [Test]
+    public async Task GivenAMigratedDatabase_WhenRolledBackBeforeAddBudgets_ThenTheBudgetSchemaIsGone()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
+
+        await migrator.MigrateAsync(RemoveShippedBudgetMigration, ct);
+        long schemas = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.schemata WHERE schema_name = 'budget'")
+            .SingleAsync(ct);
+
+        ItShouldHaveDroppedTheBudgetSchema();
+
+        void ItShouldHaveDroppedTheBudgetSchema() => schemas.ShouldBe(0);
     }
 
     [Test]
@@ -117,14 +161,15 @@ public sealed class MigrationTests : IAsyncDisposable
         await migrator.MigrateAsync(RemoveHouseholdsMigration, ct);
         Guid userId = await SeedShippedBudgetAsync(ctx, ct);
 
-        await migrator.MigrateAsync(null, ct);
+        await migrator.MigrateAsync(RemoveShippedBudgetMigration, ct);
 
         await ItShouldHaveKeptTheUser(ctx, userId, ct);
-        await ItShouldHaveNoBudgetTablesOrSchema(ctx, ct);
+        await ItShouldHaveNoShippedBudgetTablesOrSchema(ctx, ct);
     }
 
     private const string PreviousMigration = "20261104121202_MapBudgetItemRealizedAndSpentAmounts";
     private const string RemoveHouseholdsMigration = "20261115112130_RemoveHouseholds";
+    private const string RemoveShippedBudgetMigration = "20261128141016_RemoveShippedBudget";
 
     // A user and a budget with a category and an item, in the schema the shipped budget left behind
     private static async Task<Guid> SeedShippedBudgetAsync(MenloDbContext ctx, CancellationToken ct)
@@ -144,12 +189,14 @@ public sealed class MigrationTests : IAsyncDisposable
         return userId;
     }
 
-    private static async Task ItShouldHaveNoBudgetTablesOrSchema(MenloDbContext ctx, CancellationToken ct)
+    // The new budget has a budgets table of its own, in the budget schema, so only the shipped budget's schema and the
+    // tables only it had are checked
+    private static async Task ItShouldHaveNoShippedBudgetTablesOrSchema(MenloDbContext ctx, CancellationToken ct)
     {
         long tables = await ctx.Database
             .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.tables
                 WHERE table_schema = 'budget_schema'
-                   OR table_name IN ('budgets', 'budget_categories', 'canonical_categories', 'budget_items')")
+                   OR table_name IN ('budget_categories', 'canonical_categories', 'budget_items')")
             .SingleAsync(ct);
         long schemas = await ctx.Database
             .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.schemata WHERE schema_name = 'budget_schema'")

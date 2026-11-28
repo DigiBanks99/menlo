@@ -1,18 +1,23 @@
 using Menlo.Application.Auth;
+using Menlo.Application.Budget;
 using Menlo.Application.Common.ValueConverters;
 using Menlo.Lib.Auth.Entities;
+using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq.Expressions;
+using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 
 namespace Menlo.Application.Common;
 
 public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
-    : DbContext(options), IUserContext
+    : DbContext(options), IUserContext, IBudgetContext
 {
     public DbSet<User> Users => Set<User>();
+
+    public DbSet<BudgetAggregate> Budgets => Set<BudgetAggregate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,6 +44,10 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<UserIdValueConverter>();
+
+        configurationBuilder
+            .Properties<BudgetId>()
+            .HaveConversion<BudgetIdValueConverter>();
     }
 }
 
