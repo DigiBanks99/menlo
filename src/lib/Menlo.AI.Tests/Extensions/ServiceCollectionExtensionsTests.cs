@@ -272,6 +272,25 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [Test]
+    public async Task ADecisionIsAskedWithRequestOptionsOfAnotherType()
+    {
+        using IHost host = BuildHost(new() { ["Menlo:AI:Endpoint"] = "http://llama.test/v1" });
+        ChatOptions options = new() { RawRepresentationFactory = _ => new object() };
+
+        Exception? decision = await Catch.ExceptionAsync(() => DecideAsync(host, options));
+
+        ItShouldRefuseThem();
+        ItShouldSayWhatItNeeds();
+        ItShouldNotCallTheModel();
+
+        void ItShouldRefuseThem() => decision.ShouldBeOfType<InvalidOperationException>();
+
+        void ItShouldSayWhatItNeeds() => decision!.Message.ShouldContain(typeof(ChatCompletionOptions).FullName!);
+
+        void ItShouldNotCallTheModel() => _llama.Requests.ShouldBeEmpty();
+    }
+
+    [Test]
     public async Task ADecisionIsAskedWithoutOptions()
     {
         using IHost host = BuildHost(new() { ["Menlo:AI:Endpoint"] = "http://llama.test/v1" });

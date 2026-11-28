@@ -28,8 +28,14 @@ internal static class LlamaChatOptions
         }
 
         Func<IChatClient, object?>? callerFactory = options.RawRepresentationFactory;
-        options.RawRepresentationFactory = client =>
-            WithThinkingDisabled(callerFactory?.Invoke(client) as ChatCompletionOptions ?? new ChatCompletionOptions());
+        options.RawRepresentationFactory = client => WithThinkingDisabled(callerFactory?.Invoke(client) switch
+        {
+            null => null,
+            ChatCompletionOptions callerOptions => callerOptions,
+            object unexpected => throw new InvalidOperationException(
+                $"ChatOptions.RawRepresentationFactory returned {unexpected.GetType().FullName}; " +
+                $"the llama.cpp chat client needs {typeof(ChatCompletionOptions).FullName} or null.")
+        });
     }
 
     // The field is not part of the OpenAI schema, so it is added to the request body through the SDK's JSON patch.
