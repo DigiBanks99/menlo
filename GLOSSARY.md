@@ -200,6 +200,10 @@ _Avoid_: Uncategorised payment, pending split
 An R0 payment on one budget line's month, recording that nothing was paid or received, so its actual is R0 and its plan doesn't stand in. It is the only payment that may be R0.
 _Avoid_: Skip, zero payment
 
+**Receipt**:
+One to three photos of a payment, such as a till slip, which the agent reads into a payment's details and splits for a household member to check. It is not a payment until it's saved, and it is deleted, photos and all, once it's saved as a payment or discarded.
+_Avoid_: Slip, scan, draft payment
+
 **Variance**:
 The difference between the actual and the planned amount for a budget line in a month.
 _Avoid_: Over-budget amount, delta
