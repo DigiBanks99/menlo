@@ -1,16 +1,12 @@
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using Menlo.Api.Budget.Categories;
-using Menlo.Api.Budget.Items;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Menlo.Api.Tests.Ui;
 
 /// <summary>
-/// Helpers for tests of the HTML UI: reading a response as a document, sending the requests htmx
-/// sends, and setting up budget data through the JSON API.
+/// Helpers for tests of the HTML UI: reading a response as a document, and sending the requests htmx
+/// sends.
 /// </summary>
 internal static class UiHtml
 {
@@ -53,53 +49,4 @@ internal static class UiHtml
     /// <summary>The value of the HX-Trigger response header, or an empty string.</summary>
     public static string Triggers(this HttpResponseMessage response) =>
         response.Headers.TryGetValues("HX-Trigger", out IEnumerable<string>? values) ? string.Join(',', values) : string.Empty;
-
-    public static async Task<Guid> CreateBudgetAsync(HttpClient client, int year)
-    {
-        HttpResponseMessage response = await client.PostAsync($"/api/budgets/{year}", null, Cancellation);
-        return await IdOfAsync(response);
-    }
-
-    public static async Task<Guid> CreateCategoryAsync(
-        HttpClient client,
-        Guid budgetId,
-        string name,
-        string budgetFlow,
-        Guid? parentId = null,
-        string? attribution = null)
-    {
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/api/budgets/{budgetId}/categories",
-            new CreateCategoryRequest(name, budgetFlow, parentId, Attribution: attribution),
-            Cancellation);
-        return await IdOfAsync(response);
-    }
-
-    public static async Task<Guid> CreateItemAsync(
-        HttpClient client,
-        Guid budgetId,
-        Guid categoryId,
-        string budgetFlow,
-        int month,
-        decimal amount)
-    {
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/api/budgets/{budgetId}/categories/{categoryId}/items",
-            new CreateBudgetItemRequest(
-                month,
-                budgetFlow,
-                amount,
-                "ZAR",
-                [new PayerAllocationDto(Guid.NewGuid(), 100)],
-                [new AttributionAllocationDto("Main", 100)]),
-            Cancellation);
-        return await IdOfAsync(response);
-    }
-
-    private static async Task<Guid> IdOfAsync(HttpResponseMessage response)
-    {
-        string content = await response.Content.ReadAsStringAsync(Cancellation);
-        response.IsSuccessStatusCode.ShouldBeTrue($"Test data setup failed: {content}");
-        return JsonDocument.Parse(content).RootElement.GetProperty("id").GetGuid();
-    }
 }

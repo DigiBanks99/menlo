@@ -68,8 +68,7 @@ public sealed class UserApiFixture : IAsyncInitializer, IAsyncDisposable
         string? userId = null,
         string? email = null,
         string? displayName = null,
-        bool simulateUnauthenticated = false,
-        bool budgetsEnabled = false) =>
+        bool simulateUnauthenticated = false) =>
         new()
         {
             MenloConnectionString = ConnectionString,
@@ -78,8 +77,7 @@ public sealed class UserApiFixture : IAsyncInitializer, IAsyncDisposable
             UserId = userId ?? Guid.NewGuid().ToString(),
             UserEmail = email ?? $"user-{Guid.NewGuid():N}@menlo.test",
             UserDisplayName = displayName ?? $"User {Guid.NewGuid():N}",
-            SimulateUnauthenticated = simulateUnauthenticated,
-            ConfigurationOverrides = new Dictionary<string, string?> { ["Features:Budget"] = budgetsEnabled ? "true" : "false" }
+            SimulateUnauthenticated = simulateUnauthenticated
         };
 }
 

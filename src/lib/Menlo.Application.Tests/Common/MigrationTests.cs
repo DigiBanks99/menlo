@@ -89,14 +89,75 @@ public sealed class MigrationTests : IAsyncDisposable
         await migrator.MigrateAsync(PreviousMigration, ct);
         Guid userId = await SeedHouseholdScopedDataAsync(ctx, ct);
 
-        await migrator.MigrateAsync(null, ct);
+        await migrator.MigrateAsync(RemoveHouseholdsMigration, ct);
 
         await ItShouldHaveKeptTheUser(ctx, userId, ct);
         await ItShouldHaveDroppedEveryHouseholdScopedRow(ctx, ct);
         await ItShouldHaveDroppedTheHouseholdSchema(ctx, ct);
     }
 
+    [Test]
+    public async Task GivenAnEmptyDatabase_WhenMigrated_ThenNoBudgetTablesAreLeft()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+
+        await ItShouldHaveNoBudgetTablesOrSchema(ctx, ct);
+    }
+
+    [Test]
+    public async Task GivenBudgetRows_WhenUpgradingToRemoveTheShippedBudget_ThenTheBudgetTablesAreDroppedAndUsersSurvive()
+    {
+        CancellationToken ct = TestContext.Current!.Execution.CancellationToken;
+        using IServiceScope scope = _host.Services.CreateScope();
+        MenloDbContext ctx = scope.ServiceProvider.GetRequiredService<MenloDbContext>();
+        IMigrator migrator = ctx.Database.GetService<IMigrator>()!;
+
+        await migrator.MigrateAsync(RemoveHouseholdsMigration, ct);
+        Guid userId = await SeedShippedBudgetAsync(ctx, ct);
+
+        await migrator.MigrateAsync(null, ct);
+
+        await ItShouldHaveKeptTheUser(ctx, userId, ct);
+        await ItShouldHaveNoBudgetTablesOrSchema(ctx, ct);
+    }
+
     private const string PreviousMigration = "20261104121202_MapBudgetItemRealizedAndSpentAmounts";
+    private const string RemoveHouseholdsMigration = "20261115112130_RemoveHouseholds";
+
+    // A user and a budget with a category and an item, in the schema the shipped budget left behind
+    private static async Task<Guid> SeedShippedBudgetAsync(MenloDbContext ctx, CancellationToken ct)
+    {
+        Guid userId = Guid.NewGuid();
+        Guid budgetId = Guid.NewGuid();
+        Guid canonicalId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO shared.users (id, external_id, email, display_name, is_deleted) VALUES ({userId}, 'migration-user', 'migration@menlo.test', 'Migration User', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.budgets (id, year, status, is_deleted) VALUES ({budgetId}, 2026, 'Active', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.canonical_categories (id, name) VALUES ({canonicalId}, 'Housing')", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO budget_schema.budget_categories (id, budget_id, canonical_category_id, name, budget_flow, is_deleted) VALUES ({categoryId}, {budgetId}, {canonicalId}, 'Housing', 'Expense', false)", ct);
+        await ctx.Database.ExecuteSqlInterpolatedAsync($@"INSERT INTO budget_schema.budget_items (id, budget_id, category_id, month, budget_flow, payer_split, attribution_split, planned_amount, planned_currency, is_manual_override, is_deleted)
+            VALUES ({Guid.NewGuid()}, {budgetId}, {categoryId}, 1, 'Expense', '[]', '[]', 100, 'ZAR', false, false)", ct);
+
+        return userId;
+    }
+
+    private static async Task ItShouldHaveNoBudgetTablesOrSchema(MenloDbContext ctx, CancellationToken ct)
+    {
+        long tables = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.tables
+                WHERE table_schema = 'budget_schema'
+                   OR table_name IN ('budgets', 'budget_categories', 'canonical_categories', 'budget_items')")
+            .SingleAsync(ct);
+        long schemas = await ctx.Database
+            .SqlQuery<long>($@"SELECT count(*) AS ""Value"" FROM information_schema.schemata WHERE schema_name = 'budget_schema'")
+            .SingleAsync(ct);
+
+        tables.ShouldBe(0);
+        schemas.ShouldBe(0);
+    }
 
     private static async Task<Guid> SeedHouseholdScopedDataAsync(MenloDbContext ctx, CancellationToken ct)
     {

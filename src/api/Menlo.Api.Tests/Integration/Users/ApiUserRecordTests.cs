@@ -8,17 +8,17 @@ namespace Menlo.Api.Tests.Integration.Users;
 [NotInParallel("User API")]
 public sealed class ApiUserRecordTests(UserApiFixture fixture) : TestFixture
 {
-    private const string BudgetsUrl = "/api/budgets";
+    private const string ApiUrl = "/api/ai/health";
 
     [Test]
     public async Task GivenSignedInCallerWithoutUserRecord_WhenCallingApi_RequestSucceedsAndUserIsCreated()
     {
         string externalId = Guid.NewGuid().ToString();
-        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, budgetsEnabled: true);
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId);
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage first = await client.GetAsync(BudgetsUrl, TestContext.Current!.Execution.CancellationToken);
-        HttpResponseMessage second = await client.GetAsync(BudgetsUrl, TestContext.Current!.Execution.CancellationToken);
+        HttpResponseMessage first = await client.GetAsync(ApiUrl, TestContext.Current!.Execution.CancellationToken);
+        HttpResponseMessage second = await client.GetAsync(ApiUrl, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldHaveSucceeded(first);
         ItShouldHaveSucceeded(second);
@@ -29,12 +29,12 @@ public sealed class ApiUserRecordTests(UserApiFixture fixture) : TestFixture
     public async Task GivenTwoConcurrentFirstCalls_WhenCallingApi_BothSucceedAndOneUserExists()
     {
         string externalId = Guid.NewGuid().ToString();
-        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, budgetsEnabled: true);
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId);
         using HttpClient client = factory.CreateClient();
         CancellationToken cancellationToken = TestContext.Current!.Execution.CancellationToken;
 
         HttpResponseMessage[] responses = await Task.WhenAll(
-            Enumerable.Range(0, 4).Select(_ => client.GetAsync(BudgetsUrl, cancellationToken)));
+            Enumerable.Range(0, 4).Select(_ => client.GetAsync(ApiUrl, cancellationToken)));
 
         responses.ShouldAllBe(response => response.StatusCode == HttpStatusCode.OK);
         (await UserApiTestData.CountByExternalIdAsync(fixture.Services, externalId)).ShouldBe(1);
@@ -44,10 +44,10 @@ public sealed class ApiUserRecordTests(UserApiFixture fixture) : TestFixture
     public async Task GivenCallerWhoseClaimsHaveNoEmail_WhenCallingApi_Returns403UserNotProvisioned()
     {
         string externalId = Guid.NewGuid().ToString();
-        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email: "", budgetsEnabled: true);
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(externalId, email: "");
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync(BudgetsUrl, TestContext.Current!.Execution.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync(ApiUrl, TestContext.Current!.Execution.CancellationToken);
         using JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current!.Execution.CancellationToken));
 
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
@@ -69,10 +69,10 @@ public sealed class ApiUserRecordTests(UserApiFixture fixture) : TestFixture
     [Test]
     public async Task GivenUnauthenticatedCaller_WhenCallingApi_Returns401AndNoUserIsCreated()
     {
-        await using TestWebApplicationFactory factory = fixture.CreateFactory(simulateUnauthenticated: true, budgetsEnabled: true);
+        await using TestWebApplicationFactory factory = fixture.CreateFactory(simulateUnauthenticated: true);
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync(BudgetsUrl, TestContext.Current!.Execution.CancellationToken);
+        HttpResponseMessage response = await client.GetAsync(ApiUrl, TestContext.Current!.Execution.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }

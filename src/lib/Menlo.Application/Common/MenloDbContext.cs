@@ -1,26 +1,18 @@
 using Menlo.Application.Auth;
-using Menlo.Application.Budget;
 using Menlo.Application.Common.ValueConverters;
 using Menlo.Lib.Auth.Entities;
-using Menlo.Lib.Budget.Entities;
-using Menlo.Lib.Budget.ValueObjects;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq.Expressions;
-using BudgetAggregate = Menlo.Lib.Budget.Entities.Budget;
 
 namespace Menlo.Application.Common;
 
 public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
-    : DbContext(options), IUserContext, IBudgetContext
+    : DbContext(options), IUserContext
 {
     public DbSet<User> Users => Set<User>();
-    public DbSet<BudgetAggregate> Budgets => Set<BudgetAggregate>();
-    public DbSet<CategoryNode> BudgetCategories => Set<CategoryNode>();
-    public DbSet<CanonicalCategory> CanonicalCategories => Set<CanonicalCategory>();
-    public DbSet<BudgetItem> BudgetItems => Set<BudgetItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,22 +39,6 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<UserIdValueConverter>();
-
-        configurationBuilder
-            .Properties<BudgetId>()
-            .HaveConversion<BudgetIdValueConverter>();
-
-        configurationBuilder
-            .Properties<BudgetCategoryId>()
-            .HaveConversion<BudgetCategoryIdValueConverter>();
-
-        configurationBuilder
-            .Properties<CanonicalCategoryId>()
-            .HaveConversion<CanonicalCategoryIdValueConverter>();
-
-        configurationBuilder
-            .Properties<BudgetItemId>()
-            .HaveConversion<BudgetItemIdValueConverter>();
     }
 }
 

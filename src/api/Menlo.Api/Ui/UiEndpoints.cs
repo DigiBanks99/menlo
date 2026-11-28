@@ -1,6 +1,5 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Ui.Analytics;
-using Menlo.Api.Ui.Budgets;
 using Menlo.Api.Ui.Design;
 using Menlo.Api.Ui.Errors;
 using Menlo.Api.Ui.Home;
@@ -20,7 +19,6 @@ internal static class UiEndpoints
     public static IHostApplicationBuilder AddMenloUi(this IHostApplicationBuilder builder)
     {
         builder.Services.AddRazorComponents();
-        builder.Services.AddScoped<BudgetUi>();
         builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, UiAuthorizationResultHandler>();
         builder.Services.TryAddSingleton(TimeProvider.System);
         return builder;
@@ -38,7 +36,6 @@ internal static class UiEndpoints
 
         ui.MapSignInPage();
         ui.MapHomePage();
-        ui.MapBudgetPages();
         ui.MapAnalyticsPage();
 
         if (DesignEndpoints.IsEnabled(app))

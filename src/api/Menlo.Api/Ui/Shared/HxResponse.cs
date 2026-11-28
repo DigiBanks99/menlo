@@ -66,13 +66,9 @@ internal sealed class HxResponse
 /// <summary>
 /// Names of the events that fragments listen for. Raise one after changing the data it names.
 /// </summary>
+/// <remarks>Empty until a page has data that other regions show: add its name with that page.</remarks>
 internal static class UiEvents
 {
-    /// <summary>A budget's categories were created, changed, deleted or restored.</summary>
-    public const string CategoriesChanged = "categories-changed";
-
-    /// <summary>A category's items were created, changed or deleted.</summary>
-    public const string ItemsChanged = "items-changed";
 }
 
 /// <summary>

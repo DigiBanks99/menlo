@@ -1,5 +1,4 @@
 using Menlo.Application.Auth;
-using Menlo.Application.Budget;
 using Menlo.Application.Common.Interceptors;
 using Menlo.Application.Common.Stamps;
 using Menlo.Application.Users;
@@ -55,7 +54,6 @@ public static class ServiceCollectionExtensions
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<MenloDbContext>());
-        builder.Services.AddScoped<IBudgetContext>(sp => sp.GetRequiredService<MenloDbContext>());
         builder.Services.AddScoped<UserProvisioningService>();
         builder.Services.AddScoped<IUserProvisioningService>(sp => sp.GetRequiredService<UserProvisioningService>());
         builder.Services.AddScoped<IUserContextProvider, UserContextProvider>();
