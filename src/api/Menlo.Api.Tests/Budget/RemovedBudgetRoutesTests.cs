@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using System.Text.Json;
 
 namespace Menlo.Api.Tests.Budget;
 
@@ -89,7 +90,7 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
     }
 
     [Test]
-    public async Task GivenTheOpenApiDocument_WhenRead_ThenItHasNoBudgetPaths()
+    public async Task GivenTheOpenApiDocument_WhenRead_ThenItHasNoOldBudgetPaths()
     {
         await using TestWebApplicationFactory factory = new()
         {
@@ -99,19 +100,26 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/openapi/v1.json", Cancellation);
-        string document = await response.Content.ReadAsStringAsync(Cancellation);
+        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(Cancellation));
+        List<string> budgetPaths = document.RootElement.GetProperty("paths").EnumerateObject()
+            .Select(path => path.Name)
+            .Where(path => path.StartsWith("/api/budgets", StringComparison.Ordinal))
+            .ToList();
 
         ItShouldServeTheDocument();
-        ItShouldNotListAnyBudgetPath();
+        ItShouldOnlyListBudgetPathsByYear();
 
         void ItShouldServeTheDocument() => response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        void ItShouldNotListAnyBudgetPath() => document.ShouldNotContain("/api/budgets");
+        // The old budget was addressed by its ID; the new one is addressed by its year
+        void ItShouldOnlyListBudgetPathsByYear() => budgetPaths.ShouldAllBe(
+            path => path == "/api/budgets" || path.StartsWith("/api/budgets/{year}", StringComparison.Ordinal));
     }
 
     // Each route that an endpoint answered, as "METHOD path: status". Unknown API addresses get a bare 404, and so does
     // a GET of an unknown page. A write to an unknown page gets 405, as at any unknown address: the not-found page is
-    // GET only, so the sign-in callback stays unrouted. Either way no endpoint is there.
+    // GET only, so the sign-in callback stays unrouted. An old API route that shares its address with a new budget
+    // endpoint, such as GET /api/budgets, gets 405 too. Either way no endpoint is there for it.
     private static async Task<IReadOnlyList<string>> CallEveryOldRouteAsync(bool budgetEnabled)
     {
         await using TestWebApplicationFactory factory = new()
@@ -128,9 +136,7 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
         foreach ((string method, string path) in OldRoutes())
         {
             HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path), Cancellation);
-            bool pageWrite = method != "GET" && !path.StartsWith("/api/", StringComparison.Ordinal);
-            bool nothingThere = response.StatusCode == HttpStatusCode.NotFound
-                                || (pageWrite && response.StatusCode == HttpStatusCode.MethodNotAllowed);
+            bool nothingThere = response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed;
             if (!nothingThere)
             {
                 answered.Add($"{method} {path}: {(int)response.StatusCode}");
