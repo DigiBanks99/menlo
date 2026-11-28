@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using System.Text.Json;
 
 namespace Menlo.Api.Tests.Budget;
 
@@ -12,6 +13,9 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
     private const string Budget = "3f2504e0-4f89-11d3-9a0c-0305e82c3301";
     private const string Category = "6fa459ea-ee8a-3ca4-894e-db77e160355e";
     private const string Item = "9b2e8a4c-1d3f-4e5a-8b6c-7d8e9f0a1b2c";
+
+    // The receipts a member sends for a budget year live under the year, and aren't part of the old budget
+    private const string ReceiptPaths = "/api/budgets/{year}/receipts";
 
     private static CancellationToken Cancellation => TestContext.Current!.Execution.CancellationToken;
 
@@ -99,14 +103,19 @@ public sealed class RemovedBudgetRoutesTests : TestFixture
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/openapi/v1.json", Cancellation);
-        string document = await response.Content.ReadAsStringAsync(Cancellation);
+        using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(Cancellation));
+        List<string> budgetPaths = document.RootElement.GetProperty("paths").EnumerateObject()
+            .Select(path => path.Name)
+            .Where(path => path.StartsWith("/api/budgets", StringComparison.Ordinal))
+            .Where(path => !path.StartsWith(ReceiptPaths, StringComparison.Ordinal))
+            .ToList();
 
         ItShouldServeTheDocument();
-        ItShouldNotListAnyBudgetPath();
+        ItShouldNotListAnyOldBudgetPath();
 
         void ItShouldServeTheDocument() => response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        void ItShouldNotListAnyBudgetPath() => document.ShouldNotContain("/api/budgets");
+        void ItShouldNotListAnyOldBudgetPath() => budgetPaths.ShouldBeEmpty(string.Join(", ", budgetPaths));
     }
 
     // Each route that an endpoint answered, as "METHOD path: status". Unknown API addresses get a bare 404, and so does

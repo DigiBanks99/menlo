@@ -1,8 +1,11 @@
 using Menlo.Application.Auth;
 using Menlo.Application.Common.ValueConverters;
+using Menlo.Application.Receipts;
 using Menlo.Lib.Auth.Entities;
 using Menlo.Lib.Common.Abstractions;
 using Menlo.Lib.Common.ValueObjects;
+using Menlo.Lib.Receipts.Entities;
+using Menlo.Lib.Receipts.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq.Expressions;
@@ -10,9 +13,11 @@ using System.Linq.Expressions;
 namespace Menlo.Application.Common;
 
 public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
-    : DbContext(options), IUserContext
+    : DbContext(options), IUserContext, IReceiptContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Receipt> Receipts => Set<Receipt>();
+    public DbSet<ReceiptPhoto> ReceiptPhotos => Set<ReceiptPhoto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,6 +44,10 @@ public sealed class MenloDbContext(DbContextOptions<MenloDbContext> options)
         configurationBuilder
             .Properties<UserId>()
             .HaveConversion<UserIdValueConverter>();
+
+        configurationBuilder
+            .Properties<ReceiptId>()
+            .HaveConversion<ReceiptIdValueConverter>();
     }
 }
 

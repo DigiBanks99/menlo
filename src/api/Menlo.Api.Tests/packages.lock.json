@@ -244,6 +244,11 @@
         "resolved": "3.30.2",
         "contentHash": "Y2aOVLIt75yeeEWigg9V9YnjsEm53sADtLGq0gLhwaXpk3iu8tYSoauolyhenagA2sWno2TQ2WujI0HQd6s1Vw=="
       },
+      "Magick.NET.Core": {
+        "type": "Transitive",
+        "resolved": "15.1.1",
+        "contentHash": "Jb8ph4BtzabDb9PRjXy1bWJVVZIelcOA1WicWzYgHhHeyzaKXbRgYdEq3DBQmFQgT/tw65oiyVTDee+SN1hX4Q=="
+      },
       "Microsoft.Agents.AI.Abstractions": {
         "type": "Transitive",
         "resolved": "1.28.0",
@@ -949,6 +954,7 @@
       "menlo.api": {
         "type": "Project",
         "dependencies": {
+          "Magick.NET-Q8-AnyCPU": "[15.1.1, )",
           "Menlo.AI": "[1.0.0, )",
           "Menlo.Application": "[1.0.0, )",
           "Menlo.Lib": "[1.0.0, )",
@@ -1013,6 +1019,15 @@
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "[10.0.1, 11.0.0)",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.1, 11.0.0)"
+        }
+      },
+      "Magick.NET-Q8-AnyCPU": {
+        "type": "CentralTransitive",
+        "requested": "[15.1.1, )",
+        "resolved": "15.1.1",
+        "contentHash": "rR5IddjNrgQKqYTQagVWPiXhqE1QbQRpMbOmfk8vnzWGEUGIw25cBFabKv1miPrY07bbU8NCFZmNtXkJ/+70ow==",
+        "dependencies": {
+          "Magick.NET.Core": "15.1.1"
         }
       },
       "Microsoft.Agents.AI": {

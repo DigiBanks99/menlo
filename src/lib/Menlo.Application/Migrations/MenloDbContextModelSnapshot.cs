@@ -89,6 +89,109 @@ namespace Menlo.Application.Migrations
 
                     b.ToTable("users", "shared");
                 });
+
+            modelBuilder.Entity("Menlo.Lib.Receipts.Entities.Receipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("BudgetView")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("budget_view");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Reading")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("reading");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("TakenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("taken_at");
+
+                    b.Property<Guid>("TakenBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("taken_by");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_receipts");
+
+                    b.HasIndex("Status", "TakenAt")
+                        .HasDatabaseName("ix_receipts_status_taken_at");
+
+                    b.HasIndex("Year", "TakenAt")
+                        .HasDatabaseName("ix_receipts_year_taken_at");
+
+                    b.ToTable("receipts", "financial");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Receipts.Entities.ReceiptPhoto", b =>
+                {
+                    b.Property<Guid>("ReceiptId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("receipt_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<byte[]>("Jpeg")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("jpeg");
+
+                    b.HasKey("ReceiptId", "Position")
+                        .HasName("pk_receipt_photos");
+
+                    b.ToTable("receipt_photos", "financial");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Receipts.Entities.ReceiptPhoto", b =>
+                {
+                    b.HasOne("Menlo.Lib.Receipts.Entities.Receipt", null)
+                        .WithMany("Photos")
+                        .HasForeignKey("ReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_receipt_photos_receipts_receipt_id");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Receipts.Entities.Receipt", b =>
+                {
+                    b.Navigation("Photos");
+                });
 #pragma warning restore 612, 618
         }
     }
