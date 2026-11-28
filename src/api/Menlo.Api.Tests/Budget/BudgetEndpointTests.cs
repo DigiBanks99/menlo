@@ -131,19 +131,21 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
     }
 
     [Test]
-    public async Task AMemberCreatesABudgetWithoutAYear()
+    public async Task AMemberCreatesABudgetFromAnEmptyObject()
     {
         await using PostgresTestWebApplicationFactory factory = fixture.CreateFactory(BudgetOn);
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(cancellationToken: Cancellation);
 
-        HttpResponseMessage response = await client.PostAsync(
-            "/api/budgets",
-            new StringContent("{}", System.Text.Encoding.UTF8, "application/json"),
-            Cancellation);
+        HttpResponseMessage response = await client.PostAsync("/api/budgets", JsonBody("{}"), Cancellation);
+        using JsonDocument problem = await ReadProblemAsync(response);
 
         ItShouldBeRefused();
+        ItShouldSayTheYearIsNotABudgetYear();
 
         void ItShouldBeRefused() => response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        // A missing year binds as 0, which is not a year a budget can cover
+        void ItShouldSayTheYearIsNotABudgetYear() => problem.RootElement.GetProperty("code").GetString().ShouldBe("Budget.InvalidYear");
     }
 
     [Test]
