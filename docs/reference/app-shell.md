@@ -11,7 +11,7 @@ The shell is the `MnlAppShell` component in `Menlo.Ui`. Pages don't use it direc
 | `/sign-in`, `/design` | No shell. The page renders inside the document alone (`Bare="true"`). |
 | Everything else | The page renders inside the shell. |
 
-The signed-in pages are `/` (home), `/budgets`, `/budgets/{id}` and `/analytics`. Any other address shows a "not found" page inside the shell. Someone who isn't signed in is sent to `/sign-in`; there is no onboarding step.
+The signed-in pages are `/` (home) and `/analytics`. Any other address shows a "not found" page inside the shell. Someone who isn't signed in is sent to `/sign-in`; there is no onboarding step.
 
 ## Layout
 
@@ -35,17 +35,17 @@ flowchart LR
 
 ## Navigation items
 
-`PageContext.NavItems` is the fixed list of `MnlNavItem`s:
+`PageContext.From` builds the list of `MnlNavItem`s for the request (`PageContext.NavItemsFor`):
 
 | Label | Address | Icon |
 | --- | --- | --- |
 | Home | `/` | `House` |
-| Budgets | `/budgets` | `Wallet` |
+| Budgets | `/budgets` | `Wallet` (only while `Features:Budget` is on) |
 | Analytics | `/analytics` | `TrendingUp` |
 
 An `MnlNavItem` has a label, an address and an `MnlIconName`. An item is current when the request path matches its address: exactly for `/`, and the address or any path under it for the others. The current item is highlighted and has `aria-current="page"`.
 
-Feature flags don't hide items. The list is the same whatever the API's flags are.
+`Features:Budget` hides the Budgets item while it is off. `/budgets` shows the "not found" page until the rebuilt budget adds its page (see [Budget Domain](../explanations/budget-domain.md)).
 
 Links are boosted by htmx: clicking one fetches the page and swaps the body without reloading the document.
 
@@ -65,10 +65,10 @@ The theme toggle switches between light (Catppuccin Latte) and dark (Catppuccin 
 
 ## Toasts
 
-A toast is a short message that confirms an action and disappears after five seconds, for example "Budget 2026 created." At most three show at once. The server sends one in two ways:
+A toast is a short message that confirms an action and disappears after five seconds, for example "Goal created." At most three show at once. The server sends one in two ways:
 
 - With the response, as an event: `new HxResponse().Toast("Category created.")`.
-- Across a redirect: `Flash.Set(context, "Budget 2027 created.")`, shown by the next page.
+- Across a redirect: `Flash.Set(context, "Goal created.")`, shown by the next page.
 
 ## Panels
 

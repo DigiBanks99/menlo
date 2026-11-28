@@ -53,18 +53,13 @@ graph TB
     subgraph BudgetContext["💰 Budget Bounded Context"]
         %% Budget Entities
         subgraph BudgetEntities["Budget Entities"]
-            Budget[💰 Budget<br/>Aggregate Root<br/>Contains categories, allocations,<br/>realizations, and transactions]
-            BudgetCategory[📂 BudgetCategory<br/>Entity<br/>Hierarchical budget categories<br/>with unlimited nesting]
-            BudgetAllocation[📋 BudgetAllocation<br/>Entity<br/>Planned amounts at leaf<br/>categories based on experience]
-            BudgetRealization[✅ BudgetRealization<br/>Entity<br/>Concrete budget items from<br/>manual planning list processing]
-            BudgetTransaction[💳 BudgetTransaction<br/>Entity<br/>Actual spent amounts from<br/>bank statements/receipts]
+            Budget[💰 Budget<br/>Aggregate Root<br/>One calendar year of categories<br/>and lines, being rebuilt]
+            BudgetCategory[📂 Category<br/>Entity<br/>Two levels deep; lines sit<br/>in the lowest level]
         end
         
         %% Budget Value Objects
         subgraph BudgetValueObjects["Budget Value Objects"]
-            Money[💵 Money<br/>Value Object<br/>ZAR amount with<br/>attribution rules]
-            AttributionRule[🎯 AttributionRule<br/>Value Object<br/>Personal vs rental<br/>percentage splits for shared expenses]
-            BudgetPeriod[📅 BudgetPeriod<br/>Value Object<br/>Monthly, quarterly,<br/>yearly periods]
+            Money[💵 Money<br/>Value Object<br/>ZAR amount]
             CategoryPath[🗂️ CategoryPath<br/>Value Object<br/>Hierarchical category<br/>navigation path]
         end
         
@@ -84,7 +79,7 @@ graph TB
             Transaction[💳 Transaction<br/>Entity<br/>Individual financial transactions<br/>with categorization and attribution]
             IncomeSource[💼 IncomeSource<br/>Entity<br/>Employment, investment,<br/>and rental income sources]
             BankImport[📥 BankImport<br/>Entity<br/>Bank statement import batches<br/>with duplicate detection]
-            TransactionReconciliation[🔗 TransactionReconciliation<br/>Entity<br/>Links transactions to budget<br/>realizations and planning items]
+            TransactionReconciliation[🔗 TransactionReconciliation<br/>Entity<br/>Links transactions to budget<br/>lines and planning items]
         end
         
         %% Financial Value Objects
@@ -102,7 +97,7 @@ graph TB
             TransactionCategorizerFinancial[🏷️ TransactionCategorizer<br/>Domain Service<br/>AI-powered transaction categorization<br/>with learning from corrections]
             AttributionSuggester[🎯 AttributionSuggester<br/>Domain Service<br/>Smart personal vs rental and<br/>family member attribution suggestions]
             DuplicateDetector[🔍 DuplicateDetector<br/>Domain Service<br/>Identifies potential duplicate<br/>transactions across imports and manual entries]
-            ReconciliationMatcher[🔗 ReconciliationMatcher<br/>Domain Service<br/>Matches transactions against<br/>budget realizations and planning items]
+            ReconciliationMatcher[🔗 ReconciliationMatcher<br/>Domain Service<br/>Matches transactions against<br/>budget lines and planning items]
             SpendingAnalyser[📊 SpendingAnalyser<br/>Domain Service<br/>Analyses transaction patterns for<br/>budget variance and optimization insights]
         end
     end
@@ -155,7 +150,7 @@ graph TB
             EventDate[📅 EventDate<br/>Value Object<br/>Date/time with<br/>timezone handling]
             EventType[📂 EventType<br/>Value Object<br/>Shopping, celebration,<br/>maintenance, etc]
             Recurrence[🔄 Recurrence<br/>Value Object<br/>Daily, weekly,<br/>monthly patterns]
-            BudgetReference[💰 BudgetReference<br/>Value Object<br/>Optional reference to<br/>related budget realization]
+            BudgetReference[💰 BudgetReference<br/>Value Object<br/>Optional reference to<br/>a related budget line]
             EventCreationSource[📝 EventCreationSource<br/>Value Object<br/>Manual, PlanningList, Maintenance,<br/>Future automation types]
         end
         
@@ -178,7 +173,6 @@ graph TB
         PlanningListRealized[✅ PlanningListRealized<br/>Integration Event<br/>Published when planning list<br/>is realized with polymorphic PlanningItems]
         ApplianceMaintenanceRequired[🔧 ApplianceMaintenanceRequired<br/>Integration Event<br/>Published when configured<br/>appliance needs maintenance]
         TransactionImported[📥 TransactionImported<br/>Integration Event<br/>Published when new financial<br/>transactions are imported]
-        BudgetRealizationCreated[✅ BudgetRealizationCreated<br/>Integration Event<br/>Published when budget<br/>realizations are created]
     end
     
     %% Planning Item Inheritance
@@ -202,9 +196,6 @@ graph TB
     
     %% Aggregate Internal Relationships - Budget
     Budget --> BudgetCategory
-    Budget --> BudgetAllocation
-    Budget --> BudgetRealization
-    Budget --> BudgetTransaction
     Budget --> BudgetAnalyser
     Budget --> TransactionCategorizerBudget
     Budget --> RentalCostAnalyser
@@ -243,9 +234,7 @@ graph TB
     PlanningList --> ListState
     PlanningList --> ListType
     BudgetCategory --> Money
-    BudgetRealization --> AttributionRule
     BudgetCategory --> CategoryPath
-    BudgetAllocation --> BudgetPeriod
     Event --> EventDate
     Event --> EventType
     Event --> BudgetReference
@@ -267,14 +256,12 @@ graph TB
     PlanningList --> PlanningListRealized
     UtilityAccount --> ApplianceMaintenanceRequired
     FinancialAccount --> TransactionImported
-    Budget --> BudgetRealizationCreated
     
     %% Cross-Aggregate via Events
     PlanningListCreated --> Budget
     PlanningListRealized --> Budget
     PlanningListRealized --> Event
     PlanningListRealized --> FinancialAccount
-    BudgetRealizationCreated --> FinancialAccount
     TransactionImported --> Budget
     ApplianceMaintenanceRequired --> Event
     
@@ -305,8 +292,8 @@ graph TB
     class PlanningItem,BasicPlanningItem,PantryPlanningItem,MaintenancePlanningItem hierarchyClass
     
     %% Apply styles to budget context
-    class Budget,BudgetCategory,BudgetAllocation,BudgetRealization,BudgetTransaction budgetClass
-    class Money,AttributionRule,BudgetPeriod,CategoryPath budgetClass
+    class Budget,BudgetCategory budgetClass
+    class Money,CategoryPath budgetClass
     class BudgetAnalyser,TransactionCategorizerBudget,RentalCostAnalyser budgetClass
     
     %% Apply styles to financial context
@@ -327,7 +314,7 @@ graph TB
     %% Apply styles to shared and integration
     class AttributionCalculator sharedClass
     class Money sharedClass
-    class PlanningListCreated,PlanningListRealized,ApplianceMaintenanceRequired,TransactionImported,BudgetRealizationCreated integrationClass
+    class PlanningListCreated,PlanningListRealized,ApplianceMaintenanceRequired,TransactionImported integrationClass
 ```
 
 ## Domain Model Highlights
@@ -343,12 +330,7 @@ graph TB
 
 ### Budget Bounded Context
 
-**Core Philosophy**: Planned → Realized → Spent states with unified income/expense hierarchy
-
-- **Hierarchical Categories**: Unlimited nesting with leaf-level planning
-- **Attribution Rules**: Personal vs rental percentage splits for shared expenses
-- **Manual Realization**: Budget realizations created from approved planning list suggestions
-- **AI Analysis**: Variance detection and rental cost extraction
+**Being rebuilt**: one budget per calendar year, with categories two levels deep and lines planned month by month. The shape is in [Requirement: Budgeting](https://github.com/DigiBanks99/menlo/issues/551); this diagram shows only the year and its categories until the Specs that build the rest ship.
 
 ### Financial Bounded Context
 

@@ -89,7 +89,7 @@ Each entity type has its own ID, a `readonly record struct` wrapping a `Guid`, s
 
 - `UserId(Guid Value)`: a person using the system.
 
-It has `static NewId()`, which creates an ID from `Guid.NewGuid()`, and `ToString()`, which returns the GUID. Bounded contexts define their own IDs (`BudgetId`, `BudgetItemId` and so on) the same way. Each ID needs a value converter registered in `MenloDbContext` (see [Persistence](persistence.md)).
+It has `static NewId()`, which creates an ID from `Guid.NewGuid()`, and `ToString()`, which returns the GUID. Bounded contexts define their own IDs the same way. Each ID needs a value converter registered in `MenloDbContext` (see [Persistence](persistence.md)).
 
 ### `AuditStamp`
 

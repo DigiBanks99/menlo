@@ -46,8 +46,8 @@ internal static class SavingsEndpoints
 }
 ```
 
-- Call the handler behind the JSON endpoint, as `BudgetUi` does, and read its result as an `Outcome<T>`. Don't query the database from a UI endpoint.
-- Decide tones and text here or in the model (`BudgetPresentation.SpendTone`), not in the `.razor` file.
+- Call the handler behind the JSON endpoint through a `<Feature>Ui` adapter, such as `SavingsUi`, and read its result as an `Outcome<T>`. Don't query the database from a UI endpoint.
+- Decide tones and text here or in the model (a `SavingsPresentation.ProgressTone`, say), not in the `.razor` file.
 - Map the page in `UiEndpoints.MapMenloUi`. The group it is mapped in marks it as a UI endpoint, which turns on the sign-in redirect and the anti-forgery check.
 
 ### 3. Write the page
@@ -98,11 +98,11 @@ internal static class SavingsEndpoints
 
 ### 4. Add it to the navigation
 
-To give the page a navigation item, add an `MnlNavItem` to `PageContext.NavItems`.
+To give the page a navigation item, add an `MnlNavItem` to `PageContext.NavItemsFor`. Leave it out while the feature's flag is off, as the Budgets item does.
 
 ## Keep state in the URL
 
-When a page has views, filters or a selection, make them query-string parameters, as `BudgetDetailQuery` does:
+When a page has views, filters or a selection, make them query-string parameters, read into a record such as `SavingsQuery`:
 
 1. Read the state from `context.Request.Query`, with a default for anything missing or invalid.
 2. Give the state a `Url(...)` method, and build every link in the view model from it.
@@ -110,17 +110,17 @@ When a page has views, filters or a selection, make them query-string parameters
 4. On each link, ask for the page and swap that element:
 
 ```razor
-<MnlButton Href="@Model.NextMonthUrl" @attributes="BudgetRegion.GoTo(Model.NextMonthUrl)">Next Month</MnlButton>
+<MnlButton Href="@Model.NextMonthUrl" @attributes="SavingsRegion.GoTo(Model.NextMonthUrl)">Next Month</MnlButton>
 ```
 
-`BudgetRegion.GoTo` adds `hx-get`, `hx-target`, `hx-select`, `hx-swap="outerHTML"`, `hx-replace-url` and `hx-sync`. The plain `href` still works without script.
+`SavingsRegion.GoTo`, a small helper that returns a dictionary, adds `hx-get`, `hx-target`, `hx-select`, `hx-swap="outerHTML"`, `hx-replace-url` and `hx-sync`. The plain `href` still works without script.
 
 ## Reload when data changes
 
 An endpoint that changes data raises an event. The region listens and reloads itself at the current address:
 
 ```razor
-<div id="@BudgetRegion.Id" @attributes="BudgetRegion.ReloadOnChange()">
+<div id="@SavingsRegion.Id" @attributes="SavingsRegion.ReloadOnChange()">
 ```
 
 Add a name to `UiEvents` for a new kind of data, and raise it with `HxResponse.Raise`.

@@ -90,5 +90,5 @@ gh issue list --state open --label ready-for-agent -L 200 --json number,labels,p
 - The scoped CSS bundle is `Menlo.Api.styles.css`; asset URLs carry a build-version suffix, so a stale stylesheet after a rebuild means the app wasn't restarted.
 - Stop the AppHost (`aspire stop`) before `dotnet build` or `dotnet test`: the running API locks `Menlo.Api.exe` and `Menlo.Ui.dll`.
 - Browser tests (`[Category("E2E")]` in `Menlo.Api.Tests`) drive the installed Chrome; set `MENLO_E2E_BROWSER_CHANNEL` for another browser and `MENLO_E2E_HEADED=1` to watch.
-- Budget and browser tests start PostgreSQL with Testcontainers, which needs a Docker-compatible engine pipe. Where there is none, set `MENLO_TEST_POSTGRES` to a connection string for an empty database.
+- Database and browser tests start PostgreSQL with Testcontainers, which needs a Docker-compatible engine pipe. Where there is none, browser tests (`PostgresApiFixture`) can use `MENLO_TEST_POSTGRES`, a connection string for an empty database.
 - Vendored front-end files (htmx, fonts) live in `src/ui/Menlo.Ui/wwwroot`; versions and sources are in `wwwroot/vendor/README.md`. Dependabot doesn't see them.
