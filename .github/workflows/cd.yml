@@ -221,7 +221,7 @@ jobs:
           AZURE_AD_INSTANCE: ${{ vars.AZURE_AD_INSTANCE }}
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
-          FEATURES_BUDGET: ${{ vars.FEATURES_BUDGET || 'true' }}
+          FEATURES_BUDGET: ${{ vars.FEATURES_BUDGET || 'false' }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: menlo

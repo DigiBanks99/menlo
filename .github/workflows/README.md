@@ -105,7 +105,7 @@ Configure these variables in GitHub repository settings:
 
 - `CONTAINER_RUNTIME`: `docker` or `podman` on the deploy host (unset auto-detects, preferring Podman)
 - `CLOUDFLARE_TUNNEL_ENABLED`: Set to `true` if using Cloudflare Tunnel
-- `FEATURES_BUDGET`: Set to `true`/`false` to control budget endpoints in production
+- `FEATURES_BUDGET`: Set to `true`/`false` to switch the budget on in production. Unset means `false` while the budget is being rebuilt
 
 ## 🚀 Deployment Process
 

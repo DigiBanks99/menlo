@@ -169,7 +169,7 @@ The image is built once, in CI, and CD deploys that exact image:
    2. Writes `~/menlo/docker-compose.prod.yml` on the host and restarts the stack via the self-hosted runner
    3. Verifies the local health check (the job fails if `/health` never returns 200)
    4. Restarts the Cloudflare tunnel (if configured)
-   5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/budgets` 401 without auth, `/` redirects to sign-in, `/sign-in` renders with a CSP header, and the UI's stylesheets and script are served), retrying for up to 3 minutes
+   5. Smoke-checks `FRONTEND_URL` from outside with [`smoke-check.sh`](smoke-check.sh) (`/health` 200, `/api/ai/health` 401 without auth, `/` redirects to sign-in, `/sign-in` renders with a CSP header, and the UI's stylesheets and script are served), retrying for up to 3 minutes
    6. Moves the `main` tag to the deployed image only if the smoke check passed, so `menlo-api:main` is always the last image that passed
 
 If the smoke check fails, the `main` tag still points at the previous image, so `gh workflow run cd.yml --ref main` rolls back. Run the smoke check yourself with `deployment/smoke-check.sh https://menlo.yourdomain.com`.

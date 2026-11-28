@@ -36,7 +36,7 @@ check() {
 run_checks() {
   FAILURES=()
   check /health 200
-  check /api/budgets 401
+  check /api/ai/health 401
   # Nobody is signed in: pages send the browser to the sign-in page, which renders
   check / 302
   check /sign-in 200 text/html Content-Security-Policy
