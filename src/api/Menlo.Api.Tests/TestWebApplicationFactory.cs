@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -99,6 +100,12 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         new Dictionary<string, string?>();
 
     /// <summary>
+    /// Gets a fixed present moment for the app's <see cref="TimeProvider"/>, so a test can pin the current month.
+    /// When null, the app keeps the system clock.
+    /// </summary>
+    public DateTimeOffset? Now { get; init; }
+
+    /// <summary>
     /// Allows tests to add extra app branches or endpoints without modifying production startup.
     /// </summary>
     public Action<IApplicationBuilder>? ConfigureApp { get; init; }
@@ -179,6 +186,12 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                     options.Roles = UserRoles;
                     options.SimulateUnauthenticated = SimulateUnauthenticated;
                 });
+            }
+
+            if (Now is { } now)
+            {
+                services.RemoveAll<TimeProvider>();
+                services.AddSingleton<TimeProvider>(new FixedTimeProvider(now));
             }
 
             if (ConfigureApp is not null)
@@ -298,6 +311,11 @@ internal sealed class NoOpAuditStampFactory : IAuditStampFactory
 internal sealed class NoOpSoftDeleteStampFactory : ISoftDeleteStampFactory
 {
     public SoftDeleteStamp CreateStamp() => new(UserId.NewId(), DateTimeOffset.UtcNow);
+}
+
+internal sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+{
+    public override DateTimeOffset GetUtcNow() => now.ToUniversalTime();
 }
 
 internal sealed class DelegateStartupFilter(Action<IApplicationBuilder> configureApp) : IStartupFilter

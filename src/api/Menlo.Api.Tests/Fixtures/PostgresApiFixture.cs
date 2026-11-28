@@ -36,9 +36,12 @@ public sealed class PostgresApiFixture : IAsyncInitializer, IAsyncDisposable
     /// <summary>
     /// Creates an API host on the shared, already migrated database for one test, signed in as the test user.
     /// </summary>
-    public PostgresTestWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?>? configuration = null) =>
+    public PostgresTestWebApplicationFactory CreateFactory(
+        IReadOnlyDictionary<string, string?>? configuration = null,
+        DateTimeOffset? now = null) =>
         new()
         {
+            Now = now,
             MenloConnectionString = ConnectionString,
             SkipMigration = true,
             UseRealUserProvisioning = true,
