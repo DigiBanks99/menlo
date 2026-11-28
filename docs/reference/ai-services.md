@@ -1,6 +1,6 @@
 # AI Services
 
-`Menlo.AI` gives the API a chat service and a vision service, both backed by a local llama.cpp `llama-server` through its OpenAI-compatible API. It uses Microsoft Agent Framework (`Microsoft.Agents.AI`) and `Microsoft.Extensions.AI`. Why llama.cpp and Agent Framework, and not Ollama and Semantic Kernel, is in [ADR-006](../decisions/adr-006-llamacpp-and-agent-framework.md).
+`Menlo.AI` gives the API a chat service, a vision service and a decision-model chat client, all backed by a local llama.cpp `llama-server` through its OpenAI-compatible API. It uses Microsoft Agent Framework (`Microsoft.Agents.AI`) and `Microsoft.Extensions.AI`. Why llama.cpp and Agent Framework, and not Ollama and Semantic Kernel, is in [ADR-006](../decisions/adr-006-llamacpp-and-agent-framework.md).
 
 No feature calls these services yet. The only caller is the `/api/ai/health` endpoint.
 
@@ -25,10 +25,12 @@ flowchart LR
 | -------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
 | `IChatClient`                                | Singleton | OpenAI chat client for `ChatModel`                                                             |
 | `AIAgent`                                    | Singleton | Agent over that chat client                                                                    |
-| `IChatClient` keyed `Menlo.AI.Decision` (`AiClientKeys.Decision`) | Singleton | Chat client for the decision model, `DecisionModel` or else `ChatModel`. It asks the model not to think unless `EnableThinking` is on, on top of the caller's options |
+| `IChatClient` keyed `Menlo.AI.Decision`      | Singleton | Chat client for `DecisionModel`, or `ChatModel` when it is blank                               |
 | `AIAgent` keyed `Menlo.AI.Vision`            | Singleton | Agent over a separate client for `VisionModel`, with a longer network timeout and no retries   |
 | `IChatService` → `ChatService`               | Scoped    | Text prompts                                                                                   |
 | `IVisionService` → `VisionService`           | Scoped    | Image prompts                                                                                  |
+
+The decision client (`AiClientKeys.Decision`) is for decisions such as ranking the budget agent's suggestions; set `DecisionModel` to move them to a stronger model without moving chat. Callers build their own agents and options over it, so the client itself asks the model not to think unless `EnableThinking` is on, on top of the caller's options. A caller's `RawRepresentationFactory` must return `ChatCompletionOptions` or null; any other type throws `InvalidOperationException`.
 
 The OpenAI client uses its own HTTP transport, not `IHttpClientFactory`, so the service defaults' resilience handler doesn't apply to model calls. If a `System.ClientModel.Primitives.PipelineTransport` is registered, every client uses it; the tests register a stub server this way.
 
@@ -42,7 +44,7 @@ Settings bind from `Menlo:AI` (`AiSettings`) and are validated on start.
 | ------------------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
 | `Menlo:AI:Endpoint`       | none         | Required. Absolute `http` or `https` URL, including `/v1`                                               |
 | `Menlo:AI:ChatModel`      | `qwen3.5-4b` | Required. A model name the server serves (a section of its preset file)                                 |
-| `Menlo:AI:DecisionModel`  | `ChatModel`  | Optional. The model for decisions, such as ranking the budget agent's suggestions. When blank, decisions use `ChatModel`; set it to move decisions to a stronger model |
+| `Menlo:AI:DecisionModel`  | `ChatModel`  | Optional. The model for decisions. When blank, decisions use `ChatModel`                                |
 | `Menlo:AI:VisionModel`    | `qwen3.5-4b` | Required. Separate from `ChatModel` so vision can move to another model; the model needs its projector |
 | `Menlo:AI:ApiKey`         | none         | The server's `--api-key`. When blank, the client sends `no-key`, which llama.cpp ignores unless it has a key |
 | `Menlo:AI:EnableThinking` | `false`      | When false, each request sends `chat_template_kwargs.enable_thinking = false`                           |
