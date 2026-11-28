@@ -125,6 +125,75 @@ namespace Menlo.Application.Migrations
 
                     b.ToTable("budgets", "budget");
                 });
+
+            modelBuilder.Entity("Menlo.Lib.Budget.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("budget_id");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_categories");
+
+                    b.HasIndex("BudgetId")
+                        .HasDatabaseName("ix_categories_budget_id");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_categories_parent_id");
+
+                    b.ToTable("categories", "budget");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Budget.Entities.Category", b =>
+                {
+                    b.HasOne("Menlo.Lib.Budget.Entities.Budget", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_categories_budgets_budget_id");
+
+                    b.HasOne("Menlo.Lib.Budget.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_categories_categories_parent_id");
+                });
+
+            modelBuilder.Entity("Menlo.Lib.Budget.Entities.Budget", b =>
+                {
+                    b.Navigation("Categories");
+                });
 #pragma warning restore 612, 618
         }
     }

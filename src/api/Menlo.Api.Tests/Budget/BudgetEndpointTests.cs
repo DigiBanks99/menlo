@@ -46,11 +46,12 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
 
         void ItShouldCoverTheYear() => budget.ShouldNotBeNull().ShouldSatisfyAllConditions(
             b => b.Year.ShouldBe(year),
-            b => b.Id.ShouldNotBe(Guid.Empty));
+            b => b.Id.ShouldNotBe(Guid.Empty),
+            b => b.Categories.ShouldBeEmpty());
 
         void ItShouldBeTheBudgetFetchedForTheYear() => fetched.ShouldSatisfyAllConditions(
             () => fetched.StatusCode.ShouldBe(HttpStatusCode.OK),
-            () => stored.ShouldBe(budget));
+            () => stored.ShouldBeEquivalentTo(budget));
     }
 
     [Test]
@@ -76,7 +77,7 @@ public sealed class BudgetEndpointTests(PostgresApiFixture fixture) : TestFixtur
             p => p.GetProperty("code").GetString().ShouldBe("Budget.YearTaken"),
             p => p.GetProperty("detail").GetString().ShouldBe($"{year} already has a budget."));
 
-        void ItShouldKeepTheFirstBudget() => stored.ShouldBe(kept);
+        void ItShouldKeepTheFirstBudget() => stored.ShouldBeEquivalentTo(kept);
     }
 
     [Test]

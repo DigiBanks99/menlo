@@ -1,6 +1,7 @@
 using Menlo.Application.Budget;
 using Menlo.Application.Budget.EntityConfigurations;
 using Menlo.Application.Tests.Fixtures;
+using Menlo.Lib.Budget.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -53,6 +54,50 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
                 e => e.ConstraintName.ShouldBe(BudgetEntityTypeConfiguration.YearIndexName));
     }
 
+    [Test]
+    public async Task ABudgetIsSavedWithItsCategories()
+    {
+        BudgetAggregate budget = BudgetAggregate.Create(UnusedYear()).Value;
+        Category home = budget.AddCategory("Home", parentId: null).Value;
+        Category electricity = budget.AddCategory("Electricity", home.Id).Value;
+
+        await SaveAsync(budget);
+        BudgetAggregate? stored = await LoadAsync(budget.Year);
+
+        ItShouldLoadTheCategoriesWithTheBudget();
+        ItShouldKeepTheTree();
+        ItShouldStampEachCategory();
+
+        void ItShouldLoadTheCategoriesWithTheBudget() => stored.ShouldNotBeNull().Categories
+            .Select(c => c.Id).ShouldBe([home.Id, electricity.Id], ignoreOrder: true);
+
+        void ItShouldKeepTheTree() => stored!.Categories.Single(c => c.Id == electricity.Id).ShouldSatisfyAllConditions(
+            c => c.Name.ShouldBe("Electricity"),
+            c => c.ParentId.ShouldBe(home.Id),
+            c => c.BudgetId.ShouldBe(budget.Id));
+
+        void ItShouldStampEachCategory() => stored!.Categories.ShouldAllBe(c =>
+            c.CreatedBy == TestAuditStampFactory.TestUserId && c.CreatedAt != null);
+    }
+
+    [Test]
+    public async Task ACategoryIsAddedToASavedBudget()
+    {
+        BudgetAggregate budget = BudgetAggregate.Create(UnusedYear()).Value;
+        Category home = budget.AddCategory("Home", parentId: null).Value;
+        await SaveAsync(budget);
+
+        Category school = await ChangeAsync(budget.Year, b => b.AddCategory("School", parentId: null).Value);
+        Category electricity = await ChangeAsync(budget.Year, b => b.AddCategory("Electricity", home.Id).Value);
+        BudgetAggregate? stored = await LoadAsync(budget.Year);
+
+        ItShouldStoreTheNewCategories();
+
+        void ItShouldStoreTheNewCategories() => stored.ShouldNotBeNull().Categories
+            .Select(c => (c.Id, c.Name, c.ParentId))
+            .ShouldBe([(home.Id, "Home", null), (school.Id, "School", null), (electricity.Id, "Electricity", home.Id)], ignoreOrder: true);
+    }
+
     private static int _lastYear = Random.Shared.Next(1000, 5000);
 
     // A year no other test in the session uses, since the database is shared and holds one budget per year
@@ -77,6 +122,16 @@ public sealed class BudgetContextIntegrationTests(PersistenceFixture fixture)
         IBudgetContext context = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
         context.Budgets.Add(budget);
         await context.SaveChangesAsync(Cancellation);
+    }
+
+    private async Task<T> ChangeAsync<T>(int year, Func<BudgetAggregate, T> change)
+    {
+        using IServiceScope scope = fixture.Services.CreateScope();
+        IBudgetContext context = scope.ServiceProvider.GetRequiredService<IBudgetContext>();
+        BudgetAggregate budget = await context.Budgets.SingleAsync(b => b.Year == year, Cancellation);
+        T changed = change(budget);
+        await context.SaveChangesAsync(Cancellation);
+        return changed;
     }
 
     private async Task<BudgetAggregate?> LoadAsync(int year)

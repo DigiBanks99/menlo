@@ -22,6 +22,7 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     public const int MaxYear = 9999;
 
     private readonly List<IDomainEvent> _domainEvents = [];
+    private readonly List<Category> _categories = [];
 
     /// <summary>
     /// Private constructor for EF Core hydration.
@@ -51,6 +52,12 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
     /// Gets the calendar year this budget covers.
     /// </summary>
     public int Year { get; }
+
+    /// <summary>
+    /// Gets the budget's categories, top-level ones and their subcategories alike. A subcategory's
+    /// <see cref="Category.ParentId"/> names the top-level category it sits under.
+    /// </summary>
+    public IReadOnlyCollection<Category> Categories => _categories.AsReadOnly();
 
     /// <inheritdoc />
     public UserId? CreatedBy { get; private set; }
@@ -91,6 +98,49 @@ public sealed class Budget : IAggregateRoot<BudgetId>, IHasDomainEvents, IAudita
         budget.AddDomainEvent(new BudgetCreatedEvent(budget.Id, year));
 
         return budget;
+    }
+
+    /// <summary>
+    /// Adds a category to the budget: a top-level one, or a subcategory under a top-level one. Categories nest at most
+    /// two deep, and a category's name is unique among its siblings, ignoring case.
+    /// </summary>
+    /// <param name="name">The category's name. Spaces around it are dropped.</param>
+    /// <param name="parentId">The top-level category it sits under, or <see langword="null"/> for a top-level one.</param>
+    /// <returns>The new category, or why it can't be added: its name is blank, too long or taken among its siblings,
+    /// or its parent isn't in the budget or is itself a subcategory.</returns>
+    public Result<Category, BudgetError> AddCategory(string? name, CategoryId? parentId)
+    {
+        string? trimmed = name?.Trim();
+        if (string.IsNullOrEmpty(trimmed) || trimmed.Length > Category.MaxNameLength)
+        {
+            return new InvalidCategoryNameError(name);
+        }
+
+        if (parentId is { } id)
+        {
+            Category? parent = _categories.Find(category => category.Id == id);
+            if (parent is null)
+            {
+                return new CategoryNotFoundError(id);
+            }
+
+            if (!parent.IsTopLevel)
+            {
+                return new CategoryTooDeepError(id);
+            }
+        }
+
+        if (_categories.Exists(category =>
+                category.ParentId == parentId && string.Equals(category.Name, trimmed, StringComparison.OrdinalIgnoreCase)))
+        {
+            return new CategoryNameTakenError(trimmed);
+        }
+
+        Category added = Category.Create(Id, trimmed, parentId);
+        _categories.Add(added);
+        AddDomainEvent(new CategoryAddedEvent(Id, added.Id, added.Name, parentId));
+
+        return added;
     }
 
     /// <inheritdoc />
