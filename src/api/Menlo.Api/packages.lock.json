@@ -2,6 +2,15 @@
   "version": 2,
   "dependencies": {
     "net11.0": {
+      "Magick.NET-Q8-AnyCPU": {
+        "type": "Direct",
+        "requested": "[15.1.1, )",
+        "resolved": "15.1.1",
+        "contentHash": "rR5IddjNrgQKqYTQagVWPiXhqE1QbQRpMbOmfk8vnzWGEUGIw25cBFabKv1miPrY07bbU8NCFZmNtXkJ/+70ow==",
+        "dependencies": {
+          "Magick.NET.Core": "15.1.1"
+        }
+      },
       "Microsoft.AspNetCore.App.Internal.Assets": {
         "type": "Direct",
         "requested": "[11.0.0, )",
@@ -176,6 +185,11 @@
         "type": "Transitive",
         "resolved": "2.14.1",
         "contentHash": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw=="
+      },
+      "Magick.NET.Core": {
+        "type": "Transitive",
+        "resolved": "15.1.1",
+        "contentHash": "Jb8ph4BtzabDb9PRjXy1bWJVVZIelcOA1WicWzYgHhHeyzaKXbRgYdEq3DBQmFQgT/tw65oiyVTDee+SN1hX4Q=="
       },
       "Microsoft.Agents.AI.Abstractions": {
         "type": "Transitive",

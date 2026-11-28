@@ -6,6 +6,7 @@ using Menlo.Api.Auth.Endpoints;
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.ForwardedHeaders;
 using Menlo.Api.OpenApi;
+using Menlo.Api.Receipts;
 using Menlo.Api.Ui;
 using Menlo.Application.Common;
 using Scalar.AspNetCore;
@@ -23,6 +24,7 @@ builder
     .AddMenloUi()
     .AddMenloAi()
     .AddMenloOpenApi()
+    .AddMenloReceipts()
     .AddMenloApplication();
 
 // Outside a publish the UI library's CSS, scripts and fonts are served from the build output, not wwwroot
@@ -56,6 +58,9 @@ RouteGroupBuilder apiGroup = app
     .MapGroup("/api")
     .WithTags("Menlo API")
     .RequireAuthorization(MenloPolicies.RequireAuthenticated);
+
+// Receipt endpoints
+apiGroup.MapReceiptEndpoints();
 
 // Add simple AI health check endpoint
 apiGroup

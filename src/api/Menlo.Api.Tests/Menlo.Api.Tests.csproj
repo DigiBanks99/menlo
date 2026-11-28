@@ -31,4 +31,8 @@
     <ProjectReference Include="..\Menlo.Api\Menlo.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Receipts\Samples\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

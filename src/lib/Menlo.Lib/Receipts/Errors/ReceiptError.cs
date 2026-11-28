@@ -27,6 +27,17 @@ public sealed class InvalidPhotoCountError(int count)
 }
 
 /// <summary>
+/// Error indicating a file sent as a photo of a receipt isn't an image that can be read.
+/// </summary>
+/// <param name="position">Which file it was, from 1.</param>
+public sealed class UnreadablePhotoError(int position)
+    : ReceiptError("Receipt.UnreadablePhoto", $"File {position} isn't a photo. Send a JPEG, PNG, WebP or HEIC image.")
+{
+    /// <summary>Gets which file it was, from 1.</summary>
+    public int Position { get; } = position;
+}
+
+/// <summary>
 /// Error indicating a receipt was sent for a year that can't be a budget year.
 /// </summary>
 /// <param name="year">The year given.</param>
