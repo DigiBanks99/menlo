@@ -75,6 +75,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[ADR-007: Server-Rendered UI](decisions/adr-007-server-rendered-ui.md)** - Why the UI is Razor components and HTMX, with no Node toolchain
 - **[UI Architecture](explanations/ui-architecture.md)** - Pages, fragments, components and utilities, and where state and behaviour live
 - **[ADR-006: llama.cpp and Agent Framework](decisions/adr-006-llamacpp-and-agent-framework.md)** - One local model runtime and the framework Menlo.AI uses
+- **[ADR-008: Planned Amounts Stored on Commit](decisions/adr-008-planned-amounts-stored-on-commit.md)** - Why each month's planned amount is stored when committed, and why frozen months are never rewritten
 
 ### 🏗️ Architecture & Design
 
