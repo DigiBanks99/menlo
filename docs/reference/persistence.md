@@ -27,7 +27,6 @@ Feature code never takes `MenloDbContext` directly. Each bounded context has a s
 | Interface           | Sets                                                                |
 | ------------------- | ------------------------------------------------------------------- |
 | `IUserContext`      | `Users`                                                             |
-| `IBudgetContext`    | `Budgets`, `BudgetCategories`, `CanonicalCategories`, `BudgetItems` |
 
 ### Schemas
 
@@ -36,13 +35,12 @@ Tables are grouped by bounded context:
 | Schema          | Tables                                                                 |
 | --------------- | ---------------------------------------------------------------------- |
 | `shared`        | `users`                             |
-| `budget_schema` | `budgets`, `budget_categories`, `canonical_categories`, `budget_items` |
 
 New bounded contexts get their own schema.
 
 ## Column conventions
 
-- **Money** is mapped as an EF Core complex property: a `numeric` amount column and a currency column of at most 3 characters. Never store money as a floating-point type. Today a required amount is `numeric(18,2)`, matching `Money`'s two-decimal rounding; the optional amounts on `BudgetItem` are `numeric(18,4)`.
+- **Money** is mapped as an EF Core complex property: a `numeric` amount column and a currency column of at most 3 characters. Never store money as a floating-point type. A required amount is `numeric(18,2)`, matching `Money`'s two-decimal rounding.
 - **Timestamps** are `DateTimeOffset` values in UTC.
 - **IDs** are `uuid`, through the value converters.
 

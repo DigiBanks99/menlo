@@ -23,7 +23,7 @@ Map new endpoints from `UiEndpoints.MapMenloUi` so they get the UI marker (sign-
 ## The separation rule
 
 - **State** is a view model: an immutable record holding everything the markup shows, already formatted as text and `MnlTone`s. `"R 1 700.00 spent of R 2 000.00"`, not two decimals.
-- **Behaviour** is the endpoint: read the request, call the handler behind the JSON endpoint (through a `<Feature>Ui` adapter returning `Outcome<T>`, like `BudgetUi`), apply rules, build the model, choose the response.
+- **Behaviour** is the endpoint: read the request, call the handler behind the JSON endpoint (through a `<Feature>Ui` adapter returning `Outcome<T>`), apply rules, build the model, choose the response.
 - **Presentation** is the `.razor` file and its `.razor.css`: model in, markup out.
 
 A `.razor` file under `Menlo.Api/Ui` must not contain `@inject`, a rule (`percent >= 95`), number or date formatting, or a database or handler call. If you need one, add a property to the view model. `UiConventionTests` fails the build on `@inject`, inline `style`, `<script>` and `hx-on`.
@@ -39,11 +39,13 @@ A `.razor` file under `Menlo.Api/Ui` must not contain `@inject`, a rule (`percen
 
 ## State in the URL
 
-A page's views, filters and selection are query-string parameters, read into a record with defaults for bad input (see `BudgetDetailQuery`). Give it a `Url(...)` method and build every link from it. Links that change the state keep a real `href` and add htmx to swap only the region:
+A page's views, filters and selection are query-string parameters, read into a record with defaults for bad input. Give it a `Url(...)` method and build every link from it. Links that change the state keep a real `href` and add htmx to swap only the region. Keep the attributes in a small `<Feature>Region` helper that returns them as a dictionary:
 
 ```razor
-<MnlButton Href="@row.ToggleUrl" @attributes="BudgetRegion.GoTo(row.ToggleUrl)">View items</MnlButton>
+<MnlButton Href="@row.ToggleUrl" @attributes="ThingRegion.GoTo(row.ToggleUrl)">View items</MnlButton>
 ```
+
+`GoTo(url)` sets `hx-get` to the url, `hx-target` and `hx-select` to the region, `hx-swap="outerHTML"`, `hx-replace-url="true"` and `hx-sync`.
 
 Every request that swaps the same region must carry `hx-sync="#region:replace"` so a slow reload can't overwrite a newer one. A text input that triggers a swap as you type needs `hx-preserve="true"` and its own `hx-trigger="input changed delay:300ms"`.
 
@@ -60,7 +62,7 @@ Two components and an endpoint per action:
   4. Saved: `return new HxResponse().Toast("Thing created.").ClosePanel().Raise(UiEvents.ThingsChanged).NoContent(context);`
   5. Saved and moving to another page: `Flash.Set(context, "...")` then `return Navigate.To(context, url);`
 
-Regions that show the changed data listen for the event (`hx-trigger="things-changed from:body"`, see `BudgetRegion.ReloadOnChange`). The endpoint never knows which regions show its data. Add new event names to `UiEvents`.
+Regions that show the changed data listen for the event (`hx-get=""`, `hx-trigger="things-changed from:body"`, `hx-select` the region). The endpoint never knows which regions show its data. Add new event names to `UiEvents`.
 
 Repeated rows (splits, line items) use `data-mnl-rows`, `data-mnl-rows-list`, a `<template data-mnl-rows-template>`, `data-mnl-rows-add`/`-remove` and an `<output data-mnl-rows-total data-target="100">`. Same-named inputs arrive as parallel lists in `IFormCollection`; zip them. The server still checks the total.
 
@@ -70,7 +72,7 @@ Endpoints that change data use `MenloPolicies.CanEditBudget`; read-only pages `C
 
 ## Things that will bite you
 
-- **CSP**: `script-src 'self'; style-src 'self'` everywhere. No `style=""` - vary appearance with `data-*` attributes and classes in `.razor.css` (see `LeafCategories.razor.css` for depth indentation).
+- **CSP**: `script-src 'self'; style-src 'self'` everywhere. No `style=""` - vary appearance with `data-*` attributes and classes in `.razor.css`.
 - **htmx inheritance is off.** An `hx-*` attribute only affects its own element. Don't expect a parent's `hx-target` to apply to children.
 - **422 swaps, other 4xx/5xx don't.** A failure that isn't a form error should be a 204 with an error toast (`HxResponse().Toast(msg, MnlTone.Error)`).
 - **Razor reserves `<text>`.** In SVG use `MnlSvgText`.
@@ -79,7 +81,7 @@ Endpoints that change data use `MenloPolicies.CanEditBudget`; read-only pages `C
 
 ## Testing
 
-- Page or form: a test in `src/api/Menlo.Api.Tests/Ui` that requests it (`UiHtml.HtmxAsync` for fragments) and reads the HTML with `DocumentAsync()`/`ByTestId()`; assert status, markup and `Triggers()`. Budget pages need `BudgetApiFixture`.
+- Page or form: a test in `src/api/Menlo.Api.Tests/Ui` that requests it (`UiHtml.HtmxAsync` for fragments) and reads the HTML with `DocumentAsync()`/`ByTestId()`; assert status, markup and `Triggers()`. Pages that need a real database use `PostgresApiFixture`.
 - Only a browser can show it (swap, panel, toast, theme, scroll): a test in `src/api/Menlo.Api.Tests/E2E` with `BrowserFixture`, ending with `app.BrowserErrors.ShouldBeEmpty()`.
 - Pure presentation rules (`<Feature>Presentation`, query records): plain unit tests.
 - Changed `.cs` files under `Menlo.Api` must stay at 70% line coverage.

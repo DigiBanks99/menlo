@@ -49,7 +49,7 @@ A page and a fragment differ only in how they are sent. A page is rendered insid
 
 Each lives in one place.
 
-- **State** is a **view model**: an immutable record with everything a page needs, already formatted. `BudgetCardModel` carries `SpendText` ("R 1 700.00 spent of R 2 000.00 planned this month") and `SpendTone` (`Warning`), not the raw amounts.
+- **State** is a **view model**: an immutable record with everything a page needs, already formatted. A home page `HomeStat` carries `Value` ("R 12 000"), `Trend` ("+4.8% vs last month") and `Tone` (`Success`), not the raw amounts.
 - **Behaviour** is an **endpoint** and the code it calls. It reads the request, calls the same handlers as the JSON API, applies the rules, builds the view model and chooses the response.
 - **Presentation** is a **`.razor` file** and its `.razor.css`. It turns a view model into markup and nothing else.
 
@@ -59,7 +59,7 @@ This split is what makes the UI testable at three speeds. A view model builder i
 
 ## Where the page's state lives
 
-A page's state is in its URL. The budget detail page's open category, tree filters and summary period are all query-string parameters (`BudgetDetailQuery`). So:
+A page's state is in its URL. The analytics page's viewing period is a query-string parameter (`period`). So:
 
 - A reload, the back button and a shared link show the same thing.
 - The server needs no session state for the UI.
@@ -79,13 +79,13 @@ sequenceDiagram
         Note over Browser: the form replaces itself
     else the change is saved
         Endpoint-->>Browser: 204 and an HX-Trigger header
-        Note over Browser: toast shown, panel closed, "items-changed" raised
+        Note over Browser: toast shown, panel closed, "things-changed" raised
         Browser->>Endpoint: GET the page (the region listens for the event)
         Endpoint-->>Browser: the page; the region swaps itself
     end
 ```
 
-An endpoint that changes data doesn't know which parts of the page show it. It raises an event (`UiEvents.ItemsChanged`), and the regions that care reload themselves. Adding a new place that shows items means adding a listener, not changing every endpoint.
+An endpoint that changes data doesn't know which parts of the page show it. It raises an event (a name in `UiEvents`), and the regions that care reload themselves. Adding a new place that shows the data means adding a listener, not changing every endpoint.
 
 Requests that swap the same region are synchronised: a newer one replaces an older one still in flight, so a slow reload can't overwrite a newer filter.
 

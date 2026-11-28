@@ -69,7 +69,7 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 - **[Concepts & Terminology Guide](explanations/concepts-and-terminology.md)** - Start here! Core philosophy, design patterns, and terminology
 - **[Work Items](reference/work-items.md)** - Requirements, Specs and Tasks in GitHub issues, with the Definitions of Ready and Done
 - **[Product Vision](explanations/product-vision.md)** - What Menlo does: its features, capabilities and principles
-- **[Budget Domain](explanations/budget-domain.md)** - How budgets, categories and items work today, and the rules they follow
+- **[Budget Domain](explanations/budget-domain.md)** - Where the budget stands while it is rebuilt
 - **[Architecture Decision Record](decisions/adr-001-hosting-strategy.md)** - Hosting strategy analysis and decision rationale
 - **[ADR-005: Bundled SPA Hosting](decisions/adr-005-bundled-spa-hosting.md)** - Why the API image serves the frontend
 - **[ADR-007: Server-Rendered UI](decisions/adr-007-server-rendered-ui.md)** - Why the UI is Razor components and HTMX, with no Node toolchain
@@ -99,7 +99,6 @@ There are no implementation plans; whoever picks up a Spec plans it then. Once w
 
 - **[Domain Abstractions API](reference/domain-abstractions-api.md)** - API reference for Entity, AggregateRoot, and Value Objects
 - **[Authentication API](reference/authentication-api.md)** - Sign-in, session cookie, anti-forgery, roles, policies and user resolution
-- **[Budget API](reference/budget-api.md)** - Budget, category, item and summary endpoints, with their errors
 - **[Money API](reference/money-api.md)** - The `Money` value object: rounding, allocation and currency rules
 - **[AI Services](reference/ai-services.md)** - Chat and vision services, their settings, and the llama.cpp server behind them
 - **[Persistence](reference/persistence.md)** - DbContext, schemas, auditing and soft-delete interceptors, migrations

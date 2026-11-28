@@ -9,10 +9,10 @@ Menlo's .NET tests use [TUnit](https://tunit.dev/) to run tests, [Shouldly](http
 | `src/lib/Menlo.Lib.Tests` | Domain model, value objects, pure logic | None |
 | `src/lib/Menlo.AI.Tests` | AI service wrappers | None |
 | `src/lib/Menlo.Application.Tests` | EF Core persistence, interceptors, migrations | PostgreSQL (Testcontainers) |
-| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting and the UI's pages, through `WebApplicationFactory`; browser tests in `E2E/` | PostgreSQL (Testcontainers) for the budget, user and browser tests |
+| `src/api/Menlo.Api.Tests` | Endpoints, auth, hosting and the UI's pages, through `WebApplicationFactory`; browser tests in `E2E/` | PostgreSQL (Testcontainers) for the user, database and browser tests |
 | `src/ui/Menlo.Ui.Tests` | Design-system components, charts and utilities | None |
 
-Testcontainers needs a running Docker engine. Where it can't reach one, set `MENLO_TEST_POSTGRES` to a PostgreSQL connection string and the budget and browser tests use that server. Point it at a database that holds nothing else: the budget tables are emptied before each test.
+Testcontainers needs a running Docker engine. Where it can't reach one, set `MENLO_TEST_POSTGRES` to a PostgreSQL connection string and the tests on `PostgresApiFixture`, the browser tests among them, use that server. Point it at a database that holds nothing else.
 
 The browser tests drive the installed Chrome. See [Test the UI](#test-the-ui).
 
@@ -100,30 +100,23 @@ public sealed class ChatServiceTests
 
 > Many existing tests still use `Given…_When…_Then…` names and inline assertions from before the move to TUnit. Write new tests in the style above, and restyle old ones when you change them.
 
-## Write a budget API test
+## Write an API test against a real database
 
-Budget endpoint tests run against a real PostgreSQL database, shared by every test in the run:
+Tests that need the whole app on a real PostgreSQL database share one migrated database for the run, through `PostgresApiFixture`:
 
 ```csharp
-[ClassDataSource<BudgetApiFixture>(Shared = SharedType.PerTestSession)]
-[NotInParallel("Budget")]
-public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFixture
+[ClassDataSource<PostgresApiFixture>(Shared = SharedType.PerTestSession)]
+public sealed class ThingEndpointTests(PostgresApiFixture fixture) : TestFixture
 {
-    private static readonly JsonSerializerOptions JsonOptions =
-        new() { PropertyNameCaseInsensitive = true };
-
     [Test]
-    public async Task ABudgetIsCreatedForThisYear()
+    public async Task AThingIsCreated()
     {
-        await using BudgetTestWebApplicationFactory factory = fixture.CreateIsolatedFactory();
+        await using PostgresTestWebApplicationFactory factory = fixture.CreateFactory();
         using HttpClient client = await factory.CreateAntiforgeryClientAsync(
             cancellationToken: TestContext.Current!.Execution.CancellationToken);
-        int year = DateTimeOffset.UtcNow.Year;
 
-        HttpResponseMessage response = await client.PostAsync(
-            $"/api/budgets/{year}", null, TestContext.Current!.Execution.CancellationToken);
-        BudgetDto? budget = await response.Content.ReadFromJsonAsync<BudgetDto>(
-            JsonOptions, TestContext.Current!.Execution.CancellationToken);
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            "/api/things", new { Name = "Rent" }, TestContext.Current!.Execution.CancellationToken);
 
         ItShouldBeCreated();
 
@@ -132,24 +125,11 @@ public sealed class CreateBudgetEndpointTests(BudgetApiFixture fixture) : TestFi
 }
 ```
 
-### Give every test its own data
-
-Budgets are unique per year across the whole database, so tests that share the container would collide. `fixture.CreateIsolatedFactory()` empties the budget tables first and starts an API host on the shared database. The budget tests run one at a time (`[NotInParallel("Budget")]`), so no test sees another's data, whatever order they run in.
-
-- When a second host in one test must see what the first wrote (for example, seeding with a feature on and reading with it off, or reading as another member), pass `keepData: true`.
-- To test that members share data, pass `asDifferentMember: true` to the second factory, which signs in as another user.
-- `fixture.CreateClient()` and `fixture.CreateAntiforgeryClientAsync()` use one host shared by every test that calls them. Use them only for requests that don't write data, such as a lookup of an unknown ID.
+The database is shared, so give each test its own data (fresh IDs and names), or empty the tables it uses first and mark the class `[NotInParallel("<group>")]`.
 
 ### Turn features on
 
-Budget endpoints sit behind feature flags. `CreateIsolatedFactory` always sets `Features:Budget` to `true`, and sets `Features:BudgetItems` from its arguments:
-
-```csharp
-fixture.CreateIsolatedFactory(budgetItemsEnabled: true);                                 // items endpoints on
-fixture.CreateIsolatedFactory(budgetItemsEnabled: true, simulateUnauthenticated: true);  // signed out
-```
-
-With a flag off, its endpoints return 404.
+Pass configuration to the factory: `fixture.CreateFactory(new Dictionary<string, string?> { ["Features:Budget"] = "true" })`, or set `ConfigurationOverrides` on a `TestWebApplicationFactory`. A feature's endpoints return 404 while its flag is off.
 
 ### Send writes with an antiforgery token
 
@@ -166,7 +146,7 @@ The UI is tested at three levels. Use the fastest one that can show what you nee
 | Level | Where | Use it for | Needs |
 |---|---|---|---|
 | Component | `src/ui/Menlo.Ui.Tests` | What a component renders for given parameters | Nothing |
-| Page | `src/api/Menlo.Api.Tests/Ui` | What an endpoint returns: markup, status, redirects, `HX-Trigger` events | A database for budget pages |
+| Page | `src/api/Menlo.Api.Tests/Ui` | What an endpoint returns: markup, status, redirects, `HX-Trigger` events | A database for pages that read data |
 | Browser | `src/api/Menlo.Api.Tests/E2E` | What only a browser shows: htmx swaps, panels, toasts, the theme, the Content Security Policy | A database and Chrome |
 
 ### Test a component
@@ -179,14 +159,14 @@ public async Task GivenAnHref_WhenRendered()
 {
     IDocument document = await Rendered.ComponentAsync<MnlButton>(new Dictionary<string, object?>
     {
-        ["Href"] = "/budgets",
-        ["ChildContent"] = Rendered.Text("View Budgets")
+        ["Href"] = "/analytics",
+        ["ChildContent"] = Rendered.Text("Analytics")
     });
 
     ItShouldBeALinkStyledAsAButton();
 
     void ItShouldBeALinkStyledAsAButton() =>
-        document.Find("a.mnl-button").GetAttribute("href").ShouldBe("/budgets");
+        document.Find("a.mnl-button").GetAttribute("href").ShouldBe("/analytics");
 }
 ```
 
@@ -197,7 +177,7 @@ public async Task GivenAnHref_WhenRendered()
 Ask for the page and read the HTML. `UiHtml` has the helpers: `DocumentAsync()` parses a response, `ByTestId()` finds an element, `HtmxAsync()` sends a request the way htmx does, and `Triggers()` reads the `HX-Trigger` header.
 
 ```csharp
-HttpResponseMessage invalid = await client.HtmxAsync(HttpMethod.Post, categories, [new("name", ""), new("budgetFlow", "")]);
+HttpResponseMessage invalid = await client.HtmxAsync(HttpMethod.Post, categories, [new("name", "")]);
 IHtmlDocument form = await invalid.DocumentAsync();
 
 invalid.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
@@ -211,15 +191,15 @@ A successful change returns `204` with events, so assert on `Triggers()`, then a
 Browser tests use [Playwright for .NET](https://playwright.dev/dotnet/) and carry `[Category("E2E")]`. `BrowserFixture.StartAsync` starts the app on a real port and opens a page on it, signed in as the test user:
 
 ```csharp
-await using AppSession app = await browser.StartAsync(fixture.CreateIsolatedFactory(budgetItemsEnabled: true));
-await app.Page.GotoAsync("/budgets");
-await Expect(app.Page.GetByTestId("budget-list-empty-state")).ToBeVisibleAsync();
+await using AppSession app = await browser.StartAsync(fixture.CreateFactory());
+await app.Page.GotoAsync("/");
+await Expect(app.Page.GetByTestId("home-hero")).ToBeVisibleAsync();
 
 app.BrowserErrors.ShouldBeEmpty();
 ```
 
 - `app.BrowserErrors` holds console errors and uncaught exceptions. A Content Security Policy violation is a console error, so asserting it is empty covers the policy.
-- To seed data, use a second factory on the same database with `keepData: true` and the JSON API, as the tests in `UiBrowserTests` do.
+- To seed data, use a second factory from the same fixture and the JSON API: both hosts share the database.
 - The tests drive the installed Chrome, so there is nothing to download. Set `MENLO_E2E_BROWSER_CHANNEL` to another channel (such as `msedge`), or to `bundled` after running `playwright install chromium`. Set `MENLO_E2E_HEADED=1` to watch.
 - Run only them with `--treenode-filter "/*/*/*/*[Category=E2E]"`.
 
@@ -227,7 +207,7 @@ app.BrowserErrors.ShouldBeEmpty();
 
 | Factory | Use it for | User context |
 |---|---|---|
-| `BudgetTestWebApplicationFactory`, from `BudgetApiFixture.CreateIsolatedFactory` | Endpoints that read budget data (budgets, categories, items, summaries) | A substituted `IUserContextProvider` returns a user context; the real `/api` user provisioning runs against the database |
+| `PostgresTestWebApplicationFactory`, from `PostgresApiFixture.CreateFactory` | Endpoints and pages that read or write data, and browser tests | A substituted `IUserContextProvider` returns a user context; the real `/api` user provisioning runs against the database |
 | `TestWebApplicationFactory` | Hosting, auth, headers, user provisioning, and anything that needs the real user context | The test auth handler signs in a user (`UserId`, `UserEmail`, `UserRoles`), or no one with `SimulateUnauthenticated` |
 
 `TestWebApplicationFactory` defaults to the Production environment, a dummy connection string and no migrations, and it replaces the AI services with substitutes. Its `init` properties (`EnvironmentName`, `ConfigurationOverrides`, `MenloConnectionString`, `ConfigureApp` and more) cover the remaining cases.
@@ -238,7 +218,7 @@ Fixtures that start a container are shared with `[ClassDataSource<T>(Shared = Sh
 
 | Fixture | Project | Gives you |
 |---|---|---|
-| `BudgetApiFixture` | Api | Migrated database, `CreateIsolatedFactory`, a shared read-only client |
+| `PostgresApiFixture` | Api | Migrated database (or `MENLO_TEST_POSTGRES`) and `CreateFactory` for a signed-in host |
 | `UserApiFixture` | Api | Migrated database, `Services` for seeding, `CreateFactory(userId, email, …)` for a signed-in host |
 | `UserPersistenceFixture` | Api | Migrated database and `Services`, with no web host |
 | `PersistenceFixture` | Application | Migrated database and `Services` |

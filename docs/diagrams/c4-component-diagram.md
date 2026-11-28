@@ -20,7 +20,7 @@ graph TB
             BudgetEndpoints[🔗 Budget Endpoints<br/>Minimal API<br/>Budget CRUD, analysis,<br/>and reporting endpoints]
             BudgetHandlers[⚙️ Budget Handlers<br/>Command/Query handlers<br/>for budget operations]
             BudgetModels[📋 Budget Models<br/>C# Records<br/>Budget entities with unified<br/>income/expense hierarchy]
-            BudgetRepository[💾 Budget Repository<br/>EF Core<br/>Budget data access with<br/>attribution-based tracking]
+            BudgetRepository[💾 Budget Repository<br/>EF Core<br/>Budget data access for<br/>years, categories and lines]
             BudgetAnalyser[🤖 Budget Analyser<br/>AI-enhanced spending<br/>analysis and variance detection]
             TransactionCategorizer[🏷️ Transaction Categorizer<br/>AI-powered mapping to<br/>hierarchical budget categories]
             RentalCostAnalyser[🏠 Rental Cost Analyser<br/>Extracts rental-attributable<br/>costs for tax reporting]
@@ -47,7 +47,7 @@ graph TB
             ImportProcessor[📥 Import Processor<br/>Processes CSV bank statements<br/>with intelligent parsing<br/>and validation]
             DuplicateDetector[🔍 Duplicate Detector<br/>Identifies potential duplicate<br/>transactions across imports<br/>and manual entries]
             AttributionSuggester[🎯 Attribution Suggester<br/>Smart personal vs rental and<br/>family member attribution<br/>suggestions]
-            ReconciliationMatcher[🔗 Reconciliation Matcher<br/>Matches transactions against<br/>budget realizations and<br/>planning items]
+            ReconciliationMatcher[🔗 Reconciliation Matcher<br/>Matches transactions against<br/>budget lines and<br/>planning items]
         end
         
         %% Household Feature
@@ -279,9 +279,8 @@ The `Menlo.Application` project provides the unified data access layer:
 
 #### Budget Management
 
-- **Unified Hierarchy**: Income and expenses in single hierarchical structure
-- **Attribution-Based**: Personal vs rental expense separation
-- **States**: Planned → Realized → Spent progression
+- **Being rebuilt**: one budget per calendar year, planned line by line and month by month (see [Requirement: Budgeting](https://github.com/DigiBanks99/menlo/issues/551))
+- **Plan and actuals**: the plan changes only by commit; actuals come from recorded payments
 - **AI Analysis**: Variance detection and spending insights
 - **Rental Cost Extraction**: Automatic tax-deductible expense identification
 
