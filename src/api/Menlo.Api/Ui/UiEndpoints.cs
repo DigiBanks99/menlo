@@ -1,5 +1,6 @@
 using Menlo.Api.Auth.Policies;
 using Menlo.Api.Ui.Analytics;
+using Menlo.Api.Ui.Budgets;
 using Menlo.Api.Ui.Design;
 using Menlo.Api.Ui.Errors;
 using Menlo.Api.Ui.Home;
@@ -37,6 +38,7 @@ internal static class UiEndpoints
         ui.MapSignInPage();
         ui.MapHomePage();
         ui.MapAnalyticsPage();
+        ui.MapBudgetPage();
 
         if (DesignEndpoints.IsEnabled(app))
         {

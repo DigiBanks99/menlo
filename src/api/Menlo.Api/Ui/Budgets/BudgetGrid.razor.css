@@ -1,0 +1,75 @@
+/* The grid fills the frame beside the rail; its table scrolls sideways inside it and the Category column stays put. */
+.budget-grid {
+    block-size: 100%;
+    overflow: hidden;
+    border: 1px solid var(--mnl-border);
+    border-start-end-radius: var(--mnl-radius-lg);
+    border-end-end-radius: var(--mnl-radius-lg);
+    background: var(--mnl-surface);
+    box-shadow: var(--mnl-shadow-sm);
+}
+
+.budget-grid__scroll {
+    overflow-x: auto;
+}
+
+.budget-grid__scroll:focus-visible {
+    outline: 2px solid var(--mnl-focus-ring);
+    outline-offset: -2px;
+}
+
+/* Separate borders: collapsed ones belong to the table, so they wouldn't move with the sticky column. */
+.budget-grid__table {
+    inline-size: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--mnl-text-xs);
+    font-variant-numeric: tabular-nums;
+}
+
+.budget-grid__table th,
+.budget-grid__table td {
+    padding: var(--mnl-space-2);
+    border-block-end: 1px solid var(--mnl-border-subtle);
+    text-align: end;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.budget-grid__table thead th {
+    background: var(--mnl-surface-alt);
+    font-weight: var(--mnl-weight-semibold);
+}
+
+.budget-grid__table .budget-grid__name {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    min-inline-size: 10rem;
+    text-align: start;
+    box-shadow: inset -1px 0 0 var(--mnl-border);
+}
+
+.budget-grid__table th[data-month="frozen"] {
+    background: var(--mnl-surface-muted);
+    color: var(--mnl-subtext);
+}
+
+.budget-grid__table th[data-month="current"] {
+    background: var(--mnl-accent-soft);
+    box-shadow: inset 0 calc(-1 * var(--mnl-space-1)) 0 var(--mnl-accent);
+}
+
+.budget-grid__table th[data-month="year"] {
+    border-inline-start: 1px solid var(--mnl-border);
+}
+
+.budget-grid__state {
+    display: block;
+    font-weight: var(--mnl-weight-regular);
+    color: var(--mnl-subtext);
+}
+
+.budget-grid__table th[data-month="current"] .budget-grid__state {
+    color: var(--mnl-accent-strong);
+}

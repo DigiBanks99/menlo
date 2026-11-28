@@ -1,0 +1,45 @@
+@*
+    The budget page: one calendar year. A year with a budget shows its frame: the month strip, the side rail and the
+    grid. A year without one offers to create it. The year is in the URL (?year=).
+*@
+<AppPage Page="Page" Title="@Model.Title">
+    <MnlStack Gap="MnlGap.Lg" data-testid="budget-page">
+        <MnlCluster Justify="MnlJustify.Between" Align="MnlAlign.End" StackOnMobile="true">
+            <MnlStack Gap="MnlGap.Xs">
+                <MnlEyebrow Tone="MnlTextTone.Subtle">Household budget</MnlEyebrow>
+                <MnlHeading Level="1" data-testid="budget-title">@Model.Title</MnlHeading>
+            </MnlStack>
+            @if (Model.ShowYearPicker)
+            {
+                <form action="@BudgetQuery.Path" method="get" hx-get="@BudgetQuery.Path" hx-trigger="change" hx-target="body" hx-push-url="true">
+                    <MnlSelect Name="year" Value="@Model.SelectedYear" Options="Model.Years" aria-label="Budget year" data-testid="budget-year-picker" />
+                </form>
+            }
+        </MnlCluster>
+
+        @if (Model.Exists)
+        {
+            <BudgetMonthStrip Model="Model" />
+            <BudgetRail Model="Model">
+                <BudgetGrid Model="Model" />
+            </BudgetRail>
+        }
+        else
+        {
+            <MnlEmptyState Title="@Model.Offer.Title" Message="@Model.Offer.Message" Bordered="true" data-testid="budget-create-offer">
+                <form method="post" action="@Model.Offer.Action" hx-post="@Model.Offer.Action" hx-swap="none">
+                    <input type="hidden" name="year" value="@Model.Offer.Year" />
+                    <MnlButton Type="MnlButtonType.Submit" Icon="MnlIconName.Plus" data-testid="budget-create">@Model.Offer.Label</MnlButton>
+                </form>
+            </MnlEmptyState>
+        }
+    </MnlStack>
+</AppPage>
+
+@code {
+    [Parameter, EditorRequired]
+    public PageContext Page { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public BudgetPageModel Model { get; set; } = null!;
+}

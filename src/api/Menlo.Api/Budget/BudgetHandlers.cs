@@ -62,6 +62,18 @@ public sealed class BudgetHandlers(IBudgetContext context)
         return budget is null ? null : ToDto(budget);
     }
 
+    /// <summary>
+    /// Lists the years that have a budget, earliest first.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the request.</param>
+    /// <returns>The years with a budget.</returns>
+    public async Task<IReadOnlyList<int>> YearsAsync(CancellationToken cancellationToken) =>
+        await context.Budgets
+            .AsNoTracking()
+            .OrderBy(b => b.Year)
+            .Select(b => b.Year)
+            .ToListAsync(cancellationToken);
+
     private static BudgetDto ToDto(BudgetAggregate budget) => new(budget.Id.Value, budget.Year);
 
     private static bool IsTheYearTaken(DbUpdateException exception) =>

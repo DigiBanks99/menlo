@@ -1,0 +1,47 @@
+@*
+    The budget frame: the side rail's column of icons, pinned to the grid's left edge, and the grid beside it.
+    An icon opens its section in a panel over the grid; the open section is in the URL (?panel=), so the icons are
+    plain links that htmx turns into a swap of this frame alone. The sections are empty until their Specs fill them.
+*@
+<div id="@BudgetRegion.Id" class="budget-frame" data-rail="@Model.RailState" data-testid="budget-frame">
+    <nav class="budget-rail" aria-label="Budget tools" data-testid="budget-rail">
+        @foreach (BudgetRailItem item in Model.Rail)
+        {
+            <a class="budget-rail__icon" href="@item.ToggleUrl" title="@item.Section.Label"
+               aria-expanded="@item.Expanded" aria-controls="@item.Controls"
+               data-testid="@($"budget-rail-{item.Section.Key}")" @attributes="BudgetRegion.GoTo(item.ToggleUrl)">
+                <MnlIcon Name="item.Section.Icon" Size="MnlSize.Md" />
+                <span class="mnl-visually-hidden">@item.Section.Label</span>
+            </a>
+        }
+    </nav>
+
+    @if (Model.OpenSection is { } open)
+    {
+        <section id="@PanelId" class="budget-rail__panel" aria-labelledby="budget-rail-heading" data-testid="budget-rail-panel">
+            <MnlStack Gap="MnlGap.Sm">
+                <MnlCluster Justify="MnlJustify.Between">
+                    <MnlHeading Level="2" Size="MnlTextSize.Md" id="budget-rail-heading">@open.Section.Label</MnlHeading>
+                    <MnlButton Href="@Model.CloseUrl" Variant="MnlButtonVariant.Ghost" Size="MnlSize.Sm" Icon="MnlIconName.X"
+                               data-testid="budget-rail-close" @attributes="BudgetRegion.GoTo(Model.CloseUrl)">Close</MnlButton>
+                </MnlCluster>
+                <MnlText Size="MnlTextSize.Sm" Tone="MnlTextTone.Subtle">@open.Section.Empty</MnlText>
+            </MnlStack>
+        </section>
+    }
+
+    <div class="budget-frame__content">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    /// <summary>The id of the panel that shows the open section.</summary>
+    public const string PanelId = "budget-rail-panel";
+
+    [Parameter, EditorRequired]
+    public BudgetPageModel Model { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+}
